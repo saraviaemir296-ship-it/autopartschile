@@ -1,0 +1,26 @@
+# AutopartsChile — Netlify configuration
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Redirige /api/google-reviews → /.netlify/functions/google-reviews (URL limpia)
+[[redirects]]
+  from = "/api/google-reviews"
+  to = "/.netlify/functions/google-reviews"
+  status = 200
+
+# Security headers globales
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache agresivo para assets estáticos
+[[headers]]
+  for = "/styles.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
