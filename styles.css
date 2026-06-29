@@ -1,4 +1,4 @@
-/* AutopartsChile V1 - Desarmaduría Saravia */
+/* AutopartsChile V1 — Desarmaduría Saravia */
 :root{--red:#E31E24;--red-dark:#C41A1F;--black:#111;--white:#fff;--gray-light:#F5F5F5;--gray-border:#E0E0E0;--text-sec:#555;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;--r:8px;--shadow:0 2px 8px rgba(0,0,0,.08);--max:1100px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -154,6 +154,44 @@ tr:hover td{background:var(--gray-light)}
 .catalog-brand-card h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
 .model-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
 .model-tag{background:var(--gray-light);border:1px solid var(--gray-border);border-radius:12px;padding:.2rem .65rem;font-size:.78rem;color:var(--text-sec)}
+
+/* ===== SPRINT 2 ===== */
+
+/* T1 + T3: Hero CTAs — botón primario + secundario */
+.hero-ctas{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center}
+.btn-hero-secondary{display:inline-block;background:transparent;color:var(--white);padding:.85rem 1.75rem;border-radius:var(--r);font-size:1rem;font-weight:600;border:2px solid rgba(255,255,255,.4);cursor:pointer;transition:background .2s,border-color .2s;text-align:center}
+.btn-hero-secondary:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.85)}
+
+/* T2: Trust indicators modernos */
+.trust-indicators{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:1.75rem}
+.trust-item{display:flex;align-items:center;gap:.5rem;color:#ccc;font-size:.87rem}
+.trust-icon{color:var(--red);flex-shrink:0}
+
+/* T4: Google Reviews */
+.reviews-header{text-align:center;margin-bottom:1.75rem}
+.reviews-header h2{font-size:1.6rem;font-weight:700;margin-bottom:.85rem}
+.google-rating-badge{display:inline-flex;align-items:center;gap:.85rem;background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:.65rem 1.1rem;box-shadow:var(--shadow)}
+.google-g-logo{display:flex;align-items:center;flex-shrink:0}
+.google-rating-info{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem}
+.google-rating-score{display:flex;align-items:center;gap:.4rem}
+.score-num{font-size:1.5rem;font-weight:800;color:var(--black);line-height:1}
+.score-stars-row{color:#f5b014;font-size:1rem;line-height:1}
+.google-label{font-size:.7rem;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.reviews-actions{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center;margin-top:1.75rem}
+.btn-google-review{display:inline-block;background:var(--white);color:#1a73e8;padding:.7rem 1.4rem;border-radius:var(--r);border:1.5px solid #dadce0;font-size:.9rem;font-weight:600;transition:border-color .2s,box-shadow .2s;text-align:center}
+.btn-google-review:hover{border-color:#1a73e8;box-shadow:0 2px 8px rgba(26,115,232,.18)}
+
+/* T5: ¿Por qué elegir AutopartsChile? */
+.why-home{padding:3.5rem 0;background:var(--gray-light);text-align:center}
+.why-home h2{font-size:1.6rem;font-weight:700;margin-bottom:2rem}
+.why-home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;text-align:left}
+.why-home-card{background:var(--white);border-radius:var(--r);padding:1.5rem;border-top:3px solid var(--red);box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.why-home-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.why-home-icon{font-size:1.75rem;margin-bottom:.75rem}
+.why-home-card h3{font-size:.93rem;font-weight:700;margin-bottom:.4rem;color:var(--black)}
+.why-home-card p{font-size:.84rem;color:var(--text-sec);line-height:1.6}
+
+/* Responsive V1 */
 @media(max-width:768px){
 .nav-toggle{display:block}
 .nav-list{display:none;flex-direction:column;background:#1a1a1a;position:absolute;top:100%;left:0;right:0;z-index:50;border-top:1px solid #333}
@@ -166,6 +204,13 @@ tr:hover td{background:var(--gray-light)}
 .branch-info{flex-direction:column;text-align:center}
 .wa-float{bottom:1rem;right:1rem;width:50px;height:50px;font-size:1.3rem}
 .search-form{flex-direction:column}
+/* Sprint 2 */
+.hero-ctas{flex-direction:column;align-items:center}
+.trust-indicators{gap:.85rem}
+.google-rating-badge{flex-direction:column;gap:.5rem;text-align:center}
+.google-rating-info{align-items:center}
+.reviews-actions{flex-direction:column;align-items:center}
+.why-home-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:480px){
 .footer-grid{grid-template-columns:1fr}
@@ -173,4 +218,7 @@ tr:hover td{background:var(--gray-light)}
 .content-grid{grid-template-columns:1fr}
 .carrier-grid{grid-template-columns:1fr 1fr}
 .catalog-brands{grid-template-columns:1fr}
+/* Sprint 2 */
+.why-home-grid{grid-template-columns:1fr}
+.trust-indicators{gap:.65rem}
 }
