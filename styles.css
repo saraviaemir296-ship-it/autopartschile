@@ -157,17 +157,17 @@ tr:hover td{background:var(--gray-light)}
 
 /* ===== SPRINT 2 ===== */
 
-/* T1 + T3: Hero CTAs — botón primario + secundario */
+/* T1 + T3: Hero CTAs */
 .hero-ctas{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center}
 .btn-hero-secondary{display:inline-block;background:transparent;color:var(--white);padding:.85rem 1.75rem;border-radius:var(--r);font-size:1rem;font-weight:600;border:2px solid rgba(255,255,255,.4);cursor:pointer;transition:background .2s,border-color .2s;text-align:center}
 .btn-hero-secondary:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.85)}
 
-/* T2: Trust indicators modernos */
+/* T2: Trust indicators */
 .trust-indicators{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:1.75rem}
 .trust-item{display:flex;align-items:center;gap:.5rem;color:#ccc;font-size:.87rem}
 .trust-icon{color:var(--red);flex-shrink:0}
 
-/* T4: Google Reviews */
+/* T4: Google Reviews (Sprint 2) */
 .reviews-header{text-align:center;margin-bottom:1.75rem}
 .reviews-header h2{font-size:1.6rem;font-weight:700;margin-bottom:.85rem}
 .google-rating-badge{display:inline-flex;align-items:center;gap:.85rem;background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:.65rem 1.1rem;box-shadow:var(--shadow)}
@@ -181,7 +181,7 @@ tr:hover td{background:var(--gray-light)}
 .btn-google-review{display:inline-block;background:var(--white);color:#1a73e8;padding:.7rem 1.4rem;border-radius:var(--r);border:1.5px solid #dadce0;font-size:.9rem;font-weight:600;transition:border-color .2s,box-shadow .2s;text-align:center}
 .btn-google-review:hover{border-color:#1a73e8;box-shadow:0 2px 8px rgba(26,115,232,.18)}
 
-/* T5: ¿Por qué elegir AutopartsChile? */
+/* T5: ¿Por qué elegir? */
 .why-home{padding:3.5rem 0;background:var(--gray-light);text-align:center}
 .why-home h2{font-size:1.6rem;font-weight:700;margin-bottom:2rem}
 .why-home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;text-align:left}
@@ -190,6 +190,74 @@ tr:hover td{background:var(--gray-light)}
 .why-home-icon{font-size:1.75rem;margin-bottom:.75rem}
 .why-home-card h3{font-size:.93rem;font-weight:700;margin-bottom:.4rem;color:var(--black)}
 .why-home-card p{font-size:.84rem;color:var(--text-sec);line-height:1.6}
+
+/* ===== SPRINT 2.1 ===== */
+
+/* T2: Hero specialty — jerarquía visual Suzuki */
+.hero-specialty{margin:0 0 1.25rem;display:flex;flex-direction:column;align-items:center;gap:.15rem;line-height:1}
+.spec-eyebrow{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#888}
+.spec-brand{font-size:clamp(3rem,10vw,5.5rem);font-weight:900;color:var(--red);letter-spacing:-3px;line-height:.85}
+.spec-also{font-size:.75rem;color:#888;letter-spacing:.5px}
+.spec-also b{color:#aaa;font-weight:600}
+
+/* T6: Stats strip */
+.stats-strip{background:#161616;border-top:1px solid #2a2a2a;border-bottom:1px solid #2a2a2a;padding:1.1rem 0}
+.stats-inner{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+.stat-item{text-align:center;padding:.6rem 1.25rem;flex:1;min-width:120px}
+.stat-num{display:block;font-size:clamp(1.3rem,3vw,1.75rem);font-weight:800;color:var(--red);line-height:1.1}
+.stat-star{font-size:.9em;color:#f5b014}
+.stat-label{display:block;font-size:.67rem;color:#888;margin-top:.2rem;text-transform:uppercase;letter-spacing:.4px;line-height:1.3}
+.stat-sep{width:1px;height:36px;background:#2a2a2a;flex-shrink:0}
+
+/* T2: Brands redesigned — Suzuki dominance */
+.brands-redesigned{padding:3rem 0;background:var(--white)}
+.brands-redesigned>.container{display:flex;flex-direction:column;gap:1.5rem}
+.suzuki-block{background:var(--black);border-radius:12px;padding:2.5rem 2rem;text-align:center}
+.suzuki-eyebrow{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#888;margin-bottom:.1rem}
+.suzuki-giant{font-size:clamp(4rem,12vw,7.5rem);font-weight:900;color:var(--red);letter-spacing:-4px;line-height:.85;margin-bottom:.75rem}
+.suzuki-models{font-size:.82rem;color:#666;margin-bottom:1.5rem;line-height:1.7}
+.suzuki-catalog-link{display:block;margin-top:.75rem;font-size:.8rem;color:#555;transition:color .2s}
+.suzuki-catalog-link:hover{color:var(--red)}
+.also-brands-block{margin-top:.5rem}
+.also-eyebrow{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-sec);text-align:center;margin-bottom:1rem}
+.also-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.also-card{border:1.5px solid var(--gray-border);border-radius:var(--r);padding:1.25rem;background:var(--white);transition:border-color .2s,box-shadow .2s}
+.also-card:hover{border-color:var(--red);box-shadow:var(--shadow)}
+.also-card h3{font-size:1.1rem;font-weight:700;margin-bottom:.4rem}
+.also-card p{font-size:.83rem;color:var(--text-sec);line-height:1.5;margin-bottom:.85rem}
+.also-cta{display:inline-block;color:var(--red);font-size:.83rem;font-weight:700;transition:opacity .2s}
+.also-cta:hover{opacity:.7}
+
+/* T8: Compatibility strip */
+.compat-strip{background:var(--black);color:var(--white);padding:2.5rem 0}
+.compat-inner{display:flex;align-items:center;gap:1.75rem;max-width:950px;margin:0 auto}
+.compat-icon{font-size:2.25rem;flex-shrink:0;opacity:.9}
+.compat-text h2{font-size:1.2rem;font-weight:700;margin-bottom:.3rem;color:var(--white)}
+.compat-text p{font-size:.88rem;color:#aaa;line-height:1.6}
+
+/* T7: Carriers + Envíos seguros a Chile y Latinoamérica */
+.carriers-section{padding:2rem 0;background:var(--gray-light);text-align:center}
+.carriers-title{font-size:1.05rem;font-weight:700;color:var(--black);margin-bottom:.35rem}
+.carriers-subtitle{font-size:.82rem;color:var(--text-sec);margin-bottom:1.25rem}
+.carriers-grid{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center;align-items:center;margin-bottom:.85rem}
+.carrier-badge{padding:.6rem 1.4rem;border-radius:6px;font-size:.88rem;font-weight:800;letter-spacing:.3px}
+.starken{background:#003087;color:#fff}
+.chilexpress{background:#FF5C00;color:#fff}
+.blue-express{background:#0057A8;color:#fff}
+.pullman{background:#BE0000;color:#fff}
+.carriers-link{font-size:.82rem;color:var(--red);font-weight:600}
+.carriers-link:hover{text-decoration:underline}
+
+/* T4: Google Reviews redesigned (sin testimoniales hardcodeados) */
+.reviews-google-main{text-align:center;max-width:520px;margin:0 auto}
+.reviews-google-header h2{font-size:1.6rem;font-weight:700;margin-bottom:.3rem}
+.reviews-verified{font-size:.78rem;color:var(--text-sec);margin-bottom:1.5rem}
+.reviews-google-score{display:inline-flex;align-items:center;gap:1rem;background:var(--white);border:1.5px solid var(--gray-border);border-radius:12px;padding:1rem 1.5rem;box-shadow:var(--shadow);margin-bottom:1.5rem}
+.rg-logo{display:flex;align-items:center;flex-shrink:0}
+.rg-rating{display:flex;flex-direction:column;align-items:flex-start}
+.rg-num{font-size:2.5rem;font-weight:900;color:var(--black);line-height:1}
+.rg-stars{font-size:1.1rem;color:#f5b014;line-height:1.2}
+.rg-source{font-size:.68rem;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:.2rem}
 
 /* Responsive V1 */
 @media(max-width:768px){
@@ -211,6 +279,16 @@ tr:hover td{background:var(--gray-light)}
 .google-rating-info{align-items:center}
 .reviews-actions{flex-direction:column;align-items:center}
 .why-home-grid{grid-template-columns:repeat(2,1fr)}
+/* Sprint 2.1 */
+.hero-specialty{margin-bottom:.85rem}
+.spec-brand{letter-spacing:-2px}
+.stats-inner{gap:0}
+.stat-sep{display:none}
+.stat-item{min-width:50%;flex:0 0 50%}
+.also-grid{grid-template-columns:1fr}
+.compat-inner{flex-direction:column;text-align:center;gap:1rem}
+.reviews-google-score{flex-direction:column;gap:.5rem;text-align:center}
+.rg-rating{align-items:center}
 }
 @media(max-width:480px){
 .footer-grid{grid-template-columns:1fr}
@@ -221,4 +299,8 @@ tr:hover td{background:var(--gray-light)}
 /* Sprint 2 */
 .why-home-grid{grid-template-columns:1fr}
 .trust-indicators{gap:.65rem}
+/* Sprint 2.1 */
+.stat-item{min-width:100%;flex:0 0 100%}
+.suzuki-giant{letter-spacing:-2px}
+.compat-inner{padding:0 .5rem}
 }
