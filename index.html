@@ -165,7 +165,7 @@
 </div>
 </section>
 
-<!-- ===== T8: Compatibilidad strip (reemplaza find-for-you) ===== -->
+<!-- ===== T8: Compatibilidad strip ===== -->
 <section class="compat-strip">
 <div class="container">
 <div class="compat-inner">
@@ -179,7 +179,7 @@
 </div>
 </section>
 
-<!-- ===== T5: ¿Por qué elegir AutopartsChile? (actualizado) ===== -->
+<!-- ===== T5: ¿Por qué elegir AutopartsChile? ===== -->
 <section class="why-home">
 <div class="container">
 <h2>¿Por qué elegir AutopartsChile?</h2>
@@ -233,7 +233,7 @@
 </div>
 </section>
 
-<!-- ===== T4: Google Reviews (sin testimoniales hardcodeados) ===== -->
+<!-- ===== T4: Google Reviews — Sprint 3: reseñas reales dinámicas ===== -->
 <section class="reviews">
 <div class="container">
 <div class="reviews-google-main">
@@ -256,16 +256,13 @@
 <span class="rg-source">Google Reviews</span>
 </div>
 </div>
+<!-- Sprint 3: reseñas reales inyectadas aquí por loadGoogleReviews() -->
+<div id="reviews-dynamic" class="reviews-dynamic-grid" aria-live="polite" aria-label="Reseñas de clientes en Google"></div>
 <div class="reviews-actions">
 <a href="https://www.google.cl/maps?q=Desarmaduría+Saravia+La+Pintana+Santiago" class="btn-secondary" target="_blank" rel="noopener">Ver reseñas en Google</a>
 <a href="https://g.page/r/desarmaduriasaravia/review" class="btn-google-review" target="_blank" rel="noopener noreferrer">⭐ Dejar una reseña</a>
 </div>
 </div>
-<!-- SPRINT 3 — Integración Google Places API:
-     Implementar proxy server-side en /api/google-reviews (Netlify Edge Function).
-     Usar Places API (New) con el place_id del perfil de Google Business.
-     Nunca exponer la API key en el frontend.
-     Ref: https://developers.google.com/maps/documentation/places/web-service/reviews -->
 </div>
 </section>
 
@@ -357,6 +354,33 @@ function cotizarWA(e){
   }
   window.open('https://wa.me/56953817335?text='+encodeURIComponent(msg),'_blank');
 }
+
+/* ===== Sprint 3: Reseñas reales desde Google Places API ===== */
+async function loadGoogleReviews(){
+  var container=document.getElementById('reviews-dynamic');
+  if(!container)return;
+  try{
+    var res=await fetch('/api/google-reviews');
+    if(!res.ok)return;
+    var data=await res.json();
+    if(!data.configured||!data.reviews||!data.reviews.length)return;
+    container.innerHTML=data.reviews.map(function(r){
+      var filled=Math.round(r.rating);
+      var stars='★'.repeat(filled)+'☆'.repeat(5-filled);
+      var text=r.text.length>220?r.text.slice(0,220)+'…':r.text;
+      var avatar=r.photo
+        ?'<img src="'+r.photo+'" alt="" class="rdyn-avatar" loading="lazy" width="28" height="28">'
+        :'<span class="rdyn-avatar-placeholder">'+r.author.charAt(0)+'</span>';
+      return '<div class="review-card-dyn">'+
+        '<div class="rdyn-stars" aria-label="'+r.rating+' de 5 estrellas">'+stars+'</div>'+
+        '<p>&#8220;'+text+'&#8221;</p>'+
+        '<div class="rdyn-author">'+avatar+'<span>'+r.author+' &middot; '+r.time+'</span></div>'+
+        '</div>';
+    }).join('');
+    container.classList.add('loaded');
+  }catch(e){/* fallo silencioso — el badge 4.9 sigue visible */}
+}
+document.addEventListener('DOMContentLoaded',loadGoogleReviews);
 </script>
 </body>
 </html>
