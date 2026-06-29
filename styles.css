@@ -167,7 +167,7 @@ tr:hover td{background:var(--gray-light)}
 .trust-item{display:flex;align-items:center;gap:.5rem;color:#ccc;font-size:.87rem}
 .trust-icon{color:var(--red);flex-shrink:0}
 
-/* T4: Google Reviews (Sprint 2) */
+/* T4: Google Reviews (Sprint 2 badge) */
 .reviews-header{text-align:center;margin-bottom:1.75rem}
 .reviews-header h2{font-size:1.6rem;font-weight:700;margin-bottom:.85rem}
 .google-rating-badge{display:inline-flex;align-items:center;gap:.85rem;background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:.65rem 1.1rem;box-shadow:var(--shadow)}
@@ -248,7 +248,7 @@ tr:hover td{background:var(--gray-light)}
 .carriers-link{font-size:.82rem;color:var(--red);font-weight:600}
 .carriers-link:hover{text-decoration:underline}
 
-/* T4: Google Reviews redesigned (sin testimoniales hardcodeados) */
+/* T4: Google Reviews redesigned */
 .reviews-google-main{text-align:center;max-width:520px;margin:0 auto}
 .reviews-google-header h2{font-size:1.6rem;font-weight:700;margin-bottom:.3rem}
 .reviews-verified{font-size:.78rem;color:var(--text-sec);margin-bottom:1.5rem}
@@ -258,6 +258,17 @@ tr:hover td{background:var(--gray-light)}
 .rg-num{font-size:2.5rem;font-weight:900;color:var(--black);line-height:1}
 .rg-stars{font-size:1.1rem;color:#f5b014;line-height:1.2}
 .rg-source{font-size:.68rem;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:.2rem}
+
+/* ===== SPRINT 3 — Dynamic Google Reviews ===== */
+.reviews-dynamic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin:0 auto 1.5rem;max-width:900px;text-align:left;opacity:0;transition:opacity .4s ease}
+.reviews-dynamic-grid.loaded{opacity:1}
+.review-card-dyn{background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow);transition:box-shadow .2s}
+.review-card-dyn:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.rdyn-stars{color:#f5b014;font-size:.95rem;margin-bottom:.5rem;letter-spacing:.05em}
+.review-card-dyn p{font-size:.87rem;color:var(--black);line-height:1.6;margin-bottom:.75rem;font-style:italic}
+.rdyn-author{display:flex;align-items:center;gap:.5rem;font-size:.77rem;color:var(--text-sec);font-weight:600}
+.rdyn-avatar{border-radius:50%;object-fit:cover;flex-shrink:0;width:28px;height:28px}
+.rdyn-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--red);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
 
 /* Responsive V1 */
 @media(max-width:768px){
@@ -289,6 +300,8 @@ tr:hover td{background:var(--gray-light)}
 .compat-inner{flex-direction:column;text-align:center;gap:1rem}
 .reviews-google-score{flex-direction:column;gap:.5rem;text-align:center}
 .rg-rating{align-items:center}
+/* Sprint 3 */
+.reviews-dynamic-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){
 .footer-grid{grid-template-columns:1fr}
