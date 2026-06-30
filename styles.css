@@ -317,3 +317,69 @@ tr:hover td{background:var(--gray-light)}
 .suzuki-giant{letter-spacing:-2px}
 .compat-inner{padding:0 .5rem}
 }
+
+/* ===== SPRINT 2.2 — Proceso, Promesas, Historia, Social, Carrier logos ===== */
+
+/* Proceso de trabajo — flujo horizontal */
+.proceso{padding:3.5rem 0;background:var(--white);text-align:center}
+.proceso-eyebrow{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#888;margin-bottom:.4rem}
+.proceso h2{font-size:1.6rem;font-weight:700;margin-bottom:.4rem}
+.proceso-desc{color:var(--text-sec);font-size:.92rem;margin-bottom:2.25rem}
+.proceso-flow{display:flex;align-items:flex-start;justify-content:center;gap:.4rem;flex-wrap:wrap}
+.proceso-step{flex:1;min-width:120px;max-width:155px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.ps-circle{width:34px;height:34px;border-radius:50%;background:var(--red);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.92rem;box-shadow:0 2px 6px rgba(227,30,36,.3)}
+.ps-emoji{font-size:1.55rem;line-height:1}
+.proceso-step h3{font-size:.92rem;font-weight:700;color:var(--black)}
+.proceso-step p{font-size:.79rem;color:var(--text-sec);line-height:1.45}
+.ps-arrow{flex:0 0 auto;align-self:flex-start;margin-top:8px;color:var(--red);font-size:1.7rem;font-weight:700;opacity:.55}
+
+/* Promesas — tarjetas de confianza */
+.promesas{padding:3rem 0;background:var(--gray-light)}
+.promesas-inner{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.promesa-item{background:var(--white);border-radius:var(--r);padding:1.75rem 1.5rem;text-align:center;border-top:3px solid var(--red);box-shadow:var(--shadow)}
+.promesa-icon{color:var(--red);display:block;margin:0 auto .85rem}
+.promesa-title{display:block;font-size:1rem;font-weight:700;margin-bottom:.45rem;color:var(--black)}
+.promesa-text{font-size:.85rem;color:var(--text-sec);line-height:1.6}
+
+/* Carriers — logo cards (reemplaza badges inline) */
+.carrier-logo-card{background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:1.15rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:150px;flex:1;max-width:200px;transition:border-color .2s,box-shadow .2s}
+.carrier-logo-card:hover{border-color:var(--red);box-shadow:var(--shadow)}
+.carrier-logo-bar{width:46px;height:6px;border-radius:3px;margin-bottom:.45rem}
+.carrier-name-text{font-weight:800;font-size:.95rem;letter-spacing:.3px;display:block;line-height:1.2}
+.carrier-service{font-size:.75rem;color:var(--text-sec);display:block}
+
+/* Historia — banda oscura con datos */
+.historia{padding:3.5rem 0;background:var(--black);color:var(--white)}
+.historia-inner{display:grid;grid-template-columns:1.4fr 1fr;gap:2.5rem;align-items:center}
+.historia-eyebrow{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--red);margin-bottom:.55rem}
+.historia-texto h2{font-size:1.7rem;font-weight:800;margin-bottom:1rem;color:var(--white)}
+.historia-texto p{font-size:.92rem;line-height:1.7;color:#bbb;margin-bottom:1rem}
+.historia-texto .btn-secondary{margin-top:.35rem}
+.historia-datos{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.historia-dato{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:var(--r);padding:1.35rem 1rem;text-align:center}
+.hd-num{display:block;font-size:1.9rem;font-weight:900;color:var(--red);line-height:1}
+.hd-label{display:block;font-size:.72rem;color:#888;margin-top:.4rem;text-transform:uppercase;letter-spacing:.4px;line-height:1.3}
+
+/* Social strip */
+.social-strip{padding:2.5rem 0;background:var(--gray-light);text-align:center}
+.social-strip-heading{font-size:1.05rem;font-weight:700;margin-bottom:1.25rem;color:var(--black)}
+.social-strip-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.social-link-card{display:inline-flex;align-items:center;gap:.55rem;background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:.7rem 1.15rem;transition:border-color .2s,box-shadow .2s}
+.social-link-card:hover{border-color:var(--red);box-shadow:var(--shadow)}
+.social-name{font-weight:700;font-size:.9rem;color:var(--black)}
+.social-link-handle{font-size:.8rem;color:var(--text-sec)}
+
+/* Responsive Sprint 2.2 */
+@media(max-width:768px){
+.proceso-flow{flex-direction:column;align-items:center;gap:.2rem}
+.proceso-step{max-width:280px;width:100%}
+.ps-arrow{align-self:center;margin:.1rem 0;transform:rotate(90deg);font-size:1.4rem}
+.promesas-inner{grid-template-columns:1fr;max-width:420px;margin:0 auto}
+.historia-inner{grid-template-columns:1fr;gap:1.75rem}
+.historia-texto h2{font-size:1.45rem}
+}
+@media(max-width:480px){
+.historia-datos{grid-template-columns:1fr 1fr}
+.social-strip-links{flex-direction:column;align-items:center}
+.social-link-card{width:100%;max-width:300px;justify-content:center}
+}
