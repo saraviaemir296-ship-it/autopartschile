@@ -336,7 +336,6 @@ async function loadGoogleReviews(){
     var starsEl=document.getElementById("rg-stars-val");
     var sourceEl=document.getElementById("rg-source-val");
     var statEl=document.getElementById("stat-rating");
-    var hdEl=document.getElementById("hd-rating");
     if(data.rating){
       var rat=data.rating.toFixed(1);
       var f=Math.round(data.rating);
@@ -344,7 +343,6 @@ async function loadGoogleReviews(){
       if(numEl) numEl.textContent=rat;
       if(starsEl){starsEl.innerHTML=stars;starsEl.setAttribute("aria-label",rat+" de 5 estrellas");}
       if(statEl) statEl.innerHTML=rat+"<span class=\"stat-star\">&#9733;</span>";
-      if(hdEl) hdEl.innerHTML=rat+"&#9733;";
     }
     if(data.total&&sourceEl) sourceEl.textContent=data.total+" reseñas en Google";
     container.innerHTML=data.reviews.map(function(r){
