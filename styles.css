@@ -337,3 +337,15 @@ tr:hover td{background:var(--gray-light)}
 .facade-caption{gap:.4rem .75rem}
 .facade-maps-link{display:block;margin-top:.2rem}
 }
+
+/* ===== Sprint correcciones: pasos + tarjetas resena ===== */
+.promesas-inner.promesas-steps{grid-template-columns:repeat(4,1fr)}
+.paso-num{display:inline-flex;width:34px;height:34px;border-radius:50%;background:var(--red);color:var(--white);font-weight:700;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:1rem}
+.review-card-dyn{background:var(--white);border:1.5px solid var(--gray-border);border-radius:var(--r);padding:1.1rem 1.25rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.6rem}
+.rdyn-meta{display:flex;flex-direction:column;line-height:1.35}
+.rdyn-meta strong{font-size:.9rem;color:var(--black)}
+.rdyn-meta span{font-size:.75rem;color:var(--text-sec);font-weight:400}
+.rdyn-stars{margin-bottom:0}
+.rdyn-badge{font-size:.7rem;color:var(--text-sec);font-weight:600;letter-spacing:0;margin-left:.35rem}
+@media(max-width:1000px){.promesas-inner.promesas-steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.promesas-inner.promesas-steps{grid-template-columns:1fr}}
