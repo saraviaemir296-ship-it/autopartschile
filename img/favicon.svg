@@ -1,4 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="5" fill="#111"/>
-  <text x="16" y="23" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#E31E24" text-anchor="middle">A</text>
+  <defs>
+    <clipPath id="a">
+      <!-- A shape with inner counter, evenodd -->
+      <path clip-rule="evenodd" d="M16,2 L30,30 H23 L20,21 H12 L9,30 H2 Z M16,9 L13,21 H19 Z"/>
+    </clipPath>
+  </defs>
+  <!-- White background -->
+  <rect width="32" height="32" fill="white"/>
+  <!-- Red fills the A shape -->
+  <rect width="32" height="32" fill="#E31E24" clip-path="url(#a)"/>
+  <!-- Black diagonal slash (lower-right portion of A) -->
+  <polygon points="21,2 30,2 30,30 12,30" fill="#111111" clip-path="url(#a)"/>
 </svg>
