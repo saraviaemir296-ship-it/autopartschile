@@ -1,1 +1,3 @@
-VXNlci1hZ2VudDogKgpBbGxvdzogLwpTaXRlbWFwOiBodHRwczovL2F1dG9wYXJ0c2NoaWxlLmNsL3NpdGVtYXAueG1sCg==
+User-agent: *
+Allow: /
+Sitemap: https://autopartschile.cl/sitemap.xml
