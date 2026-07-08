@@ -58,7 +58,7 @@
 
 <nav class="nav">
 <div class="container">
-<button class="nav-toggle" id="nav-toggle" aria-label="Menu">&#9776; Menu</button>
+<button class="nav-toggle" onclick="document.getElementById('nl').classList.toggle('open')" aria-label="Menú">&#9776; Menú</button>
 <ul class="nav-list" id="nl">
 <li><a href="/catalogo.html">Catálogo</a></li>
 <li><a href="/como-comprar.html">Cómo Comprar</a></li>
@@ -399,9 +399,6 @@
 <a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="Cotizar por WhatsApp">&#128172;</a>
 
 <script>
-document.getElementById('nav-toggle').addEventListener('click', function(){
-  document.getElementById('nl').classList.toggle('open');
-});
 (function(){
   var d=new Date(),day=d.getDay(),t=d.getHours()*60+d.getMinutes();
   var open=(day>=1&&day<=5&&t>=540&&t<1080)||(day===6&&t>=540&&t<840);
