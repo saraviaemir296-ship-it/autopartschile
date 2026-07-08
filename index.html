@@ -46,6 +46,14 @@ gtag('config', 'G-TXKXWQCTZ1');
 .desarmes-more-link{display:inline-block;font-weight:700;color:#111;text-decoration:none;border-bottom:2px solid #111;padding-bottom:2px;}
 .desarmes-more-link:hover{color:#c0392b;border-color:#c0392b;}
 @media(max-width:600px){.desarmes-grid{grid-template-columns:repeat(2,1fr);gap:.9rem;}.dcard-img-wrap img{height:150px;}}
+/* === Nuestros Servicios === */
+.servicios-section{padding:3rem 0;background:#fff;border-top:1px solid #e8e8e8;}
+.servicios-title{text-align:center;font-size:1.6rem;font-weight:800;margin-bottom:.4rem;color:#111;}
+.servicios-sub{text-align:center;color:#555;margin-bottom:1.75rem;font-size:.95rem;}
+.servicios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,320px));gap:1.25rem;justify-content:center;}
+.servicio-card{background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .2s,box-shadow .2s;}
+.servicio-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.12);}
+.servicio-badge{display:inline-block;background:#111;color:#fff;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:5px;margin-bottom:.4rem;}
 /* === Asi Trabajamos === */
 .trabajo-section{padding:3.5rem 0;background:#fff;}
 .trabajo-title{text-align:center;font-size:1.9rem;font-weight:800;margin-bottom:.4rem;color:#111;}
@@ -193,24 +201,6 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 
 <div class="desarme-card">
-<div class="dcard-img-wrap"><img src="/img/catalog/vehiculo-7.jpg" alt="Compramos vehículos Suzuki para desarme" loading="lazy" width="320" height="330"></div>
-<div class="dcard-info">
-<h3>Compramos tu Suzuki</h3>
-<span class="dcard-year">Para desarme</span>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20vender%20mi%20Suzuki%20para%20desarme" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar precio</a>
-</div>
-</div>
-
-<div class="desarme-card">
-<div class="dcard-img-wrap"><img src="/img/catalog/vehiculo-6.jpg" alt="Swap automático a mecánico Suzuki Celerio" loading="lazy" width="320" height="330"></div>
-<div class="dcard-info">
-<h3>Swap Automático &#x2192; Mecánico</h3>
-<span class="dcard-year">Servicio disponible</span>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20info%20del%20swap%20autom%C3%A1tico%20a%20mec%C3%A1nico" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar servicio</a>
-</div>
-</div>
-
-<div class="desarme-card">
 <div class="dcard-img-wrap"><img src="/img/catalog/vehiculo-5.jpg" alt="Suzuki Celerio 1.0 MT 2008-2013 en desarme" loading="lazy" width="320" height="330"></div>
 <div class="dcard-info">
 <h3>Suzuki Celerio 1.0 MT</h3>
@@ -239,6 +229,37 @@ gtag('config', 'G-TXKXWQCTZ1');
 
 </div>
 <div class="desarmes-more"><a href="/vehiculos-en-desarme.html" class="desarmes-more-link">Ver catálogo completo de vehículos en desarme &rarr;</a></div>
+</div>
+</section>
+
+<!-- NUESTROS SERVICIOS -->
+<section class="servicios-section" id="servicios">
+<div class="container">
+<h2 class="servicios-title">Nuestros Servicios</h2>
+<p class="servicios-sub">Además de repuestos, ofrecemos estos servicios adicionales.</p>
+<div class="servicios-grid">
+
+<div class="servicio-card">
+<div class="dcard-img-wrap"><img src="/img/catalog/vehiculo-6.jpg" alt="Swap automático a mecánico Suzuki Celerio" loading="lazy" width="320" height="330"></div>
+<div class="dcard-info">
+<span class="servicio-badge">Servicio</span>
+<h3>Swap Automático &#x2192; Mecánico</h3>
+<span class="dcard-year">Servicio disponible</span>
+<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20info%20del%20swap%20autom%C3%A1tico%20a%20mec%C3%A1nico" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar servicio</a>
+</div>
+</div>
+
+<div class="servicio-card">
+<div class="dcard-img-wrap"><img src="/img/catalog/vehiculo-7.jpg" alt="Compramos vehículos Suzuki para desarme" loading="lazy" width="320" height="330"></div>
+<div class="dcard-info">
+<span class="servicio-badge">Servicio</span>
+<h3>Compramos tu Suzuki</h3>
+<span class="dcard-year">Para desarme</span>
+<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20vender%20mi%20Suzuki%20para%20desarme" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar precio</a>
+</div>
+</div>
+
+</div>
 </div>
 </section>
 
