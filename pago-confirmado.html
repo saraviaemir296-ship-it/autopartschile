@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pago Confirmado | AutopartsChile – Desarmaduría Saravia</title>
+<meta name="description" content="Confirmación de pago. Te contactamos por WhatsApp para coordinar la entrega o el retiro de tu repuesto.">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://autopartschile.cl/pago-confirmado.html">
+<link rel="stylesheet" href="/styles.css?v=5">
+<style>
+.pago-box{max-width:560px;margin:2.5rem auto;text-align:center;background:#f0fdf4;border:2px solid #25D366;border-radius:var(--r);padding:2rem 1.5rem;}
+.pago-box.pendiente{background:#fff8e1;border-color:#f59e0b;}
+.pago-box h1{font-size:1.4rem;margin-bottom:.6rem;color:#111;}
+.pago-box p{color:#444;font-size:.95rem;margin-bottom:1.25rem;line-height:1.6;}
+.pago-sku{display:inline-block;background:#fff;border-radius:6px;padding:.3rem .7rem;font-size:.85rem;color:#555;margin-bottom:1rem;border:1px solid #ddd;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TXKXWQCTZ1');
+</script>
+</head>
+<body>
+<header class="header"><div class="container header-inner"><a href="/" class="logo"><span class="logo-main">AutopartsChile</span><span class="logo-sub">Desarmaduría Saravia</span></a><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-wa-header" target="_blank" rel="noopener">&#128172; Cotizar por WhatsApp</a></div></header>
+<nav class="nav"><div class="container"><button class="nav-toggle" onclick="document.getElementById('nl').classList.toggle('open')" aria-label="Menú">&#9776; Menú</button><ul class="nav-list" id="nl"><li><a href="/catalogo.html">Catálogo</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li><li><a href="/garantias.html">Garantías</a></li><li><a href="/envios.html">Envíos</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/sucursales.html">Sucursales</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/opiniones.html">Opiniones</a></li><li><a href="/por-que-elegirnos.html">¿Por qué Elegirnos?</a></li></ul></div></nav>
+<section class="page-content"><div class="container">
+<div class="pago-box" id="pagoBox">
+<h1 id="pagoTitulo">&#9989; ¡Pago recibido!</h1>
+<p id="pagoTexto">Gracias por tu compra. Escríbenos por WhatsApp indicando tu SKU para coordinar el retiro o el envío de tu repuesto lo antes posible.</p>
+<span class="pago-sku" id="pagoSku"></span><br>
+<a href="https://wa.me/56953817335?text=Hola%2C%20acabo%20de%20pagar%20un%20repuesto" id="pagoWaBtn" class="btn-primary" target="_blank" rel="noopener">&#128172; Avisar por WhatsApp</a>
+</div>
+</div></section>
+<footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>AutopartsChile</h4><p>Desarmaduría Saravia. Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/DesarmaduriaSaravia" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href="/catalogo.html">Repuestos Suzuki</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href="/garantias.html">Garantías y Devoluciones</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/faq.html">Preguntas Frecuentes</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>&#128172; <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>&#169; 2026 AutopartsChile – Desarmaduría Saravia. Todos los derechos reservados.</p></div></div></footer>
+<a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">&#128172;</a>
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var sku = params.get('sku');
+  var pendiente = params.get('pendiente');
+  if (sku) {
+    document.getElementById('pagoSku').textContent = 'SKU: ' + sku;
+    var msg = pendiente
+      ? 'Hola, mi pago quedó pendiente de confirmación. SKU: ' + sku
+      : 'Hola, acabo de pagar el repuesto con SKU: ' + sku + '. Quisiera coordinar la entrega.';
+    document.getElementById('pagoWaBtn').href = 'https://wa.me/56953817335?text=' + encodeURIComponent(msg);
+  }
+  if (pendiente) {
+    document.getElementById('pagoBox').classList.add('pendiente');
+    document.getElementById('pagoTitulo').innerHTML = '&#8987; Pago en proceso';
+    document.getElementById('pagoTexto').textContent = 'Tu pago está siendo verificado por Mercado Pago. Te confirmamos por WhatsApp apenas se acredite.';
+  }
+})();
+</script>
+</body>
+</html>
