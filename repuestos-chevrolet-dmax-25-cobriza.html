@@ -20,8 +20,11 @@
 .rcard-info h3{font-size:.92rem;font-weight:700;margin:0 0 .2rem;color:#111;}
 .rcard-price{font-size:1.05rem;font-weight:800;color:#c0392b;display:block;margin:.3rem 0;}
 .rcard-compat{font-size:.78rem;color:#888;display:block;margin-bottom:.7rem;}
+.rcard-actions{display:flex;flex-direction:column;gap:.4rem;}
 .rcard-btn{display:block;text-align:center;background:#25D366;color:#fff;border-radius:7px;padding:.45rem .5rem;font-size:.81rem;font-weight:700;text-decoration:none;}
 .rcard-btn:hover{background:#1db954;}
+.rcard-pay{display:block;text-align:center;background:#009ee3;color:#fff;border-radius:7px;padding:.45rem .5rem;font-size:.81rem;font-weight:700;text-decoration:none;}
+.rcard-pay:hover{background:#0088c7;}
 .repuestos-empty{text-align:center;padding:2.5rem 1.5rem;background:#f4f6f8;border-radius:12px;}
 .repuestos-empty p{color:#555;font-size:.95rem;margin-bottom:1.25rem;max-width:480px;margin-left:auto;margin-right:auto;}
 @media(max-width:600px){.repuestos-grid{grid-template-columns:repeat(2,1fr);gap:.9rem;}.rcard-img-wrap img{height:140px;}.veh-detail img{width:100%;height:220px;}}
@@ -50,10 +53,78 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 <h2 class="section-title">Repuestos Disponibles</h2>
 <div class="repuestos-grid" id="repuestos-grid">
+<div class="repuesto-card">
+  <div class="rcard-img-wrap"><img src="img/repuestos/dmax-condensador-ac.jpg" alt="Condensador de aire acondicionado Chevrolet DMAX 2.5" loading="lazy"></div>
+  <div class="rcard-info">
+    <h3>Condensador aire acondicionado</h3>
+    <p class="rcard-price">$119.990</p>
+    <p class="rcard-compat">Compatible: Chevrolet DMAX 2.5 2015-2020</p>
+    <div class="rcard-actions">
+      <a href="/.netlify/functions/create-mp-preference?sku=DMAX-001" class="rcard-pay">&#128179; Pagar ahora</a>
+      <a href="https://wa.me/56953817335?text=Hola%2C%20me%20interesa%20el%20Condensador%20de%20aire%20acondicionado%20para%20Chevrolet%20DMAX%202.5" class="rcard-btn" target="_blank" rel="noopener">💬 Consultar</a>
+    </div>
+  </div>
 </div>
-<div class="repuestos-empty">
-<p>Estamos publicando las piezas disponibles de este vehículo, una por una, con foto y precio real. Si necesitas una pieza específica ahora, escríbenos por WhatsApp indicando el modelo y la parte que buscas — te confirmamos disponibilidad y precio al instante.</p>
-<a href="https://wa.me/56953817335?text=Hola%2C%20busco%20repuesto%20de%20Chevrolet%20DMAX%202.5%20color%20cobriza%202015-2020" class="btn-primary" target="_blank" rel="noopener">&#128172; Consultar por WhatsApp</a>
+<div class="repuesto-card">
+  <div class="rcard-img-wrap"><img src="img/repuestos/dmax-radiador.jpg" alt="Radiador con embudo Chevrolet DMAX 2.5" loading="lazy"></div>
+  <div class="rcard-info">
+    <h3>Radiador con embudo</h3>
+    <p class="rcard-price">$229.990</p>
+    <p class="rcard-compat">Compatible: Chevrolet DMAX 2.5 2015-2020</p>
+    <div class="rcard-actions">
+      <a href="/.netlify/functions/create-mp-preference?sku=DMAX-002" class="rcard-pay">&#128179; Pagar ahora</a>
+      <a href="https://wa.me/56953817335?text=Hola%2C%20me%20interesa%20el%20Radiador%20con%20embudo%20para%20Chevrolet%20DMAX%202.5" class="rcard-btn" target="_blank" rel="noopener">💬 Consultar</a>
+    </div>
+  </div>
+</div>
+<div class="repuesto-card">
+  <div class="rcard-img-wrap"><img src="img/repuestos/dmax-intercooler.jpg" alt="Intercooler Chevrolet DMAX 2.5" loading="lazy"></div>
+  <div class="rcard-info">
+    <h3>Intercooler</h3>
+    <p class="rcard-price">$149.990</p>
+    <p class="rcard-compat">Compatible: Chevrolet DMAX 2.5 2015-2020</p>
+    <div class="rcard-actions">
+      <a href="/.netlify/functions/create-mp-preference?sku=DMAX-003" class="rcard-pay">&#128179; Pagar ahora</a>
+      <a href="https://wa.me/56953817335?text=Hola%2C%20me%20interesa%20el%20Intercooler%20para%20Chevrolet%20DMAX%202.5" class="rcard-btn" target="_blank" rel="noopener">💬 Consultar</a>
+    </div>
+  </div>
+</div>
+<div class="repuesto-card">
+  <div class="rcard-img-wrap"><img src="img/repuestos/dmax-foco-led.jpg" alt="Foco delantero LED lupa derecho Chevrolet DMAX 2.5" loading="lazy"></div>
+  <div class="rcard-info">
+    <h3>Foco delantero LED lupa derecho</h3>
+    <p class="rcard-price">$119.990</p>
+    <p class="rcard-compat">Compatible: Chevrolet DMAX 2.5 2015-2020</p>
+    <div class="rcard-actions">
+      <a href="/.netlify/functions/create-mp-preference?sku=DMAX-004" class="rcard-pay">&#128179; Pagar ahora</a>
+      <a href="https://wa.me/56953817335?text=Hola%2C%20me%20interesa%20el%20Foco%20delantero%20LED%20lupa%20derecho%20para%20Chevrolet%20DMAX%202.5" class="rcard-btn" target="_blank" rel="noopener">💬 Consultar</a>
+    </div>
+  </div>
+</div>
+<div class="repuesto-card">
+  <div class="rcard-img-wrap"><img src="img/repuestos/dmax-cardan.jpg" alt="Cardán Chevrolet DMAX 2.5" loading="lazy"></div>
+  <div class="rcard-info">
+    <h3>Cardán</h3>
+    <p class="rcard-price">$179.990</p>
+    <p class="rcard-compat">Compatible: Chevrolet DMAX 2.5 2015-2020</p>
+    <div class="rcard-actions">
+      <a href="/.netlify/functions/create-mp-preference?sku=DMAX-005" class="rcard-pay">&#128179; Pagar ahora</a>
+      <a href="https://wa.me/56953817335?text=Hola%2C%20me%20interesa%20el%20Card%C3%A1n%20para%20Chevrolet%20DMAX%202.5" class="rcard-btn" target="_blank" rel="noopener">💬 Consultar</a>
+    </div>
+  </div>
+</div>
+<div class="repuesto-card">
+  <div class="rcard-img-wrap"><img src="img/repuestos/dmax-capot-oem.jpg" alt="Capot original OEM Chevrolet DMAX 2.5" loading="lazy"></div>
+  <div class="rcard-info">
+    <h3>Capot original OEM</h3>
+    <p class="rcard-price">$144.990</p>
+    <p class="rcard-compat">Compatible: Chevrolet DMAX 2.5 2015-2020</p>
+    <div class="rcard-actions">
+      <a href="/.netlify/functions/create-mp-preference?sku=DMAX-006" class="rcard-pay">&#128179; Pagar ahora</a>
+      <a href="https://wa.me/56953817335?text=Hola%2C%20me%20interesa%20el%20Capot%20original%20OEM%20para%20Chevrolet%20DMAX%202.5" class="rcard-btn" target="_blank" rel="noopener">💬 Consultar</a>
+    </div>
+  </div>
+</div>
 </div>
 </div></section>
 <section class="cta-final"><div class="container"><h2>¿Buscas otra pieza de este vehículo?</h2><p>Escríbenos por WhatsApp. Respondemos en menos de 5 minutos en horario de atención.</p><a href="https://wa.me/56953817335?text=Hola%2C%20busco%20repuesto%20de%20Chevrolet%20DMAX%202.5%20color%20cobriza%202015-2020" class="btn-primary btn-lg" target="_blank" rel="noopener">&#128172; Cotizar por WhatsApp</a></div></section>
