@@ -1060,5 +1060,50 @@
 <g:excluded_destination>free_local_listings</g:excluded_destination>
 <g:excluded_destination>local_inventory_ads</g:excluded_destination>
 </item>
+<item>
+<g:id>DZIRE-001</g:id>
+<g:title>Foco delantero derecho (RH) LED Original OEM - Suzuki Swift/Swift Sport/Dzire 2018-2023 (usado)</g:title>
+<g:description>Foco delantero derecho LED original OEM, usado, revisado y con garantía de funcionamiento. Compatible: Suzuki Swift, Swift Sport y Dzire 2018-2023.</g:description>
+<g:link>https://autopartschile.cl/repuestos-suzuki-dzire.html</g:link>
+<g:image_link>https://autopartschile.cl/img/repuestos/suzuki-swift-dzire-foco-rh.jpg</g:image_link>
+<g:availability>in stock</g:availability>
+<g:price>389990 CLP</g:price>
+<g:condition>used</g:condition>
+<g:brand>Suzuki</g:brand>
+<g:identifier_exists>no</g:identifier_exists>
+<g:google_product_category>3318</g:google_product_category>
+<g:excluded_destination>free_local_listings</g:excluded_destination>
+<g:excluded_destination>local_inventory_ads</g:excluded_destination>
+</item>
+<item>
+<g:id>ALTO800-001</g:id>
+<g:title>Parachoques delantero nuevo - Suzuki Alto 800 2014-2023</g:title>
+<g:description>Parachoques delantero nuevo, calidad igual al original. Compatible: Suzuki Alto 800 2014-2023.</g:description>
+<g:link>https://autopartschile.cl/repuestos-suzuki-alto-800-2016.html</g:link>
+<g:image_link>https://autopartschile.cl/img/repuestos/suzuki-alto-parachoque-delantero.jpg</g:image_link>
+<g:availability>in stock</g:availability>
+<g:price>54990 CLP</g:price>
+<g:condition>new</g:condition>
+<g:brand>Suzuki</g:brand>
+<g:identifier_exists>no</g:identifier_exists>
+<g:google_product_category>8227</g:google_product_category>
+<g:excluded_destination>free_local_listings</g:excluded_destination>
+<g:excluded_destination>local_inventory_ads</g:excluded_destination>
+</item>
+<item>
+<g:id>SCROSS-001</g:id>
+<g:title>Foco delantero izquierdo (LH) LED Original - Suzuki S-Cross 2015-2020 (usado)</g:title>
+<g:description>Foco delantero izquierdo LED original, usado, incluye módulo electrónico. Compatible: Suzuki S-Cross 2015-2020.</g:description>
+<g:link>https://autopartschile.cl/repuestos-suzuki-scross.html</g:link>
+<g:image_link>https://autopartschile.cl/img/repuestos/suzuki-scross-foco-lh.jpg</g:image_link>
+<g:availability>in stock</g:availability>
+<g:price>289990 CLP</g:price>
+<g:condition>used</g:condition>
+<g:brand>Suzuki</g:brand>
+<g:identifier_exists>no</g:identifier_exists>
+<g:google_product_category>3318</g:google_product_category>
+<g:excluded_destination>free_local_listings</g:excluded_destination>
+<g:excluded_destination>local_inventory_ads</g:excluded_destination>
+</item>
 </channel>
 </rss>
