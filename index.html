@@ -65,6 +65,19 @@ gtag('config', 'G-TXKXWQCTZ1');
 .trabajo-card img{width:100%;height:280px;object-fit:cover;display:block;}
 .trabajo-card p{padding:.8rem 1rem;font-size:.9rem;color:#333;font-weight:600;margin:0;background:#fff;}
 @media(max-width:600px){.trabajo-grid{grid-template-columns:repeat(2,1fr);gap:.9rem;}.trabajo-card img{height:200px;}.trabajo-card p{font-size:.8rem;padding:.6rem .7rem;}}
+/* === Newsletter === */
+.newsletter-section{padding:3rem 0;background:#111;color:#fff;}
+.newsletter-inner{max-width:640px;margin:0 auto;text-align:center;}
+.newsletter-copy h2{font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+.newsletter-copy p{color:#ccc;font-size:.92rem;margin-bottom:1.5rem;}
+.newsletter-form{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;}
+.newsletter-form input{flex:1;min-width:180px;padding:.7rem .9rem;border-radius:6px;border:none;font-size:.9rem;font-family:var(--font);}
+.newsletter-form button{white-space:nowrap;}
+.newsletter-msg{margin-top:.9rem;font-size:.85rem;min-height:1.2em;}
+.newsletter-msg.success{color:#4ade80;}
+.newsletter-msg.error{color:#f87171;}
+.newsletter-disclaimer{margin-top:.6rem;font-size:.72rem;color:#888;}
+@media(max-width:600px){.newsletter-form{flex-direction:column;}.newsletter-form input,.newsletter-form button{width:100%;}}
 </style>
 </head>
 <body>
@@ -420,6 +433,25 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 </section>
 
+<!-- NEWSLETTER -->
+<section class="newsletter-section" id="newsletter">
+<div class="container">
+<div class="newsletter-inner">
+<div class="newsletter-copy">
+<h2>No te pierdas ofertas ni vehículos nuevos</h2>
+<p>Te avisamos por correo cuando ingresan vehículos nuevos en desarme o hay ofertas en repuestos Suzuki, Kia, Hyundai y Chevrolet.</p>
+</div>
+<form class="newsletter-form" id="newsletterForm">
+<input type="email" id="newsletterEmail" name="email" placeholder="tu@correo.cl" required aria-label="Correo electrónico">
+<input type="text" id="newsletterComuna" name="comuna" placeholder="Tu comuna (opcional)" aria-label="Comuna">
+<button type="submit" class="btn-primary">Quiero recibir ofertas</button>
+</form>
+<p class="newsletter-msg" id="newsletterMsg" role="status" aria-live="polite"></p>
+<p class="newsletter-disclaimer">Solo te escribiremos con ofertas y novedades. Puedes darte de baja cuando quieras.</p>
+</div>
+</div>
+</section>
+
 <footer class="footer">
 <div class="container footer-grid">
 <div class="footer-col">
@@ -478,6 +510,48 @@ gtag('config', 'G-TXKXWQCTZ1');
     el.textContent=open?'Abierto ahora':'Cerrado';
     el.style.cssText='display:inline-block;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:600;'+(open?'background:rgba(34,197,94,.15);color:#16a34a':'background:rgba(100,100,100,.12);color:#666');
   }
+})();
+</script>
+
+<script>
+(function(){
+  var form = document.getElementById('newsletterForm');
+  var msg = document.getElementById('newsletterMsg');
+  if(!form) return;
+  var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = document.getElementById('newsletterEmail').value.trim();
+    var comuna = document.getElementById('newsletterComuna').value.trim();
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    msg.textContent = 'Enviando...';
+    msg.className = 'newsletter-msg';
+    fetch(SUPABASE_URL + '/rest/v1/newsletter_subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ email: email, comuna: comuna || null, source: 'website_footer' })
+    }).then(function(res){
+      if(res.ok || res.status === 409){
+        msg.textContent = res.status === 409 ? 'Ese correo ya estaba suscrito.' : '¡Listo! Te avisaremos por correo.';
+        msg.className = 'newsletter-msg success';
+        form.reset();
+      } else {
+        throw new Error('status ' + res.status);
+      }
+    }).catch(function(){
+      msg.textContent = 'Hubo un problema. Intenta de nuevo o escríbenos por WhatsApp.';
+      msg.className = 'newsletter-msg error';
+    }).finally(function(){
+      btn.disabled = false;
+    });
+  });
 })();
 </script>
 
