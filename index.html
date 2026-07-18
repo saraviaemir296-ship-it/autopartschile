@@ -555,5 +555,207 @@ gtag('config', 'G-TXKXWQCTZ1');
 })();
 </script>
 
+<!-- SOCIAL PROOF: TRACKER DE CLICS A WHATSAPP (captura silenciosa, 100% datos reales) -->
+<script>
+(function(){
+  var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+  var GENERIC_TEXTS = ['cotizar','whatsapp','consultar piezas','consultar servicio','consultar precio','ver repuestos disponibles','cotizar por whatsapp','cotizar mi repuesto por whatsapp','cotizar repuesto suzuki'];
+
+  function getProductName(link){
+    try{
+      var withAttr = link.closest('[data-product]');
+      if(withAttr){
+        var attrVal = withAttr.getAttribute('data-product');
+        if(attrVal && attrVal.trim()) return attrVal.trim();
+      }
+      var text = (link.textContent || '').replace(/\s+/g,' ').trim();
+      var normalized = text.toLowerCase().replace(/[^\wáéíóúñ ]/gi,'').trim();
+      var isGeneric = !text || GENERIC_TEXTS.indexOf(normalized) !== -1;
+      if(!isGeneric) return text;
+      var container = link.closest('.card, article, section');
+      if(container){
+        var heading = container.querySelector('h2, h3, h4');
+        if(heading && heading.textContent && heading.textContent.trim()){
+          return heading.textContent.trim();
+        }
+      }
+      return document.title || 'Repuesto';
+    }catch(e){
+      return document.title || 'Repuesto';
+    }
+  }
+
+  function getGeo(){
+    return new Promise(function(resolve){
+      try{
+        var cached = sessionStorage.getItem('geo_cache');
+        if(cached){
+          var parsed = JSON.parse(cached);
+          if(parsed && parsed.ts && (Date.now() - parsed.ts) < 3600000){
+            resolve(parsed.data || { city: null, region: null });
+            return;
+          }
+        }
+      }catch(e){}
+      fetch('https://ipapi.co/json/', { keepalive: true }).then(function(res){
+        return res.json();
+      }).then(function(data){
+        var geo = {
+          city: (data && data.city) ? data.city : null,
+          region: (data && data.region) ? data.region : null
+        };
+        try{ sessionStorage.setItem('geo_cache', JSON.stringify({ ts: Date.now(), data: geo })); }catch(e){}
+        resolve(geo);
+      }).catch(function(){
+        resolve({ city: null, region: null });
+      });
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    try{
+      var link = e.target.closest('a[href*="wa.me"], a[href*="api.whatsapp.com"]');
+      if(!link) return;
+      var productName = getProductName(link);
+      var pageUrl = location.href;
+      getGeo().then(function(geo){
+        try{
+          fetch(SUPABASE_URL + '/rest/v1/quote_events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              product_name: productName,
+              page_url: pageUrl,
+              city: geo && geo.city ? geo.city : null,
+              region: geo && geo.region ? geo.region : null
+            }),
+            keepalive: true
+          }).catch(function(){});
+        }catch(e){}
+      }).catch(function(){});
+    }catch(e){}
+  }, false);
+})();
+</script>
+
+<!-- SOCIAL PROOF: POPUP DE ACTIVIDAD RECIENTE (solo se muestra si hay 15+ eventos reales en 30 días) -->
+<script>
+(function(){
+  var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+  var MIN_EVENTS_30D = 15;
+  var THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  var SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+  function injectStyles(){
+    if(document.getElementById('spToastStyles')) return;
+    var style = document.createElement('style');
+    style.id = 'spToastStyles';
+    style.textContent =
+      '.sp-toast{position:fixed;left:16px;bottom:16px;max-width:300px;background:#111;color:#fff;'+
+      'border:1px solid rgba(255,255,255,.12);border-left:3px solid #25D366;border-radius:10px;'+
+      'padding:.7rem .85rem;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:var(--font,inherit);'+
+      'font-size:.82rem;line-height:1.35;z-index:999999;display:flex;align-items:flex-start;gap:.5rem;'+
+      'opacity:0;transform:translateY(16px);transition:opacity .35s ease,transform .35s ease;pointer-events:none;}'+
+      '.sp-toast.sp-show{opacity:1;transform:translateY(0);pointer-events:auto;}'+
+      '.sp-toast-text{flex:1;color:#eee;}'+
+      '.sp-toast-close{background:none;border:none;color:#999;font-size:1rem;line-height:1;cursor:pointer;padding:0 0 0 .25rem;}'+
+      '.sp-toast-close:hover{color:#fff;}'+
+      '@media(max-width:480px){.sp-toast{left:10px;right:10px;max-width:none;bottom:10px;}}';
+    document.head.appendChild(style);
+  }
+
+  function showToast(ev){
+    injectStyles();
+    var existing = document.getElementById('spToast');
+    if(existing && existing.parentNode) existing.parentNode.removeChild(existing);
+
+    var text;
+    if(ev.city){
+      text = '📍 Alguien en ' + ev.city + ' acaba de cotizar ' + ev.product_name;
+    } else if(ev.region){
+      text = '📍 Alguien en la zona de ' + ev.region + ' acaba de cotizar ' + ev.product_name;
+    } else {
+      text = 'Alguien acaba de cotizar ' + ev.product_name;
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'sp-toast';
+    toast.id = 'spToast';
+
+    var textEl = document.createElement('span');
+    textEl.className = 'sp-toast-text';
+    textEl.textContent = text;
+
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'sp-toast-close';
+    closeBtn.setAttribute('aria-label', 'Cerrar');
+    closeBtn.textContent = '×';
+
+    toast.appendChild(textEl);
+    toast.appendChild(closeBtn);
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(function(){ toast.classList.add('sp-show'); });
+
+    var hideTimer = setTimeout(hide, 6000);
+
+    function hide(){
+      clearTimeout(hideTimer);
+      toast.classList.remove('sp-show');
+      setTimeout(function(){
+        if(toast && toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 400);
+    }
+
+    closeBtn.addEventListener('click', hide);
+  }
+
+  function pickEvent(events){
+    var recentPool = events.filter(function(ev){
+      return (Date.now() - new Date(ev.created_at).getTime()) <= SEVEN_DAYS_MS;
+    });
+    var pool = recentPool.length > 0 ? recentPool : events;
+    if(pool.length === 0) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function scheduleLoop(events){
+    var delay = 35000 + Math.random() * 15000;
+    setTimeout(function(){
+      var pick = pickEvent(events);
+      if(pick) showToast(pick);
+      scheduleLoop(events);
+    }, delay);
+  }
+
+  fetch(SUPABASE_URL + '/rest/v1/quote_events?select=product_name,city,region,created_at&order=created_at.desc&limit=50', {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+    }
+  }).then(function(res){
+    if(!res.ok) throw new Error('status ' + res.status);
+    return res.json();
+  }).then(function(data){
+    if(!Array.isArray(data)) return;
+    var last30d = data.filter(function(ev){
+      return ev && ev.created_at && (Date.now() - new Date(ev.created_at).getTime()) <= THIRTY_DAYS_MS;
+    });
+    if(last30d.length < MIN_EVENTS_30D){
+      return;
+    }
+    scheduleLoop(last30d);
+  }).catch(function(){});
+})();
+</script>
+
 </body>
 </html>
