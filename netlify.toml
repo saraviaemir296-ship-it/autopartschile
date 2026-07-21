@@ -19,6 +19,15 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    # Modo Report-Only: SOLO reporta violaciones en la consola del navegador,
+    # no bloquea nada. Es el primer paso antes de activar un CSP real que sí
+    # bloquee. Basado en un inventario real de los recursos externos que carga
+    # el sitio (Google Analytics, Supabase, ipapi.co). No incluye 'nonce' porque
+    # el sitio usa scripts inline sin build step — por eso lleva 'unsafe-inline'
+    # en script-src, lo cual limita cuánto protege contra XSS. Antes de forzarlo
+    # (quitar Report-Only) hay que revisar la consola del sitio en producción
+    # durante unos días y confirmar que no aparecen violaciones inesperadas.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://ipapi.co https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
 
 # Cache agresivo para assets estáticos
 [[headers]]
