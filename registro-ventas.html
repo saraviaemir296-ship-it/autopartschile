@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registro de Ventas | Desarmaduría Saravia</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<style>
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f4f6f8;color:#111;}
+.top{background:#111;color:#fff;padding:1.2rem 1rem;text-align:center;}
+.top h1{margin:0;font-size:1.2rem;font-weight:800;}
+.top p{margin:.3rem 0 0;font-size:.85rem;color:#ccc;}
+.wrap{max-width:480px;margin:1.2rem auto;padding:0 1rem 3rem;}
+.card{background:#fff;border-radius:14px;padding:1.5rem 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+label{display:block;font-size:.85rem;font-weight:700;margin:1.1rem 0 .4rem;color:#333;}
+label:first-of-type{margin-top:0;}
+input,select,textarea{width:100%;padding:.75rem .8rem;border:1.5px solid #ddd;border-radius:8px;font-size:1rem;font-family:inherit;background:#fff;color:#111;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#e11;}
+textarea{resize:vertical;min-height:60px;}
+.hint{font-size:.75rem;color:#888;margin-top:.3rem;}
+button{width:100%;margin-top:1.5rem;background:#e11;color:#fff;border:none;padding:1rem;border-radius:9px;font-size:1.05rem;font-weight:800;cursor:pointer;}
+button:disabled{opacity:.6;}
+.msg{margin-top:1rem;padding:.8rem;border-radius:8px;font-size:.9rem;text-align:center;display:none;}
+.msg.ok{display:block;background:#e8f9ee;color:#16a34a;border:1px solid #bbf0cc;}
+.msg.err{display:block;background:#fdeaea;color:#c0392b;border:1px solid #f5c2c2;}
+</style>
+</head>
+<body>
+
+<div class="top">
+<h1>📋 Registro rápido de ventas</h1>
+<p>Solo tú ves esto. Llénalo apenas cierres una venta.</p>
+</div>
+
+<div class="wrap">
+<div class="card">
+<form id="salesForm">
+<label for="amount">Monto de la venta (CLP)</label>
+<input type="number" id="amount" name="amount" placeholder="389990" required inputmode="numeric" min="0" step="1">
+
+<label for="product">¿Qué se vendió?</label>
+<input type="text" id="product" name="product" placeholder="Ej: Caja de cambios Suzuki Celerio" required>
+
+<label for="channel">¿Cómo te encontró el cliente?</label>
+<select id="channel" name="channel" required>
+<option value="" disabled selected>Selecciona una opción</option>
+<option value="google_ads">Google Ads (anuncio pagado)</option>
+<option value="google_organico">Google / Maps (búsqueda normal, sin anuncio)</option>
+<option value="facebook">Facebook</option>
+<option value="instagram">Instagram</option>
+<option value="tiktok">TikTok</option>
+<option value="cliente_antiguo">Cliente antiguo / ya me conocía</option>
+<option value="boca_a_boca">Boca a boca / recomendación</option>
+<option value="ya_tenia_numero">Ya tenía mi WhatsApp guardado</option>
+<option value="no_se">No sé / no le pregunté</option>
+<option value="otro">Otro</option>
+</select>
+<p class="hint">Si dice "lo vi en Google" pero no sabes si fue anuncio o búsqueda normal, elige "Google / Maps".</p>
+
+<label for="phone">Teléfono del cliente (opcional)</label>
+<input type="tel" id="phone" name="phone" placeholder="+56 9 ....">
+
+<label for="notes">Notas (opcional)</label>
+<textarea id="notes" name="notes" placeholder="Cualquier detalle extra"></textarea>
+
+<button type="submit" id="submitBtn">Guardar venta</button>
+<p class="msg" id="msg"></p>
+</form>
+</div>
+</div>
+
+<script>
+(function(){
+var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+
+var form = document.getElementById('salesForm');
+var msg = document.getElementById('msg');
+var btn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', function(e){
+e.preventDefault();
+var amount = document.getElementById('amount').value;
+var product = document.getElementById('product').value.trim();
+var channel = document.getElementById('channel').value;
+var phone = document.getElementById('phone').value.trim();
+var notes = document.getElementById('notes').value.trim();
+
+btn.disabled = true;
+btn.textContent = 'Guardando...';
+msg.className = 'msg';
+msg.textContent = '';
+
+fetch(SUPABASE_URL + '/rest/v1/manual_sales', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'apikey': SUPABASE_ANON_KEY,
+'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+'Prefer': 'return=minimal'
+},
+body: JSON.stringify({
+amount: amount,
+product_description: product,
+channel: channel,
+customer_phone: phone || null,
+notes: notes || null
+})
+}).then(function(res){
+if(res.ok){
+msg.textContent = '¡Venta guardada! ✅';
+msg.className = 'msg ok';
+form.reset();
+} else {
+throw new Error('status ' + res.status);
+}
+}).catch(function(){
+msg.textContent = 'Hubo un problema guardando la venta. Intenta de nuevo.';
+msg.className = 'msg err';
+}).finally(function(){
+btn.disabled = false;
+btn.textContent = 'Guardar venta';
+});
+});
+})();
+</script>
+
+</body>
+</html>
