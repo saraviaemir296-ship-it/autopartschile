@@ -38,7 +38,11 @@
       ".apc-close{position:absolute;top:.6rem;right:.8rem;background:none;border:none;font-size:1.3rem;color:#999;cursor:pointer;line-height:1}" +
       ".apc-error{color:#c0392b;font-size:.82rem;margin-top:.6rem;display:none}" +
       ".apc-item-summary{background:#f4f6f8;border-radius:8px;padding:.65rem .8rem;margin-bottom:1rem;font-size:.85rem;color:#333}" +
-      ".apc-item-summary strong{display:block;font-size:.92rem;color:#111;margin-bottom:.15rem}";
+      ".apc-item-summary strong{display:block;font-size:.92rem;color:#111;margin-bottom:.15rem}" +
+      ".btn-prod-buy{flex:1;text-align:center;background:#009ee3;color:#fff;border-radius:6px;padding:.5rem .4rem;font-size:.76rem;font-weight:700;text-decoration:none;display:block;cursor:pointer}" +
+      ".btn-prod-buy:hover{background:#0088c7}" +
+      ".rcard-pay.btn-prod-buy-detail{display:block;text-align:center;background:#009ee3;color:#fff;border-radius:7px;padding:.45rem .5rem;font-size:.81rem;font-weight:700;text-decoration:none;margin-bottom:.4rem}" +
+      ".rcard-pay.btn-prod-buy-detail:hover{background:#0088c7}";
     var style = document.createElement("style");
     style.id = "apc-checkout-styles";
     style.textContent = css;
@@ -152,13 +156,53 @@
     });
   }
 
+  function injectBuyButtons() {
+    // Inyecta el botón "Comprar ahora" en cada tarjeta de producto del catálogo
+    // (catalogo.html usa .prod-actions / .btn-prod-wa) que todavía no lo tenga.
+    // Las páginas de vehículo ya traen su propio botón .rcard-pay[data-sku] en HTML,
+    // así que esto no las afecta (usan .rcard-actions, no .prod-actions).
+    var actionsBlocks = document.querySelectorAll(".prod-actions");
+    if (!actionsBlocks.length) return;
+    injectStyles();
+    actionsBlocks.forEach(function (actions) {
+      if (actions.querySelector(".btn-prod-buy")) return;
+      var wa = actions.querySelector(".btn-prod-wa");
+      if (!wa) return;
+      var buy = document.createElement("a");
+      buy.href = "#";
+      buy.className = "rcard-pay btn-prod-buy";
+      buy.textContent = "🛒 Comprar ahora";
+      actions.insertBefore(buy, wa);
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", injectBuyButtons);
+  } else {
+    injectBuyButtons();
+  }
+
   document.addEventListener("click", function (e) {
-    var el = e.target.closest && e.target.closest("a.rcard-pay[data-sku]");
+    var el = e.target.closest && e.target.closest("a.rcard-pay");
     if (!el) return;
     e.preventDefault();
-    var card = el.closest(".repuesto-card");
-    var name = card ? (card.querySelector("h3") || {}).textContent : "";
-    var price = card ? (card.querySelector(".rcard-price") || {}).textContent : "";
-    openModal(el.getAttribute("data-sku"), name, price);
+    var card = el.closest(".repuesto-card") || el.closest(".prod-card");
+    var sku = el.getAttribute("data-sku");
+    var name = el.getAttribute("data-name");
+    var price = el.getAttribute("data-price");
+    if (!sku && card) {
+      var refBtn = card.querySelector("[data-sku]");
+      if (refBtn) {
+        sku = sku || refBtn.getAttribute("data-sku");
+        name = name || refBtn.getAttribute("data-name");
+      }
+    }
+    if (!name && card) {
+      name = (card.querySelector("h3") || {}).textContent;
+    }
+    if (!price && card) {
+      price = (card.querySelector(".rcard-price, .prod-price") || {}).textContent;
+    }
+    if (!sku) return;
+    openModal(sku, name, price);
   });
 })();
