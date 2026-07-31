@@ -349,3 +349,14 @@ tr:hover td{background:var(--gray-light)}
 .rdyn-badge{font-size:.7rem;color:var(--text-sec);font-weight:600;letter-spacing:0;margin-left:.35rem}
 @media(max-width:1000px){.promesas-inner.promesas-steps{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.promesas-inner.promesas-steps{grid-template-columns:1fr}}
+
+/* ===== Galeria multi-foto de vehiculo (estandar para todas las publicaciones futuras) ===== */
+.veh-gallery-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:1.1rem;max-width:420px}
+.veh-gallery-thumbs img,.veh-detail-hero-img{cursor:zoom-in}
+.veh-gallery-thumbs img{width:100%;height:100px;object-fit:cover;border-radius:8px;transition:opacity .2s,transform .2s}
+.veh-gallery-thumbs img:hover{opacity:.85;transform:scale(1.03)}
+.veh-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.veh-lightbox.active{opacity:1;pointer-events:auto}
+.veh-lightbox img{max-width:92vw;max-height:88vh;border-radius:8px;object-fit:contain}
+.veh-lightbox-close{position:absolute;top:1.25rem;right:1.5rem;color:#fff;font-size:2.25rem;font-weight:300;cursor:pointer;line-height:1}
+@media(max-width:600px){.veh-gallery-thumbs{max-width:100%}.veh-gallery-thumbs img{height:88px}}
