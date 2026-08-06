@@ -10,6 +10,18 @@
   to = "/.netlify/functions/google-reviews"
   status = 200
 
+# Unifica la convención de URLs: toda pagina.html redirige 301 a /pagina (URL limpia),
+# que es la que usa toda la navegación interna del sitio (menú, footer, cards).
+# 'force = true' es necesario porque sin él Netlify prioriza servir el archivo
+# estático existente en vez de aplicar el redirect. Sin esta regla, /pagina.html
+# y /pagina podían quedar como dos URLs cacheadas por separado sirviendo
+# contenido desincronizado entre sí (confirmado en catalogo.html vs catalogo).
+[[redirects]]
+  from = "/*.html"
+  to = "/:splat"
+  status = 301
+  force = true
+
 # Security headers globales
 [[headers]]
   for = "/*"
