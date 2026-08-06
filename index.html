@@ -9,7 +9,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://autopartschile.cl/">
 <link rel="icon" type="image/png" href="/img/favicon.png">
-<link rel="preload" as="image" href="/img/fachada-saravia.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="/img/hero-banner-saravia.webp" fetchpriority="high">
 <meta property="og:title" content="Repuestos Suzuki, Kia, Hyundai y Chevrolet | Desarmaduría Saravia">
 <meta property="og:description" content="Repuestos originales Suzuki, Kia, Hyundai y Chevrolet con garantía y procedencia acreditada. Empresa en Chile desde 1997. Envíos a todo Chile.">
 <meta property="og:url" content="https://autopartschile.cl/">
@@ -30,6 +30,14 @@ gtag('config', 'G-TXKXWQCTZ1');
 </script>
 <link rel="stylesheet" href="/styles.css?v=5">
 <style>
+/* === Hero Banner Premium === */
+.hero-banner{position:relative;width:100%;background:#0b0b0c;opacity:0;animation:heroBannerFadeIn .9s ease forwards;}
+.hero-banner-img{display:block;width:100%;height:clamp(220px,42vw,560px);object-fit:contain;margin:0 auto;background:#0b0b0c;}
+.hero-banner-h1-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.hero-banner-cta{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;padding:1.35rem 1rem 1.85rem;background:#0b0b0c;}
+@keyframes heroBannerFadeIn{from{opacity:0}to{opacity:1}}
+@media(max-width:600px){.hero-banner-img{height:clamp(160px,58vw,320px);}.hero-banner-cta{padding:1.1rem 1rem 1.5rem;}}
+@media(prefers-reduced-motion:reduce){.hero-banner{animation:none;opacity:1;}}
 /* === Vehiculos en Desarme === */
 .desarmes-section{padding:3.5rem 0;background:#f4f6f8;}
 .desarmes-title{text-align:center;font-size:1.9rem;font-weight:800;margin-bottom:.4rem;color:#111;}
@@ -112,37 +120,12 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 </nav>
 
-<section class="hero">
-<div class="container">
-<div class="hero-specialty">
-<span class="spec-eyebrow">Especialistas en</span>
-<span class="spec-brand">SUZUKI</span>
-<span class="spec-also">También: <b>Kia</b> · <b>Hyundai</b> · <b>Chevrolet</b></span>
-</div>
-<h1>Comprar un repuesto usado no debería ser una apuesta.</h1>
-<p class="hero-sub">Verificamos compatibilidad, acreditamos procedencia y garantizamos lo que vendemos. Empresa real en La Pintana, Santiago, desde 1997.</p>
-<div class="hero-ctas">
+<section class="hero-banner">
+<img src="/img/hero-banner-saravia.webp" alt="Desarmaduría Saravia — especialistas en repuestos Suzuki, Kia, Hyundai y Chevrolet. Empresa real en La Pintana, Santiago, desde 1997." class="hero-banner-img" width="1000" height="582" loading="eager" fetchpriority="high">
+<h1 class="hero-banner-h1-sr">Comprar un repuesto usado no debería ser una apuesta. Repuestos Suzuki, Kia, Hyundai y Chevrolet con garantía y procedencia acreditada.</h1>
+<div class="hero-banner-cta">
 <a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-primary" target="_blank" rel="noopener">💬 Cotizar mi repuesto por WhatsApp</a>
 <a href="/catalogo.html" class="btn-hero-secondary">Ver catálogo</a>
-</div>
-<div class="trust-indicators" role="list">
-<div class="trust-item" role="listitem">
-<svg class="trust-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-<span>Procedencia acreditada</span>
-</div>
-<div class="trust-item" role="listitem">
-<svg class="trust-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
-<span>Garantía incluida</span>
-</div>
-<div class="trust-item" role="listitem">
-<svg class="trust-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-<span>Compatibilidad verificada</span>
-</div>
-<div class="trust-item" role="listitem">
-<svg class="trust-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="16" r="1"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-<span>Compra tu repuesto online seguro</span>
-</div>
-</div>
 </div>
 </section>
 
