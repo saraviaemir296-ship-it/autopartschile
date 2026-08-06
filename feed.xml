@@ -1447,5 +1447,21 @@
 <g:excluded_destination>local_inventory_ads</g:excluded_destination>
 </item>
 
+<item>
+<g:id>SWGLX-001</g:id>
+<title>Motor completo 1.2 japonés (tapa plástica) - Suzuki Swift GLX 2012-2017 (usado)</title>
+<description>Motor completo 1.2 japonés (tapa plástica) usado, en buen estado. Compatible: Suzuki Swift GLX 1.2 (2012-2017), importación japonesa.</description>
+<link>https://autopartschile.cl/repuestos-suzuki-swift-glx-12-2012-2017.html</link>
+<g:image_link>https://raw.githubusercontent.com/saraviaemir296-ship-it/autopartschile/main/img/repuestos/suzuki-swift-glx-12-2012-2017-5.jpg</g:image_link>
+<g:availability>in stock</g:availability>
+<g:price>1078990 CLP</g:price>
+<g:condition>used</g:condition>
+<g:brand>Suzuki</g:brand>
+<g:identifier_exists>no</g:identifier_exists>
+<g:google_product_category>888</g:google_product_category>
+<g:product_type>Repuestos de desarme &gt; Suzuki &gt; Swift GLX 2012-2017 &gt; Motor</g:product_type>
+<g:excluded_destination>free_local_listings</g:excluded_destination>
+<g:excluded_destination>local_inventory_ads</g:excluded_destination>
+</item>
 </channel>
 </rss>
