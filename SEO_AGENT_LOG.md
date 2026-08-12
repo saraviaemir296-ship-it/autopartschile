@@ -21,67 +21,77 @@
 ## Ciclo 2 — 2026-08-12
 
 ### Auditado
-- **GA4/GSC**: segundo intento con ruta claramente distinta (navegar a google.com en vez de directo a Search Console) para aislar si el problema era específico de GSC o general de la extensión. **Falló igual (timeout).** Confirmado: es un problema general de conectividad de la extensión de Chrome, no de credenciales ni de la URL específica. Marcado `BLOQUEADO — GSC/GA4` definitivamente, sin más reintentos.
-- **SW-003 / ECU / M13A / Swift**: investigado en `data/products.json`. Dato real encontrado: SKU `SW-003`, "Computador de motor (ECU) M13A - código NF", compatible con Suzuki Swift 1.3 M13A 2005-2011, precio real $164.990, foto real (`ecu-swift-13-m13a-nf-2005-2011.jpg`, ya verificada como no-rota en Ciclo 1), actualmente enlazado a `vehiculos-en-desarme.html`. No existe ninguna página dedicada a "Swift 1.3 M13A 2005-2011" en el sitemap.
-- **Auditoría profunda de las 4 páginas Celerio K10B por color** (gris, rojo, beige, amarillo) — títulos, H1, meta description y grid de productos real, no solo conteo de `products.json`.
+- **GA4/GSC**: segundo intento, falló igual (timeout). Confirmado: problema general de conectividad de la extensión, no de credenciales. Marcado `BLOQUEADO` definitivamente.
+- **SW-003 / ECU / M13A / Swift**: dato real encontrado en `products.json`, sin página dedicada.
+- **Auditoría profunda de las 4 páginas Celerio K10B por color** (gris, rojo, beige, amarillo).
 
 ### Problema detectado (NUEVO, real)
-- **`repuestos-suzuki-celerio-k10b-rojo.html`**: indexada en sitemap con prioridad 0.8, pero el grid de productos parecía completamente vacío (`<div class="repuestos-grid" id="repuestos-grid"></div>` sin ningún `repuesto-card`). Cero productos reales mostrados.
-- **`repuestos-suzuki-celerio-k10b-beige.html`**: mismo caso — página indexada, sin ningún producto, solo mensaje "vehículo recién ingresado".
-
-### Acción realizada
-- Ninguna modificación de código este ciclo — el hallazgo requiere decisión del usuario antes de tocar las páginas.
+- `repuestos-suzuki-celerio-k10b-rojo.html` y `-beige.html`: grid de productos parecía vacío.
 
 ### Próxima prioridad
-Confirmar con el usuario si existen piezas reales de Celerio K10B rojo/beige pendientes de publicar. Si no, evaluar `noindex` temporal en esas 2 páginas hasta tener inventario real.
+Confirmar con el usuario si existen piezas reales pendientes de publicar.
 
 ### Bloqueos
-- GA4/GSC: confirmado bloqueo de extensión, no reintentar más sin cambio de entorno.
-- Eliminar 4 archivos de prueba: sigue sin `delete_file`.
-- Grand Vitara/Baleno: sigue `FALTA INFORMACIÓN`.
+- GA4/GSC, eliminar 4 archivos de prueba, Grand Vitara/Baleno.
 
 ## Ciclo 3 — 2026-08-12
 
 ### Auditado
-- **Las 34 páginas de vehículo, leyendo el HTML real de cada una** (no `products.json`), completando la auditoría iniciada en Ciclo 2. Checklist por página: producto/precio/imagen/CTA/SKU/schema/canonical/title/meta/H1/enlaces internos.
-- Repo completo en busca de más inventario real de Grand Vitara/Grand Nomade (Prioridad 1 del usuario): no se encontraron SKUs adicionales fuera de GRANOM-001, ya publicado. La página `repuestos-suzuki-grand-nomade-20.html` ya usa explícitamente "(Grand Vitara)" en title/H1/meta — confirma que es la misma unidad comercial, no hace falta página nueva.
-- `netlify.toml`: headers de seguridad (X-Frame-Options, X-Content-Type-Options, HSTS, Permissions-Policy, CSP activo sin Report-Only) — ya implementados y con nota de verificación previa sin violaciones de consola.
-- `checkout.js`: confirma que Mercado Pago y Webpay Plus están ambos conectados a Supabase Edge Functions reales (`mp-create-preference`, `webpay-create-transaction`), no simulados.
+- **Las 34 páginas de vehículo, leyendo el HTML real de cada una** (no `products.json`).
+- Repo completo en busca de más inventario real de Grand Vitara/Grand Nomade: no se encontraron SKUs adicionales fuera de GRANOM-001.
+- `netlify.toml` y `checkout.js` confirmados.
 
 ### HALLAZGO CRÍTICO: `data/products.json` no es la fuente de verdad completa del inventario
-Al leer el HTML real de cada página (no solo contar entradas de `products.json`), se descubrió que **dos páginas contienen decenas de productos reales con precio/SKU/CTA que nunca se cargaron a `products.json`**:
-
 | Página | Productos reales en HTML | Productos en `products.json` | Gap |
 |---|---|---|---|
-| `repuestos-suzuki-celerio-k10b-azul.html` | 55 (CELAZ-001 a CELAZ-055) | 2 (solo CELAZ-054/055) | 53 productos invisibles para Merchant Center / feed.xml / cualquier proceso que lea `products.json` |
+| `repuestos-suzuki-celerio-k10b-azul.html` | 55 (CELAZ-001 a CELAZ-055) | 2 (solo CELAZ-054/055) | 53 productos invisibles |
 | `repuestos-suzuki-dzire-2013.html` | 66 (DZ13-001 a DZ13-066) | 0 | 66 productos invisibles |
 
-Esto significa que el inventario real publicado en el sitio es de **~206 productos**, no 86. La matriz de prioridad P0-P4 armada en Ciclo 1 (basada en `products.json`) subestimó gravemente estas dos páginas — deben reclasificarse como P0 (mayor volumen del sitio junto a Celerio 2008).
-
-Implicación operativa: `products.json`, `feed.xml` y Merchant Center probablemente no reflejan ~119 productos reales que sí están visibles y comprables en el sitio. Esto es una pérdida de visibilidad SEO/Shopping real, no solo un problema de documentación.
-
 ### Corrección de un hallazgo previo (autocrítica)
-En Ciclo 2 registré `repuestos-suzuki-celerio-k10b-rojo.html` y `-beige.html` como posibles páginas "rotas" y sugerí `noindex` temporal. Con el HTML completo ya leído, **esa recomendación era incorrecta**: ambas páginas usan el mismo bloque `.repuestos-empty` (mensaje honesto + CTA WhatsApp) que ya es el patrón estándar y deliberado del sitio para vehículos recién ingresados sin piezas catalogadas todavía — el mismo patrón aparece en otras 13 páginas verificadas este ciclo (Ignis 2005, Celerio 2012, DMAX cobriza, Kia Optima, Jeep Grand Cherokee, Alto 11 2008, Mastervan x2, Spark, Kia Morning, Aerio x2, Swift 1.4 japonés, Alto K10 2012, Swift Dzire 2022). Causa raíz real: **(B) vehículo ingresado, piezas aún no catalogadas/fotografiadas** — no es un bug, no requiere `noindex`, no requiere fix de código. Se retira la recomendación de Ciclo 2.
+Se retira la recomendación de Ciclo 2 de `noindex` para rojo/beige — ambas páginas usan correctamente el patrón `.repuestos-empty`, no es un bug.
 
 ### Cambios realizados (commits reales en GitHub)
-1. `repuestos-suzuki-swift-indio.html` — agregado schema `Product`/`ItemList` faltante para SW-004 (dato 100% real ya visible en la página: nombre, precio $189.990, imagen, SKU).
-2. `repuestos-suzuki-swift-15-2010.html` — mismo fix para SW-002 ($189.990).
-3. `repuestos-suzuki-sx4-hatchback.html` — mismo fix para SX4-002 ($194.990).
-   - Nota de incidente: en el primer intento sobre `swift-indio.html` un `create_or_update_file` se ejecutó con contenido placeholder por error de secuencia de herramientas, dejando la página en blanco por ~4 minutos hasta el commit de corrección inmediato. Verificado con decodificación completa del contenido final — la página quedó correcta. Se documenta por transparencia, no se oculta.
-
-### Pendiente (no ejecutado este ciclo, con causa)
-- Schema `Product`/`ItemList` para `repuestos-suzuki-celerio-k10b-azul.html` (55 productos): requiere generar el bloque para 55 ítems sin inventar fotos (53/55 no tienen foto real todavía, solo 2 sí) y reescribir un archivo de 54 KB — se difirió por tamaño/riesgo y porque el usuario reordenó prioridades hacia seguridad/pagos a mitad de ciclo.
-- Sincronizar `products.json`/`feed.xml`/Merchant Center con los 119 productos reales no cargados (CELAZ-001/053 + DZ13-001/066) — acción de mayor ROI identificada este ciclo, pendiente de ejecución.
-
-### Evidencia
-- `repuestos-suzuki-celerio-k10b-azul.html`: sha `3eb354061894cc43198d1d5956fc28e7f3f5911b`, 55 `data-sku` confirmados por regex sobre el HTML real.
-- `repuestos-suzuki-dzire-2013.html`: 66 `data-sku` confirmados (prefijo DZ13-001 a DZ13-066), ya trae su propio `ItemList` schema completo (no necesita fix de schema, solo sync con `products.json`).
-- Las 34 páginas de vehículo del sitemap quedaron con auditoría HTML real completa (checklist producto/precio/imagen/CTA/SKU/schema/canonical/title/meta/H1).
+1-3. Schema `Product`/`ItemList` agregado a swift-indio (SW-004), swift-15-2010 (SW-002), sx4-hatchback (SX4-002), con nota de incidente de placeholder accidental (corregido en el momento, documentado por transparencia).
 
 ### Próxima prioridad
-Por instrucción explícita del usuario a mitad de este ciclo, la siguiente prioridad pasa a ser seguridad + pagos + arquitectura, dentro del nuevo alcance "AUTOPARTSCHILE — AUDITORÍA INTEGRAL 360°". Ver `MASTER_SITE_AUDIT.md` y `SITE_IMPROVEMENT_ROADMAP.md`. La sincronización de los 119 productos no cargados a `products.json`/`feed.xml` queda como la tarea SEO de mayor ROI para cuando se retome este hilo.
+Seguridad + pagos + arquitectura (nuevo alcance del usuario). Ver Ciclo 4.
 
 ### Bloqueos (sin cambios)
-- GA4/GSC: extensión de Chrome sin responder.
-- Eliminar 4 archivos de prueba huérfanos: sin `delete_file` en la herramienta de GitHub conectada.
-- Grand Vitara / Baleno: `FALTA INFORMACIÓN` — sin más inventario real encontrado en el repo este ciclo.
+- GA4/GSC, eliminar 4 archivos, Grand Vitara/Baleno.
+
+## Ciclo 4 — 2026-08-12 (Auditoría directa de Supabase + corrección de precios)
+
+### Auditado
+- Tabla completa `public.products` de Supabase (242 filas) vía `execute_sql`, cruzada contra las 34 páginas de vehículo ya auditadas con HTML real.
+- Precio real de Supabase vs. precio mostrado en HTML para los 3 SKU donde se agregó schema en Ciclo 3.
+
+### HALLAZGO: los 3 schemas agregados en Ciclo 3 tenían precio incorrecto
+El precio que se propagó al `Product` schema en Ciclo 3 se copió del HTML visible, que ya estaba desactualizado respecto a Supabase (la fuente real de cobro). `data/products.json` ya tenía el precio correcto de forma independiente, lo que confirma cuál era el valor real:
+
+| SKU | Precio HTML (Ciclo 3) | Precio real Supabase | Estado |
+|---|---|---|---|
+| SW-002 | $189.990 | $159.990 | Corregido este ciclo |
+| SW-004 | $189.990 | $229.990 | Corregido este ciclo — el cliente veía menos de lo que se le cobraba |
+| SX4-002 | $194.990 | $224.990 | Corregido este ciclo — mismo caso |
+
+### HALLAZGO: inventario real desconectado (ningún HTML lo muestra)
+Al menos 16 SKU activos en Supabase con precio y stock reales no aparecen en ninguna página del sitio, incluyendo 33 piezas de Celerio 2012 (la página dice "0 productos" cuando en realidad hay 33) y varios motores/cajas de cambio completos de alto valor ($300.000-$850.000). Detalle completo en `INVENTORY_RECONCILIATION.md` sección 5 — no se publicó nada de esta lista, requiere confirmación de vigencia primero.
+
+### HALLAZGO: DZ13 (66 productos Dzire 2013) no existen en Supabase
+Más grave que un problema de sincronización de JSON: el botón "Pagar ahora" de estos 66 productos falla porque el SKU no existe en la base de datos que consulta el checkout. Detalle en `INVENTORY_RECONCILIATION.md` sección 4.2 y `PAYMENT_SECURITY_AUDIT.md`.
+
+### Cambios realizados (commits reales en GitHub)
+1. `repuestos-suzuki-swift-15-2010.html` — precio corregido a $159.990 (commit `de5cb88`).
+2. `repuestos-suzuki-sx4-hatchback.html` — precio corregido a $224.990 (commit `96f2584`).
+3. `repuestos-suzuki-swift-indio.html` — precio corregido a $229.990 (commit `e446cb0`).
+4. Creado `INVENTORY_RECONCILIATION.md` y `PAYMENT_SECURITY_AUDIT.md`.
+5. `MASTER_SITE_AUDIT.md` y `SITE_IMPROVEMENT_ROADMAP.md` actualizados con Ciclo 2 de hallazgos de Supabase.
+
+### Pendiente (no ejecutado este ciclo, con causa)
+- Sincronizar `products.json`/`feed.xml` con los 53 CELAZ faltantes (seguro, no requiere confirmación adicional).
+- Confirmar con Emir vigencia del inventario desconectado antes de publicar (productos de alto valor, requiere decisión humana).
+- Confirmar estado real de `WEBPAY_ENV` en el panel de Supabase (no legible por código).
+- Decidir sobre RLS de `oportunidades` y sobre lógica de descuento de stock al confirmar pago.
+
+### Bloqueos (sin cambios)
+- GA4/GSC, eliminar 4 archivos de prueba, Grand Vitara/Baleno, lectura completa de `feed.xml` (tamaño de archivo + bloqueo de red a raw.githubusercontent.com desde el sandbox).
