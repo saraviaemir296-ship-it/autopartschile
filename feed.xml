@@ -1463,5 +1463,21 @@
 <g:excluded_destination>free_local_listings</g:excluded_destination>
 <g:excluded_destination>local_inventory_ads</g:excluded_destination>
 </item>
+<item>
+<g:id>ALT800F8D-MOTOR-01</g:id>
+<title>Motor completo Suzuki Alto 800 (código F8D) - Suzuki Alto 800 2014-2023 (usado)</title>
+<description>Motor completo Suzuki Alto 800, código de motor F8D, 81.000 km, garantía de 3 meses y factura de inscripción. Retirado de desarme real en La Pintana, Santiago.</description>
+<link>https://autopartschile.cl/repuestos-suzuki-alto-800-f8d-azul.html</link>
+<g:image_link>https://raw.githubusercontent.com/saraviaemir296-ship-it/autopartschile/main/img/repuestos/a800_10_900x1600.jpg</g:image_link>
+<g:availability>in stock</g:availability>
+<g:price>649990 CLP</g:price>
+<g:condition>used</g:condition>
+<g:brand>Suzuki</g:brand>
+<g:identifier_exists>no</g:identifier_exists>
+<g:google_product_category>888</g:google_product_category>
+<g:product_type>Repuestos de desarme &gt; Suzuki &gt; Alto 800 F8D 2014-2023 &gt; Motor</g:product_type>
+<g:excluded_destination>free_local_listings</g:excluded_destination>
+<g:excluded_destination>local_inventory_ads</g:excluded_destination>
+</item>
 </channel>
 </rss>
