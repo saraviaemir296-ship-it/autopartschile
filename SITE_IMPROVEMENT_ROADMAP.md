@@ -41,7 +41,7 @@ Roadmap vivo, actualizado por ciclos. No se sobrescribe historial.
 
 ## FASE 7 — Ecommerce
 
-17. Evaluar el gap de arquitectura de SW-003 (Swift M13A) una vez haya más inventario.
+17. **SW-003 (Swift M13A) — investigación cerrada (task #196), decisión pendiente de Emir.** El criterio real del sitio no es "cantidad de productos" (hay ≥10 páginas de vehículo con 1 solo producto), sino si el auto tiene tarjeta física en `vehiculos-en-desarme.html`. SW-003 es el único caso SW-* sin esa tarjeta. No se crea página ni se cambia el link hasta confirmar con Emir: ¿el ECU M13A salió de un Swift 1.3 2005-2011 que sigue en el patio (crear tarjeta + página), o fue pieza suelta sin vehículo asociado (dejar como está)? Ver detalle en `SEO_BACKLOG.md` y `SEO_AGENT_LOG.md` Ciclo 5.
 
 ## FASE 8 — Escalabilidad
 
