@@ -95,3 +95,25 @@ Más grave que un problema de sincronización de JSON: el botón "Pagar ahora" d
 
 ### Bloqueos (sin cambios)
 - GA4/GSC, eliminar 4 archivos de prueba, Grand Vitara/Baleno, lectura completa de `feed.xml` (tamaño de archivo + bloqueo de red a raw.githubusercontent.com desde el sandbox).
+
+## Ciclo 5 — 2026-08-19 (Investigación cerrada de task #196 — SW-003)
+
+### Auditado
+- Búsqueda de "SW-003", "M13A", "Swift" + "NF" en todo el repo: aparece en `data/products.json`, `feed.xml`, `catalogo.html`, `SEO_BACKLOG.md`, `SITE_IMPROVEMENT_ROADMAP.md`, `PRICE_STOCK_RECONCILIATION.md`.
+- `data/products.json`: SW-003 = "Computador de motor (ECU) M13A - código NF", compat "Suzuki Swift 1.3 M13A 2005-2011", $164.990, imagen real `img/repuestos/ecu-swift-13-m13a-nf-2005-2011.jpg` (confirmado que el archivo existe físicamente en el repo), `url` = `vehiculos-en-desarme.html`.
+- Las 15 páginas `repuestos-suzuki-swift-*.html` existentes (14 japonés 2015, 1.5 2010, Dzire 2022, GLX 1.2 2012-2017, Indio) revisadas por `<title>` y código de motor: ninguna corresponde a "1.3 M13A 2005-2011". No hay página huérfana mal enlazada — simplemente no existe página para esa variante.
+- `vehiculos-en-desarme.html` (catálogo de autos físicos actualmente en el patio): confirmado que NO tiene tarjeta para "Suzuki Swift 1.3 M13A 2005-2011" — a diferencia de SW-002 (Swift 1.5 2010, sí tiene tarjeta + página) y SW-004 (Swift Indio, sí tiene tarjeta + página).
+
+### Corrección de un hallazgo previo (autocrítica)
+Ciclos 1-3 justificaron no crear página con "un solo producto no justifica página nueva". Ese criterio es inconsistente con el propio sitio: existen ≥10 páginas de vehículo con un solo producto real (Ciaz, S-Cross, Grand Nomade, Swift 1.5 2010, Swift Indio, etc.). El criterio real que usa el sitio es otro: página de vehículo = auto físico con tarjeta en `vehiculos-en-desarme.html`. SW-003 es el único caso SW-* sin esa tarjeta.
+
+### Decisión de este ciclo
+No se crea página nueva ni se edita el link de SW-003. Falta un dato real que no está en el repo y que no se puede inventar: si el ECU SW-003 salió de un Swift 1.3 M13A 2005-2011 que sigue físicamente en el patio (crear tarjeta + página, igual que los demás) o si fue una pieza suelta sin vehículo asociado en el patio (el link genérico actual a `vehiculos-en-desarme.html` es correcto y no requiere cambio). Pregunta queda documentada para Emir en `SEO_BACKLOG.md` y `SITE_IMPROVEMENT_ROADMAP.md`.
+
+### Cambios realizados (commits reales en GitHub)
+1. `SEO_BACKLOG.md` — sección "P2 — GAP DE ARQUITECTURA CONOCIDO" reescrita con el hallazgo real y la pregunta exacta pendiente para Emir.
+2. `SITE_IMPROVEMENT_ROADMAP.md` — ítem 17 (Fase 7) actualizado con el mismo hallazgo.
+3. `SEO_AGENT_LOG.md` — este ciclo.
+
+### Bloqueos
+- SW-003: requiere confirmación humana de Emir (no es un bloqueo técnico, es un dato de origen físico de la pieza que no vive en ningún archivo del repo).
