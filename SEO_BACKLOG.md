@@ -30,9 +30,13 @@ repuestos-suzuki-celerio-k10b-amarillo.html, repuestos-suzuki-ciaz.html, repuest
 
 Acción: no tocar contenido hasta tener datos de GSC o más inventario real.
 
-## P2 — GAP DE ARQUITECTURA CONOCIDO
+## P2 — GAP DE ARQUITECTURA CONOCIDO (task #196 — investigación cerrada, decisión pendiente de Emir)
 
-- **SW-003** (ECU Swift M13A código NF, $164.990) vive en `vehiculos-en-desarme.html` sin página de vehículo propia. Un solo producto no justifica página nueva. Sin cambios este ciclo.
+- **SW-003** (Computador de motor ECU M13A código NF, Suzuki Swift 1.3 2005-2011, $164.990, foto real ya subida en `img/repuestos/ecu-swift-13-m13a-nf-2005-2011.jpg`) vive en `vehiculos-en-desarme.html` (link genérico), que NO tiene ninguna tarjeta de vehículo para "Suzuki Swift 1.3 M13A 2005-2011" — no está enlazado a la página equivocada, simplemente no existe página ni tarjeta de vehículo para ese auto.
+- Se descarta la razón usada en Ciclos 1-3 ("un solo producto no justifica página nueva"): el sitio ya tiene ≥10 páginas de vehículo con un solo producto real (ver sección P2 arriba: Ciaz, S-Cross, Grand Nomade, Swift 1.5 2010, Swift Indio, etc.), así que el conteo de productos no es el criterio real usado en el sitio.
+- El criterio real observado: cada página de vehículo existente corresponde a un auto físico que SÍ aparece como tarjeta en `vehiculos-en-desarme.html` (ej. "Suzuki Swift 1.5 Automático 2010" está listado ahí y tiene su página). SW-003 es la única pieza SW-* cuyo vehículo de origen NO aparece como tarjeta en `vehiculos-en-desarme.html`.
+- **Dato que falta y que no está en el repo**: si este ECU salió de un Suzuki Swift 1.3 M13A 2005-2011 que sigue físicamente en el patio de desarme (en cuyo caso corresponde crear su tarjeta en `vehiculos-en-desarme.html` + página dedicada, igual que los demás autos), o si fue una pieza suelta que llegó/se compró individualmente sin el resto del vehículo (en cuyo caso crear una "página de vehículo" sería representar un auto que la empresa no tiene, y el link genérico actual es correcto).
+- **No se ejecuta ningún cambio este ciclo** (ni página nueva ni edición de `url` en `products.json`/`feed.xml`) hasta que Emir confirme cuál de los dos escenarios es real. Pregunta exacta pendiente de responder: "¿El ECU SW-003 salió de un Swift 1.3 2005-2011 que todavía está en el patio, o fue una pieza suelta?"
 
 ## P3 — CERO PRODUCTOS, PERO ARQUITECTURA CORRECTA (no tocar)
 
