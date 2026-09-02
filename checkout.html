@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout | AutopartsChile – Desarmaduría Saravia</title>
+<link rel="icon" href="/img/favicon.png">
+<meta name="description" content="Finaliza tu compra de repuestos usados en Desarmaduría Saravia. Pago seguro con Webpay o Mercado Pago.">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://autopartschile.cl/checkout">
+<link rel="stylesheet" href="/styles.css?v=5">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TXKXWQCTZ1');
+</script>
+<style>
+.co-wrap{max-width:640px;margin:0 auto;padding:2.5rem 1rem 4rem}
+.co-step{background:#fff;border:1px solid var(--gray-border);border-radius:var(--r);padding:1.4rem 1.3rem;margin-bottom:1.1rem}
+.co-step h2{font-size:1.02rem;font-weight:800;color:var(--black);margin:0 0 1rem;display:flex;align-items:center;gap:.5rem}
+.co-step h2 .n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--red);color:#fff;border-radius:50%;font-size:.8rem}
+.co-empty{text-align:center;padding:2.5rem 1rem}
+.co-empty a{color:var(--red);font-weight:700}
+.co-cart-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--gray-border);font-size:.9rem}
+.co-cart-row:last-child{border-bottom:none}
+.co-cart-row .qty{color:#777;font-size:.82rem}
+.co-cart-row .price{font-weight:800;color:var(--black)}
+.co-field{margin-bottom:.8rem}
+.co-field label{display:block;font-size:.8rem;font-weight:700;color:#333;margin-bottom:.3rem}
+.co-field input,.co-field select{width:100%;padding:.6rem .7rem;border:1.5px solid var(--gray-border);border-radius:8px;font-size:.9rem;box-sizing:border-box;font-family:inherit}
+.co-field input:focus,.co-field select:focus{outline:none;border-color:var(--red)}
+.co-row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.co-error-text{color:#c0392b;font-size:.76rem;margin-top:.25rem;display:none}
+.co-field.invalid input,.co-field.invalid select{border-color:#c0392b}
+.co-field.invalid .co-error-text{display:block}
+.co-delivery-opt{display:flex;gap:.7rem;align-items:flex-start;border:1.5px solid var(--gray-border);border-radius:8px;padding:.8rem;margin-bottom:.6rem;cursor:pointer}
+.co-delivery-opt.selected{border-color:var(--red);background:#fff6f6}
+.co-delivery-opt input{margin-top:.15rem}
+.co-delivery-opt .label{font-weight:800;font-size:.9rem;color:var(--black)}
+.co-delivery-opt .desc{font-size:.8rem;color:#666;margin-top:.15rem}
+#co-address-fields{display:none;margin-top:.9rem;padding-top:.9rem;border-top:1px dashed var(--gray-border)}
+#co-address-fields.show{display:block}
+.co-summary-row{display:flex;justify-content:space-between;font-size:.9rem;padding:.4rem 0;color:#444}
+.co-summary-row.total{font-size:1.1rem;font-weight:800;color:var(--black);border-top:1px solid var(--gray-border);margin-top:.5rem;padding-top:.7rem}
+.co-summary-row .tbc{color:var(--red);font-weight:800}
+.co-disclaimer{background:var(--gray-light);border-radius:8px;padding:.7rem .85rem;font-size:.78rem;color:#555;margin-top:.8rem;line-height:1.4}
+.co-pay-btn{width:100%;color:#fff;border:none;border-radius:8px;padding:.85rem;font-size:.95rem;font-weight:800;cursor:pointer;margin-bottom:.6rem;display:block;text-align:center}
+.co-pay-mp{background:#009ee3}
+.co-pay-mp:hover{background:#0088c7}
+.co-pay-webpay{background:#e2004f}
+.co-pay-webpay:hover{background:#c40044}
+.co-pay-btn:disabled{opacity:.55;cursor:not-allowed}
+.co-global-error{color:#c0392b;font-size:.85rem;margin-top:.7rem;display:none;text-align:center}
+.co-hint{font-size:.78rem;color:#888;margin-top:-.4rem;margin-bottom:.9rem}
+</style>
+</head>
+<body>
+<header class="header"><div class="container header-inner"><a href="/" class="logo"><span class="logo-main">Desarmaduría Saravia</span><span class="logo-sub">AutopartsChile</span></a><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-wa-header" target="_blank" rel="noopener">&#128172; Cotizar por WhatsApp</a></div></header>
+<nav class="nav"><div class="container"><button class="nav-toggle" onclick="document.getElementById('nl').classList.toggle('open')" aria-label="Menú">&#9776; Menú</button><ul class="nav-list" id="nl"><li><a href='/catalogo'>Catálogo</a></li><li><a href='/vehiculos-en-desarme'>Vehículos en Desarme</a></li><li><a href='/como-comprar'>Cómo Comprar</a></li><li><a href='/garantias'>Garantías</a></li><li><a href='/envios'>Envíos</a></li><li><a href='/metodos-de-pago'>Métodos de Pago</a></li><li><a href='/sucursales'>Sucursales</a></li><li><a href='/faq'>FAQ</a></li><li><a href='/opiniones'>Opiniones</a></li><li><a href='/por-que-elegirnos'>¿Por qué Elegirnos?</a></li></ul></div></nav>
+
+<section class="page-content"><div class="co-wrap">
+
+<div id="co-empty" class="co-empty" style="display:none">
+  <h1 style="font-size:1.3rem;font-weight:800;color:var(--black);margin-bottom:.6rem">Tu carrito está vacío</h1>
+  <p style="color:#666;margin-bottom:1rem">Agrega repuestos desde el <a href="/catalogo">catálogo</a> o desde una página de <a href="/vehiculos-en-desarme">vehículo en desarme</a>.</p>
+</div>
+
+<form id="co-form" style="display:none">
+
+  <div class="co-step">
+    <h2><span class="n">1</span>Tu pedido</h2>
+    <div id="co-cart-items"></div>
+  </div>
+
+  <div class="co-step">
+    <h2><span class="n">2</span>Datos del cliente</h2>
+    <div class="co-row2">
+      <div class="co-field" data-field="first_name"><label>Nombre</label><input type="text" name="first_name" required><p class="co-error-text">Ingresa tu nombre.</p></div>
+      <div class="co-field" data-field="last_name"><label>Apellido</label><input type="text" name="last_name" required><p class="co-error-text">Ingresa tu apellido.</p></div>
+    </div>
+    <div class="co-field" data-field="rut"><label>RUT</label><input type="text" name="rut" placeholder="12.345.678-9" required><p class="co-error-text">RUT inválido.</p></div>
+    <div class="co-row2">
+      <div class="co-field" data-field="email"><label>Correo</label><input type="email" name="email" required><p class="co-error-text">Correo inválido.</p></div>
+      <div class="co-field" data-field="phone"><label>Teléfono</label><input type="tel" name="phone" placeholder="+56 9 ..." required><p class="co-error-text">Ingresa tu teléfono.</p></div>
+    </div>
+  </div>
+
+  <div class="co-step">
+    <h2><span class="n">3</span>Método de entrega</h2>
+    <label class="co-delivery-opt" id="opt-pickup">
+      <input type="radio" name="delivery_method" value="pickup" checked>
+      <div><div class="label">Retiro en tienda — $0</div><div class="desc">Retiras en Av. Lo Blanco 1072 o Guacolda 2050, La Pintana. Te avisamos por WhatsApp cuando esté listo.</div></div>
+    </label>
+    <label class="co-delivery-opt" id="opt-delivery">
+      <input type="radio" name="delivery_method" value="home_delivery">
+      <div><div class="label">Despacho a domicilio</div><div class="desc">El costo se confirma después según destino, peso y dimensiones.</div></div>
+    </label>
+
+    <div id="co-address-fields">
+      <div class="co-field" data-field="region">
+        <label>Región</label>
+        <select name="region" required>
+          <option value="">Selecciona una región</option>
+          <option>Arica y Parinacota</option><option>Tarapacá</option><option>Antofagasta</option>
+          <option>Atacama</option><option>Coquimbo</option><option>Valparaíso</option>
+          <option>Metropolitana de Santiago</option><option>Libertador General Bernardo O'Higgins</option>
+          <option>Maule</option><option>Ñuble</option><option>Biobío</option><option>La Araucanía</option>
+          <option>Los Ríos</option><option>Los Lagos</option><option>Aysén del General Carlos Ibáñez del Campo</option>
+          <option>Magallanes y de la Antártica Chilena</option>
+        </select>
+        <p class="co-error-text">Selecciona tu región.</p>
+      </div>
+      <div class="co-field" data-field="comuna"><label>Comuna</label><input type="text" name="comuna"><p class="co-error-text">Ingresa tu comuna.</p></div>
+      <div class="co-row2">
+        <div class="co-field" data-field="direccion"><label>Dirección</label><input type="text" name="direccion" placeholder="Calle"><p class="co-error-text">Ingresa tu dirección.</p></div>
+        <div class="co-field" data-field="numero"><label>Número</label><input type="text" name="numero"><p class="co-error-text">Ingresa el número.</p></div>
+      </div>
+      <div class="co-field"><label>Depto / Casa (opcional)</label><input type="text" name="depto"></div>
+      <div class="co-field"><label>Referencia de entrega (opcional)</label><input type="text" name="referencia" placeholder="Ej: casa color azul, portón negro"></div>
+    </div>
+  </div>
+
+  <div class="co-step">
+    <h2><span class="n">4</span>Resumen</h2>
+    <div class="co-summary-row"><span>Productos</span><span id="co-sum-products">$0</span></div>
+    <div class="co-summary-row"><span>Despacho</span><span id="co-sum-shipping">$0</span></div>
+    <div class="co-summary-row total"><span id="co-sum-total-label">Total</span><span id="co-sum-total">$0</span></div>
+    <div class="co-disclaimer" id="co-disclaimer" style="display:none">El costo de despacho a domicilio será confirmado posteriormente según destino, peso y dimensiones. Tu pedido queda registrado igualmente; el pago de hoy corresponde solo a los productos.</div>
+  </div>
+
+  <div class="co-step">
+    <h2><span class="n">5</span>Método de pago</h2>
+    <button type="submit" class="co-pay-btn co-pay-mp" name="gateway" value="mercadopago">Pagar con Mercado Pago &rarr;</button>
+    <button type="submit" class="co-pay-btn co-pay-webpay" name="gateway" value="webpay">Pagar con Webpay Plus &rarr;</button>
+    <p class="co-global-error" id="co-global-error"></p>
+  </div>
+
+</form>
+
+</div></section>
+
+<footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/desarmaduria.multimarcas.cyc" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href='/catalogo'>Repuestos Suzuki</a></li><li><a href='/vehiculos-en-desarme'>Vehículos en Desarme</a></li><li><a href='/catalogo#kia'>Repuestos Kia</a></li><li><a href='/catalogo#hyundai'>Repuestos Hyundai</a></li><li><a href='/catalogo#chevrolet'>Repuestos Chevrolet</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href='/garantias'>Garantías y Devoluciones</a></li><li><a href='/envios'>Envíos a Todo Chile</a></li><li><a href='/metodos-de-pago'>Métodos de Pago</a></li><li><a href='/como-comprar'>Cómo Comprar</a></li><li><a href='/por-que-elegirnos'>¿Por qué Elegirnos?</a></li><li><a href='/faq'>Preguntas Frecuentes</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>&#128205; Av. Lo Blanco 1072, La Pintana</p><p>&#128205; Guacolda 2050, La Pintana</p><p>&#128172; <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>&#169; 2026 Desarmaduría Saravia – AutopartsChile. Todos los derechos reservados.</p></div></div></footer>
+<a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">&#128172;</a>
+<script src="/cart.js" defer></script>
+<script>
+(function () {
+  "use strict";
+  var MP_ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/mp-create-preference";
+  var WEBPAY_ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/webpay-create-transaction";
+  var STORAGE_KEY = "apc_checkout_customer";
+
+  function loadSavedCustomer() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { return {}; }
+  }
+  function saveCustomer(c) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } catch (e) {}
+  }
+  function getCart() {
+    try { var raw = JSON.parse(localStorage.getItem("apc_cart_v1") || "[]"); return Array.isArray(raw) ? raw : []; } catch (e) { return []; }
+  }
+  function formatPrice(n) {
+    n = Math.round(Number(n) || 0);
+    return "$" + n.toLocaleString("es-CL");
+  }
+
+  function validRut(rutRaw) {
+    var rut = String(rutRaw || "").replace(/[.\s]/g, "").toUpperCase();
+    var m = rut.match(/^(\d{1,8})-?([0-9K])$/);
+    if (!m) return false;
+    var body = m[1], dv = m[2];
+    var sum = 0, mul = 2;
+    for (var i = body.length - 1; i >= 0; i--) {
+      sum += parseInt(body[i], 10) * mul;
+      mul = mul === 7 ? 2 : mul + 1;
+    }
+    var res = 11 - (sum % 11);
+    var expected = res === 11 ? "0" : res === 10 ? "K" : String(res);
+    return dv === expected;
+  }
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || ""); }
+  function validPhone(v) { return String(v || "").replace(/[^\d]/g, "").length >= 8; }
+
+  function redirectPost(url, params) {
+    var form = document.createElement("form");
+    form.method = "POST";
+    form.action = url;
+    Object.keys(params).forEach(function (key) {
+      var input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = params[key];
+      form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  var formEl = document.getElementById("co-form");
+  var emptyEl = document.getElementById("co-empty");
+  var cartItemsEl = document.getElementById("co-cart-items");
+  var addressFields = document.getElementById("co-address-fields");
+  var optPickup = document.getElementById("opt-pickup");
+  var optDelivery = document.getElementById("opt-delivery");
+  var sumProducts = document.getElementById("co-sum-products");
+  var sumShipping = document.getElementById("co-sum-shipping");
+  var sumTotal = document.getElementById("co-sum-total");
+  var sumTotalLabel = document.getElementById("co-sum-total-label");
+  var disclaimerEl = document.getElementById("co-disclaimer");
+  var globalErrorEl = document.getElementById("co-global-error");
+
+  function renderCart() {
+    var cart = getCart();
+    if (cart.length === 0) {
+      emptyEl.style.display = "block";
+      formEl.style.display = "none";
+      return false;
+    }
+    emptyEl.style.display = "none";
+    formEl.style.display = "block";
+    cartItemsEl.innerHTML = "";
+    var subtotal = 0;
+    cart.forEach(function (it) {
+      subtotal += it.price * it.qty;
+      var row = document.createElement("div");
+      row.className = "co-cart-row";
+      row.innerHTML = "<span>" + it.name + ' <span class="qty">x' + it.qty + "</span></span><span class=\"price\">" + formatPrice(it.price * it.qty) + "</span>";
+      cartItemsEl.appendChild(row);
+    });
+    sumProducts.textContent = formatPrice(subtotal);
+    updateSummary();
+    return true;
+  }
+
+  function currentDeliveryMethod() {
+    var checked = formEl.querySelector('input[name="delivery_method"]:checked');
+    return checked ? checked.value : "pickup";
+  }
+
+  function updateSummary() {
+    var cart = getCart();
+    var subtotal = cart.reduce(function (n, it) { return n + it.price * it.qty; }, 0);
+    var method = currentDeliveryMethod();
+    sumProducts.textContent = formatPrice(subtotal);
+    if (method === "home_delivery") {
+      sumShipping.innerHTML = '<span class="tbc">Por confirmar</span>';
+      sumTotalLabel.textContent = "Total productos";
+      sumTotal.textContent = formatPrice(subtotal);
+      disclaimerEl.style.display = "block";
+      addressFields.classList.add("show");
+      optDelivery.classList.add("selected");
+      optPickup.classList.remove("selected");
+      setAddressRequired(true);
+    } else {
+      sumShipping.textContent = "$0";
+      sumTotalLabel.textContent = "Total";
+      sumTotal.textContent = formatPrice(subtotal);
+      disclaimerEl.style.display = "none";
+      addressFields.classList.remove("show");
+      optPickup.classList.add("selected");
+      optDelivery.classList.remove("selected");
+      setAddressRequired(false);
+    }
+  }
+
+  function setAddressRequired(required) {
+    ["region", "comuna", "direccion", "numero"].forEach(function (name) {
+      var el = formEl.querySelector('[name="' + name + '"]');
+      if (el) el.required = required;
+    });
+  }
+
+  optPickup.addEventListener("click", updateSummary);
+  optDelivery.addEventListener("click", updateSummary);
+  formEl.addEventListener("change", function (e) {
+    if (e.target.name === "delivery_method") updateSummary();
+  });
+
+  function clearErrors() {
+    formEl.querySelectorAll(".co-field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
+    globalErrorEl.style.display = "none";
+  }
+  function markInvalid(fieldName) {
+    var field = formEl.querySelector('[data-field="' + fieldName + '"]');
+    if (field) field.classList.add("invalid");
+  }
+
+  function validate(fd) {
+    clearErrors();
+    var ok = true;
+    if (!fd.get("first_name")) { markInvalid("first_name"); ok = false; }
+    if (!fd.get("last_name")) { markInvalid("last_name"); ok = false; }
+    if (!validRut(fd.get("rut"))) { markInvalid("rut"); ok = false; }
+    if (!validEmail(fd.get("email"))) { markInvalid("email"); ok = false; }
+    if (!validPhone(fd.get("phone"))) { markInvalid("phone"); ok = false; }
+    if (currentDeliveryMethod() === "home_delivery") {
+      if (!fd.get("region")) { markInvalid("region"); ok = false; }
+      if (!fd.get("comuna")) { markInvalid("comuna"); ok = false; }
+      if (!fd.get("direccion")) { markInvalid("direccion"); ok = false; }
+      if (!fd.get("numero")) { markInvalid("numero"); ok = false; }
+    }
+    return ok;
+  }
+
+  // Prellenar datos guardados de una compra anterior (mismo patrón que checkout.js)
+  (function prefill() {
+    var saved = loadSavedCustomer();
+    ["first_name", "last_name", "email", "phone"].forEach(function (k) {
+      if (saved[k]) {
+        var el = formEl.querySelector('[name="' + k + '"]');
+        if (el) el.value = saved[k];
+      }
+    });
+  })();
+
+  formEl.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var fd = new FormData(formEl);
+    if (!validate(fd)) return;
+
+    var gateway = (e.submitter && e.submitter.value) || "mercadopago";
+    var cart = getCart();
+    var customer = {
+      first_name: fd.get("first_name"),
+      last_name: fd.get("last_name"),
+      rut: fd.get("rut"),
+      email: fd.get("email"),
+      phone: fd.get("phone"),
+    };
+    saveCustomer(customer);
+
+    var method = currentDeliveryMethod();
+    var delivery = { method: method };
+    if (method === "home_delivery") {
+      delivery.region = fd.get("region");
+      delivery.comuna = fd.get("comuna");
+      delivery.direccion = fd.get("direccion");
+      delivery.numero = fd.get("numero");
+      delivery.depto = fd.get("depto") || null;
+      delivery.referencia = fd.get("referencia") || null;
+    }
+
+    var payload = {
+      items: cart.map(function (it) { return { sku: it.sku, quantity: it.qty }; }),
+      customer: customer,
+      delivery: delivery,
+    };
+
+    var btns = formEl.querySelectorAll(".co-pay-btn");
+    var clickedBtn = e.submitter;
+    btns.forEach(function (b) { b.disabled = true; });
+    var originalText = clickedBtn.textContent;
+    clickedBtn.textContent = "Generando pago...";
+    globalErrorEl.style.display = "none";
+
+    var endpoint = gateway === "webpay" ? WEBPAY_ENDPOINT : MP_ENDPOINT;
+
+    fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+      .then(function (res) {
+        if (gateway === "webpay") {
+          if (!res.ok || !res.data.url || !res.data.token) {
+            throw new Error((res.data && res.data.error) || "No se pudo generar el pago");
+          }
+          if (window.apcCart) window.apcCart.clear();
+          redirectPost(res.data.url, { token_ws: res.data.token });
+          return;
+        }
+        if (!res.ok || !res.data.init_point) {
+          throw new Error((res.data && res.data.error) || "No se pudo generar el pago");
+        }
+        if (window.apcCart) window.apcCart.clear();
+        window.location.href = res.data.init_point;
+      })
+      .catch(function (err) {
+        globalErrorEl.textContent = "No pudimos generar el link de pago (" + err.message + "). Puedes escribirnos por WhatsApp para coordinar el pago.";
+        globalErrorEl.style.display = "block";
+        btns.forEach(function (b) { b.disabled = false; });
+        clickedBtn.textContent = originalText;
+      });
+  });
+
+  renderCart();
+  updateSummary();
+})();
+</script>
+</body>
+</html>
