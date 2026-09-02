@@ -30,33 +30,45 @@ gtag('config', 'G-TXKXWQCTZ1');
 </script>
 <link rel="stylesheet" href="/styles.css?v=5">
 <style>
-/* === Hero Rotator Premium (vehículos de referencia) === */
-.hero-rotator{position:relative;width:100%;overflow:hidden;background:#0b0b0c;min-height:clamp(380px,56vw,620px);opacity:0;animation:heroFadeIn .8s ease forwards;}
+/* === Hero Editorial Premium (negro/blanco/rojo) === */
+.hero-rotator{position:relative;width:100%;overflow:hidden;background:#0a0a0a;min-height:clamp(480px,60vw,680px);opacity:0;animation:heroFadeIn .8s ease forwards;}
 .hero-rotator-h1-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-.hero-slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity 1s ease;}
-.hero-slide.is-active{opacity:1;visibility:visible;z-index:2;}
-.hero-slide-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%,var(--glow,#1a2b4a) 0%,#0b0b0c 68%);opacity:.85;}
-.hero-slide-imgwrap{position:absolute;inset:0;overflow:hidden;}
-.hero-slide-imgwrap img{width:100%;height:100%;object-fit:contain;display:block;margin:0 auto;transform:scale(1.04);opacity:0;transition:opacity .6s ease;}
-.hero-slide.is-active .hero-slide-imgwrap img{opacity:1;animation:heroKenBurns 6.5s ease-out forwards;}
-.hero-slide-content{position:absolute;left:0;right:0;bottom:0;padding:1.6rem 1.4rem 1.9rem;background:linear-gradient(0deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.35) 55%,rgba(0,0,0,0) 100%);color:#fff;text-align:center;transform:translateY(14px);opacity:0;transition:opacity .7s ease .15s,transform .7s ease .15s;}
-.hero-slide.is-active .hero-slide-content{opacity:1;transform:translateY(0);}
-.hero-slide-eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#ff5a3c;margin-bottom:.35rem;}
-.hero-slide-title{font-size:clamp(1.35rem,4vw,2.2rem);font-weight:800;margin:0 0 .3rem;line-height:1.15;}
-.hero-slide-sub{font-size:.92rem;color:#e4e4e4;margin:0 0 1.1rem;}
-.hero-slide-cta{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;}
-.hero-rotator-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:1.2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;}
-.hero-rotator-arrow:hover{background:rgba(0,0,0,.65);}
-.hero-rotator-arrow.prev{left:14px;}
-.hero-rotator-arrow.next{right:14px;}
-.hero-rotator-dots{position:absolute;left:0;right:0;bottom:.55rem;z-index:5;display:flex;gap:.4rem;justify-content:center;}
-.hero-rotator-dots button{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);border:none;padding:0;cursor:pointer;transition:background .2s,width .2s;}
-.hero-rotator-dots button.is-active{background:#ff5a3c;width:22px;border-radius:5px;}
-.hero-rotator-counter{position:absolute;top:14px;right:16px;z-index:5;background:rgba(0,0,0,.45);color:#fff;font-size:.72rem;font-weight:700;padding:.25rem .55rem;border-radius:20px;}
+.hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:minmax(300px,1fr) minmax(340px,1.15fr);align-items:center;max-width:1360px;margin:0 auto;min-height:clamp(480px,60vw,680px);padding:0 clamp(1.25rem,4vw,3rem);gap:clamp(1rem,3vw,2.5rem);}
+.hero-left{position:relative;z-index:3;padding:2.5rem 0;}
+.hero-eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#e30613;margin-bottom:1rem;}
+.hero-headline{font-size:clamp(1.9rem,4.4vw,3.15rem);font-weight:800;line-height:1.1;color:#fff;margin:0 0 1.15rem;letter-spacing:-.01em;text-transform:uppercase;}
+.hero-stat{font-size:1.05rem;font-weight:700;color:#fff;margin:0 0 .3rem;}
+.hero-stat b{color:#e30613;font-weight:800;}
+.hero-subtext{font-size:.95rem;color:#b7b7ba;margin:0 0 1.8rem;}
+.hero-cta-row{display:flex;flex-wrap:wrap;gap:.85rem;}
+.btn-hero-primary{background:#e30613;color:#fff;padding:.9rem 1.5rem;border-radius:4px;font-size:.8rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;transition:background .2s;display:inline-flex;align-items:center;gap:.5rem;}
+.btn-hero-primary:hover{background:#c00510;}
+.btn-hero-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:.9rem 1.5rem;border-radius:4px;font-size:.8rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;transition:border-color .2s,color .2s;}
+.btn-hero-outline:hover{border-color:#fff;}
+.hero-right{position:relative;height:100%;min-height:inherit;}
+.hero-vslide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateX(64px) scale(.965);transition:opacity .85s cubic-bezier(.4,0,.2,1),transform .85s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+.hero-vslide.is-active{opacity:1;visibility:visible;transform:translateX(0) scale(1);z-index:2;pointer-events:auto;}
+.hero-vslide-glow{position:absolute;inset:-8% -4%;background:radial-gradient(ellipse 60% 55% at 50% 42%,var(--glow,#1c1c1e) 0%,transparent 72%);opacity:.5;pointer-events:none;}
+.hero-vslide-imgwrap{position:relative;width:100%;height:64%;display:flex;align-items:center;justify-content:center;transform:translate(var(--px,0px),var(--py,0px));transition:transform .35s ease-out;}
+.hero-vslide-img{height:100%;width:auto;max-width:88%;object-fit:contain;display:block;filter:drop-shadow(0 18px 26px rgba(0,0,0,.55));animation:heroKenBurns 10s ease-in-out infinite alternate;}
+.hero-vslide-shadow{position:absolute;left:50%;bottom:15%;width:50%;height:6%;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 72%);filter:blur(2px);pointer-events:none;}
+.hero-vslide-caption{position:absolute;left:0;right:0;bottom:6%;text-align:center;}
+.hero-vslide-model{display:block;font-size:clamp(1.05rem,2vw,1.35rem);font-weight:800;color:#fff;margin-bottom:.4rem;}
+.hero-vslide-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#e30613;text-decoration:none;border-bottom:1.5px solid transparent;transition:border-color .2s;}
+.hero-vslide-link:hover{border-color:#e30613;}
+.hero-rotator-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.15rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,border-color .2s;}
+.hero-rotator-arrow:hover{background:rgba(0,0,0,.65);border-color:#e30613;}
+.hero-rotator-arrow.prev{left:10px;}
+.hero-rotator-arrow.next{right:10px;}
+.hero-rotator-dots{position:absolute;left:0;right:0;bottom:12px;z-index:5;display:flex;gap:.4rem;justify-content:center;}
+.hero-rotator-dots button{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);border:none;padding:0;cursor:pointer;transition:background .2s,width .2s;}
+.hero-rotator-dots button.is-active{background:#e30613;width:22px;border-radius:5px;}
+.hero-rotator-counter{position:absolute;top:14px;right:12px;z-index:5;background:rgba(0,0,0,.45);color:#fff;font-size:.72rem;font-weight:700;padding:.25rem .55rem;border-radius:20px;}
 @keyframes heroFadeIn{from{opacity:0}to{opacity:1}}
-@keyframes heroKenBurns{from{transform:scale(1.04)}to{transform:scale(1.12)}}
-@media(max-width:600px){.hero-rotator{min-height:clamp(300px,86vw,420px);}.hero-slide-content{padding:1.1rem 1rem 3.2rem;}.hero-rotator-arrow{width:34px;height:34px;font-size:1rem;}}
-@media(prefers-reduced-motion:reduce){.hero-rotator{animation:none;opacity:1;}.hero-slide{transition:none;}.hero-slide-imgwrap img{animation:none!important;transform:none;}.hero-slide-content{transition:none;}}
+@keyframes heroKenBurns{from{transform:scale(1)}to{transform:scale(1.03)}}
+@media(max-width:960px){.hero-inner{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding-top:2.2rem;padding-bottom:1.5rem;min-height:0;}.hero-left{padding:0 0 1.4rem;}.hero-right{min-height:clamp(280px,78vw,440px);}}
+@media(max-width:600px){.hero-rotator{min-height:0;}.hero-headline{font-size:1.55rem;}.hero-cta-row{flex-direction:column;}.btn-hero-primary,.btn-hero-outline{width:100%;text-align:center;justify-content:center;}.hero-rotator-arrow{width:32px;height:32px;font-size:.95rem;}}
+@media(prefers-reduced-motion:reduce){.hero-rotator{animation:none;opacity:1;}.hero-vslide{transition:none;}.hero-vslide-img{animation:none!important;}.hero-vslide-imgwrap{transition:none;}}
 /* === Vehiculos en Desarme === */
 .desarmes-section{padding:3.5rem 0;background:#f4f6f8;}
 .desarmes-title{text-align:center;font-size:1.9rem;font-weight:800;margin-bottom:.4rem;color:#111;}
@@ -142,74 +154,66 @@ gtag('config', 'G-TXKXWQCTZ1');
 
 <section class="hero-rotator" id="heroRotator" aria-roledescription="carrusel" aria-label="Vehículos de referencia">
 <h1 class="hero-rotator-h1-sr">Comprar un repuesto usado no debería ser una apuesta. Repuestos Suzuki, Kia, Hyundai y Chevrolet con garantía y procedencia acreditada.</h1>
+<div class="hero-inner">
+<div class="hero-left">
+<span class="hero-eyebrow">Desarmaduría Saravia</span>
+<h2 class="hero-headline">¿Buscas un repuesto?<br>Lo tenemos.</h2>
+<p class="hero-stat"><b>+500</b> vehículos en desarme</p>
+<p class="hero-subtext">Repuestos originales y alternativos</p>
+<div class="hero-cta-row">
+<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-hero-primary" target="_blank" rel="noopener">💬 Cotiza tu repuesto por WhatsApp</a>
+<a href="/catalogo.html" class="btn-hero-outline">Ver catálogo</a>
+</div>
+</div>
+<div class="hero-right" id="heroStage">
 
-<div class="hero-slide is-active" data-slide="0" style="--glow:#1c2f4d">
-<div class="hero-slide-glow"></div>
-<div class="hero-slide-imgwrap"><img src="/img/hero/hero-suzuki-vitara.jpg" alt="Suzuki Vitara 1.6 — imagen de referencia para identificar tu modelo" width="920" height="611" loading="eager" fetchpriority="high"></div>
-<div class="hero-slide-content">
-<span class="hero-slide-eyebrow">Suzuki</span>
-<h2 class="hero-slide-title">Vitara 1.6</h2>
-<p class="hero-slide-sub">¿Tu vehículo es este modelo? Encuentra sus repuestos disponibles.</p>
-<div class="hero-slide-cta">
-<a href="/repuestos-suzuki-vitara-16-2019-azul" class="btn-primary" data-hero-cta="Suzuki Vitara 1.6">Ver repuestos de este modelo →</a>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-hero-secondary" target="_blank" rel="noopener">💬 Cotizar por WhatsApp</a>
-</div>
-</div>
-</div>
-
-<div class="hero-slide" data-slide="1" style="--glow:#3a1414">
-<div class="hero-slide-glow"></div>
-<div class="hero-slide-imgwrap"><img src="/img/hero/hero-suzuki-swift.jpg" alt="Suzuki Swift GLX 1.2 — imagen de referencia para identificar tu modelo" width="1000" height="501" loading="lazy"></div>
-<div class="hero-slide-content">
-<span class="hero-slide-eyebrow">Suzuki</span>
-<h2 class="hero-slide-title">Swift GLX 1.2</h2>
-<p class="hero-slide-sub">¿Tu vehículo es este modelo? Encuentra sus repuestos disponibles.</p>
-<div class="hero-slide-cta">
-<a href="/repuestos-suzuki-swift-glx-12-2012-2017" class="btn-primary" data-hero-cta="Suzuki Swift GLX 1.2">Ver repuestos de este modelo →</a>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-hero-secondary" target="_blank" rel="noopener">💬 Cotizar por WhatsApp</a>
-</div>
+<div class="hero-vslide is-active" data-slide="0" style="--glow:#1c2f4d">
+<div class="hero-vslide-glow"></div>
+<div class="hero-vslide-imgwrap"><img class="hero-vslide-img" src="/img/hero/hero-suzuki-vitara-cut.webp" alt="Suzuki Vitara 1.6 — imagen de referencia para identificar tu modelo" width="475" height="302" loading="eager" fetchpriority="high"></div>
+<div class="hero-vslide-shadow"></div>
+<div class="hero-vslide-caption">
+<span class="hero-vslide-model">Suzuki Vitara 1.6</span>
+<a href="/repuestos-suzuki-vitara-16-2019-azul" class="hero-vslide-link" data-hero-cta="Suzuki Vitara 1.6">Ver repuestos →</a>
 </div>
 </div>
 
-<div class="hero-slide" data-slide="2" style="--glow:#3a2a12">
-<div class="hero-slide-glow"></div>
-<div class="hero-slide-imgwrap"><img src="/img/hero/hero-suzuki-alto-k10.jpg" alt="Suzuki Alto K10 — imagen de referencia para identificar tu modelo" width="600" height="400" loading="lazy"></div>
-<div class="hero-slide-content">
-<span class="hero-slide-eyebrow">Suzuki</span>
-<h2 class="hero-slide-title">Alto K10</h2>
-<p class="hero-slide-sub">¿Tu vehículo es este modelo? Encuentra sus repuestos disponibles.</p>
-<div class="hero-slide-cta">
-<a href="/repuestos-suzuki-alto-k10-2012" class="btn-primary" data-hero-cta="Suzuki Alto K10">Ver repuestos de este modelo →</a>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-hero-secondary" target="_blank" rel="noopener">💬 Cotizar por WhatsApp</a>
-</div>
+<div class="hero-vslide" data-slide="1" style="--glow:#3a1414">
+<div class="hero-vslide-glow"></div>
+<div class="hero-vslide-imgwrap"><img class="hero-vslide-img" src="/img/hero/hero-suzuki-swift-cut.webp" alt="Suzuki Swift GLX 1.2 — imagen de referencia para identificar tu modelo" width="749" height="403" loading="lazy"></div>
+<div class="hero-vslide-shadow"></div>
+<div class="hero-vslide-caption">
+<span class="hero-vslide-model">Suzuki Swift GLX 1.2</span>
+<a href="/repuestos-suzuki-swift-glx-12-2012-2017" class="hero-vslide-link" data-hero-cta="Suzuki Swift GLX 1.2">Ver repuestos →</a>
 </div>
 </div>
 
-<div class="hero-slide" data-slide="3" style="--glow:#1a1a1a">
-<div class="hero-slide-glow"></div>
-<div class="hero-slide-imgwrap"><img src="/img/hero/hero-chevrolet-dmax.jpg" alt="Chevrolet D-MAX 2.5 Biturbo — imagen de referencia para identificar tu modelo" width="600" height="400" loading="lazy"></div>
-<div class="hero-slide-content">
-<span class="hero-slide-eyebrow">Chevrolet</span>
-<h2 class="hero-slide-title">D-MAX 2.5 Biturbo</h2>
-<p class="hero-slide-sub">¿Tu vehículo es este modelo? Encuentra sus repuestos disponibles.</p>
-<div class="hero-slide-cta">
-<a href="/repuestos-chevrolet-dmax-25-2015-2020" class="btn-primary" data-hero-cta="Chevrolet D-MAX 2.5">Ver repuestos de este modelo →</a>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-hero-secondary" target="_blank" rel="noopener">💬 Cotizar por WhatsApp</a>
-</div>
+<div class="hero-vslide" data-slide="2" style="--glow:#3a2a12">
+<div class="hero-vslide-glow"></div>
+<div class="hero-vslide-imgwrap"><img class="hero-vslide-img" src="/img/hero/hero-suzuki-alto-k10-cut.webp" alt="Suzuki Alto K10 — imagen de referencia para identificar tu modelo" width="509" height="346" loading="lazy"></div>
+<div class="hero-vslide-shadow"></div>
+<div class="hero-vslide-caption">
+<span class="hero-vslide-model">Suzuki Alto K10</span>
+<a href="/repuestos-suzuki-alto-k10-2012" class="hero-vslide-link" data-hero-cta="Suzuki Alto K10">Ver repuestos →</a>
 </div>
 </div>
 
-<div class="hero-slide" data-slide="4" style="--glow:#2a1420">
-<div class="hero-slide-glow"></div>
-<div class="hero-slide-imgwrap"><img src="/img/hero/hero-hyundai-santafe.jpg" alt="Hyundai Santa Fe GLX 2.4 — imagen de referencia para identificar tu modelo" width="920" height="611" loading="lazy"></div>
-<div class="hero-slide-content">
-<span class="hero-slide-eyebrow">Hyundai</span>
-<h2 class="hero-slide-title">Santa Fe GLX 2.4</h2>
-<p class="hero-slide-sub">¿Tu vehículo es este modelo? Encuentra sus repuestos disponibles.</p>
-<div class="hero-slide-cta">
-<a href="/repuestos-hyundai-santa-fe-glx-24" class="btn-primary" data-hero-cta="Hyundai Santa Fe GLX 2.4">Ver repuestos de este modelo →</a>
-<a href="https://wa.me/56953817335?text=Hola%2C%20quiero%20cotizar%20mi%20repuesto" class="btn-hero-secondary" target="_blank" rel="noopener">💬 Cotizar por WhatsApp</a>
+<div class="hero-vslide" data-slide="3" style="--glow:#1a1a1a">
+<div class="hero-vslide-glow"></div>
+<div class="hero-vslide-imgwrap"><img class="hero-vslide-img" src="/img/hero/hero-isuzu-dmax-cut.webp" alt="Chevrolet D-MAX 2.5 Biturbo — imagen de referencia para identificar tu modelo" width="544" height="311" loading="lazy"></div>
+<div class="hero-vslide-shadow"></div>
+<div class="hero-vslide-caption">
+<span class="hero-vslide-model">Chevrolet D-MAX 2.5 Biturbo</span>
+<a href="/repuestos-chevrolet-dmax-25-2015-2020" class="hero-vslide-link" data-hero-cta="Chevrolet D-MAX 2.5">Ver repuestos →</a>
 </div>
+</div>
+
+<div class="hero-vslide" data-slide="4" style="--glow:#2a1420">
+<div class="hero-vslide-glow"></div>
+<div class="hero-vslide-imgwrap"><img class="hero-vslide-img" src="/img/hero/hero-hyundai-santa-fe-cut.webp" alt="Hyundai Santa Fe GLX 2.4 — imagen de referencia para identificar tu modelo" width="874" height="518" loading="lazy"></div>
+<div class="hero-vslide-shadow"></div>
+<div class="hero-vslide-caption">
+<span class="hero-vslide-model">Hyundai Santa Fe GLX 2.4</span>
+<a href="/repuestos-hyundai-santa-fe-glx-24" class="hero-vslide-link" data-hero-cta="Hyundai Santa Fe GLX 2.4">Ver repuestos →</a>
 </div>
 </div>
 
@@ -217,6 +221,8 @@ gtag('config', 'G-TXKXWQCTZ1');
 <button type="button" class="hero-rotator-arrow next" aria-label="Vehículo siguiente">›</button>
 <div class="hero-rotator-counter"><span id="heroCounterCurrent">1</span> / 5</div>
 <div class="hero-rotator-dots" id="heroDots"></div>
+</div>
+</div>
 </section>
 
 <div class="facade-strip">
@@ -855,7 +861,8 @@ gtag('config', 'G-TXKXWQCTZ1');
 (function(){
   var root = document.getElementById('heroRotator');
   if(!root) return;
-  var slides = Array.prototype.slice.call(root.querySelectorAll('.hero-slide'));
+  var stage = document.getElementById('heroStage');
+  var slides = Array.prototype.slice.call(root.querySelectorAll('.hero-vslide'));
   var total = slides.length;
   var dotsWrap = document.getElementById('heroDots');
   var counterEl = document.getElementById('heroCounterCurrent');
@@ -863,6 +870,7 @@ gtag('config', 'G-TXKXWQCTZ1');
   var nextBtn = root.querySelector('.hero-rotator-arrow.next');
   var current = 0;
   var timer = null;
+  var cleanupTimer = null;
   var AUTOPLAY_MS = 6000;
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -871,24 +879,65 @@ gtag('config', 'G-TXKXWQCTZ1');
     dot.type = 'button';
     dot.setAttribute('aria-label', 'Ir al vehículo ' + (i + 1));
     if(i === 0) dot.classList.add('is-active');
-    dot.addEventListener('click', function(){ goTo(i); resetAutoplay(); });
+    dot.addEventListener('click', function(){
+      goTo(i, i > current ? 'next' : 'prev');
+      resetAutoplay();
+    });
     dotsWrap.appendChild(dot);
   });
   var dots = Array.prototype.slice.call(dotsWrap.children);
 
-  function goTo(index){
-    slides[current].classList.remove('is-active');
+  function goTo(index, dir){
+    index = (index + total) % total;
+    if(index === current) return;
+    dir = dir || 'next';
+    var outgoing = slides[current];
+    var incoming = slides[index];
+    var enterFrom = dir === 'prev' ? -64 : 64;
+    var leaveTo = dir === 'prev' ? 64 : -64;
+
     dots[current].classList.remove('is-active');
-    var img = slides[current].querySelector('img');
-    if(img){ img.style.animation = 'none'; void img.offsetHeight; img.style.animation = ''; }
-    current = (index + total) % total;
-    slides[current].classList.add('is-active');
-    dots[current].classList.add('is-active');
+    dots[index].classList.add('is-active');
+
+    if(reduceMotion){
+      outgoing.classList.remove('is-active');
+      incoming.classList.add('is-active');
+    } else {
+      clearTimeout(cleanupTimer);
+      incoming.style.transition = 'none';
+      incoming.style.opacity = '0';
+      incoming.style.visibility = 'visible';
+      incoming.style.transform = 'translateX(' + enterFrom + 'px) scale(.965)';
+      void incoming.offsetWidth;
+      incoming.style.transition = '';
+
+      outgoing.classList.remove('is-active');
+      outgoing.style.transition = '';
+      outgoing.style.transform = 'translateX(' + leaveTo + 'px) scale(.965)';
+      outgoing.style.opacity = '0';
+
+      requestAnimationFrame(function(){
+        incoming.classList.add('is-active');
+        incoming.style.transform = '';
+        incoming.style.opacity = '';
+      });
+
+      cleanupTimer = setTimeout(function(){
+        outgoing.style.transition = 'none';
+        outgoing.style.transform = '';
+        outgoing.style.opacity = '';
+        outgoing.style.visibility = '';
+        void outgoing.offsetWidth;
+        outgoing.style.transition = '';
+      }, 900);
+    }
+
+    current = index;
     counterEl.textContent = current + 1;
   }
 
-  function next(){ goTo(current + 1); }
-  function prev(){ goTo(current - 1); }
+  function next(){ goTo(current + 1, 'next'); }
+  function prev(){ goTo(current - 1, 'prev'); }
 
   function startAutoplay(){
     if(reduceMotion) return;
@@ -933,6 +982,29 @@ gtag('config', 'G-TXKXWQCTZ1');
     if(e.key === 'ArrowRight'){ next(); resetAutoplay(); }
     if(e.key === 'ArrowLeft'){ prev(); resetAutoplay(); }
   });
+
+  // Parallax sutil de mouse — solo desktop con puntero fino, nunca en móvil/touch
+  var enableParallax = !reduceMotion && window.matchMedia &&
+    window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 961px)').matches;
+  if(enableParallax && stage){
+    stage.addEventListener('mousemove', function(e){
+      var r = stage.getBoundingClientRect();
+      var relX = (e.clientX - r.left) / r.width - 0.5;
+      var relY = (e.clientY - r.top) / r.height - 0.5;
+      var wrap = slides[current].querySelector('.hero-vslide-imgwrap');
+      if(wrap){
+        wrap.style.setProperty('--px', (relX * 14).toFixed(1) + 'px');
+        wrap.style.setProperty('--py', (relY * 10).toFixed(1) + 'px');
+      }
+    });
+    stage.addEventListener('mouseleave', function(){
+      var wrap = slides[current].querySelector('.hero-vslide-imgwrap');
+      if(wrap){
+        wrap.style.setProperty('--px', '0px');
+        wrap.style.setProperty('--py', '0px');
+      }
+    });
+  }
 
   // Analítica: click en CTA de un vehículo de referencia
   root.querySelectorAll('[data-hero-cta]').forEach(function(a){
