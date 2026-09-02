@@ -390,3 +390,15 @@ tr:hover td{background:var(--gray-light)}
 .btn-wa-header .wa-full{display:none}
 .btn-wa-header .wa-short{display:inline}
 }
+
+/* ===== Header actions wrapper (conecta el carrito existente cart.js sin tocarlo) ===== */
+.header-actions{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.header-actions .apc-cart-btn{margin-left:0}
+@media(max-width:600px){
+.header-actions{gap:.4rem}
+.header-actions .apc-cart-btn{padding:.5rem .6rem;font-size:.78rem;gap:.25rem}
+}
+@media(max-width:400px){
+.header-actions .btn-wa-header{padding:.5rem .55rem;font-size:.78rem}
+.header-actions .apc-cart-btn{padding:.5rem .55rem;font-size:.72rem;gap:.2rem}
+}
