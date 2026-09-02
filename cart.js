@@ -125,7 +125,7 @@
     if (!badgeEl) return;
     var n = cartCount();
     badgeEl.textContent = String(n);
-    badgeEl.classList.toggle("hidden", n === 0);
+    badgeEl.classList.remove("hidden"); // siempre visible, incluso en 0 (aprobado por Emir)
   }
 
   function injectCartIcon() {
@@ -237,7 +237,7 @@
   window.apcOpenCart = openPanel;
 
   // ---------- botones "Agregar al carrito" en las tarjetas de producto ----------
-  // Reutiliza el mismo patrón que checkout.js: lee data-sku / data-name / data-price
+  // Reutiliza el mismo patron que checkout.js: lee data-sku / data-name / data-price
   // del boton "Pagar ahora" ya presente en .rcard-actions / .prod-actions, y agrega
   // al lado un boton nuevo que suma al carrito en vez de ir directo a pago.
 
