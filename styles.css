@@ -360,3 +360,33 @@ tr:hover td{background:var(--gray-light)}
 .veh-lightbox img{max-width:92vw;max-height:88vh;border-radius:8px;object-fit:contain}
 .veh-lightbox-close{position:absolute;top:1.25rem;right:1.5rem;color:#fff;font-size:2.25rem;font-weight:300;cursor:pointer;line-height:1}
 @media(max-width:600px){.veh-gallery-thumbs{max-width:100%}.veh-gallery-thumbs img{height:88px}}
+
+/* ===== Header premium: logos AutopartsChile + Desarmaduria Saravia (index.html) ===== */
+.header{background:#0a0a0a;padding:.85rem 0;box-shadow:0 2px 10px rgba(0,0,0,.35);transition:padding .25s ease}
+.header.is-scrolled{padding:.45rem 0}
+.header-inner{gap:1rem;flex-wrap:nowrap}
+.header-brands{display:flex;align-items:center;gap:.85rem;min-width:0}
+.brand-link{position:relative;display:inline-flex;align-items:center;text-decoration:none;border-radius:6px;transition:transform .2s cubic-bezier(.4,0,.2,1)}
+.brand-link:hover,.brand-link:focus-visible{transform:scale(1.02)}
+.brand-link:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.brand-autopartschile img{height:clamp(30px,4.4vw,42px);width:auto;display:block;transition:height .25s ease}
+.header.is-scrolled .brand-autopartschile img{height:clamp(24px,3.4vw,33px)}
+.brand-divider{width:1px;align-self:stretch;min-height:28px;background:rgba(255,255,255,.18)}
+.brand-saravia-plate{display:inline-flex;align-items:center;background:#f7f7f5;border-radius:8px;padding:.32rem .6rem;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:padding .25s ease}
+.brand-saravia img{height:clamp(24px,3.6vw,34px);width:auto;display:block;transition:height .25s ease}
+.header.is-scrolled .brand-saravia-plate{padding:.22rem .48rem}
+.header.is-scrolled .brand-saravia img{height:clamp(20px,2.8vw,27px)}
+.brand-indicator{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--red);transition:width .2s ease}
+.brand-link:hover .brand-indicator,.brand-link:focus-visible .brand-indicator{width:65%}
+.btn-wa-header{flex-shrink:0}
+.btn-wa-header .wa-short{display:none}
+@media(prefers-reduced-motion:reduce){
+.header,.header.is-scrolled,.brand-link,.brand-autopartschile img,.brand-saravia img,.brand-saravia-plate,.brand-indicator{transition:none}
+}
+@media(max-width:600px){
+.header-brands{gap:.55rem}
+.brand-saravia-plate{padding:.26rem .48rem}
+.btn-wa-header{padding:.5rem .75rem}
+.btn-wa-header .wa-full{display:none}
+.btn-wa-header .wa-short{display:inline}
+}
