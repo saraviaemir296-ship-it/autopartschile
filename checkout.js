@@ -3,6 +3,20 @@
   var WEBPAY_ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/webpay-create-transaction";
   var STORAGE_KEY = "apc_checkout_customer";
 
+  // WEBPAY_LIVE (2026-09-03): Webpay Plus sigue corriendo contra el ambiente de
+  // INTEGRACIÓN de Transbank (webpay3gint.transbank.cl, código de comercio público
+  // de pruebas) — confirmado en vivo el 2026-09-03 vía llamada real a
+  // webpay-create-transaction (respondió url=webpay3gint.transbank.cl). Eso significa
+  // que ningún cliente real puede completar un pago con tarjeta real por Webpay ahora
+  // mismo: la clienta Cecilia Muñoz (orden #23, $389.990) quedó con el pago atascado
+  // el 2026-09-02 intentando pagar por este botón. Mientras no exista
+  // WEBPAY_ENV=production + credenciales reales de Transbank en Supabase (ver tarea
+  // "Pasar Webpay Plus a producción"), se oculta el botón de Webpay en el checkout y
+  // se deja Mercado Pago + WhatsApp como alternativas que sí pueden cerrar una venta
+  // real. Cuando Transbank apruebe la afiliación comercial y se carguen las
+  // credenciales reales, cambiar esta constante a `true` para reactivar el botón.
+  var WEBPAY_LIVE = false;
+
   function loadSaved() {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
@@ -39,6 +53,8 @@
       ".apc-error{color:#c0392b;font-size:.82rem;margin-top:.6rem;display:none}" +
       ".apc-item-summary{background:#f4f6f8;border-radius:8px;padding:.65rem .8rem;margin-bottom:1rem;font-size:.85rem;color:#333}" +
       ".apc-item-summary strong{display:block;font-size:.92rem;color:#111;margin-bottom:.15rem}" +
+      ".apc-webpay-note{font-size:.78rem;color:#888;text-align:center;margin:.2rem 0 0}" +
+      ".apc-webpay-note a{color:#25D366;font-weight:700;text-decoration:none}" +
       ".btn-prod-buy{flex:1;text-align:center;background:#009ee3;color:#fff;border-radius:6px;padding:.5rem .4rem;font-size:.76rem;font-weight:700;text-decoration:none;display:block;cursor:pointer}" +
       ".btn-prod-buy:hover{background:#0088c7}" +
       ".rcard-pay.btn-prod-buy-detail{display:block;text-align:center;background:#009ee3;color:#fff;border-radius:7px;padding:.45rem .5rem;font-size:.81rem;font-weight:700;text-decoration:none;margin-bottom:.4rem}" +
@@ -68,6 +84,10 @@
     injectStyles();
     var saved = loadSaved();
 
+    var webpayActionHtml = WEBPAY_LIVE
+      ? '<button type="submit" class="apc-btn-pay apc-btn-webpay" name="gateway" value="webpay">Pagar con Webpay Plus &rarr;</button>'
+      : '<p class="apc-webpay-note">&iquest;Prefieres Webpay o transferencia? <a href="https://wa.me/56953817335" target="_blank" rel="noopener">Escr&iacute;benos por WhatsApp</a></p>';
+
     var overlay = document.createElement("div");
     overlay.className = "apc-modal-overlay";
     overlay.innerHTML =
@@ -83,7 +103,7 @@
       '<div class="apc-field"><label>Teléfono</label><input type="tel" name="phone" placeholder="+56 9 ..." value="' + (saved.phone || "") + '"></div>' +
       '<div class="apc-modal-actions">' +
       '<button type="submit" class="apc-btn-pay apc-btn-mp" name="gateway" value="mercadopago">Pagar con Mercado Pago &rarr;</button>' +
-      '<button type="submit" class="apc-btn-pay apc-btn-webpay" name="gateway" value="webpay">Pagar con Webpay Plus &rarr;</button>' +
+      webpayActionHtml +
       '<button type="button" class="apc-btn-cancel">Cancelar</button>' +
       "</div>" +
       '<p class="apc-error"></p>' +
@@ -105,6 +125,9 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var gateway = (e.submitter && e.submitter.value) || "mercadopago";
+      if (gateway === "webpay" && !WEBPAY_LIVE) {
+        return; // salvaguarda: no debería poder dispararse sin el botón, pero por si acaso.
+      }
       var fd = new FormData(form);
       var customer = {
         first_name: fd.get("first_name"),
