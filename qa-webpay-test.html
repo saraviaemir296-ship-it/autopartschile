@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA Webpay — Uso interno</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem;color:#222}
+h1{font-size:1.3rem}
+.box{background:#f4f6f8;border-radius:10px;padding:1.2rem;margin:1rem 0}
+button{background:#e2004f;color:#fff;border:none;border-radius:8px;padding:.8rem 1.2rem;font-size:1rem;font-weight:700;cursor:pointer;width:100%}
+button:disabled{opacity:.5}
+.log{white-space:pre-wrap;background:#111;color:#0f0;padding:1rem;border-radius:8px;font-size:.8rem;margin-top:1rem;max-height:200px;overflow:auto}
+.warn{color:#b00;font-weight:700}
+</style>
+</head>
+<body>
+<h1>QA Webpay Plus — Página de uso interno (no indexada, no enlazada en el sitio)</h1>
+<p class="warn">Esta página NO es para clientes. Sirve solo para que Emir complete manualmente las pruebas de tarjeta que Transbank exige para la validación (evidencia). Ambiente: INTEGRACIÓN (ninguna tarjeta real puede ser cobrada aquí).</p>
+
+<div class="box">
+<p><strong>Paso 1.</strong> Presiona el botón. Se creará una transacción de prueba real ($29.990, mismo SKU usado en pruebas anteriores) y te llevará a la pantalla real de Transbank.</p>
+<p><strong>Paso 2.</strong> En la pantalla de Transbank, elige "Tarjetas" e ingresa UNA de estas tarjetas de prueba oficiales (nunca una tarjeta real):</p>
+<ul>
+<li><strong>Aprobada (crédito/débito):</strong> 4051 8856 0044 6623 — CVV 123 — cualquier fecha de vencimiento futura.</li>
+<li><strong>Rechazada (crédito/débito):</strong> 5186 0595 5959 0568 — CVV 123 — cualquier fecha de vencimiento futura.</li>
+</ul>
+<p>Si te pide autenticación bancaria (Redcompra/débito), usa RUT <strong>11.111.111-1</strong> y clave <strong>123</strong>.</p>
+<p><strong>Paso 3.</strong> Repite este proceso una vez por cada tarjeta que necesites probar (aprobada y rechazada son transacciones separadas — vuelve a esta página y presiona el botón de nuevo para cada una).</p>
+<button id="go">Iniciar transacción de prueba en Transbank</button>
+<div class="log" id="log" style="display:none"></div>
+</div>
+
+<script>
+var ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/webpay-create-transaction";
+document.getElementById("go").addEventListener("click", function () {
+  var btn = this;
+  var log = document.getElementById("log");
+  log.style.display = "block";
+  log.textContent = "Creando transacción...";
+  btn.disabled = true;
+  fetch(ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      items: [{ sku: "GRANOM-001", quantity: 1 }],
+      customer: { email: "qa-webpay@autopartschile.cl", first_name: "QA", last_name: "Interno" }
+    })
+  })
+    .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      if (!res.ok || !res.d.token || !res.d.url) {
+        log.textContent = "ERROR: " + JSON.stringify(res.d);
+        btn.disabled = false;
+        return;
+      }
+      log.textContent = "OK. Orden #" + res.d.order_id + ". Redirigiendo a Transbank...";
+      var form = document.createElement("form");
+      form.method = "POST";
+      form.action = res.d.url;
+      var input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "token_ws";
+      input.value = res.d.token;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    })
+    .catch(function (err) {
+      log.textContent = "ERROR: " + err.message;
+      btn.disabled = false;
+    });
+});
+</script>
+</body>
+</html>
