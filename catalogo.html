@@ -1304,9 +1304,60 @@ gtag('config', 'G-TXKXWQCTZ1');
 <a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">&#128172;</a>
 
 <script>
-(function(){
-var cards = Array.prototype.slice.call(document.querySelectorAll('.prod-card'));
+(async function(){
 var grid = document.getElementById('resultsGrid');
+
+// Catálogo dinámico: trae productos publicados desde Supabase (fuente real que
+// alimenta /admin/) y los agrega como .prod-card además de las fichas estáticas
+// existentes, sin duplicar las que ya tienen página propia (mismo SKU).
+function formatCompat(v){
+  if (!v) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') {
+    var parts = [v.make, v.model, v.years || v.year, v.engine].filter(Boolean);
+    return parts.join(' ');
+  }
+  return String(v);
+}
+
+try {
+  var existingSkus = new Set(Array.prototype.slice.call(document.querySelectorAll('.btn-prod-wa[data-sku]')).map(function(a){ return a.dataset.sku; }));
+  var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+  var res = await fetch(SUPABASE_URL + '/rest/v1/products?select=sku,name,brand,category,price_sale,stock,vehicle_compatibility,slug,images,is_active&is_active=eq.true&order=created_at.desc', {
+    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+  });
+  if (res.ok) {
+    var dbProducts = await res.json();
+    dbProducts.forEach(function(p){
+      if (existingSkus.has(p.sku)) return; // ya tiene página estática dedicada
+      var img = (Array.isArray(p.images) && p.images.length) ? p.images[0] : '/img/favicon.png';
+      var href = '/producto?sku=' + encodeURIComponent(p.sku);
+      var compat = formatCompat(p.vehicle_compatibility);
+      var price = '$' + Math.round(Number(p.price_sale)).toLocaleString('es-CL');
+      var search = (p.sku + ' ' + p.name + ' ' + (p.brand||'') + ' ' + (p.category||'') + ' ' + compat).toLowerCase();
+      var art = document.createElement('article');
+      art.className = 'prod-card';
+      art.dataset.search = search;
+      art.dataset.category = p.category || '';
+      art.dataset.brand = p.brand || '';
+      art.innerHTML =
+        '<a href="' + href + '" class="prod-img-link"><img src="' + img + '" alt="' + p.name.replace(/"/g,'&quot;') + '" loading="lazy" width="300" height="225"></a>' +
+        '<div class="prod-body">' +
+        '<span class="prod-badge badge-nuevo">' + (p.stock > 0 ? 'Disponible' : 'Agotado') + '</span>' +
+        '<h3 class="prod-name"><a href="' + href + '">' + p.name.replace(/</g,'&lt;') + '</a></h3>' +
+        '<p class="prod-compat">' + compat.replace(/</g,'&lt;') + '</p>' +
+        '<p class="prod-price">' + price + '</p>' +
+        '<div class="prod-actions">' +
+        '<a href="#" class="btn-prod-wa" data-sku="' + p.sku + '" data-name="' + p.name.replace(/"/g,'&quot;') + '" data-compat="' + compat.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener">&#128172; WhatsApp</a>' +
+        '<a href="' + href + '" class="btn-prod-detail">Ver detalle</a>' +
+        '</div></div>';
+      grid.appendChild(art);
+    });
+  }
+} catch (e) { /* si Supabase falla, el catálogo estático sigue funcionando igual */ }
+
+var cards = Array.prototype.slice.call(document.querySelectorAll('.prod-card'));
 var empty = document.getElementById('emptyState');
 var countEl = document.getElementById('resultsCount');
 var titleEl = document.getElementById('resultsTitle');

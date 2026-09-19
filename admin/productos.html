@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Productos | Admin Desarmaduría Saravia</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/img/favicon.png">
+<link rel="stylesheet" href="/styles.css?v=20260902cart">
+<style>
+body{background:#f4f6f8;}
+.admin-topbar{background:#111;color:#fff;padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;}
+.admin-topbar a{color:#fff;text-decoration:none;font-weight:700;}
+.admin-topbar button{background:transparent;border:1px solid #555;color:#ccc;padding:.4rem .9rem;border-radius:8px;cursor:pointer;}
+.admin-wrap{max-width:1100px;margin:2rem auto;padding:0 1rem;}
+.admin-nav{display:flex;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.admin-nav a{background:#fff;border:1.5px solid #ddd;border-radius:9px;padding:.6rem 1.1rem;text-decoration:none;color:#111;font-weight:700;font-size:.9rem;}
+.toolbar{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;}
+.toolbar input{flex:1;min-width:200px;padding:.7rem .9rem;border:1.5px solid #ddd;border-radius:8px;}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+th,td{padding:.7rem .8rem;text-align:left;font-size:.88rem;border-bottom:1px solid #eee;}
+th{background:#f8f8f8;font-weight:700;color:#555;}
+.badge{padding:.2rem .6rem;border-radius:12px;font-size:.78rem;font-weight:700;}
+.badge.pub{background:#e8f9ee;color:#16a34a;}
+.badge.draft{background:#eee;color:#777;}
+.badge.nostock{background:#fdeaea;color:#c0392b;}
+.row-actions a,.row-actions button{font-size:.82rem;margin-right:.5rem;text-decoration:none;color:var(--red);background:none;border:none;cursor:pointer;font-weight:700;padding:0;}
+img.thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:.5rem;}
+</style>
+</head>
+<body>
+<div class="admin-topbar">
+<a href="/admin/index.html">Panel Desarmaduría Saravia</a>
+<button id="logoutBtn">Cerrar sesión</button>
+</div>
+<div class="admin-wrap">
+<div class="admin-nav">
+<a href="/admin/index.html">Dashboard</a>
+<a href="/admin/productos.html">Productos</a>
+<a href="/admin/producto.html">+ Nuevo producto</a>
+<a href="/catalogo.html" target="_blank">Ver catálogo público ↗</a>
+</div>
+<div class="toolbar">
+<input type="text" id="q" placeholder="Buscar por nombre, SKU o marca...">
+</div>
+<table>
+<thead><tr><th></th><th>Nombre</th><th>SKU</th><th>Marca</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
+<tbody id="rows"><tr><td colspan="8">Cargando...</td></tr></tbody>
+</table>
+</div>
+<script type="module">
+import { supabase, requireAdmin, money } from '/admin/admin-common.js';
+
+var all = [];
+
+function render(list) {
+  var tbody = document.getElementById('rows');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="8">Sin resultados.</td></tr>'; return; }
+  tbody.innerHTML = list.map(function(p){
+    var img = (Array.isArray(p.images) && p.images.length) ? p.images[0] : '/img/favicon.png';
+    var statusBadge = p.is_active
+      ? (p.stock > 0 ? '<span class="badge pub">Publicado</span>' : '<span class="badge nostock">Publicado · sin stock</span>')
+      : '<span class="badge draft">Borrador</span>';
+    return '<tr>' +
+      '<td><img class="thumb" src="' + img + '" alt=""></td>' +
+      '<td>' + p.name + '</td>' +
+      '<td>' + p.sku + '</td>' +
+      '<td>' + (p.brand||'') + '</td>' +
+      '<td>' + money(p.price_sale) + '</td>' +
+      '<td>' + p.stock + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td class="row-actions">' +
+        '<a href="/admin/producto.html?id=' + p.id + '">Editar</a>' +
+        '<button data-toggle="' + p.id + '" data-active="' + p.is_active + '">' + (p.is_active ? 'Despublicar' : 'Publicar') + '</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  tbody.querySelectorAll('button[data-toggle]').forEach(function(btn){
+    btn.addEventListener('click', async function(){
+      var id = btn.dataset.toggle;
+      var current = btn.dataset.active === 'true';
+      btn.disabled = true;
+      var { error } = await supabase.from('products').update({ is_active: !current }).eq('id', id);
+      if (error) { alert('Error: ' + error.message); btn.disabled = false; return; }
+      await load();
+    });
+  });
+}
+
+async function load() {
+  var { data, error } = await supabase.from('products').select('*').order('updated_at', { ascending: false });
+  if (error) { document.getElementById('rows').innerHTML = '<tr><td colspan="8">Error: ' + error.message + '</td></tr>'; return; }
+  all = data || [];
+  render(all);
+}
+
+document.getElementById('q').addEventListener('input', function(){
+  var q = this.value.trim().toLowerCase();
+  if (!q) { render(all); return; }
+  render(all.filter(function(p){
+    return (p.name||'').toLowerCase().indexOf(q) !== -1 ||
+           (p.sku||'').toLowerCase().indexOf(q) !== -1 ||
+           (p.brand||'').toLowerCase().indexOf(q) !== -1;
+  }));
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async function(){
+  await supabase.auth.signOut();
+  location.href = '/admin/login.html';
+});
+
+(async function(){
+  var session = await requireAdmin();
+  if (!session) return;
+  await load();
+})();
+</script>
+</body>
+</html>

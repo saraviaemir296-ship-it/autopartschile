@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Producto | Admin Desarmaduría Saravia</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/img/favicon.png">
+<link rel="stylesheet" href="/styles.css?v=20260902cart">
+<style>
+body{background:#f4f6f8;}
+.admin-topbar{background:#111;color:#fff;padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;}
+.admin-topbar a{color:#fff;text-decoration:none;font-weight:700;}
+.admin-topbar button{background:transparent;border:1px solid #555;color:#ccc;padding:.4rem .9rem;border-radius:8px;cursor:pointer;}
+.admin-wrap{max-width:760px;margin:2rem auto;padding:0 1rem 4rem;}
+.admin-nav{display:flex;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.admin-nav a{background:#fff;border:1.5px solid #ddd;border-radius:9px;padding:.6rem 1.1rem;text-decoration:none;color:#111;font-weight:700;font-size:.9rem;}
+.card{background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:1.2rem;}
+.card h2{font-size:1rem;margin:0 0 1rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+label{display:block;font-size:.82rem;font-weight:700;margin:.8rem 0 .3rem;color:#333;}
+input,select,textarea{width:100%;padding:.65rem .8rem;border:1.5px solid #ddd;border-radius:8px;font-size:.95rem;font-family:inherit;}
+textarea{min-height:80px;resize:vertical;}
+.imgs-grid{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.6rem;}
+.img-item{position:relative;width:90px;}
+.img-item img{width:90px;height:90px;object-fit:cover;border-radius:8px;border:1.5px solid #ddd;}
+.img-item.primary img{border-color:var(--red);border-width:2.5px;}
+.img-item .primary-tag{position:absolute;top:2px;left:2px;background:var(--red);color:#fff;font-size:.65rem;padding:.1rem .4rem;border-radius:4px;}
+.img-item button{position:absolute;top:2px;right:2px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.7rem;line-height:1;}
+.img-item .set-primary{position:absolute;bottom:2px;left:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:.6rem;padding:.15rem;cursor:pointer;}
+.actions-bar{display:flex;gap:.8rem;align-items:center;margin-top:1rem;}
+button.primary{background:var(--red);color:#fff;border:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:800;cursor:pointer;}
+button.secondary{background:#eee;color:#333;border:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:700;cursor:pointer;}
+button:disabled{opacity:.6;}
+.msg{margin-top:1rem;padding:.7rem;border-radius:8px;font-size:.88rem;display:none;}
+.msg.err{display:block;background:#fdeaea;color:#c0392b;}
+.msg.ok{display:block;background:#e8f9ee;color:#16a34a;}
+.toggle-row{display:flex;align-items:center;gap:.6rem;margin-top:1rem;}
+</style>
+</head>
+<body>
+<div class="admin-topbar">
+<a href="/admin/index.html">Panel Desarmaduría Saravia</a>
+<button id="logoutBtn">Cerrar sesión</button>
+</div>
+<div class="admin-wrap">
+<div class="admin-nav">
+<a href="/admin/index.html">Dashboard</a>
+<a href="/admin/productos.html">Productos</a>
+<a href="/admin/producto.html">+ Nuevo producto</a>
+</div>
+
+<form id="prodForm">
+<div class="card">
+<h2>Datos del producto</h2>
+<label for="name">Nombre *</label>
+<input type="text" id="name" required>
+<label for="description">Descripción</label>
+<textarea id="description"></textarea>
+<div class="grid2">
+<div><label for="sku">SKU *</label><input type="text" id="sku" required></div>
+<div><label for="oem_number">OEM</label><input type="text" id="oem_number"></div>
+<div><label for="brand">Marca</label><input type="text" id="brand"></div>
+<div><label for="category">Categoría</label><input type="text" id="category"></div>
+<div><label for="vehicle_compatibility">Modelo / año / motor / transmisión (compatibilidad)</label><input type="text" id="vehicle_compatibility" placeholder="Ej: Suzuki Celerio K10B 2014-2023, mecánico"></div>
+<div><label for="warranty">Garantía</label><input type="text" id="warranty" placeholder="Ej: 3 meses"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Precio y stock</h2>
+<div class="grid2">
+<div><label for="price_sale">Precio de venta (CLP) *</label><input type="number" id="price_sale" required min="0" step="1"></div>
+<div><label for="stock">Stock *</label><input type="number" id="stock" required min="0" step="1"></div>
+</div>
+<div class="toggle-row">
+<input type="checkbox" id="is_active" style="width:auto;">
+<label for="is_active" style="margin:0;">Publicado (visible en el catálogo)</label>
+</div>
+</div>
+
+<div class="card">
+<h2>SEO</h2>
+<label for="slug">Slug (URL)</label>
+<input type="text" id="slug" placeholder="alternador-suzuki-celerio-k10b">
+<label for="seo_title">SEO title</label>
+<input type="text" id="seo_title">
+<label for="meta_description">Meta description</label>
+<textarea id="meta_description"></textarea>
+</div>
+
+<div class="card">
+<h2>Fotos</h2>
+<input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple>
+<div class="imgs-grid" id="imgsGrid"></div>
+<p style="font-size:.8rem;color:#888;margin-top:.6rem;">La primera foto (marcada en rojo) es la imagen principal que se ve en el catálogo.</p>
+</div>
+
+<div class="actions-bar">
+<button type="submit" class="primary" id="saveBtn">Guardar</button>
+<a href="/admin/productos.html" class="secondary" style="text-decoration:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:700;color:#333;background:#eee;">Cancelar</a>
+</div>
+<p class="msg" id="msg"></p>
+</form>
+</div>
+
+<script type="module">
+import { supabase, requireAdmin, slugify } from '/admin/admin-common.js';
+
+var params = new URLSearchParams(location.search);
+var productId = params.get('id');
+var images = []; // array of public URLs, [0] = principal
+
+function renderImages() {
+  var grid = document.getElementById('imgsGrid');
+  grid.innerHTML = images.map(function(url, i){
+    return '<div class="img-item' + (i===0?' primary':'') + '">' +
+      (i===0 ? '<span class="primary-tag">Principal</span>' : '') +
+      '<img src="' + url + '">' +
+      '<button type="button" data-remove="' + i + '">&times;</button>' +
+      (i!==0 ? '<button type="button" class="set-primary" data-primary="' + i + '">Hacer principal</button>' : '') +
+    '</div>';
+  }).join('');
+  grid.querySelectorAll('[data-remove]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      images.splice(Number(btn.dataset.remove), 1);
+      renderImages();
+    });
+  });
+  grid.querySelectorAll('[data-primary]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = Number(btn.dataset.primary);
+      var img = images.splice(i, 1)[0];
+      images.unshift(img);
+      renderImages();
+    });
+  });
+}
+
+document.getElementById('fileInput').addEventListener('change', async function(e){
+  var files = Array.prototype.slice.call(e.target.files);
+  var msg = document.getElementById('msg');
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var path = Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+    var { error } = await supabase.storage.from('product-images').upload(path, file, { cacheControl: '31536000', upsert: false });
+    if (error) {
+      msg.textContent = 'Error subiendo ' + file.name + ': ' + error.message;
+      msg.className = 'msg err';
+      continue;
+    }
+    var { data: pub } = supabase.storage.from('product-images').getPublicUrl(path);
+    images.push(pub.publicUrl);
+  }
+  e.target.value = '';
+  renderImages();
+});
+
+async function loadExisting() {
+  if (!productId) return;
+  var { data: p, error } = await supabase.from('products').select('*').eq('id', productId).single();
+  if (error || !p) { alert('No se encontró el producto'); location.href = '/admin/productos.html'; return; }
+  document.getElementById('name').value = p.name || '';
+  document.getElementById('description').value = p.description || '';
+  document.getElementById('sku').value = p.sku || '';
+  document.getElementById('oem_number').value = p.oem_number || '';
+  document.getElementById('brand').value = p.brand || '';
+  document.getElementById('category').value = p.category || '';
+  document.getElementById('vehicle_compatibility').value = p.vehicle_compatibility || '';
+  document.getElementById('warranty').value = p.warranty || '';
+  document.getElementById('price_sale').value = p.price_sale || '';
+  document.getElementById('stock').value = p.stock || 0;
+  document.getElementById('is_active').checked = !!p.is_active;
+  document.getElementById('slug').value = p.slug || '';
+  document.getElementById('seo_title').value = p.seo_title || '';
+  document.getElementById('meta_description').value = p.meta_description || '';
+  images = Array.isArray(p.images) ? p.images.slice() : [];
+  renderImages();
+  document.querySelector('.admin-wrap h2') || null;
+}
+
+document.getElementById('prodForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  var msg = document.getElementById('msg');
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  msg.className = 'msg';
+
+  var name = document.getElementById('name').value.trim();
+  var slug = document.getElementById('slug').value.trim() || slugify(name);
+
+  var payload = {
+    name: name,
+    description: document.getElementById('description').value.trim(),
+    sku: document.getElementById('sku').value.trim(),
+    oem_number: document.getElementById('oem_number').value.trim() || null,
+    brand: document.getElementById('brand').value.trim() || null,
+    category: document.getElementById('category').value.trim() || null,
+    vehicle_compatibility: document.getElementById('vehicle_compatibility').value.trim() || null,
+    warranty: document.getElementById('warranty').value.trim() || null,
+    price_sale: Number(document.getElementById('price_sale').value),
+    stock: Number(document.getElementById('stock').value),
+    is_active: document.getElementById('is_active').checked,
+    slug: slug,
+    seo_title: document.getElementById('seo_title').value.trim() || null,
+    meta_description: document.getElementById('meta_description').value.trim() || null,
+    images: images,
+  };
+
+  var result;
+  if (productId) {
+    result = await supabase.from('products').update(payload).eq('id', productId).select().single();
+  } else {
+    result = await supabase.from('products').insert(payload).select().single();
+  }
+
+  if (result.error) {
+    msg.textContent = 'Error al guardar: ' + result.error.message;
+    msg.className = 'msg err';
+    btn.disabled = false; btn.textContent = 'Guardar';
+    return;
+  }
+
+  msg.textContent = '¡Guardado! Redirigiendo...';
+  msg.className = 'msg ok';
+  setTimeout(function(){ location.href = '/admin/productos.html'; }, 900);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async function(){
+  await supabase.auth.signOut();
+  location.href = '/admin/login.html';
+});
+
+(async function(){
+  var session = await requireAdmin();
+  if (!session) return;
+  await loadExisting();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="pageTitle">Repuesto | Desarmaduría Saravia</title>
+<link rel="icon" href="/img/favicon.png">
+<meta id="metaDescription" name="description" content="Repuesto usado con garantía. Consulta disponibilidad y precio por WhatsApp.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" id="canonicalLink" href="https://autopartschile.cl/producto.html">
+<link rel="stylesheet" href="/styles.css?v=20260902cart">
+<style>
+.prod-detail{display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;margin-bottom:2.5rem;}
+.prod-detail-gallery{width:380px;max-width:100%;}
+.prod-detail-gallery img.main{width:100%;height:320px;object-fit:cover;border-radius:12px;border:1.5px solid var(--gray-border);}
+.prod-detail-thumbs{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap;}
+.prod-detail-thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1.5px solid var(--gray-border);cursor:pointer;}
+.prod-detail-thumbs img.active{border-color:var(--red);}
+.prod-detail-info{flex:1;min-width:260px;}
+.prod-detail-info h1{font-size:1.4rem;font-weight:800;margin-bottom:.4rem;color:#111;}
+.prod-detail-info .compat{color:#888;font-size:.95rem;margin-bottom:.8rem;display:block;}
+.prod-detail-info .price{font-size:1.6rem;font-weight:800;color:var(--red);margin:.6rem 0;}
+.prod-detail-info .stock-badge{display:inline-block;padding:.3rem .8rem;border-radius:20px;font-size:.85rem;font-weight:700;margin-bottom:1rem;}
+.stock-badge.in{background:#e8f9ee;color:#16a34a;}
+.stock-badge.out{background:#fdeaea;color:#c0392b;}
+.prod-detail-desc{color:#444;line-height:1.6;margin-bottom:1.2rem;white-space:pre-wrap;}
+#notFoundBox,#loadingBox{text-align:center;padding:3rem 1.5rem;}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TXKXWQCTZ1');
+</script>
+</head>
+<body>
+<header class="header"><div class="container header-inner"><div class="header-brands"><a href="/vehiculos-en-desarme.html" class="brand-link brand-saravia" aria-label="Desarmaduría Saravia — Venta de repuestos multimarca"><span class="brand-saravia-plate"><img src="/img/logo/desarmaduria-saravia.svg" alt="Desarmaduría Saravia — Venta de repuestos multimarca" width="52" height="34"></span><span class="brand-indicator" aria-hidden="true"></span></a><span class="brand-divider" aria-hidden="true"></span><a href="/catalogo.html" class="brand-link brand-autopartschile" aria-label="Autopartschile — Importación y repuestos"><img src="/img/logo/autopartschile.svg" alt="Autopartschile — Importación y repuestos" width="60" height="42" loading="eager"><span class="brand-indicator" aria-hidden="true"></span></a></div><div class="header-actions"><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-wa-header" target="_blank" rel="noopener"><span class="wa-full">&#128172; Cotizar por WhatsApp</span><span class="wa-short">&#128172; WhatsApp</span></a></div></div></header>
+<nav class="nav"><div class="container"><button class="nav-toggle" onclick="document.getElementById('nl').classList.toggle('open')" aria-label="Menú">&#9776; Menú</button><ul class="nav-list" id="nl"><li><a href="/catalogo.html" class="active">Catálogo</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li><li><a href="/garantias.html">Garantías</a></li><li><a href="/envios.html">Envíos</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/sucursales.html">Sucursales</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/opiniones.html">Opiniones</a></li><li><a href="/por-que-elegirnos.html">¿Por qué Elegirnos?</a></li></ul></div></nav>
+<section class="page-content"><div class="container">
+<div id="loadingBox"><p>Cargando repuesto...</p></div>
+<div id="notFoundBox" style="display:none">
+<p>No encontramos este repuesto. Puede que ya no esté disponible.</p>
+<a href="/catalogo" class="btn-primary">Ver catálogo completo</a>
+</div>
+<div class="prod-detail" id="prodDetail" style="display:none">
+<div class="prod-detail-gallery">
+<img class="main" id="mainImg" src="" alt="">
+<div class="prod-detail-thumbs" id="thumbs"></div>
+</div>
+<div class="prod-detail-info">
+<h1 id="prodName"></h1>
+<span class="compat" id="prodCompat"></span>
+<span class="stock-badge" id="stockBadge"></span>
+<p class="price" id="prodPrice"></p>
+<p class="prod-detail-desc" id="prodDesc"></p>
+<a href="#" id="waBtn" class="btn-primary btn-lg" target="_blank" rel="noopener">&#128172; Consultar por WhatsApp</a>
+</div>
+</div>
+</div></section>
+<section class="cta-final"><div class="container"><h2>¿Buscas otra pieza?</h2><p>Escríbenos por WhatsApp. Respondemos en menos de 5 minutos en horario de atención.</p><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-primary btn-lg" target="_blank" rel="noopener">&#128172; Cotizar por WhatsApp</a></div></section>
+<footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/desarmaduria.multimarcas.cyc" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href="/catalogo.html">Repuestos Suzuki</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href="/garantias.html">Garantías y Devoluciones</a></li><li><a href="/envios.html">Envíos a Todo Chile</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>&#128205; Av. Lo Blanco 1072, La Pintana</p><p>&#128205; Guacolda 2050, La Pintana</p><p>&#128172; <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>&#169; 2026 Desarmaduría Saravia – AutopartsChile. Todos los derechos reservados.</p></div></div></footer>
+<script src="/checkout.js" defer></script>
+<script src="/cart.js" defer></script>
+<script>
+(async function(){
+var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+var params = new URLSearchParams(location.search);
+var sku = params.get('sku');
+var slug = params.get('slug');
+var loadingBox = document.getElementById('loadingBox');
+var notFoundBox = document.getElementById('notFoundBox');
+var detail = document.getElementById('prodDetail');
+
+function showNotFound(){ loadingBox.style.display='none'; notFoundBox.style.display=''; }
+
+if (!sku && !slug) { showNotFound(); return; }
+
+function formatCompat(v){
+  if (!v) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') {
+    var parts = [v.make, v.model, v.years || v.year, v.engine].filter(Boolean);
+    return parts.join(' ');
+  }
+  return String(v);
+}
+
+try {
+  var filter = sku ? ('sku=eq.' + encodeURIComponent(sku)) : ('slug=eq.' + encodeURIComponent(slug));
+  var res = await fetch(SUPABASE_URL + '/rest/v1/products?select=*&is_active=eq.true&' + filter, {
+    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+  });
+  var rows = res.ok ? await res.json() : [];
+  var p = rows[0];
+  if (!p) { showNotFound(); return; }
+
+  var url = 'https://autopartschile.cl/producto?sku=' + encodeURIComponent(p.sku);
+  var oem = (p.oem_number || (Array.isArray(p.tags) ? p.tags.join(', ') : '')) || 'No especificado';
+  var priceFmt = '$' + Math.round(Number(p.price_sale)).toLocaleString('es-CL');
+  var images = Array.isArray(p.images) && p.images.length ? p.images : ['/img/favicon.png'];
+
+  document.getElementById('pageTitle').textContent = (p.seo_title || p.name) + ' | Desarmaduría Saravia';
+  var compatStr = formatCompat(p.vehicle_compatibility);
+  document.getElementById('metaDescription').setAttribute('content', p.meta_description || ('Compra ' + p.name + ' para ' + compatStr + '. Repuesto con garantía, despacho a todo Chile.'));
+  document.getElementById('canonicalLink').setAttribute('href', url);
+  document.getElementById('prodName').textContent = p.name;
+  document.getElementById('prodCompat').textContent = compatStr || (p.brand||'');
+  document.getElementById('prodPrice').textContent = priceFmt;
+  document.getElementById('prodDesc').textContent = p.description || '';
+  var stockBadge = document.getElementById('stockBadge');
+  if (p.stock > 0) { stockBadge.textContent = 'Disponible'; stockBadge.className = 'stock-badge in'; }
+  else { stockBadge.textContent = 'Agotado'; stockBadge.className = 'stock-badge out'; }
+
+  var mainImg = document.getElementById('mainImg');
+  mainImg.src = images[0];
+  mainImg.alt = p.name;
+  var thumbs = document.getElementById('thumbs');
+  images.forEach(function(src, i){
+    var t = document.createElement('img');
+    t.src = src; t.alt = p.name + ' ' + (i+1);
+    if (i===0) t.className = 'active';
+    t.addEventListener('click', function(){
+      mainImg.src = src;
+      thumbs.querySelectorAll('img').forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+    });
+    thumbs.appendChild(t);
+  });
+
+  var waText = 'Hola, quiero consultar por:\n' + p.name + '\n\nOEM:\n' + oem + '\n\nPrecio:\n' + priceFmt + '\n\nURL:\n' + url;
+  document.getElementById('waBtn').href = 'https://wa.me/56953817335?text=' + encodeURIComponent(waText);
+
+  loadingBox.style.display = 'none';
+  detail.style.display = '';
+} catch (e) {
+  showNotFound();
+}
+})();
+</script>
+<script>(function(){var header=document.querySelector(".header");if(!header)return;var ticking=false;function onScroll(){if(!ticking){window.requestAnimationFrame(function(){header.classList.toggle("is-scrolled",window.scrollY>30);ticking=false;});ticking=true;}}window.addEventListener("scroll",onScroll,{passive:true});onScroll();})();</script>
+</body>
+</html>

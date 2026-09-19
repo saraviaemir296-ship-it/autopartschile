@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>QA Webpay — Uso interno</title>
 <meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="/styles.css?v=20260902cart">
 <style>
 body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem;color:#222}
 h1{font-size:1.3rem}
@@ -16,7 +17,8 @@ button:disabled{opacity:.5}
 </style>
 </head>
 <body>
-<h1>QA Webpay Plus — Página de uso interno (no indexada, no enlazada en el sitio)</h1>
+<p><a href="/admin/index.html">&larr; Volver al panel</a></p>
+<h1>QA Webpay Plus — Página de uso interno (requiere sesión de administrador)</h1>
 <p class="warn">Esta página NO es para clientes. Sirve solo para que Emir complete manualmente las pruebas de tarjeta que Transbank exige para la validación (evidencia). Ambiente: INTEGRACIÓN (ninguna tarjeta real puede ser cobrada aquí).</p>
 
 <div class="box">
@@ -28,11 +30,21 @@ button:disabled{opacity:.5}
 </ul>
 <p>Si te pide autenticación bancaria (Redcompra/débito), usa RUT <strong>11.111.111-1</strong> y clave <strong>123</strong>.</p>
 <p><strong>Paso 3.</strong> Repite este proceso una vez por cada tarjeta que necesites probar (aprobada y rechazada son transacciones separadas — vuelve a esta página y presiona el botón de nuevo para cada una).</p>
-<button id="go">Iniciar transacción de prueba en Transbank</button>
+<button id="go" disabled>Verificando sesión...</button>
 <div class="log" id="log" style="display:none"></div>
 </div>
 
-<script>
+<script type="module">
+import { requireAdmin } from '/admin/admin-common.js';
+
+(async function(){
+  var session = await requireAdmin();
+  if (!session) return;
+  var btn = document.getElementById('go');
+  btn.disabled = false;
+  btn.textContent = 'Iniciar transacción de prueba en Transbank';
+})();
+
 var ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/webpay-create-transaction";
 document.getElementById("go").addEventListener("click", function () {
   var btn = this;

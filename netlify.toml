@@ -41,6 +41,20 @@
     # sumarlos aqui o se bloquearan.
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://ipapi.co https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
 
+# CSP propia para /admin/: el panel carga el cliente de Supabase como módulo ES
+# desde esm.sh (no hay build step que lo empaquete localmente). No se relaja la
+# CSP del sitio público para esto — solo aplica bajo /admin/*. Además nunca se
+# indexa (X-Robots-Tag + robots.txt), y el propio backend (RLS + Supabase Auth)
+# es quien autoriza de verdad, no esta cabecera.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex, nofollow"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://esm.sh; img-src 'self' data: https://zlyforhywunqhitrdreo.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+
 # Cache agresivo para assets estáticos
 [[headers]]
   for = "/styles.css"
