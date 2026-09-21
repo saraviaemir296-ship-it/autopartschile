@@ -39,7 +39,9 @@
     # eso lleva 'unsafe-inline' en script-src, lo cual limita cuanto protege
     # contra XSS. Si se agregan nuevos recursos externos al sitio, hay que
     # sumarlos aqui o se bloquearan.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://ipapi.co https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
+    # img-src incluye Supabase Storage porque catalogo.html y producto.html ahora
+    # muestran fotos de productos subidas desde /admin/ (bucket product-images).
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://ipapi.co https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com https://zlyforhywunqhitrdreo.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
 
 # CSP propia para /admin/: el panel carga el cliente de Supabase como módulo ES
 # desde esm.sh (no hay build step que lo empaquete localmente). No se relaja la
