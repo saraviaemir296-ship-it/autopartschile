@@ -133,7 +133,8 @@ gtag('config', 'G-TXKXWQCTZ1');
   <div class="co-step">
     <h2><span class="n">5</span>Método de pago</h2>
     <button type="submit" class="co-pay-btn co-pay-mp" name="gateway" value="mercadopago">Pagar con Mercado Pago &rarr;</button>
-    <button type="submit" class="co-pay-btn co-pay-webpay" name="gateway" value="webpay">Pagar con Webpay Plus &rarr;</button>
+    <button type="submit" class="co-pay-btn co-pay-webpay" name="gateway" value="webpay" id="co-pay-webpay-btn">Pagar con Webpay Plus &rarr;</button>
+    <p class="co-webpay-note" id="co-webpay-note" style="display:none;font-size:.85rem;color:#888;text-align:center;margin:.4rem 0 0">&iquest;Prefieres Webpay o transferencia? <a href="https://wa.me/56953817335" target="_blank" rel="noopener" style="color:#25D366;font-weight:700;text-decoration:none">Escr&iacute;benos por WhatsApp</a></p>
     <p class="co-global-error" id="co-global-error"></p>
   </div>
 
@@ -150,6 +151,22 @@ gtag('config', 'G-TXKXWQCTZ1');
   var MP_ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/mp-create-preference";
   var WEBPAY_ENDPOINT = "https://zlyforhywunqhitrdreo.supabase.co/functions/v1/webpay-create-transaction";
   var STORAGE_KEY = "apc_checkout_customer";
+
+  // WEBPAY_LIVE (2026-09-21): mismo flag y mismo motivo que ya existe en checkout.js —
+  // Webpay Plus sigue corriendo contra el ambiente de INTEGRACIÓN de Transbank
+  // (confirmado con un diagnóstico real: WEBPAY_ENV/WEBPAY_COMMERCE_CODE/WEBPAY_API_KEY
+  // no están seteados en Supabase). Esta página de checkout completo mostraba el botón
+  // de Webpay sin ningún guard mientras checkout.js (el modal del carrito) ya lo ocultaba
+  // desde esa fecha — un cliente real podía llegar aquí y usar un método de pago que
+  // nunca cobra de verdad. Cuando se configuren las credenciales reales de Transbank en
+  // Supabase (WEBPAY_ENV=production + WEBPAY_COMMERCE_CODE + WEBPAY_API_KEY), cambiar a true.
+  var WEBPAY_LIVE = false;
+  if (!WEBPAY_LIVE) {
+    var webpayBtn = document.getElementById("co-pay-webpay-btn");
+    var webpayNote = document.getElementById("co-webpay-note");
+    if (webpayBtn) webpayBtn.style.display = "none";
+    if (webpayNote) webpayNote.style.display = "block";
+  }
 
   function loadSavedCustomer() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { return {}; }
