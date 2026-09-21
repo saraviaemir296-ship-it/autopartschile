@@ -10,6 +10,17 @@
   to = "/.netlify/functions/google-reviews"
   status = 200
 
+# feed.xml (Google Shopping) ahora se genera en vivo desde Supabase — antes era
+# un archivo estático de 114 items mantenido a mano, desconectado de los 270+
+# productos reales. 'force = true' porque sin él Netlify serviría el archivo
+# estático si existiera en vez de aplicar el redirect (mismo motivo que la regla
+# de /*.html más abajo).
+[[redirects]]
+  from = "/feed.xml"
+  to = "/.netlify/functions/feed"
+  status = 200
+  force = true
+
 # Unifica la convención de URLs: toda pagina.html redirige 301 a /pagina (URL limpia),
 # que es la que usa toda la navegación interna del sitio (menú, footer, cards).
 # 'force = true' es necesario porque sin él Netlify prioriza servir el archivo
