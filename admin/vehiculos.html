@@ -8,6 +8,8 @@
 <link rel="icon" href="/img/favicon.png">
 <link rel="stylesheet" href="/styles.css?v=20260902cart">
 <style>
+  td input.inp{width:100%;min-width:50px;padding:.3rem .4rem;font-size:.82rem;border:1px solid #ddd;border-radius:5px;box-sizing:border-box;}
+.row-actions button[data-save]{color:#16a34a;}
 body{background:#f4f6f8;}
 .admin-topbar{background:#111;color:#fff;padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;}
 .admin-topbar a{color:#fff;text-decoration:none;font-weight:700;}
@@ -59,22 +61,48 @@ function render(list) {
   if (!list.length) { tbody.innerHTML = '<tr><td colspan="8">Sin resultados.</td></tr>'; return; }
   tbody.innerHTML = list.map(function(v){
     var img = (Array.isArray(v.images) && v.images.length) ? v.images[0] : '/img/favicon.png';
-    var anios = (v.anio_desde || v.anio_hasta) ? ((v.anio_desde||'?') + '-' + (v.anio_hasta||'?')) : '';
     var statusBadge = v.is_active ? '<span class="badge pub">Listo para publicar</span>' : '<span class="badge draft">Borrador</span>';
-    return '<tr>' +
+    function esc(s) { return (s == null ? '' : String(s)).replace(/"/g, '&quot;'); }
+    return '<tr data-id="' + v.id + '">' +
       '<td><img class="thumb" src="' + img + '" alt=""></td>' +
-      '<td>' + v.marca + ' ' + v.modelo + '</td>' +
-      '<td>' + (v.motor||'') + '</td>' +
-      '<td>' + anios + '</td>' +
-      '<td>' + (v.color||'') + '</td>' +
-      '<td>' + (v.codigo||'') + '</td>' +
+      '<td><input class="inp" data-field="marca" value="' + esc(v.marca) + '" style="width:64px;margin-bottom:.3rem;display:block"><input class="inp" data-field="modelo" value="' + esc(v.modelo) + '" style="width:64px;display:block"></td>' +
+      '<td><input class="inp" data-field="motor" value="' + esc(v.motor) + '" style="width:70px"></td>' +
+      '<td><input class="inp" data-field="anio_desde" type="number" value="' + esc(v.anio_desde) + '" style="width:50px">-<input class="inp" data-field="anio_hasta" type="number" value="' + esc(v.anio_hasta) + '" style="width:50px"></td>' +
+      '<td><input class="inp" data-field="color" value="' + esc(v.color) + '" style="width:70px"></td>' +
+      '<td><input class="inp" data-field="codigo" value="' + esc(v.codigo) + '" style="width:80px"></td>' +
       '<td>' + statusBadge + '</td>' +
       '<td class="row-actions">' +
-        '<a href="/admin/vehiculo.html?id=' + v.id + '">Editar</a>' +
+        '<button data-save="' + v.id + '">Guardar</button>' +
+        '<a href="/admin/vehiculo.html?id=' + v.id + '">Fotos/SEO</a>' +
         '<button data-toggle="' + v.id + '" data-active="' + v.is_active + '">' + (v.is_active ? 'Marcar borrador' : 'Marcar listo') + '</button>' +
       '</td>' +
     '</tr>';
   }).join('');
+
+  tbody.querySelectorAll('button[data-save]').forEach(function(btn){
+    btn.addEventListener('click', async function(){
+      var id = btn.dataset.save;
+      var tr = btn.closest('tr');
+      var payload = {};
+      tr.querySelectorAll('input[data-field]').forEach(function(inp){
+        var f = inp.dataset.field;
+        var v = inp.value.trim();
+        if (f === 'anio_desde' || f === 'anio_hasta') {
+          payload[f] = v ? parseInt(v, 10) : null;
+        } else {
+          payload[f] = v || null;
+        }
+      });
+      btn.disabled = true;
+      var original = btn.textContent;
+      var { error } = await supabase.from('vehiculos').update(payload).eq('id', id);
+      if (error) { alert('Error: ' + error.message); btn.disabled = false; return; }
+      btn.textContent = 'Guardado ✓';
+      var item = all.find(function(x){ return String(x.id) === String(id); });
+      if (item) Object.assign(item, payload);
+      setTimeout(function(){ btn.textContent = original; btn.disabled = false; }, 1500);
+    });
+  });
 
   tbody.querySelectorAll('button[data-toggle]').forEach(function(btn){
     btn.addEventListener('click', async function(){
@@ -86,7 +114,7 @@ function render(list) {
       await load();
     });
   });
-}
+                                                                                   }
 
 async function load() {
   var { data, error } = await supabase.from('vehiculos').select('*').order('updated_at', { ascending: false });
