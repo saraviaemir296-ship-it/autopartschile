@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cotiza tu Repuesto Online | Desarmaduría Saravia — AutopartsChile</title>
+<link rel="icon" href="/img/favicon.png">
+<meta name="description" content="Cotiza en menos de 1 minuto tu repuesto usado Suzuki, Kia, Hyundai o Chevrolet. Completa el formulario y te contactamos al instante por WhatsApp con precio y disponibilidad.">
+<meta name="keywords" content="cotizar repuesto usado, cotización repuestos Suzuki, desarmaduría La Pintana, repuestos por WhatsApp">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://autopartschile.cl/cotizacion">
+<link rel="stylesheet" href="/styles.css?v=20260902cart">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TXKXWQCTZ1');
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://autopartschile.cl/"}, {"@type": "ListItem", "position": 2, "name": "Cotización", "item": "https://autopartschile.cl/cotizacion"}]}</script>
+<style>
+.cotiz-wrap{max-width:640px;margin:0 auto}
+.cotiz-form{display:flex;flex-direction:column;gap:16px;background:var(--white);border:1px solid var(--gray-border);border-radius:12px;padding:28px;box-shadow:var(--shadow)}
+.cotiz-field{display:flex;flex-direction:column;gap:6px}
+.cotiz-field label{font-weight:600;font-size:.95rem;color:var(--black)}
+.cotiz-field .req{color:var(--red)}
+.cotiz-field input,.cotiz-field select,.cotiz-field textarea{padding:.65rem .85rem;border:1.5px solid var(--gray-border);border-radius:var(--r);font-size:1rem;font-family:var(--font);width:100%;box-sizing:border-box;color:var(--black)}
+.cotiz-field input:focus,.cotiz-field select:focus,.cotiz-field textarea:focus{outline:none;border-color:var(--red)}
+.cotiz-field textarea{resize:vertical;min-height:80px}
+.cotiz-hint{font-size:.85rem;color:var(--text-sec);margin-top:-2px}
+.cotiz-submit{width:100%}
+.cotiz-submit:disabled{opacity:.6;cursor:not-allowed}
+.cotiz-error{color:var(--red);font-size:.9rem;display:none}
+.cotiz-error.show{display:block}
+.cotiz-note{font-size:.85rem;color:var(--text-sec);text-align:center;margin-top:4px}
+.cotiz-trust{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;margin:22px 0 6px;font-size:.9rem;color:var(--text-sec)}
+.cotiz-trust span{display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<header class="header"><div class="container header-inner"><div class="header-brands"><a aria-label="Desarmaduría Saravia — Venta de repuestos multimarca" class="brand-link brand-saravia" href="/vehiculos-en-desarme"><span class="brand-saravia-plate"><img src="/img/logo/desarmaduria-saravia.svg" alt="Desarmaduría Saravia — Venta de repuestos multimarca" width="52" height="34"></span><span class="brand-indicator" aria-hidden="true"></span></a><span class="brand-divider" aria-hidden="true"></span><a aria-label="Autopartschile — Importación y repuestos" class="brand-link brand-autopartschile" href="/catalogo"><img src="/img/logo/autopartschile.svg" alt="Autopartschile — Importación y repuestos" width="60" height="42" loading="eager"><span class="brand-indicator" aria-hidden="true"></span></a></div><div class="header-actions"><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-wa-header" target="_blank" rel="noopener"><span class="wa-full">💬 Cotizar por WhatsApp</span><span class="wa-short">💬 WhatsApp</span></a><button type="button" id="apc-cart-icon" class="apc-cart-btn" aria-label="Ver carrito">🛒 Carrito<span class="apc-cart-badge">0</span></button></div></div></header>
+<nav class="nav"><div class="container"><button class="nav-toggle" onclick="document.getElementById('nl').classList.toggle('open')" aria-label="Menú">☰ Menú</button><ul class="nav-list" id="nl"><li><a href="/catalogo">Catálogo</a></li><li><a href="/vehiculos-en-desarme">Vehículos en Desarme</a></li><li><a class="active" href="/cotizacion">Cotizar</a></li><li><a href="/como-comprar">Cómo Comprar</a></li><li><a href="/garantias">Garantías</a></li><li><a href="/envios">Envíos</a></li><li><a href="/metodos-de-pago">Métodos de Pago</a></li><li><a href="/sucursales">Sucursales</a></li><li><a href="/faq">FAQ</a></li><li><a href="/opiniones">Opiniones</a></li><li><a href="/por-que-elegirnos">¿Por qué Elegirnos?</a></li></ul></div></nav>
+<section class="page-hero"><div class="container"><div class="breadcrumb"><a href="/">Inicio</a> › Cotización</div><h1>Cotiza tu repuesto en menos de 1 minuto</h1><p class="hero-desc">Cuéntanos qué pieza necesitas y para qué auto. Te respondemos por WhatsApp con precio y disponibilidad, normalmente en minutos dentro de nuestro horario de atención.</p></div></section>
+<section class="page-content"><div class="container cotiz-wrap">
+
+<form class="cotiz-form" id="cotizForm" novalidate>
+  <div class="cotiz-field">
+    <label for="cf-nombre">Tu nombre <span class="req">*</span></label>
+    <input type="text" id="cf-nombre" name="nombre" required maxlength="100" autocomplete="name">
+  </div>
+
+  <div class="cotiz-field">
+    <label for="cf-telefono">WhatsApp de contacto <span class="req">*</span></label>
+    <input type="tel" id="cf-telefono" name="telefono" required maxlength="20" placeholder="+56 9 1234 5678" autocomplete="tel">
+    <span class="cotiz-hint">Te escribimos a este número para confirmar precio y stock.</span>
+  </div>
+
+  <div class="cotiz-field">
+    <label for="cf-vehiculo">Vehículo</label>
+    <select id="cf-vehiculo" name="vehiculo">
+      <option value="">Selecciona tu vehículo</option>
+      <optgroup label="Suzuki">
+        <option>Suzuki Celerio 2008-2014 1.0 K10B</option>
+        <option>Suzuki Celerio 2015-2023 1.0 K10B</option>
+        <option>Suzuki Alto 800 2014-2023 0.8 F8D</option>
+        <option>Suzuki Alto 2006-2012 1.0 F10D</option>
+        <option>Suzuki Swift 2017-2024 1.2 K12M</option>
+        <option>Suzuki Swift 2012-2017 1.2 K12B</option>
+        <option>Suzuki Swift 2005-2012 1.3/1.5</option>
+        <option>Suzuki Dzire 2017-2024 1.2 K12M</option>
+        <option>Suzuki SX4 2006-2014 1.6 M16A</option>
+        <option>Suzuki S-Cross 2015-2022 1.6 M16A</option>
+        <option>Suzuki S-Presso 2020-2022 1.0 K10B</option>
+        <option>Suzuki Grand Nomade 2008-2019 2.0 J20A</option>
+        <option>Suzuki Ciaz 2014-2020 1.4 K14B</option>
+        <option>Suzuki Mastervan 1.3 G13B</option>
+      </optgroup>
+      <optgroup label="Otras marcas">
+        <option>Chevrolet D-Max 2015-2020 2.5 diésel</option>
+        <option>Kia Optima Híbrido 2011-2015</option>
+        <option>Kia Cerato Koup 2011-2013</option>
+      </optgroup>
+      <option value="Otro / no está en la lista">Otro / no está en la lista</option>
+    </select>
+  </div>
+
+  <div class="cotiz-field">
+    <label for="cf-pieza">¿Qué repuesto necesitas? <span class="req">*</span></label>
+    <textarea id="cf-pieza" name="pieza" required maxlength="300" placeholder="Ej: Alternador, foco delantero derecho, caja de cambios..."></textarea>
+  </div>
+
+  <div class="cotiz-field">
+    <label for="cf-comentario">Comentario adicional (opcional)</label>
+    <textarea id="cf-comentario" name="comentario" maxlength="500" placeholder="Año exacto, color, algún detalle que ayude a identificar tu auto..."></textarea>
+  </div>
+
+  <p class="cotiz-error" id="cf-error"></p>
+
+  <button type="submit" class="btn-primary btn-lg cotiz-submit" id="cf-submit">💬 Enviar cotización por WhatsApp</button>
+  <p class="cotiz-note">Al enviar te llevamos directo a WhatsApp con tu mensaje ya escrito. No se hace ningún cobro.</p>
+</form>
+
+<div class="cotiz-trust">
+  <span>✅ Garantía hasta 30 días según la pieza</span>
+  <span>📍 Ven a verla antes de comprar: 2 sucursales en La Pintana</span>
+  <span>⭐ 4,8/5 con 16 reseñas reales en Google</span>
+</div>
+
+</div></section>
+
+<footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/desarmaduria.multimarcas.cyc" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href="/catalogo">Repuestos Suzuki</a></li><li><a href="/catalogo#kia">Repuestos Kia</a></li><li><a href="/catalogo#hyundai">Repuestos Hyundai</a></li><li><a href="/catalogo#chevrolet">Repuestos Chevrolet</a></li><li><a href="/vehiculos-en-desarme">Vehículos en Desarme</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href="/garantias">Garantías y Devoluciones</a></li><li><a href="/envios">Envíos a Todo Chile</a></li><li><a href="/metodos-de-pago">Métodos de Pago</a></li><li><a href="/como-comprar">Cómo Comprar</a></li><li><a href="/por-que-elegirnos">¿Por qué Elegirnos?</a></li><li><a href="/faq">Preguntas Frecuentes</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>📍 Av. Lo Blanco 1072, La Pintana</p><p>📍 Guacolda 2050, La Pintana</p><p>💬 <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>🕐 Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>© 2026 Desarmaduría Saravia – AutopartsChile. Todos los derechos reservados.</p></div></div></footer>
+<a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">💬</a>
+
+<script src="/cart.js" defer></script>
+<script>
+(function(){
+  var SUPABASE_URL = "https://zlyforhywunqhitrdreo.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw"; // clave pública anon, protegida por RLS — no es secreta
+  var WA_NUMBER = "56953817335";
+
+  var form = document.getElementById('cotizForm');
+  var errorEl = document.getElementById('cf-error');
+  var submitBtn = document.getElementById('cf-submit');
+
+  function showError(msg){
+    errorEl.textContent = msg;
+    errorEl.classList.add('show');
+  }
+  function clearError(){
+    errorEl.textContent = '';
+    errorEl.classList.remove('show');
+  }
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    clearError();
+
+    var nombre = document.getElementById('cf-nombre').value.trim();
+    var telefono = document.getElementById('cf-telefono').value.trim();
+    var vehiculo = document.getElementById('cf-vehiculo').value.trim();
+    var pieza = document.getElementById('cf-pieza').value.trim();
+    var comentario = document.getElementById('cf-comentario').value.trim();
+
+    if (nombre.length < 2){ showError('Escribe tu nombre.'); return; }
+    if (telefono.replace(/[^0-9]/g,'').length < 8){ showError('Escribe un WhatsApp válido.'); return; }
+    if (pieza.length < 2){ showError('Cuéntanos qué repuesto necesitas.'); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    try {
+      fetch(SUPABASE_URL + '/rest/v1/quote_requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          name: nombre,
+          phone: telefono,
+          vehicle: vehiculo || null,
+          part_needed: pieza,
+          comment: comentario || null,
+          page_url: window.location.href
+        })
+      }).catch(function(){ /* silencioso: no bloquea el flujo */ });
+    } catch(e) { /* silencioso */ }
+
+    var msgLines = [
+      'Hola, quiero cotizar un repuesto:',
+      'Nombre: ' + nombre,
+      vehiculo ? ('Vehículo: ' + vehiculo) : null,
+      'Repuesto: ' + pieza,
+      comentario ? ('Comentario: ' + comentario) : null
+    ].filter(Boolean);
+
+    var waText = encodeURIComponent(msgLines.join('\n'));
+    var waUrl = 'https://wa.me/' + WA_NUMBER + '?text=' + waText;
+
+    window.open(waUrl, '_blank', 'noopener');
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = '💬 Enviar cotización por WhatsApp';
+  });
+})();
+</script>
+</body>
+</html>
