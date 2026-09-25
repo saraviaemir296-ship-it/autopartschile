@@ -27,11 +27,13 @@ textarea{min-height:80px;resize:vertical;}
 .img-item img{width:90px;height:90px;object-fit:cover;border-radius:8px;border:1.5px solid #ddd;}
 .img-item.primary img{border-color:var(--red);border-width:2.5px;}
 .img-item .primary-tag{position:absolute;top:2px;left:2px;background:var(--red);color:#fff;font-size:.65rem;padding:.1rem .4rem;border-radius:4px;}
-.img-item button{position:absolute;top:2px;right:2px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.7rem;line-height:1;}
-.img-item .set-primary{position:absolute;bottom:2px;left:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:.6rem;padding:.15rem;cursor:pointer;}
-.actions-bar{display:flex;gap:.8rem;align-items:center;margin-top:1rem;}
+.img-item button.remove-btn{position:absolute;top:2px;right:2px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.7rem;line-height:1;}
+.img-item .set-primary{position:absolute;bottom:18px;left:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:.6rem;padding:.15rem;cursor:pointer;}
+.img-item .replace-btn{position:absolute;bottom:2px;left:2px;right:2px;background:rgba(190,20,20,.82);color:#fff;border:none;font-size:.6rem;padding:.15rem;cursor:pointer;}
+.actions-bar{display:flex;gap:.8rem;align-items:center;margin-top:1rem;flex-wrap:wrap;}
 button.primary{background:var(--red);color:#fff;border:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:800;cursor:pointer;}
 button.secondary{background:#eee;color:#333;border:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:700;cursor:pointer;}
+button.danger-outline{background:#fdeaea;color:#c0392b;border:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:700;cursor:pointer;}
 button:disabled{opacity:.6;}
 .msg{margin-top:1rem;padding:.7rem;border-radius:8px;font-size:.88rem;display:none;}
 .msg.err{display:block;background:#fdeaea;color:#c0392b;}
@@ -49,6 +51,7 @@ button:disabled{opacity:.6;}
 <a href="/admin/index.html">Dashboard</a>
 <a href="/admin/productos.html">Productos</a>
 <a href="/admin/producto.html">+ Nuevo producto</a>
+<a href="/admin/papelera.html">🗑 Papelera</a>
   <a href="/admin/vehiculos.html">Vehículos</a>
   <a href="/admin/vehiculo.html">+ Nuevo vehículo</a>
 </div>
@@ -96,23 +99,27 @@ button:disabled{opacity:.6;}
 <h2>Fotos</h2>
 <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple>
 <div class="imgs-grid" id="imgsGrid"></div>
-<p style="font-size:.8rem;color:#888;margin-top:.6rem;">La primera foto (marcada en rojo) es la imagen principal que se ve en el catálogo.</p>
+<input type="file" id="replaceInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+<p style="font-size:.8rem;color:#888;margin-top:.6rem;">La primera foto (marcada en rojo) es la imagen principal que se ve en el catálogo. Usa "Reemplazar" para cambiar una foto sin perder su posición (ideal para cambiar la foto principal en un solo paso).</p>
 </div>
 
 <div class="actions-bar">
 <button type="submit" class="primary" id="saveBtn">Guardar</button>
 <a href="/admin/productos.html" class="secondary" style="text-decoration:none;padding:.8rem 1.4rem;border-radius:9px;font-weight:700;color:#333;background:#eee;">Cancelar</a>
+<button type="button" class="danger-outline" id="deleteBtn" style="display:none;">Eliminar producto</button>
 </div>
 <p class="msg" id="msg"></p>
 </form>
 </div>
 
 <script type="module">
-import { supabase, requireAdmin, slugify } from '/admin/admin-common.js';
+import { supabase, requireAdmin, slugify, toast, confirmModal } from '/admin/admin-common.js';
 
 var params = new URLSearchParams(location.search);
 var productId = params.get('id');
 var images = []; // array of public URLs, [0] = principal
+var currentSession = null;
+var replaceIndex = null;
 
 function renderImages() {
   var grid = document.getElementById('imgsGrid');
@@ -120,8 +127,9 @@ function renderImages() {
     return '<div class="img-item' + (i===0?' primary':'') + '">' +
       (i===0 ? '<span class="primary-tag">Principal</span>' : '') +
       '<img src="' + url + '">' +
-      '<button type="button" data-remove="' + i + '">&times;</button>' +
+      '<button type="button" class="remove-btn" data-remove="' + i + '">&times;</button>' +
       (i!==0 ? '<button type="button" class="set-primary" data-primary="' + i + '">Hacer principal</button>' : '') +
+      '<button type="button" class="replace-btn" data-replace="' + i + '">Reemplazar</button>' +
     '</div>';
   }).join('');
   grid.querySelectorAll('[data-remove]').forEach(function(btn){
@@ -138,25 +146,53 @@ function renderImages() {
       renderImages();
     });
   });
+  grid.querySelectorAll('[data-replace]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      replaceIndex = Number(btn.dataset.replace);
+      document.getElementById('replaceInput').click();
+    });
+  });
+}
+
+async function uploadFile(file) {
+  var path = Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+  var { error } = await supabase.storage.from('product-images').upload(path, file, { cacheControl: '31536000', upsert: false });
+  if (error) throw error;
+  var { data: pub } = supabase.storage.from('product-images').getPublicUrl(path);
+  return pub.publicUrl;
 }
 
 document.getElementById('fileInput').addEventListener('change', async function(e){
   var files = Array.prototype.slice.call(e.target.files);
   var msg = document.getElementById('msg');
   for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-    var path = Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
-    var { error } = await supabase.storage.from('product-images').upload(path, file, { cacheControl: '31536000', upsert: false });
-    if (error) {
-      msg.textContent = 'Error subiendo ' + file.name + ': ' + error.message;
+    try {
+      var url = await uploadFile(files[i]);
+      images.push(url);
+    } catch (err) {
+      msg.textContent = 'Error subiendo ' + files[i].name + ': ' + err.message;
       msg.className = 'msg err';
-      continue;
     }
-    var { data: pub } = supabase.storage.from('product-images').getPublicUrl(path);
-    images.push(pub.publicUrl);
   }
   e.target.value = '';
   renderImages();
+});
+
+document.getElementById('replaceInput').addEventListener('change', async function(e){
+  var file = e.target.files[0];
+  if (!file || replaceIndex === null) return;
+  var msg = document.getElementById('msg');
+  try {
+    var url = await uploadFile(file);
+    images[replaceIndex] = url;
+    renderImages();
+    toast('Foto reemplazada correctamente.', 'ok');
+  } catch (err) {
+    msg.textContent = 'Error reemplazando foto: ' + err.message;
+    msg.className = 'msg err';
+  }
+  e.target.value = '';
+  replaceIndex = null;
 });
 
 async function loadExisting() {
@@ -179,8 +215,31 @@ async function loadExisting() {
   document.getElementById('meta_description').value = p.meta_description || '';
   images = Array.isArray(p.images) ? p.images.slice() : [];
   renderImages();
-  document.querySelector('.admin-wrap h2') || null;
+  document.getElementById('deleteBtn').style.display = 'inline-block';
+  document.getElementById('deleteBtn').dataset.name = p.name || '';
 }
+
+document.getElementById('deleteBtn').addEventListener('click', async function(){
+  if (!productId) return;
+  var name = document.getElementById('deleteBtn').dataset.name || '';
+  var ok = await confirmModal({
+    title: '¿Seguro que deseas eliminar esta publicación?',
+    productName: name,
+    warning: 'Esta publicación será enviada a la papelera y dejará de mostrarse en el sitio. Puedes restaurarla después desde Papelera.',
+    confirmText: 'Eliminar',
+    cancelText: 'Cancelar',
+    danger: true,
+  });
+  if (!ok) return;
+  var { error } = await supabase.from('products').update({
+    is_active: false,
+    deleted_at: new Date().toISOString(),
+    deleted_by: currentSession ? currentSession.user.id : null,
+  }).eq('id', productId);
+  if (error) { toast('No se pudo eliminar: ' + error.message, 'err'); return; }
+  toast('Producto eliminado correctamente.', 'ok');
+  setTimeout(function(){ location.href = '/admin/productos.html'; }, 700);
+});
 
 document.getElementById('prodForm').addEventListener('submit', async function(e){
   e.preventDefault();
@@ -237,6 +296,7 @@ document.getElementById('logoutBtn').addEventListener('click', async function(){
 (async function(){
   var session = await requireAdmin();
   if (!session) return;
+  currentSession = session;
   await loadExisting();
 })();
 </script>
