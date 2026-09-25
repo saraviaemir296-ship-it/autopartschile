@@ -494,38 +494,44 @@ gtag('config', 'G-TXKXWQCTZ1');
 <section class="cta-final"><div class="container"><h2>¿Tienes el modelo, el año y la pieza?</h2><p>Escríbenos por WhatsApp. Respondemos en menos de 5 minutos en horario de atención.</p><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-primary btn-lg" target="_blank" rel="noopener">&#128172; Cotizar mi repuesto por WhatsApp</a></div></section>
 <footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/desarmaduria.multimarcas.cyc" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href="/catalogo.html">Repuestos Suzuki</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li><li><a href="/catalogo.html#kia">Repuestos Kia</a></li><li><a href="/catalogo.html#hyundai">Repuestos Hyundai</a></li><li><a href="/catalogo.html#chevrolet">Repuestos Chevrolet</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href="/garantias.html">Garantías y Devoluciones</a></li><li><a href="/envios.html">Envíos a Todo Chile</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li><li><a href="/por-que-elegirnos.html">¿Por qué Elegirnos?</a></li><li><a href="/faq.html">Preguntas Frecuentes</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>&#128205; Av. Lo Blanco 1072, La Pintana</p><p>&#128205; Guacolda 2050, La Pintana</p><p>&#128172; <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>&#169; 2026 Desarmaduría Saravia – AutopartsChile. Todos los derechos reservados.</p></div></div></footer>
 <a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">&#128172;</a>
-<script type="module">
-import { supabase } from '/admin/admin-common.js';
+<script>
+(function(){
 function esc(s){ return (s==null?'':String(s)).replace(/"/g,'&quot;'); }
-async function loadDynamicVehicles(){
+function loadDynamicVehicles(){
   var grid = document.getElementById('desarmesGrid');
   if(!grid) return;
-  var res = await supabase.from('vehiculos').select('*').eq('is_active', true).order('created_at', { ascending: false });
-  var data = res.data, error = res.error;
-  if (error || !data || !data.length) return;
-  var frag = document.createDocumentFragment();
-  data.forEach(function(v){
-    var img = (Array.isArray(v.images) && v.images.length) ? v.images[0] : '/img/favicon.png';
-    var title = v.marca + ' ' + v.modelo + (v.motor ? ' ' + v.motor : '');
-    var yearsText = v.anio_desde ? (v.anio_desde + (v.anio_hasta ? '-' + v.anio_hasta : '+')) : '';
-    var metaText = [yearsText, v.color].filter(Boolean).join(' · ');
-    var waText = encodeURIComponent('Hola, me interesa el desarme de ' + title + '. ¿Qué piezas tienen disponibles?');
-    var card = document.createElement('div');
-    card.className = 'desarme-card';
-    card.innerHTML =
-      '<div class="dcard-img-wrap"><img src="' + img + '" alt="' + esc(title) + ' en desarme" loading="lazy" width="320" height="330"></div>' +
-      '<div class="dcard-info">' +
-        '<span class="dcard-new">Nuevo ingreso</span>' +
-        '<h3>' + esc(title) + '</h3>' +
-        '<span class="dcard-year">' + esc(metaText || 'Nuevo ingreso') + '</span>' +
-        '<a href="https://wa.me/56953817335?text=' + waText + '" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar piezas</a>' +
-        '<a href="/vehiculo.html?slug=' + encodeURIComponent(v.slug || '') + '" class="dcard-btn2">Ver ficha del vehículo &rarr;</a>' +
-      '</div>';
-    frag.appendChild(card);
-  });
-  grid.insertBefore(frag, grid.firstChild);
+  fetch('https://zlyforhywunqhitrdreo.supabase.co/rest/v1/vehiculos?select=*&is_active=eq.true&order=created_at.desc', {
+    headers: {
+      apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw'
+    }
+  }).then(function(r){ return r.ok ? r.json() : []; }).then(function(data){
+    if (!data || !data.length) return;
+    var frag = document.createDocumentFragment();
+    data.forEach(function(v){
+      var img = (Array.isArray(v.images) && v.images.length) ? v.images[0] : '/img/favicon.png';
+      var title = v.marca + ' ' + v.modelo + (v.motor ? ' ' + v.motor : '');
+      var yearsText = v.anio_desde ? (v.anio_desde + (v.anio_hasta ? '-' + v.anio_hasta : '+')) : '';
+      var metaText = [yearsText, v.color].filter(Boolean).join(' · ');
+      var waText = encodeURIComponent('Hola, me interesa el desarme de ' + title + '. ¿Qué piezas tienen disponibles?');
+      var card = document.createElement('div');
+      card.className = 'desarme-card';
+      card.innerHTML =
+        '<div class="dcard-img-wrap"><img src="' + img + '" alt="' + esc(title) + ' en desarme" loading="lazy" width="320" height="330"></div>' +
+        '<div class="dcard-info">' +
+          '<span class="dcard-new">Nuevo ingreso</span>' +
+          '<h3>' + esc(title) + '</h3>' +
+          '<span class="dcard-year">' + esc(metaText || 'Nuevo ingreso') + '</span>' +
+          '<a href="https://wa.me/56953817335?text=' + waText + '" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar piezas</a>' +
+          '<a href="/vehiculo.html?slug=' + encodeURIComponent(v.slug || '') + '" class="dcard-btn2">Ver ficha del vehículo &rarr;</a>' +
+        '</div>';
+      frag.appendChild(card);
+    });
+    grid.insertBefore(frag, grid.firstChild);
+  }).catch(function(){});
 }
 loadDynamicVehicles();
+})();
 </script>
 <script src="/cart.js" defer></script>
 <script>(function(){var header=document.querySelector(".header");if(!header)return;var ticking=false;function onScroll(){if(!ticking){window.requestAnimationFrame(function(){header.classList.toggle("is-scrolled",window.scrollY>30);ticking=false;});ticking=true;}}window.addEventListener("scroll",onScroll,{passive:true});onScroll();})();</script>
