@@ -24,8 +24,33 @@ th{background:#f8f8f8;font-weight:700;color:#555;}
 .badge.pub{background:#e8f9ee;color:#16a34a;}
 .badge.draft{background:#eee;color:#777;}
 .badge.nostock{background:#fdeaea;color:#c0392b;}
-.row-actions a,.row-actions button{font-size:.82rem;margin-right:.5rem;text-decoration:none;color:var(--red);background:none;border:none;cursor:pointer;font-weight:700;padding:0;}
+.row-actions{display:flex;gap:.4rem;flex-wrap:wrap;}
+.row-actions a,.row-actions button{font-size:.82rem;text-decoration:none;color:var(--red);background:none;border:none;cursor:pointer;font-weight:700;padding:0;}
+.row-actions button.del{color:#c0392b;}
 img.thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:.5rem;}
+
+/* --- Vista de tarjetas en móvil (evita zoom y tablas imposibles de usar) --- */
+@media (max-width: 720px) {
+  table, thead, tbody, th, td, tr { display: block; }
+  thead { display: none; }
+  table { background: transparent; box-shadow: none; }
+  tbody tr {
+    background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    margin-bottom: 1rem; padding: 1rem; border-bottom: none;
+  }
+  tr td { border-bottom: none; padding: .35rem 0; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  td[data-label]::before { content: attr(data-label); font-weight: 700; color: #888; font-size: .76rem; text-transform: uppercase; flex-shrink: 0; }
+  td.cell-photo { justify-content: center; padding-bottom: .6rem; }
+  td.cell-photo::before { content: none; }
+  td.cell-photo img.thumb { width: 84px; height: 84px; margin: 0; }
+  td.cell-actions { flex-direction: column; align-items: stretch; padding-top: .7rem; border-top: 1px solid #eee; margin-top: .4rem; }
+  td.cell-actions::before { content: none; }
+  .row-actions { width: 100%; flex-direction: column; }
+  .row-actions a, .row-actions button {
+    background: #f4f6f8; border-radius: 9px; padding: .75rem; text-align: center; font-size: .92rem;
+  }
+  .row-actions button.del { background: #fdeaea; }
+}
 </style>
 </head>
 <body>
@@ -38,6 +63,7 @@ img.thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;vertical-ali
 <a href="/admin/index.html">Dashboard</a>
 <a href="/admin/productos.html">Productos</a>
 <a href="/admin/producto.html">+ Nuevo producto</a>
+<a href="/admin/papelera.html">🗑 Papelera</a>
   <a href="/admin/vehiculos.html">Vehículos</a>
   <a href="/admin/vehiculo.html">+ Nuevo vehículo</a>
 <a href="/catalogo.html" target="_blank">Ver catálogo público ↗</a>
@@ -51,9 +77,12 @@ img.thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;vertical-ali
 </table>
 </div>
 <script type="module">
-import { supabase, requireAdmin, money } from '/admin/admin-common.js';
+import { supabase, requireAdmin, money, toast, confirmModal } from '/admin/admin-common.js';
 
 var all = [];
+var currentSession = null;
+
+function esc(s) { return (s == null ? '' : String(s)).replace(/"/g, '&quot;'); }
 
 function render(list) {
   var tbody = document.getElementById('rows');
@@ -64,16 +93,17 @@ function render(list) {
       ? (p.stock > 0 ? '<span class="badge pub">Publicado</span>' : '<span class="badge nostock">Publicado · sin stock</span>')
       : '<span class="badge draft">Borrador</span>';
     return '<tr>' +
-      '<td><img class="thumb" src="' + img + '" alt=""></td>' +
-      '<td>' + p.name + '</td>' +
-      '<td>' + p.sku + '</td>' +
-      '<td>' + (p.brand||'') + '</td>' +
-      '<td>' + money(p.price_sale) + '</td>' +
-      '<td>' + p.stock + '</td>' +
-      '<td>' + statusBadge + '</td>' +
-      '<td class="row-actions">' +
+      '<td class="cell-photo"><img class="thumb" src="' + img + '" alt=""></td>' +
+      '<td data-label="Nombre">' + esc(p.name) + '</td>' +
+      '<td data-label="SKU">' + esc(p.sku) + '</td>' +
+      '<td data-label="Marca">' + esc(p.brand||'') + '</td>' +
+      '<td data-label="Precio">' + money(p.price_sale) + '</td>' +
+      '<td data-label="Stock">' + p.stock + '</td>' +
+      '<td data-label="Estado">' + statusBadge + '</td>' +
+      '<td class="cell-actions row-actions">' +
         '<a href="/admin/producto.html?id=' + p.id + '">Editar</a>' +
         '<button data-toggle="' + p.id + '" data-active="' + p.is_active + '">' + (p.is_active ? 'Despublicar' : 'Publicar') + '</button>' +
+        '<button class="del" data-delete="' + p.id + '" data-name="' + esc(p.name) + '">Eliminar</button>' +
       '</td>' +
     '</tr>';
   }).join('');
@@ -84,17 +114,48 @@ function render(list) {
       var current = btn.dataset.active === 'true';
       btn.disabled = true;
       var { error } = await supabase.from('products').update({ is_active: !current }).eq('id', id);
-      if (error) { alert('Error: ' + error.message); btn.disabled = false; return; }
+      if (error) { toast('No se pudo actualizar: ' + error.message, 'err'); btn.disabled = false; return; }
+      toast(current ? 'Producto despublicado.' : 'Producto publicado.', 'ok');
+      await load();
+    });
+  });
+
+  tbody.querySelectorAll('button[data-delete]').forEach(function(btn){
+    btn.addEventListener('click', async function(){
+      var id = btn.dataset.delete;
+      var name = btn.dataset.name;
+      var ok = await confirmModal({
+        title: '¿Seguro que deseas eliminar esta publicación?',
+        productName: name,
+        warning: 'Esta publicación será enviada a la papelera y dejará de mostrarse en el sitio. Puedes restaurarla después desde Papelera.',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        danger: true,
+      });
+      if (!ok) return;
+      var { error } = await supabase.from('products').update({
+        is_active: false,
+        deleted_at: new Date().toISOString(),
+        deleted_by: currentSession ? currentSession.user.id : null,
+      }).eq('id', id);
+      if (error) { toast('No se pudo eliminar: ' + error.message, 'err'); return; }
+      toast('Producto eliminado correctamente.', 'ok');
       await load();
     });
   });
 }
 
 async function load() {
-  var { data, error } = await supabase.from('products').select('*').order('updated_at', { ascending: false });
+  var { data, error } = await supabase.from('products').select('*').is('deleted_at', null).order('updated_at', { ascending: false });
   if (error) { document.getElementById('rows').innerHTML = '<tr><td colspan="8">Error: ' + error.message + '</td></tr>'; return; }
   all = data || [];
   render(all);
+  var q = document.getElementById('q').value.trim().toLowerCase();
+  if (q) { render(all.filter(function(p){
+    return (p.name||'').toLowerCase().indexOf(q) !== -1 ||
+           (p.sku||'').toLowerCase().indexOf(q) !== -1 ||
+           (p.brand||'').toLowerCase().indexOf(q) !== -1;
+  })); }
 }
 
 document.getElementById('q').addEventListener('input', function(){
@@ -115,6 +176,7 @@ document.getElementById('logoutBtn').addEventListener('click', async function(){
 (async function(){
   var session = await requireAdmin();
   if (!session) return;
+  currentSession = session;
   await load();
 })();
 </script>
