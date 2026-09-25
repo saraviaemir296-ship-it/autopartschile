@@ -49,7 +49,7 @@ gtag('config', 'G-TXKXWQCTZ1');
 <nav class="nav"><div class="container"><button class="nav-toggle" onclick="document.getElementById('nl').classList.toggle('open')" aria-label="Menú">&#9776; Menú</button><ul class="nav-list" id="nl"><li><a href="/catalogo.html">Catálogo</a></li><li><a href="/vehiculos-en-desarme.html" class="active">Vehículos en Desarme</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li><li><a href="/garantias.html">Garantías</a></li><li><a href="/envios.html">Envíos</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/sucursales.html">Sucursales</a></li><li><a href="/faq.html">FAQ</a></li><li><a href="/opiniones.html">Opiniones</a></li><li><a href="/por-que-elegirnos.html">¿Por qué Elegirnos?</a></li></ul></div></nav>
 <section class="page-hero"><div class="container"><div class="breadcrumb"><a href="/">Inicio</a> › Vehículos en Desarme</div><h1>Vehículos en Desarme</h1><p class="hero-desc">Catálogo completo y actualizado de vehículos que tenemos actualmente en desarme. Compra tu repuesto online seguro: consulta disponibilidad de la pieza que necesitas por WhatsApp antes de pagar.</p></div></section>
 <section class="page-content"><div class="container">
-<div class="desarmes-grid">
+<div class="desarmes-grid" id="desarmesGrid">
 
 <div class="desarme-card">
 <div class="dcard-img-wrap"><img src="/img/repuestos/WhatsApp%20Image%202026-08-29%20at%2012.47.31%20PM%20%281%29.jpeg" alt="Suzuki Vitara 1.6 azul en desarme, vista frontal con daño" loading="lazy" width="320" height="330"></div>
@@ -494,6 +494,39 @@ gtag('config', 'G-TXKXWQCTZ1');
 <section class="cta-final"><div class="container"><h2>¿Tienes el modelo, el año y la pieza?</h2><p>Escríbenos por WhatsApp. Respondemos en menos de 5 minutos en horario de atención.</p><a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="btn-primary btn-lg" target="_blank" rel="noopener">&#128172; Cotizar mi repuesto por WhatsApp</a></div></section>
 <footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/desarmaduria.multimarcas.cyc" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href="/catalogo.html">Repuestos Suzuki</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li><li><a href="/catalogo.html#kia">Repuestos Kia</a></li><li><a href="/catalogo.html#hyundai">Repuestos Hyundai</a></li><li><a href="/catalogo.html#chevrolet">Repuestos Chevrolet</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href="/garantias.html">Garantías y Devoluciones</a></li><li><a href="/envios.html">Envíos a Todo Chile</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li><li><a href="/por-que-elegirnos.html">¿Por qué Elegirnos?</a></li><li><a href="/faq.html">Preguntas Frecuentes</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>&#128205; Av. Lo Blanco 1072, La Pintana</p><p>&#128205; Guacolda 2050, La Pintana</p><p>&#128172; <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>&#169; 2026 Desarmaduría Saravia – AutopartsChile. Todos los derechos reservados.</p></div></div></footer>
 <a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">&#128172;</a>
+<script type="module">
+import { supabase } from '/admin/admin-common.js';
+function esc(s){ return (s==null?'':String(s)).replace(/"/g,'&quot;'); }
+async function loadDynamicVehicles(){
+  var grid = document.getElementById('desarmesGrid');
+  if(!grid) return;
+  var res = await supabase.from('vehiculos').select('*').eq('is_active', true).order('created_at', { ascending: false });
+  var data = res.data, error = res.error;
+  if (error || !data || !data.length) return;
+  var frag = document.createDocumentFragment();
+  data.forEach(function(v){
+    var img = (Array.isArray(v.images) && v.images.length) ? v.images[0] : '/img/favicon.png';
+    var title = v.marca + ' ' + v.modelo + (v.motor ? ' ' + v.motor : '');
+    var yearsText = v.anio_desde ? (v.anio_desde + (v.anio_hasta ? '-' + v.anio_hasta : '+')) : '';
+    var metaText = [yearsText, v.color].filter(Boolean).join(' · ');
+    var waText = encodeURIComponent('Hola, me interesa el desarme de ' + title + '. ¿Qué piezas tienen disponibles?');
+    var card = document.createElement('div');
+    card.className = 'desarme-card';
+    card.innerHTML =
+      '<div class="dcard-img-wrap"><img src="' + img + '" alt="' + esc(title) + ' en desarme" loading="lazy" width="320" height="330"></div>' +
+      '<div class="dcard-info">' +
+        '<span class="dcard-new">Nuevo ingreso</span>' +
+        '<h3>' + esc(title) + '</h3>' +
+        '<span class="dcard-year">' + esc(metaText || 'Nuevo ingreso') + '</span>' +
+        '<a href="https://wa.me/56953817335?text=' + waText + '" class="dcard-btn" target="_blank" rel="noopener">&#128172; Consultar piezas</a>' +
+        '<a href="/vehiculo.html?slug=' + encodeURIComponent(v.slug || '') + '" class="dcard-btn2">Ver ficha del vehículo &rarr;</a>' +
+      '</div>';
+    frag.appendChild(card);
+  });
+  grid.insertBefore(frag, grid.firstChild);
+}
+loadDynamicVehicles();
+</script>
 <script src="/cart.js" defer></script>
 <script>(function(){var header=document.querySelector(".header");if(!header)return;var ticking=false;function onScroll(){if(!ticking){window.requestAnimationFrame(function(){header.classList.toggle("is-scrolled",window.scrollY>30);ticking=false;});ticking=true;}}window.addEventListener("scroll",onScroll,{passive:true});onScroll();})();</script>
 </body>
