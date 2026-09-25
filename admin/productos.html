@@ -15,8 +15,11 @@ body{background:#f4f6f8;}
 .admin-wrap{max-width:1100px;margin:2rem auto;padding:0 1rem;}
 .admin-nav{display:flex;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
 .admin-nav a{background:#fff;border:1.5px solid #ddd;border-radius:9px;padding:.6rem 1.1rem;text-decoration:none;color:#111;font-weight:700;font-size:.9rem;}
-.toolbar{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;}
-.toolbar input{flex:1;min-width:200px;padding:.7rem .9rem;border:1.5px solid #ddd;border-radius:8px;}
+.toolbar{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+.toolbar input[type=text]{flex:1;min-width:200px;padding:.7rem .9rem;border:1.5px solid #ddd;border-radius:8px;}
+.toolbar label{display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:700;color:#555;white-space:nowrap;background:#fff;border:1.5px solid #ddd;border-radius:8px;padding:.55rem .9rem;cursor:pointer;}
+.toolbar label input{width:auto;}
+.summary-bar{font-size:.82rem;color:#777;margin:-.4rem 0 .9rem;}
 table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);}
 th,td{padding:.7rem .8rem;text-align:left;font-size:.88rem;border-bottom:1px solid #eee;}
 th{background:#f8f8f8;font-weight:700;color:#555;}
@@ -24,6 +27,8 @@ th{background:#f8f8f8;font-weight:700;color:#555;}
 .badge.pub{background:#e8f9ee;color:#16a34a;}
 .badge.draft{background:#eee;color:#777;}
 .badge.nostock{background:#fdeaea;color:#c0392b;}
+.badge.complete{background:#e8f9ee;color:#16a34a;}
+.badge.incomplete{background:#fff4e0;color:#b8790a;cursor:help;}
 .row-actions{display:flex;gap:.4rem;flex-wrap:wrap;}
 .row-actions a,.row-actions button{font-size:.82rem;text-decoration:none;color:var(--red);background:none;border:none;cursor:pointer;font-weight:700;padding:0;}
 .row-actions button.del{color:#c0392b;}
@@ -70,10 +75,12 @@ img.thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;vertical-ali
 </div>
 <div class="toolbar">
 <input type="text" id="q" placeholder="Buscar por nombre, SKU o marca...">
+<label><input type="checkbox" id="onlyIncomplete"> Solo incompletos</label>
 </div>
+<p class="summary-bar" id="summaryBar"></p>
 <table>
-<thead><tr><th></th><th>Nombre</th><th>SKU</th><th>Marca</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
-<tbody id="rows"><tr><td colspan="8">Cargando...</td></tr></tbody>
+<thead><tr><th></th><th>Nombre</th><th>SKU</th><th>Marca</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Completitud</th><th>Acciones</th></tr></thead>
+<tbody id="rows"><tr><td colspan="9">Cargando...</td></tr></tbody>
 </table>
 </div>
 <script type="module">
@@ -84,14 +91,34 @@ var currentSession = null;
 
 function esc(s) { return (s == null ? '' : String(s)).replace(/"/g, '&quot;'); }
 
+function getMissingFields(p) {
+  var missing = [];
+  if (!Array.isArray(p.images) || p.images.length === 0) missing.push('Fotos');
+  if (!p.name || !String(p.name).trim()) missing.push('Nombre');
+  if (!p.description || !String(p.description).trim()) missing.push('Descripción');
+  if (!p.sku || !String(p.sku).trim()) missing.push('SKU');
+  if (!p.oem_number || !String(p.oem_number).trim()) missing.push('OEM');
+  if (!p.brand || !String(p.brand).trim()) missing.push('Marca');
+  if (!p.category || !String(p.category).trim()) missing.push('Categoría');
+  if (!p.vehicle_compatibility || !String(p.vehicle_compatibility).trim()) missing.push('Compatibilidad');
+  if (!p.slug || !String(p.slug).trim()) missing.push('Slug URL');
+  if (!p.seo_title || !String(p.seo_title).trim()) missing.push('SEO title');
+  if (!p.meta_description || !String(p.meta_description).trim()) missing.push('Meta description');
+  return missing;
+}
+
 function render(list) {
   var tbody = document.getElementById('rows');
-  if (!list.length) { tbody.innerHTML = '<tr><td colspan="8">Sin resultados.</td></tr>'; return; }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="9">Sin resultados.</td></tr>'; return; }
   tbody.innerHTML = list.map(function(p){
     var img = (Array.isArray(p.images) && p.images.length) ? p.images[0] : '/img/favicon.png';
     var statusBadge = p.is_active
       ? (p.stock > 0 ? '<span class="badge pub">Publicado</span>' : '<span class="badge nostock">Publicado · sin stock</span>')
       : '<span class="badge draft">Borrador</span>';
+    var missing = getMissingFields(p);
+    var completBadge = missing.length === 0
+      ? '<span class="badge complete">✓ Completo</span>'
+      : '<span class="badge incomplete" title="Falta: ' + esc(missing.join(', ')) + '">⚠ ' + missing.length + ' faltante' + (missing.length > 1 ? 's' : '') + '</span>';
     return '<tr>' +
       '<td class="cell-photo"><img class="thumb" src="' + img + '" alt=""></td>' +
       '<td data-label="Nombre">' + esc(p.name) + '</td>' +
@@ -100,6 +127,7 @@ function render(list) {
       '<td data-label="Precio">' + money(p.price_sale) + '</td>' +
       '<td data-label="Stock">' + p.stock + '</td>' +
       '<td data-label="Estado">' + statusBadge + '</td>' +
+      '<td data-label="Completitud">' + completBadge + '</td>' +
       '<td class="cell-actions row-actions">' +
         '<a href="/admin/producto.html?id=' + p.id + '">Editar</a>' +
         '<button data-toggle="' + p.id + '" data-active="' + p.is_active + '">' + (p.is_active ? 'Despublicar' : 'Publicar') + '</button>' +
@@ -145,28 +173,31 @@ function render(list) {
   });
 }
 
-async function load() {
-  var { data, error } = await supabase.from('products').select('*').is('deleted_at', null).order('updated_at', { ascending: false });
-  if (error) { document.getElementById('rows').innerHTML = '<tr><td colspan="8">Error: ' + error.message + '</td></tr>'; return; }
-  all = data || [];
-  render(all);
+function applyFilters() {
   var q = document.getElementById('q').value.trim().toLowerCase();
-  if (q) { render(all.filter(function(p){
-    return (p.name||'').toLowerCase().indexOf(q) !== -1 ||
-           (p.sku||'').toLowerCase().indexOf(q) !== -1 ||
-           (p.brand||'').toLowerCase().indexOf(q) !== -1;
-  })); }
+  var onlyInc = document.getElementById('onlyIncomplete').checked;
+  var filtered = all.filter(function(p){
+    var matchesQ = !q ||
+      (p.name||'').toLowerCase().indexOf(q) !== -1 ||
+      (p.sku||'').toLowerCase().indexOf(q) !== -1 ||
+      (p.brand||'').toLowerCase().indexOf(q) !== -1;
+    var matchesInc = !onlyInc || getMissingFields(p).length > 0;
+    return matchesQ && matchesInc;
+  });
+  render(filtered);
+  var totalIncomplete = all.filter(function(p){ return getMissingFields(p).length > 0; }).length;
+  document.getElementById('summaryBar').textContent = all.length + ' producto(s) en total · ' + totalIncomplete + ' con datos incompletos.';
 }
 
-document.getElementById('q').addEventListener('input', function(){
-  var q = this.value.trim().toLowerCase();
-  if (!q) { render(all); return; }
-  render(all.filter(function(p){
-    return (p.name||'').toLowerCase().indexOf(q) !== -1 ||
-           (p.sku||'').toLowerCase().indexOf(q) !== -1 ||
-           (p.brand||'').toLowerCase().indexOf(q) !== -1;
-  }));
-});
+async function load() {
+  var { data, error } = await supabase.from('products').select('*').is('deleted_at', null).order('updated_at', { ascending: false });
+  if (error) { document.getElementById('rows').innerHTML = '<tr><td colspan="9">Error: ' + error.message + '</td></tr>'; return; }
+  all = data || [];
+  applyFilters();
+}
+
+document.getElementById('q').addEventListener('input', applyFilters);
+document.getElementById('onlyIncomplete').addEventListener('change', applyFilters);
 
 document.getElementById('logoutBtn').addEventListener('click', async function(){
   await supabase.auth.signOut();
