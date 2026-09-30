@@ -25,6 +25,8 @@
 .stock-badge.out{background:#fdeaea;color:#c0392b;}
 .prod-detail-desc{color:#444;line-height:1.6;margin-bottom:1.2rem;white-space:pre-wrap;}
 #notFoundBox,#loadingBox{text-align:center;padding:3rem 1.5rem;}
+.rcard-pay{display:block;text-align:center;background:#009ee3;color:#fff;border-radius:7px;padding:.6rem .8rem;font-size:.92rem;font-weight:700;text-decoration:none;margin-bottom:.6rem;}
+.rcard-pay:hover{background:#0088c7;}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
 <script>
@@ -54,6 +56,7 @@ gtag('config', 'G-TXKXWQCTZ1');
 <span class="stock-badge" id="stockBadge"></span>
 <p class="price" id="prodPrice"></p>
 <p class="prod-detail-desc" id="prodDesc"></p>
+<a href="#" id="buyBtn" class="rcard-pay" style="display:none;">&#128179; Pagar ahora</a>
 <a href="#" id="waBtn" class="btn-primary btn-lg" target="_blank" rel="noopener">&#128172; Consultar por WhatsApp</a>
 </div>
 </div>
@@ -112,6 +115,16 @@ try {
   var stockBadge = document.getElementById('stockBadge');
   if (p.stock > 0) { stockBadge.textContent = 'Disponible'; stockBadge.className = 'stock-badge in'; }
   else { stockBadge.textContent = 'Agotado'; stockBadge.className = 'stock-badge out'; }
+
+  var buyBtn = document.getElementById('buyBtn');
+  if (p.stock > 0) {
+    buyBtn.setAttribute('data-sku', p.sku);
+    buyBtn.setAttribute('data-name', p.name);
+    buyBtn.setAttribute('data-price', String(Math.round(Number(p.price_sale))));
+    buyBtn.style.display = '';
+  } else {
+    buyBtn.style.display = 'none';
+  }
 
   var mainImg = document.getElementById('mainImg');
   mainImg.src = images[0];
