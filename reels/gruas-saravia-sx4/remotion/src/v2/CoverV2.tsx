@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {Grain, Shot} from './Shot';
 import {INTER, K} from './look';
 
@@ -10,9 +10,12 @@ export const CoverV2: React.FC = () => (
     <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(8,8,8,0.7) 0%, rgba(8,8,8,0.1) 34%, rgba(8,8,8,0) 50%)'}} />
     <div style={{position: 'absolute', top: 330, left: 72, right: 72, fontFamily: INTER, color: K.white}}>
       <div style={{width: 56, height: 3, background: K.red, marginBottom: 28}} />
-      <div style={{fontSize: 92, fontWeight: 700, lineHeight: 0.98, letterSpacing: '-0.03em'}}>CUANDO{'\n'}</div>
+      <div style={{fontSize: 92, fontWeight: 700, lineHeight: 0.98, letterSpacing: '-0.03em'}}>CUANDO</div>
       <div style={{fontSize: 92, fontWeight: 700, lineHeight: 0.98, letterSpacing: '-0.03em'}}>QUEDAS BOTADO</div>
-      <div style={{marginTop: 28, fontSize: 24, fontWeight: 600, letterSpacing: '0.3em', color: K.dim}}>GRÚAS SARAVIA</div>
+      <div style={{marginTop: 30, display: 'flex', alignItems: 'center', gap: 18}}>
+        <Img src={staticFile('logo-circular.png')} style={{width: 64, height: 64, borderRadius: 99}} />
+        <div style={{fontSize: 24, fontWeight: 600, letterSpacing: '0.3em', color: K.dim}}>GRÚAS SARAVIA</div>
+      </div>
     </div>
     <Grain opacity={0.06} />
   </AbsoluteFill>

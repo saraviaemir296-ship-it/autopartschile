@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, staticFile} from 'remotion';
-import {Grain, Letterbox, Seg, Shot, segFrames} from './Shot';
+import {Grain, Letterbox, PhotoShot, Seg, Shot, segFrames} from './Shot';
+import {PersonShot} from './PersonShot';
 import {Sub, TextReveal} from './TextReveal';
 import {VehicleInfo} from './VehicleInfo';
 import {AnimatedMap} from './MapOverlay';
@@ -44,7 +45,6 @@ const at = (range: readonly [number, number]) => ({from: range[0], durationInFra
 const S = (f: string) => staticFile(f);
 
 // Tramos de material real (segundos del archivo original)
-const HOOK: Seg[] = [{from: 1.0, take: 3.0, rate: 1}];
 const ARR_A: Seg[] = [{from: 7.0, take: 2.0, rate: 1}];
 const ARR_B: Seg[] = [{from: 3.1, take: 1.0, rate: 1}];
 const ARR_C: Seg[] = [{from: 0.2, take: 1.0, rate: 1}];
@@ -65,7 +65,6 @@ const DETAILS: {src: string; seg: Seg[]; zoom: [number, number]; origin: string;
   {src: 'footage/IMG_3244.mp4', seg: [{from: 3.2, take: 0.7, rate: 1}], zoom: [1.02, 1.07], origin: '50% 50%', look: 'warm'}, // lista para salir
 ];
 const CLOSE: Seg[] = [{from: 4.9, take: 2.35, rate: 0.5}];
-const CTA_BG: Seg[] = [{from: 10.0, take: 0.95, rate: 0.5}];
 
 export const ReelV2: React.FC<V2Props> = ({voHook, voMid, voClose, music, place}) => {
   const rampF = segFrames(RAMP);
@@ -74,11 +73,11 @@ export const ReelV2: React.FC<V2Props> = ({voHook, voMid, voClose, music, place}
   const d = 21;
   return (
     <AbsoluteFill style={{backgroundColor: '#080808'}}>
-      {/* ───── 0–3 s · HOOK: el SX4 solo en la vereda + voz. Corte duro en "esperar". */}
+      {/* ───── 0–3 s · HOOK: persona del equipo + voz. Corte duro en "esperar". */}
       <Sequence {...at(V2.hook)}>
-        <Shot src="footage/IMG_3232.mp4" segs={HOOK} zoom={[1.0, 1.08]} origin="42% 58%" shake={5} />
-        <Sequence from={3} durationInFrames={43}><Sub text="Cuando alguien queda botado," dur={43} /></Sequence>
-        <Sequence from={46} durationInFrames={44}><Sub text="no tiene tiempo para esperar." dur={44} /></Sequence>
+        <PersonShot person="equipo/operador-1.png" dur={90} bgSrc="footage/IMG_3240.mp4" bgSegs={[{from: 2.0, take: 3.0, rate: 1}]} width={1400} bottom={10} />
+        <Sequence from={3} durationInFrames={43}><Sub text="Cuando alguien queda botado," dur={43} y={1110} /></Sequence>
+        <Sequence from={46} durationInFrames={44}><Sub text="no tiene tiempo para esperar." dur={44} y={1110} /></Sequence>
       </Sequence>
 
       {/* ───── 3–7 s · LLEGADA + ficha editorial */}
@@ -123,26 +122,36 @@ export const ReelV2: React.FC<V2Props> = ({voHook, voMid, voClose, music, place}
 
       {/* ───── 22,5–26 s · DETALLES a ritmo + voz "Desde que nos contactas…" */}
       <Sequence {...at(V2.details)}>
-        {DETAILS.map((c, i) => (
+        {DETAILS.slice(0, 4).map((c, i) => (
           <Sequence key={i} from={i * d} durationInFrames={d}>
             <Shot src={c.src} segs={c.seg} look={c.look ?? 'natural'} zoom={c.zoom} origin={c.origin} shake={2} audio={0.4} />
           </Sequence>
         ))}
+        <Sequence from={4 * d} durationInFrames={d + 1}>
+          <PhotoShot src="equipo/grua-rotulada.jpg" dur={d + 1} zoom={[1.06, 1.14]} origin="30% 55%" />
+        </Sequence>
         <Sequence from={3} durationInFrames={48}><Sub text="Desde que nos contactas," dur={48} /></Sequence>
         <Sequence from={51} durationInFrames={54}><Sub text="hasta que tu vehículo llega a destino." dur={54} /></Sequence>
       </Sequence>
 
       {/* ───── 26–30,7 s · CIERRE: el consejo */}
       <Sequence {...at(V2.close)}>
-        <Shot src="footage/IMG_3239.mp4" segs={CLOSE} look="warm" zoom={[1.0, 1.07]} origin="50% 48%" shake={3} audio={0.3} />
-        <Sequence from={4} durationInFrames={44}><Sub text="Si algún día necesitas una grúa," dur={44} /></Sequence>
-        <Sequence from={48} durationInFrames={52}><Sub text="quiero que tengas un número guardado" dur={52} /></Sequence>
-        <Sequence from={100} durationInFrames={41}><Sub text="antes de necesitarlo." dur={41} /></Sequence>
+        <Sequence durationInFrames={72}>
+          <PersonShot person="equipo/operador-2.png" dur={72} bgSrc="footage/IMG_3239.mp4" bgSegs={CLOSE} width={1400} bottom={100} label="EQUIPO GRÚAS SARAVIA" />
+        </Sequence>
+        <Sequence from={72}>
+          <PersonShot person="equipo/operador-1.png" dur={69} bgSrc="footage/IMG_3244.mp4" bgSegs={[{from: 1.0, take: 2.3, rate: 1}]} width={1400} bottom={10} label="ASISTENCIA 24/7" />
+        </Sequence>
+        <Sequence from={4} durationInFrames={44}><Sub text="Si algún día necesitas una grúa," dur={44} y={1050} /></Sequence>
+        <Sequence from={48} durationInFrames={52}><Sub text="quiero que tengas un número guardado" dur={52} y={1110} /></Sequence>
+        <Sequence from={100} durationInFrames={41}><Sub text="antes de necesitarlo." dur={41} y={1110} /></Sequence>
       </Sequence>
 
       {/* ───── 30,7–32,7 s · CTA sobre la grúa desenfocada (2 s) */}
       <Sequence {...at(V2.cta)}>
-        <Shot src="footage/IMG_3240.mp4" segs={CTA_BG} zoom={[1.12, 1.16]} origin="50% 50%" blur={14} />
+        <AbsoluteFill style={{filter: 'blur(12px)'}}>
+          <PhotoShot src="equipo/grua-rotulada.jpg" dur={60} zoom={[1.1, 1.14]} origin="40% 55%" />
+        </AbsoluteFill>
         <LogoReveal dur={60} />
       </Sequence>
 
