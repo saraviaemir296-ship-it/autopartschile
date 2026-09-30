@@ -1,0 +1,30 @@
+{
+  "name": "gruas-saravia-reel-sx4",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Reel 9:16 Grúas Saravia — rescate Suzuki SX4 + capa tecnológica SALVI",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:reel": "remotion render src/index.ts ReelSX4 out/reel-sx4-borrador.mp4 --crf=16",
+    "render:map": "remotion render src/index.ts MapSegment out/mapa-salvi.mp4 --crf=16",
+    "render:salvi": "remotion render src/index.ts SALVIOverlay out/salvi-overlay.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le --image-format=png",
+    "render:cta": "remotion render src/index.ts CTAEndCard out/cta-final.mp4 --crf=16",
+    "render:cover": "remotion still src/index.ts Cover out/portada.png",
+    "prep:footage": "bash prep-footage.sh",
+    "render:all": "npm run render:reel && npm run render:map && npm run render:salvi && npm run render:cta && npm run render:cover"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.531",
+    "@remotion/fonts": "^4.0.531",
+    "@remotion/paths": "^4.0.531",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.531",
+    "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "^4.0.531",
+    "@remotion/renderer": "^4.0.531"
+  }
+}
