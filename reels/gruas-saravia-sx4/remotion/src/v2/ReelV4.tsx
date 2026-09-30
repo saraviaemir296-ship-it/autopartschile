@@ -11,7 +11,7 @@ import {Caption4, Headline4, W} from './Type4';
 import {cl} from './look';
 
 /**
- * REEL V4 · 25 s. Orden: persona → software de IA → operador en tiempo real →
+ * REEL V4 · 22 s. Orden: persona → software de IA → operador en tiempo real →
  * el servicio real (llegada, rescate, plano automotriz, detalles) → consejo → CTA.
  * Cada plano dura lo justo: nada sobre 3 s sin un cambio de imagen o de texto.
  */
@@ -20,13 +20,13 @@ export const V4 = {
   software: [75, 135],
   geo: [135, 225],
   arrival: [225, 285],
-  rescue: [285, 405],
-  cinematic: [405, 495],
-  details: [495, 570],
-  close: [570, 690],
-  cta: [690, 750],
+  rescue: [285, 350],
+  cinematic: [350, 410],
+  details: [410, 485],
+  close: [485, 605],
+  cta: [605, 665],
 } as const;
-export const V4_TOTAL = 750;
+export const V4_TOTAL = 665;
 
 export type V4Props = {
   /** Voz en off: un archivo por línea (o null). Tu voz real siempre tiene prioridad. */
@@ -47,13 +47,14 @@ const w = (s: string, start: number, gap = 5, hi: number[] = []): W[] =>
 
 const ARR_A: Seg[] = [{from: 7.2, take: 1.5, rate: 1}];
 const ARR_B: Seg[] = [{from: 3.3, take: 0.5, rate: 1}];
+// Subida del auto comprimida a ~1,9 s: rápido → más rápido → un respiro lento al final.
 const RAMP: Seg[] = [
-  {from: 4.3, take: 1.0, rate: 1.0},
-  {from: 5.3, take: 1.4, rate: 1.4},
-  {from: 6.7, take: 0.9, rate: 0.6},
+  {from: 4.6, take: 0.6, rate: 1.5},
+  {from: 5.4, take: 1.2, rate: 1.8},
+  {from: 6.8, take: 0.6, rate: 0.75},
 ];
-const CABLE: Seg[] = [{from: 4.7, take: 0.5, rate: 1}];
-const HERO: Seg[] = [{from: 0.6, take: 2.4, rate: 0.8}];
+const CABLE: Seg[] = [{from: 4.7, take: 0.3, rate: 1}];
+const HERO: Seg[] = [{from: 0.8, take: 1.8, rate: 0.9}];
 const GEO_BG: Seg[] = [{from: 8.6, take: 1.8, rate: 0.6}];
 const DETAILS: {src: string; seg: Seg[]; zoom: [number, number]; origin: string; look?: 'warm'}[] = [
   {src: 'footage/IMG_3240.mp4', seg: [{from: 1.0, take: 0.5, rate: 1}], zoom: [1.42, 1.5], origin: '22% 66%'},
@@ -108,14 +109,13 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
         <Sequence from={rampF}>
           <Shot src="footage/IMG_3239.mp4" segs={CABLE} look="warm" zoom={[1.36, 1.42]} origin="56% 46%" audio={0.5} />
         </Sequence>
-        <Sequence from={6} durationInFrames={58}><Headline4 text={'Rescate +\ntraslado'} dur={58} y={1150} size={96} /></Sequence>
-        <Sequence from={66} durationInFrames={54}><Headline4 text={'Sin\ncomplicaciones.'} dur={54} y={1150} size={88} /></Sequence>
+        <Sequence from={3} durationInFrames={60}><Headline4 text={'Rescate +\ntraslado'} dur={60} y={1150} size={96} /></Sequence>
       </Sequence>
 
       {/* 13,5–16,5 s · PLANO AUTOMOTRIZ */}
       <Sequence {...at(V4.cinematic)}>
         <Shot src="footage/IMG_3244.mp4" segs={HERO} look="warm" zoom={[1.0, 1.14]} pan={[-30, 16]} origin="55% 42%" audio={0.35} />
-        <Letterbox size={170} dur={90} />
+        <Letterbox size={170} dur={60} />
       </Sequence>
 
       {/* 16,5–19 s · DETALLES a ritmo (0,5 s c/u) + grúa rotulada */}
@@ -155,7 +155,7 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       {/* AUDIO: música con ducking bajo la voz + voz + SFX */}
       <Audio
         src={S(music)}
-        volume={(f) => interpolate(f, [0, 72, 76, 560, 572, 686, 694, 745, 750], [0.2, 0.25, 0.75, 0.75, 0.35, 0.35, 0.9, 0.6, 0], cl)}
+        volume={(f) => interpolate(f, [0, 72, 76, 475, 487, 601, 609, 660, 665], [0.2, 0.25, 0.75, 0.75, 0.35, 0.35, 0.9, 0.6, 0], cl)}
       />
       {vo.hook && <Sequence from={0}><Audio src={S(vo.hook)} /></Sequence>}
       {vo.software && <Sequence from={V4.software[0] + 2}><Audio src={S(vo.software)} /></Sequence>}
@@ -170,13 +170,13 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       ))}
       <Sequence from={224}><Audio src={S('audio/sfx_impact.wav')} volume={0.5} /></Sequence>
       <Sequence from={225 + arrA}><Audio src={S('audio/sfx_metal.wav')} volume={0.35} /></Sequence>
-      <Sequence from={315}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
+      <Sequence from={296}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={285 + rampF}><Audio src={S('audio/sfx_metal.wav')} volume={0.4} /></Sequence>
-      <Sequence from={495}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.25} /></Sequence>
-      {[510, 540].map((f) => (
+      <Sequence from={409}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.25} /></Sequence>
+      {[425, 455].map((f) => (
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_metal.wav')} volume={0.22} /></Sequence>
       ))}
-      <Sequence from={690}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
+      <Sequence from={605}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
     </AbsoluteFill>
   );
 };

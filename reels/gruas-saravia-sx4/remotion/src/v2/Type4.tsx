@@ -44,7 +44,7 @@ export const Caption4: React.FC<{words: W[]; dur: number; y?: number; size?: num
       }}
     >
       {groups(words).map((g, gi) => {
-        const paint = interpolate(f, [g.at, g.at + 8], [0, 1], {...cl, easing: E.out});
+        const paint = interpolate(f, [g.at, g.words[g.words.length - 1].at + 6], [0.12, 1], {...cl, easing: E.out}) * (f >= g.at ? 1 : 0);
         return (
           <span
             key={gi}
