@@ -9,6 +9,7 @@ import {LogoReveal} from './LogoReveal';
 import {Caption4, Headline4, W} from './Type4';
 import {cl} from './look';
 import {Pricing, SocialsBig} from './Pricing';
+import {TruckWipe} from './TruckAccel';
 
 /**
  * REEL V4 · 28,5 s, cuadrado a la voz en off. Orden: persona → software de IA → operador en tiempo real →
@@ -77,9 +78,11 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       </Sequence>
 
       {/* 12,8–17,3 s · TARIFA REAL sobre la grúa real con el SX4 cargado */}
-      <Sequence {...at(V4.pricing)}>
-        <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.4, take: 2.25, rate: 0.5}]} look="warm" zoom={[1.08, 1.16]} origin="50% 45%" darken={0.55} blur={3} audio={0.3} />
-        <Pricing dur={135} />
+      <Sequence from={V4.pricing[0] - 22} durationInFrames={V4.pricing[1] - V4.pricing[0] + 22}>
+        <TruckWipe dur={22}>
+          <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.05, take: 2.6, rate: 0.5}]} look="warm" zoom={[1.08, 1.16]} origin="50% 45%" darken={0.55} blur={3} audio={0.3} />
+          <Sequence from={22}><Pricing dur={135} /></Sequence>
+        </TruckWipe>
       </Sequence>
 
       {/* 17,3–20,3 s · REDES SOCIALES sobre la grúa rotulada */}
@@ -131,7 +134,8 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       {[345, 352, 359].map((f) => (
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_blip.wav')} volume={0.24} /></Sequence>
       ))}
-      <Sequence from={383}><Audio src={S('audio/sfx_impact.wav')} volume={0.5} /></Sequence>
+      <Sequence from={360}><Audio src={S('audio/sfx_rev.wav')} volume={0.7} /></Sequence>
+      <Sequence from={370}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
       {[403, 413, 425].map((f) => (
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_blip.wav')} volume={0.26} /></Sequence>
       ))}
@@ -141,7 +145,8 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       {[534, 543, 552].map((f) => (
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_tick.wav')} volume={0.35} /></Sequence>
       ))}
-      <Sequence from={730}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
+      <Sequence from={726}><Audio src={S('audio/sfx_rev.wav')} volume={0.55} /></Sequence>
+      <Sequence from={744}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
     </AbsoluteFill>
   );
 };

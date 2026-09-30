@@ -1,5 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {TruckArrive} from './TruckAccel';
 import {E, K, cl} from './look';
 import {MONT as INTER} from './Type4';
 
@@ -36,17 +37,13 @@ const Socials: React.FC<{opacity: number}> = ({opacity}) => (
 export const LogoReveal: React.FC<{dur: number; phone?: string}> = ({dur, phone = '+56 9 5381 7335'}) => {
   const f = useCurrentFrame();
   const dim = interpolate(f, [0, 10], [0, 0.72], {...cl, easing: E.out});
-  const rv = interpolate(f, [2, 18], [0, 100], {...cl, easing: E.out});
-  const sc = interpolate(f, [0, dur], [1.03, 1], {...cl, easing: E.out});
-  const a = (d: number) => interpolate(f, [d, d + 10], [0, 1], {...cl, easing: E.out});
-  const line = interpolate(f, [26, 40], [0, 1], {...cl, easing: E.out});
+  const a = (d: number) => interpolate(f, [d + 14, d + 24], [0, 1], {...cl, easing: E.out});
+  const line = interpolate(f, [40, 54], [0, 1], {...cl, easing: E.out});
   return (
     <AbsoluteFill>
       <AbsoluteFill style={{background: `rgba(8,8,8,${dim})`}} />
       <AbsoluteFill style={{alignItems: 'center'}}>
-        <div style={{position: 'absolute', top: 330, width: 820, aspectRatio: '1774 / 887', clipPath: `inset(0 ${100 - rv}% 0 0)`, transform: `scale(${sc})`, mixBlendMode: 'screen'}}>
-          <Img src={staticFile('logo-gruas-saravia.png')} style={{width: '100%', height: '100%'}} />
-        </div>
+        <TruckArrive y={330} w={820} />
         <div style={{position: 'absolute', top: 800, left: 0, right: 0, textAlign: 'center', fontFamily: INTER, color: K.white}}>
           <div style={{fontSize: 30, fontWeight: 500, letterSpacing: '0.24em', color: K.dim, opacity: a(8)}}>ASISTENCIA VEHICULAR 24/7</div>
           <div style={{marginTop: 26, fontSize: 80, fontWeight: 600, letterSpacing: '0.01em', fontVariantNumeric: 'tabular-nums', opacity: a(12), transform: `translateY(${(1 - a(12)) * 12}px)`}}>{phone}</div>

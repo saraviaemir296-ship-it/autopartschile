@@ -108,3 +108,14 @@ res = sum(np.sin(2*np.pi*f*tt) for f in [130.8, 196, 261.6, 329.6]) / 4 * np.whe
 mix += res * 0.5
 save('music_fallback.wav', np.tanh(mix * 1.2), 0.4)
 print('ok')
+
+# Motor acelerando (paso de cambio implícito): diente de sierra grave con pitch
+# ascendente + armónicos filtrados + ruido de admisión; termina en whoosh.
+tt = t(1.1); n = len(tt)
+f0 = 55 + 95 * (1 - np.exp(-tt * 3.2))
+ph = 2 * np.pi * np.cumsum(f0) / SR
+saw = sum(np.sin(k * ph) / k for k in range(1, 9))
+body = lp(saw, 0.09) * (0.6 + 0.4 * np.sin(ph * 0.5) ** 2)
+air = lp(rng.standard_normal(n), 0.05) * 0.25
+env_ = np.clip(tt / 0.08, 0, 1) * np.exp(-np.clip(tt - 0.75, 0, None) * 7)
+save('sfx_rev.wav', np.tanh((body + air) * env_ * 1.8), 0.25)
