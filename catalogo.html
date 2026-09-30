@@ -1329,6 +1329,7 @@ try {
   });
   if (res.ok) {
     var dbProducts = await res.json();
+    var newFrag = document.createDocumentFragment();
     dbProducts.forEach(function(p){
       if (existingSkus.has(p.sku)) return; // ya tiene página estática dedicada
       var img = (Array.isArray(p.images) && p.images.length) ? p.images[0] : '/img/favicon.png';
@@ -1352,8 +1353,9 @@ try {
         '<a href="#" class="btn-prod-wa" data-sku="' + p.sku + '" data-name="' + p.name.replace(/"/g,'&quot;') + '" data-compat="' + compat.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener">&#128172; WhatsApp</a>' +
         '<a href="' + href + '" class="btn-prod-detail">Ver detalle</a>' +
         '</div></div>';
-      grid.appendChild(art);
+      newFrag.appendChild(art);
     });
+    grid.insertBefore(newFrag, grid.firstChild);
   }
 } catch (e) { /* si Supabase falla, el catálogo estático sigue funcionando igual */ }
 
