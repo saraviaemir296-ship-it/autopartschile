@@ -204,6 +204,19 @@
     injectBuyButtons();
   }
 
+  // FIX (2026-09-30): catalogo.html carga ~175 productos dinámicos vía fetch()
+  // asíncrono a Supabase DESPUÉS de que DOMContentLoaded ya disparó injectBuyButtons()
+  // una sola vez — esas tarjetas nunca recibían el botón "Comprar ahora" (reportado
+  // por Emir: "cuando apretas no te aparece eso"). Este observer vuelve a ejecutar
+  // injectBuyButtons() cada vez que se agregan nodos al DOM; la función ya es idempotente
+  // (chequea .btn-prod-buy antes de insertar), así que no duplica botones ni genera bucle.
+  if (typeof MutationObserver !== "undefined" && document.body) {
+    var buyObserver = new MutationObserver(function () {
+      injectBuyButtons();
+    });
+    buyObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
   document.addEventListener("click", function (e) {
     var el = e.target.closest && e.target.closest("a.rcard-pay");
     if (!el) return;
