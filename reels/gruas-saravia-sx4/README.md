@@ -397,3 +397,19 @@ CapCut permite importar fuentes (Texto → Fuente → Importar). Los archivos es
 3. **Promesas de SALVI:** ver sección 0. Mostrar algo que no existe es la forma más rápida de perder la confianza que este video intenta construir.
 4. **Patentes:** se leen la patente de la grúa (tuya, OK) y parcialmente la de un Ford EcoSport estacionado (de un tercero). Si quieres ser prolijo, desenfócala en la portada.
 5. **El 0,5×:** todo el material está grabado en gran angular. Las casas se curvan en los bordes. No uses "corrección de lente" (recorta más y resta resolución); en su lugar mantén el auto en el centro, donde la distorsión es mínima. Para las próximas grabaciones, usa **1×** en los detalles y 0,5× solo en planos abiertos.
+
+---
+
+## Anexo · Voz chilena generada (versión sin tomas a cámara)
+
+Si todavía no grabas el hook y el cierre, el Reel puede ir con **voz en off chilena** sobre material real:
+- **Hook (0–3 s):** IMG_3232 01,0–04,0, el SX4 solo junto a la vereda ("botado"), con un zoom que se abre de 112 % a 100 %.
+- **Cierre (25,9–30,9 s):** IMG_3239 04,8–07,3 al 50 % (plano abierto del auto junto a la grúa).
+
+Voces generadas con Krea · Seed Audio 1.0 (prompt: hombre chileno de ~30 años, de Santiago, tono conversacional):
+- `vo/HOOK.mp3`: "Cuando alguien queda botado… no tiene tiempo para esperar."
+- `vo/CIERRE.mp3`: "Si algún día necesitas una grúa… quiero que tengas un número guardado antes de necesitarlo."
+
+Para activarlas: guarda los MP3 en `remotion/public/vo/` y en `reelDefaults` pon `hookVo: 'vo/HOOK.mp3'` y `closeVo: 'vo/CIERRE.mp3'`. Si el MP3 trae silencio al inicio, ajústalo con `hookVoTrim` / `closeVoTrim` (en segundos). Después ajusta los tiempos de los subtítulos a la voz en Remotion Studio.
+
+**Advertencia:** tu voz real sigue siendo la mejor opción. Si pones una voz sintética sobre tu cara, se nota. Sobre material de la operación, en cambio, funciona bien.

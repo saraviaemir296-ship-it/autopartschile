@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
 import {T} from '../timeline';
 import {Clip, clipFrames} from '../components/Footage';
 import {Caption, Headline, Kicker, Line} from '../components/Caption';
@@ -17,12 +17,26 @@ export type ReelProps = {
   /** Solo si es verdad. Si el SX4 no fue un llamado de cliente, cambia el texto. */
   callText: string;
   etaMinutes?: number;
+  /**
+   * Voz en off (p. ej. voz chilena generada): 'vo/HOOK.mp3' y 'vo/CIERRE.mp3'.
+   * Si hay VO y no hay toma a cámara, el hook y el cierre se montan sobre
+   * material real en vez del placeholder.
+   */
+  hookVo?: string | null;
+  closeVo?: string | null;
+  /** segundos a recortar al inicio de cada VO (silencio del TTS) */
+  hookVoTrim?: number;
+  closeVoTrim?: number;
 };
 
 export const reelDefaults: ReelProps = {
   hookSrc: null,
   closeSrc: null,
   callText: 'Nos llamaron por un Suzuki SX4.',
+  hookVo: null,
+  closeVo: null,
+  hookVoTrim: 0,
+  closeVoTrim: 0,
 };
 
 // Subtítulos: tiempos estimados a ritmo conversacional; ajústalos a tu toma real.
@@ -52,8 +66,21 @@ const D1 = [{from: 0.3, take: 3.9, rate: 0.65}];
 const E1 = [{from: 1.0, take: 1.3, rate: 1}];
 const E2 = [{from: 3.3, take: 1.3, rate: 1}];
 const E3 = [{from: 1.6, take: 1.3, rate: 1}];
+// B-roll para la versión con voz en off: SX4 solo junto a la vereda ("botado")
+// y plano abierto final junto a la grúa, en cámara lenta.
+const HOOK_BROLL = [{from: 1.0, take: 3.0, rate: 1}];
+const CLOSE_BROLL = [{from: 4.8, take: 2.5, rate: 0.5}];
 
-export const ReelSX4: React.FC<ReelProps> = ({hookSrc, closeSrc, callText, etaMinutes}) => {
+export const ReelSX4: React.FC<ReelProps> = ({
+  hookSrc,
+  closeSrc,
+  callText,
+  etaMinutes,
+  hookVo,
+  closeVo,
+  hookVoTrim = 0,
+  closeVoTrim = 0,
+}) => {
   const b1 = clipFrames(B1);
   const b2 = clipFrames(B2);
   const c1 = clipFrames(C1);
@@ -62,7 +89,12 @@ export const ReelSX4: React.FC<ReelProps> = ({hookSrc, closeSrc, callText, etaMi
     <AbsoluteFill style={{backgroundColor: '#000'}}>
       {/* 0–3 s · GANCHO — tú a cámara, sin intro */}
       <Sequence from={T.hook.start} durationInFrames={T.hook.dur}>
-        <TalkingHead src={hookSrc} label="HOOK · plano medio-corto a cámara: “Cuando alguien queda botado, no tiene tiempo para esperar.”" />
+        {!hookSrc && hookVo ? (
+          <Clip src="footage/IMG_3232.mp4" segments={HOOK_BROLL} zoom={[1.12, 1.0]} origin="40% 55%" />
+        ) : (
+          <TalkingHead src={hookSrc} label="HOOK · plano medio-corto a cámara: “Cuando alguien queda botado, no tiene tiempo para esperar.”" />
+        )}
+        {hookVo && <Audio src={staticFile(hookVo)} startFrom={Math.round(hookVoTrim * 30)} />}
         <Caption lines={HOOK_LINES} />
       </Sequence>
 
@@ -138,7 +170,12 @@ export const ReelSX4: React.FC<ReelProps> = ({hookSrc, closeSrc, callText, etaMi
 
       {/* 26–31 s · CIERRE HUMANO */}
       <Sequence from={T.close.start} durationInFrames={T.close.dur}>
-        <TalkingHead src={closeSrc} label="CIERRE · a cámara, tranquilo: “Si algún día necesitas una grúa, quiero que tengas un número guardado antes de necesitarlo.”" />
+        {!closeSrc && closeVo ? (
+          <Clip src="footage/IMG_3239.mp4" segments={CLOSE_BROLL} look="vivid" zoom={[1.0, 1.08]} origin="50% 45%" />
+        ) : (
+          <TalkingHead src={closeSrc} label="CIERRE · a cámara, tranquilo: “Si algún día necesitas una grúa, quiero que tengas un número guardado antes de necesitarlo.”" />
+        )}
+        {closeVo && <Audio src={staticFile(closeVo)} startFrom={Math.round(closeVoTrim * 30)} />}
         <Caption lines={CLOSE_LINES} />
       </Sequence>
 
