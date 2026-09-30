@@ -28,8 +28,8 @@ export const Caption4: React.FC<{words: W[]; dur: number; y?: number; size?: num
       style={{
         position: 'absolute',
         top: y,
-        left: 64,
-        right: 64,
+        left: 90,
+        right: 150,
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
@@ -44,7 +44,7 @@ export const Caption4: React.FC<{words: W[]; dur: number; y?: number; size?: num
       }}
     >
       {groups(words).map((g, gi) => {
-        const paint = interpolate(f, [g.at, g.words[g.words.length - 1].at + 6], [0.12, 1], {...cl, easing: E.out}) * (f >= g.at ? 1 : 0);
+        const paint = interpolate(f, [g.at, g.at + 8], [0, 1], {...cl, easing: E.out});
         return (
           <span
             key={gi}
@@ -69,7 +69,8 @@ export const Caption4: React.FC<{words: W[]; dur: number; y?: number; size?: num
                 }}
               />
             )}
-            {g.words.map((w, i) => {
+            {g.words.map((w0, i) => {
+              const w = g.hi ? {...w0, at: g.at + i * 2} : w0;
               const p = spring({frame: f - w.at, fps: 30, config: {damping: 18, stiffness: 240, mass: 0.55}});
               return (
                 <span
@@ -107,7 +108,7 @@ export const Headline4: React.FC<{text: string; dur: number; y: number; size?: n
   const o = interpolate(f, [dur - 8, dur], [1, 0], {...cl, easing: E.in});
   const bar = interpolate(f, [4, 18], [0, 1], {...cl, easing: E.out});
   return (
-    <div style={{position: 'absolute', top: y, left: 64, right: 64, textAlign: align, opacity: o}}>
+    <div style={{position: 'absolute', top: y, left: 72, right: 150, textAlign: align, opacity: o}}>
       {kicker && (
         <div
           style={{

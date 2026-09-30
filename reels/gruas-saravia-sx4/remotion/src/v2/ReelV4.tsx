@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, staticFile} from 'remotion';
-import {Grain, Letterbox, PhotoShot, Seg, Shot, segFrames} from './Shot';
+import {Grain, PhotoShot, Seg, Shot, segFrames} from './Shot';
 import {PersonShot} from './PersonShot';
 import {SoftwareShot} from './SoftwareShot';
 import {AnimatedMap} from './MapOverlay';
@@ -115,7 +115,6 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       {/* 13,5–16,5 s · PLANO AUTOMOTRIZ */}
       <Sequence {...at(V4.cinematic)}>
         <Shot src="footage/IMG_3244.mp4" segs={HERO} look="warm" zoom={[1.0, 1.14]} pan={[-30, 16]} origin="55% 42%" audio={0.35} />
-        <Letterbox size={170} dur={60} />
       </Sequence>
 
       {/* 16,5–19 s · DETALLES a ritmo (0,5 s c/u) + grúa rotulada */}
