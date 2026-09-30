@@ -101,3 +101,43 @@ export const Letterbox: React.FC<{size: number; dur: number}> = ({size, dur}) =>
     </AbsoluteFill>
   );
 };
+
+/**
+ * Fotografía real con movimiento de cámara: push-in lento + deriva lateral
+ * mínima + fondo desenfocado de la misma foto (para fotos horizontales en 9:16,
+ * sin estirar ni deformar a la persona). Mismo grading que el video.
+ */
+export const PhotoShot: React.FC<{
+  src: string;
+  dur: number;
+  zoom?: [number, number];
+  pan?: [number, number];
+  origin?: string;
+  fit?: 'cover' | 'contain';
+  look?: keyof typeof GRADE;
+}> = ({src, dur, zoom = [1.02, 1.12], pan = [0, 0], origin = '50% 40%', fit = 'cover', look = 'natural'}) => {
+  const f = useCurrentFrame();
+  const k = interpolate(f, [0, dur], [0, 1], {...cl, easing: E.inOut});
+  const z = zoom[0] + (zoom[1] - zoom[0]) * k;
+  const h = handheld(f, 2, src);
+  return (
+    <AbsoluteFill style={{overflow: 'hidden', backgroundColor: '#000'}}>
+      {fit === 'contain' && (
+        <AbsoluteFill style={{filter: `${GRADE[look]} blur(40px) brightness(0.55)`, transform: 'scale(1.2)'}}>
+          <img src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+        </AbsoluteFill>
+      )}
+      <AbsoluteFill
+        style={{
+          transformOrigin: origin,
+          transform: `translate(${pan[0] * k + h.x}px, ${pan[1] * k + h.y}px) scale(${z})`,
+          filter: GRADE[look],
+        }}
+      >
+        <img src={staticFile(src)} style={{width: '100%', height: '100%', objectFit: fit}} />
+      </AbsoluteFill>
+      <AbsoluteFill style={{background: 'radial-gradient(115% 80% at 50% 45%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 62%, rgba(0,0,0,0.55) 100%)'}} />
+    </AbsoluteFill>
+  );
+};
