@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';
-import {E, INTER, K, cl} from './look';
+import {E, K, cl} from './look';
+import {MONT as INTER} from './Type4';
 
 /** Ficha editorial de automóvil: filete fino + 3 líneas. Arriba a la izquierda. */
 export const VehicleInfo: React.FC<{dur: number; model?: string; service?: string; place?: string}> = ({

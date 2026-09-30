@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame} from 'remotion';
-import {E, INTER, K, cl} from './look';
+import {E, K, cl} from './look';
+import {MONT as INTER} from './Type4';
 
 /** ServiceCard: estado del servicio arriba (píldora) + "RUTA CALCULADA". */
 export const ServiceCard: React.FC<{dur: number}> = ({dur}) => {

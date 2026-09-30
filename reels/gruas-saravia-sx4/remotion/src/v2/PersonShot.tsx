@@ -1,7 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {Seg, Shot} from './Shot';
-import {E, INTER, K, cl} from './look';
+import {E, K, cl} from './look';
+import {MONT as INTER} from './Type4';
 
 /**
  * Persona real del equipo (retrato recortado) sobre la grúa real desenfocada.

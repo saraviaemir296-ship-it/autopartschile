@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {E, INTER, K, cl} from './look';
+import {E, K, cl} from './look';
+import {MONT as INTER} from './Type4';
 
 /**
  * Cierre de 2 s sobre la grúa desenfocada (no pantalla negra):

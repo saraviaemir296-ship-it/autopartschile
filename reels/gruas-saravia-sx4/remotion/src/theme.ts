@@ -28,6 +28,8 @@ const fonts = [
 for (const [family, file] of fonts) {
   loadFont({family, url: staticFile(file), weight: '100 900', format: 'woff2'});
 }
+loadFont({family: 'Montserrat', url: staticFile('fonts/Montserrat-normal-var.woff2'), weight: '500 900', format: 'woff2'});
+loadFont({family: 'Montserrat', url: staticFile('fonts/Montserrat-italic-var.woff2'), weight: '700 900', style: 'italic', format: 'woff2'});
 
 export const F = {
   display: "'Archivo', sans-serif",

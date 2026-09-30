@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {E, INTER, K, cl} from './look';
+import {E, K, cl} from './look';
+import {MONT as INTER} from './Type4';
 
 /**
  * El software propio de Grúas Saravia: el teléfono con el flujo real
@@ -9,7 +10,7 @@ import {E, INTER, K, cl} from './look';
  * tarjeta de ejemplo ("8 min", conductor) para no presentar datos ficticios.
  * Fuente de 305×582 px: la escala se mantiene ≤ 1,75× para no pixelar.
  */
-export const SoftwareShot: React.FC<{dur: number}> = ({dur}) => {
+export const SoftwareShot: React.FC<{dur: number; label?: boolean}> = ({dur, label = true}) => {
   const f = useCurrentFrame();
   const k = interpolate(f, [0, dur], [0, 1], {...cl, easing: E.inOut});
   const enter = interpolate(f, [0, 12], [0, 1], {...cl, easing: E.out});
@@ -37,11 +38,11 @@ export const SoftwareShot: React.FC<{dur: number}> = ({dur}) => {
       >
         <Img src={phone} style={{width: '100%', display: 'block'}} />
       </div>
-      <div style={{position: 'absolute', top: 300, left: 72, fontFamily: INTER, opacity: lab, transform: `translateY(${(1 - lab) * 10}px)`}}>
+      {label && <div style={{position: 'absolute', top: 300, left: 72, fontFamily: INTER, opacity: lab, transform: `translateY(${(1 - lab) * 10}px)`}}>
         <div style={{width: 48, height: 2, background: K.red, marginBottom: 18}} />
         <div style={{fontSize: 48, fontWeight: 700, letterSpacing: '-0.01em', color: K.white}}>Software de IA</div>
         <div style={{marginTop: 8, fontSize: 24, fontWeight: 500, letterSpacing: '0.22em', color: K.dim}}>DESARROLLO PROPIO</div>
-      </div>
+      </div>}
     </AbsoluteFill>
   );
 };
