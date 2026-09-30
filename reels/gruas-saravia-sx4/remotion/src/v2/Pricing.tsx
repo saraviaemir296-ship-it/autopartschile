@@ -3,6 +3,7 @@ import {interpolate, spring, useCurrentFrame} from 'remotion';
 import {E, K, cl} from './look';
 import {MONT} from './Type4';
 import {Fb, Ig, Web} from './LogoReveal';
+import {Payments} from './Extras';
 
 const pop = (f: number, d: number) => spring({frame: f - d, fps: 30, config: {damping: 16, stiffness: 200, mass: 0.6}});
 const fade = (f: number, d: number, len = 12) => interpolate(f, [d, d + len], [0, 1], {...cl, easing: E.out});
@@ -87,6 +88,8 @@ export const Pricing: React.FC<{dur: number}> = ({dur}) => {
           <div style={{fontFamily: MONT, fontWeight: 700, fontSize: 36, color: K.white}}>Tu destino</div>
         </div>
       </div>
+
+      <Payments at={84} />
 
       {/* sello */}
       <div style={{position: 'absolute', top: 1250, left: 0, right: 80, display: 'flex', justifyContent: 'center'}}>

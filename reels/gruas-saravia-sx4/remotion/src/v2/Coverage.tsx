@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {interpolate, random, spring, useCurrentFrame} from 'remotion';
 import {E, K, cl} from './look';
 import {MONT} from './Type4';
+import {VehicleTypes} from './Extras';
 
 /**
  * COBERTURA: "Todo Santiago · todas las comunas y alrededores".
@@ -54,9 +55,11 @@ export const Coverage: React.FC<{dur: number}> = ({dur}) => {
           Todo<br />Santiago
         </div>
       </div>
-      <div style={{position: 'absolute', top: 1400, left: 72, right: 150, fontFamily: MONT, fontWeight: 800, fontSize: 44, lineHeight: 1.15, textTransform: 'uppercase', color: K.white, opacity: interpolate(f, [30, 44], [0, 1], cl), textShadow: '0 4px 20px rgba(0,0,0,0.6)'}}>
+      <div style={{position: 'absolute', top: 560, left: 72, right: 150, fontFamily: MONT, fontWeight: 800, fontSize: 40, lineHeight: 1.15, textTransform: 'uppercase', color: K.white, opacity: interpolate(f, [16, 28], [0, 1], cl), textShadow: '0 4px 20px rgba(0,0,0,0.6)'}}>
         Todas las comunas <span style={{color: K.red}}>y alrededores</span>
       </div>
+      <div style={{position: 'absolute', top: 1270, left: 60, fontFamily: MONT, fontWeight: 700, fontSize: 24, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.8)', opacity: interpolate(f, [34, 44], [0, 1], cl)}}>TRASLADAMOS</div>
+      <VehicleTypes at={38} />
     </div>
   );
 };

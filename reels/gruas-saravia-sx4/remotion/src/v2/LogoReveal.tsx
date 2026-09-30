@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {TruckArrive} from './TruckAccel';
+import {Seal247} from './Extras';
 import {E, K, cl} from './look';
 import {MONT as INTER} from './Type4';
 
@@ -47,6 +48,7 @@ export const LogoReveal: React.FC<{dur: number; phone?: string}> = ({dur, phone 
       <AbsoluteFill style={{background: `rgba(8,8,8,${dim})`}} />
       <AbsoluteFill style={{alignItems: 'center'}}>
         <TruckArrive y={330} w={820} />
+        <Seal247 at={46} x={165} y={1330} />
         <div style={{position: 'absolute', top: 800, left: 0, right: 0, textAlign: 'center', fontFamily: INTER, color: K.white}}>
           <div style={{fontSize: 30, fontWeight: 500, letterSpacing: '0.24em', color: K.dim, opacity: a(8)}}>ASISTENCIA VEHICULAR 24/7</div>
           <div style={{marginTop: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, fontSize: 76, fontWeight: 600, letterSpacing: '0.01em', fontVariantNumeric: 'tabular-nums', opacity: a(12), transform: `translateY(${(1 - a(12)) * 12}px)`}}>

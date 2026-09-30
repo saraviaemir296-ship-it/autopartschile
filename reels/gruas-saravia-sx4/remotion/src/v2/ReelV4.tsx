@@ -11,6 +11,7 @@ import {Pricing, SocialsBig} from './Pricing';
 import {TruckWipe} from './TruckAccel';
 import {WebDemo} from './WebDemo';
 import {Coverage} from './Coverage';
+import {Trust} from './Extras';
 
 /**
  * REEL V4 · 28,1 s, cuadrado a la voz en off. Orden: persona → software de IA → operador en tiempo real →
@@ -22,13 +23,14 @@ export const V4 = {
   software: [95, 205],
   geo: [205, 325],
   rescue: [325, 370],
-  pricing: [370, 475],
-  coverage: [475, 550],
-  socials: [550, 620],
-  close: [620, 740],
-  cta: [740, 830],
+  pricing: [370, 495],
+  coverage: [495, 585],
+  trust: [585, 655],
+  socials: [655, 725],
+  close: [725, 845],
+  cta: [845, 935],
 } as const;
-export const V4_TOTAL = 830;
+export const V4_TOTAL = 935;
 
 export type V4Props = {
   /** Voz en off: un archivo por línea (o null). Tu voz real siempre tiene prioridad. */
@@ -107,21 +109,29 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
         <Headline4 text={'Rescate +\ntraslado'} dur={45} y={1150} size={96} />
       </Sequence>
 
-      {/* 12,3–15,8 s · TARIFA REAL (entra con el camión acelerando) */}
+      {/* 12,3–16,5 s · TARIFA REAL + medios de pago (entra con el camión acelerando) */}
       <Sequence from={V4.pricing[0] - 22} durationInFrames={V4.pricing[1] - V4.pricing[0] + 22}>
         <TruckWipe dur={22}>
-          <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.05, take: 2.12, rate: 0.5}]} look="warm" zoom={[1.08, 1.16]} origin="50% 45%" darken={0.55} blur={3} audio={0.3} />
-          <Sequence from={22}><Pricing dur={105} /></Sequence>
+          <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.05, take: 2.45, rate: 0.5}]} look="warm" zoom={[1.08, 1.16]} origin="50% 45%" darken={0.55} blur={3} audio={0.3} />
+          <Sequence from={22}><Pricing dur={125} /></Sequence>
         </TruckWipe>
       </Sequence>
 
-      {/* 15,8–18,3 s · COBERTURA: todo Santiago */}
+      {/* 16,5–19,5 s · COBERTURA: todo Santiago + qué trasladamos */}
       <Sequence {...at(V4.coverage)}>
-        <Shot src="footage/IMG_3232.mp4" segs={[{from: 10.5, take: 1.25, rate: 0.5}]} zoom={[1.15, 1.2]} origin="50% 40%" darken={0.6} blur={4} />
-        <Coverage dur={75} />
+        <Shot src="footage/IMG_3232.mp4" segs={[{from: 10.5, take: 1.5, rate: 0.5}]} zoom={[1.15, 1.2]} origin="50% 40%" darken={0.6} blur={4} />
+        <Coverage dur={90} />
       </Sequence>
 
-      {/* 18,3–20,7 s · REDES */}
+      {/* CONFIANZA: +60 clientes frecuentes al mes · convenios */}
+      <Sequence {...at(V4.trust)}>
+        <AbsoluteFill style={{filter: 'blur(8px) brightness(0.42)'}}>
+          <PhotoShot src="equipo/grua-rotulada.jpg" dur={70} zoom={[1.12, 1.18]} origin="40% 55%" />
+        </AbsoluteFill>
+        <Trust dur={70} />
+      </Sequence>
+
+      {/* 21,8–24,2 s · REDES */}
       <Sequence {...at(V4.socials)}>
         <AbsoluteFill style={{filter: 'blur(6px) brightness(0.5)'}}>
           <PhotoShot src="equipo/grua-rotulada.jpg" dur={70} zoom={[1.1, 1.16]} origin="45% 55%" />
@@ -129,7 +139,7 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
         <SocialsBig dur={70} />
       </Sequence>
 
-      {/* 20,7–24,7 s · EL CONSEJO: el equipo */}
+      {/* 24,2–28,2 s · EL CONSEJO: el equipo */}
       <Sequence {...at(V4.close)}>
         {/* "Guarda nuestro número…" → el equipo, cortes rápidos */}
         <Sequence durationInFrames={25}>
@@ -146,7 +156,7 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
         <Sequence from={50} durationInFrames={70}><Caption4 dur={70} y={960} words={sync('antes de necesitarlo.', [2, 1, 5], 1.54, 2.72, 50 - 6, [0, 1, 2])} /></Sequence>
       </Sequence>
 
-      {/* 24,7–27,7 s · CTA con WhatsApp y redes */}
+      {/* 28,2–31,2 s · CTA con WhatsApp, sello 24/7 y redes */}
       <Sequence {...at(V4.cta)}>
         <AbsoluteFill style={{filter: 'blur(12px)'}}>
           <PhotoShot src="equipo/grua-rotulada.jpg" dur={90} zoom={[1.1, 1.14]} origin="40% 55%" />
@@ -160,7 +170,7 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       <Audio
         src={S(music)}
         volume={(f) =>
-          interpolate(f, [0, 88, 94, 320, 330, 615, 625, 735, 743, 820, 830], [0.16, 0.2, 0.34, 0.34, 0.8, 0.8, 0.26, 0.26, 0.9, 0.6, 0], cl)
+          interpolate(f, [0, 88, 94, 320, 330, 720, 730, 840, 848, 925, 935], [0.16, 0.2, 0.34, 0.34, 0.8, 0.8, 0.26, 0.26, 0.9, 0.6, 0], cl)
         }
       />
       {vo.hook && <Sequence from={3}><Audio src={S(vo.hook)} /></Sequence>}
@@ -187,14 +197,24 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_blip.wav')} volume={0.26} /></Sequence>
       ))}
       <Sequence from={425}><Audio src={S('audio/sfx_map.wav')} volume={0.25} /></Sequence>
-      <Sequence from={454}><Audio src={S('audio/sfx_impact.wav')} volume={0.55} /></Sequence>
-      <Sequence from={478}><Audio src={S('audio/sfx_map.wav')} volume={0.35} /></Sequence>
-      <Sequence from={548}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-      {[564, 573, 582].map((f) => (
+      <Sequence from={440}><Audio src={S('audio/sfx_impact.wav')} volume={0.55} /></Sequence>
+      <Sequence from={454}><Audio src={S('audio/sfx_tick.wav')} volume={0.35} /></Sequence>
+      <Sequence from={498}><Audio src={S('audio/sfx_map.wav')} volume={0.35} /></Sequence>
+      {[533, 538, 543, 548].map((f) => (
+        <Sequence key={f} from={f}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
+      ))}
+      <Sequence from={583}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      {[589, 595, 601, 607, 613].map((f) => (
+        <Sequence key={f} from={f}><Audio src={S('audio/sfx_tick.wav')} volume={0.25} /></Sequence>
+      ))}
+      <Sequence from={615}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
+      <Sequence from={653}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      {[669, 678, 687].map((f) => (
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_tick.wav')} volume={0.35} /></Sequence>
       ))}
-      <Sequence from={736}><Audio src={S('audio/sfx_rev.wav')} volume={0.55} /></Sequence>
-      <Sequence from={754}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
+      <Sequence from={841}><Audio src={S('audio/sfx_rev.wav')} volume={0.55} /></Sequence>
+      <Sequence from={859}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
+      <Sequence from={891}><Audio src={S('audio/sfx_blip.wav')} volume={0.3} /></Sequence>
     </AbsoluteFill>
   );
 };
