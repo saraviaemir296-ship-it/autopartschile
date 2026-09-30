@@ -111,7 +111,7 @@ export const Pricing: React.FC<{dur: number}> = ({dur}) => {
 };
 
 /** Redes sociales a pantalla completa, grandes y en cascada. */
-export const SocialsBig: React.FC<{dur: number}> = ({dur}) => {
+export const SocialsBig: React.FC<{dur: number; tapAt?: number}> = ({dur, tapAt}) => {
   const f = useCurrentFrame();
   const out = interpolate(f, [dur - 8, dur], [1, 0], cl);
   const rows: [React.ReactNode, string, string][] = [
@@ -133,6 +133,9 @@ export const SocialsBig: React.FC<{dur: number}> = ({dur}) => {
       <div style={{position: 'absolute', top: 760, left: 72, right: 110, display: 'flex', flexDirection: 'column', gap: 34}}>
         {rows.map(([icon, label, sub], i) => {
           const p = pop(f, 14 + i * 9);
+          const tapped = tapAt !== undefined && i === 2 && f >= tapAt;
+          const press = tapped && f < tapAt! + 6 ? 0.96 : 1;
+          const ring = tapAt !== undefined && i === 2 ? interpolate(f, [tapAt, tapAt + 14], [0, 1], cl) : 0;
           return (
             <div
               key={i}
@@ -147,9 +150,17 @@ export const SocialsBig: React.FC<{dur: number}> = ({dur}) => {
                 borderLeft: `6px solid ${K.red}`,
                 backdropFilter: 'blur(12px)',
                 opacity: Math.min(1, p * 1.5),
-                transform: `translateX(${(1 - p) * -60}px)`,
+                transform: `translateX(${(1 - p) * -60}px) scale(${press})`,
+                position: 'relative',
+                boxShadow: tapped ? `0 0 0 3px ${K.red}` : 'none',
               }}
             >
+              {i === 2 && tapAt !== undefined && f >= tapAt - 8 && (
+                <div style={{position: 'absolute', right: 120, top: '50%'}}>
+                  <div style={{position: 'absolute', left: -32, top: -32, width: 64, height: 64, borderRadius: 99, background: 'rgba(255,255,255,0.6)', border: '3px solid #fff', opacity: f < tapAt + 10 ? 1 : 0}} />
+                  <div style={{position: 'absolute', left: -32, top: -32, width: 64, height: 64, borderRadius: 99, border: `3px solid ${K.red}`, transform: `scale(${1 + ring * 1.8})`, opacity: f >= tapAt ? 1 - ring : 0}} />
+                </div>
+              )}
               {icon}
               <div>
                 <div style={{fontFamily: MONT, fontWeight: 600, fontSize: 20, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.7)'}}>{sub}</div>
