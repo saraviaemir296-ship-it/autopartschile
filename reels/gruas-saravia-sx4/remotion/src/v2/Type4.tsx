@@ -128,7 +128,7 @@ export const Headline4: React.FC<{text: string; dur: number; y: number; size?: n
           {kicker}
         </div>
       )}
-      <div style={{overflow: 'hidden', paddingRight: 20}}>
+      {text && <div style={{overflow: 'hidden', paddingRight: 20}}>
         <div
           style={{
             fontFamily: MONT,
@@ -152,7 +152,7 @@ export const Headline4: React.FC<{text: string; dur: number; y: number; size?: n
             </React.Fragment>
           ))}
         </div>
-      </div>
+      </div>}
     </div>
   );
 };
