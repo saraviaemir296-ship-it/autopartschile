@@ -77,7 +77,7 @@ export const Pricing: React.FC<{dur: number}> = ({dur}) => {
       </div>
 
       {/* ubicación actual → destino */}
-      <div style={{position: 'absolute', top: 900, left: 72, right: 72, opacity: fade(f, 52)}}>
+      <div style={{position: 'absolute', top: 860, left: 72, right: 72, opacity: fade(f, 52)}}>
         <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
           <svg width="44" height="44" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill={K.white} /><circle cx="12" cy="12" r="4" fill={K.black} /></svg>
           <div style={{fontFamily: MONT, fontWeight: 700, fontSize: 36, color: K.white}}>Tu ubicación actual</div>
@@ -89,10 +89,10 @@ export const Pricing: React.FC<{dur: number}> = ({dur}) => {
         </div>
       </div>
 
-      <Payments at={84} />
+      <Payments at={80} top={1230} />
 
       {/* sello */}
-      <div style={{position: 'absolute', top: 1250, left: 0, right: 80, display: 'flex', justifyContent: 'center'}}>
+      <div style={{position: 'absolute', top: 1090, left: 0, right: 80, display: 'flex', justifyContent: 'center'}}>
         <div
           style={{
             display: 'inline-flex',

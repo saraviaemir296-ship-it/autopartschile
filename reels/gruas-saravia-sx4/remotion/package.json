@@ -25,7 +25,6 @@
   },
   "devDependencies": {
     "@remotion/bundler": "^4.0.531",
-    "@remotion/renderer": "^4.0.531",
-    "simple-icons": "^16.33.0"
+    "@remotion/renderer": "^4.0.531"
   }
 }
