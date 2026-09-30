@@ -296,4 +296,16 @@
   } else {
     init();
   }
+
+  // FIX (2026-09-30): igual que en checkout.js — las tarjetas de producto cargadas
+  // async (catalogo.html vía fetch a Supabase) se insertan al DOM después de que
+  // init() ya corrió una sola vez, así que nunca recibían el botón "Agregar". Este
+  // observer vuelve a llamar injectAddButtons() cuando se agregan nodos nuevos;
+  // la función ya es idempotente (chequea .apc-add-btn existente), así que no duplica.
+  if (typeof MutationObserver !== "undefined" && document.body) {
+    var addBtnObserver = new MutationObserver(function () {
+      injectAddButtons();
+    });
+    addBtnObserver.observe(document.body, { childList: true, subtree: true });
+  }
 })();
