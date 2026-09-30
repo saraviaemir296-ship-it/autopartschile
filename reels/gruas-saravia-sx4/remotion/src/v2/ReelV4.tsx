@@ -24,9 +24,9 @@ export const V4 = {
   cinematic: [350, 410],
   details: [410, 485],
   close: [485, 605],
-  cta: [605, 665],
+  cta: [605, 695],
 } as const;
-export const V4_TOTAL = 665;
+export const V4_TOTAL = 695;
 
 export type V4Props = {
   /** Voz en off: un archivo por línea (o null). Tu voz real siempre tiene prioridad. */
@@ -144,9 +144,9 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       {/* 23–25 s · CTA */}
       <Sequence {...at(V4.cta)}>
         <AbsoluteFill style={{filter: 'blur(12px)'}}>
-          <PhotoShot src="equipo/grua-rotulada.jpg" dur={60} zoom={[1.1, 1.14]} origin="40% 55%" />
+          <PhotoShot src="equipo/grua-rotulada.jpg" dur={90} zoom={[1.1, 1.14]} origin="40% 55%" />
         </AbsoluteFill>
-        <LogoReveal dur={60} />
+        <LogoReveal dur={90} />
       </Sequence>
 
       <Grain opacity={0.07} />
@@ -154,7 +154,7 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
       {/* AUDIO: música con ducking bajo la voz + voz + SFX */}
       <Audio
         src={S(music)}
-        volume={(f) => interpolate(f, [0, 72, 76, 475, 487, 601, 609, 660, 665], [0.2, 0.25, 0.75, 0.75, 0.35, 0.35, 0.9, 0.6, 0], cl)}
+        volume={(f) => interpolate(f, [0, 72, 76, 475, 487, 601, 609, 685, 695], [0.2, 0.25, 0.75, 0.75, 0.35, 0.35, 0.9, 0.6, 0], cl)}
       />
       {vo.hook && <Sequence from={0}><Audio src={S(vo.hook)} /></Sequence>}
       {vo.software && <Sequence from={V4.software[0] + 2}><Audio src={S(vo.software)} /></Sequence>}

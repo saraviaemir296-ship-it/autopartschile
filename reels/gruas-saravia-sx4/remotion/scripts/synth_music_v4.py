@@ -40,7 +40,7 @@ def impact(sec=2.2, f0=90, f1=38, noise=0.35, dec=0.45):
     n = lp(rng.standard_normal(len(tt)), 0.02) * env(len(tt), 0.001, 0.12) * noise
     return np.tanh((body + n) * 1.6)
 # Cama musical mínima de respaldo (96 BPM): drone → pulso → pico → pad → acorde
-BPM = 96; beat = 60 / BPM; L = 22.2; tt = t(L); n = len(tt)
+BPM = 96; beat = 60 / BPM; L = 23.2; tt = t(L); n = len(tt)
 mix = np.zeros(n)
 def seg(a, b): return (tt >= a) & (tt < b)
 def fade(a, b, fin=0.5, fout=0.5):
@@ -48,11 +48,11 @@ def fade(a, b, fin=0.5, fout=0.5):
     return g
 # drone sub (siempre, muy bajo al inicio)
 drone = (np.sin(2*np.pi*41.2*tt) + 0.5*np.sin(2*np.pi*61.7*tt)) * 0.18
-mix += drone * (0.35 + 0.65*fade(2.5, 22.2, 0.1, 1.2))
+mix += drone * (0.35 + 0.65*fade(2.5, 23.2, 0.1, 1.2))
 # pad (acorde Am9 suave, filtrado)
 pad = sum(np.sin(2*np.pi*f*tt + i) for i, f in enumerate([110, 164.8, 220, 261.6, 329.6, 493.9])) / 6
 pad = lp(pad, 0.08) * 0.35
-mix += pad * (0.25*fade(0, 2.5, 1.0, 0.2) + 0.6*fade(11.7, 13.7, 0.5, 0.5) + 0.9*fade(16.2, 22.2, 0.6, 1.5))
+mix += pad * (0.25*fade(0, 2.5, 1.0, 0.2) + 0.6*fade(11.7, 13.7, 0.5, 0.5) + 0.9*fade(16.2, 23.2, 0.6, 1.8))
 # pulso de bajo en corcheas (3–28 s)
 pulse = np.zeros(n)
 for k in range(int(2.5/(beat/2)), int(16.2/(beat/2))):
