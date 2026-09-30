@@ -40,20 +40,29 @@ gtag('config', 'G-TXKXWQCTZ1');
 <footer class="footer"><div class="container footer-grid"><div class="footer-col"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p><div class="footer-social"><a href="https://instagram.com/desarmaduriasaravia" target="_blank" rel="noopener">Instagram</a><a href="https://facebook.com/desarmaduria.multimarcas.cyc" target="_blank" rel="noopener">Facebook</a></div></div><div class="footer-col"><h4>Catálogo</h4><ul><li><a href="/catalogo.html">Repuestos Suzuki</a></li><li><a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a></li><li><a href="/catalogo.html#kia">Repuestos Kia</a></li><li><a href="/catalogo.html#hyundai">Repuestos Hyundai</a></li><li><a href="/catalogo.html#chevrolet">Repuestos Chevrolet</a></li></ul></div><div class="footer-col"><h4>Información</h4><ul><li><a href="/garantias.html">Garantías y Devoluciones</a></li><li><a href="/envios.html">Envíos a Todo Chile</a></li><li><a href="/metodos-de-pago.html">Métodos de Pago</a></li><li><a href="/como-comprar.html">Cómo Comprar</a></li><li><a href="/por-que-elegirnos.html">¿Por qué Elegirnos?</a></li><li><a href="/faq.html">Preguntas Frecuentes</a></li></ul></div><div class="footer-col"><h4>Contacto</h4><p>&#128205; Av. Lo Blanco 1072, La Pintana</p><p>&#128205; Guacolda 2050, La Pintana</p><p>&#128172; <a href="https://wa.me/56953817335">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 09:30–18:30 · Sáb 10:00–16:00</p></div></div><div class="footer-bottom"><div class="container"><p>&#169; 2026 Desarmaduría Saravia – AutopartsChile. Todos los derechos reservados.</p></div></div></footer>
 <a href="https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">&#128172;</a>
 <script src="/cart.js" defer></script>
-<script type="module">
-import { supabase } from '/admin/admin-common.js';
+<script>
+(function(){
+var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
 
 function esc(s) { return (s == null ? '' : String(s)).replace(/</g, '&lt;'); }
 
 var params = new URLSearchParams(location.search);
 var slug = params.get('slug');
 
-async function load() {
-  var content = document.getElementById('content');
+function load() {
   if (!slug) { showNotFound(); return; }
-  var { data: v, error } = await supabase.from('vehiculos').select('*').eq('slug', slug).eq('is_active', true).maybeSingle();
-  if (error || !v) { showNotFound(); return; }
+  fetch(SUPABASE_URL + '/rest/v1/vehiculos?select=*&slug=eq.' + encodeURIComponent(slug) + '&is_active=eq.true', {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }
+  }).then(function(r){ return r.ok ? r.json() : []; }).then(function(rows){
+    var v = rows && rows[0];
+    if (!v) { showNotFound(); return; }
+    renderVehiculo(v);
+  }).catch(function(){ showNotFound(); });
+}
 
+function renderVehiculo(v) {
+  var content = document.getElementById('content');
   var title = v.marca + ' ' + v.modelo + (v.motor ? ' ' + v.motor : '');
   document.getElementById('pageTitle').textContent = (v.seo_title || (title + ' — Repuestos en Desarme | Desarmaduría Saravia'));
   document.getElementById('metaDesc').setAttribute('content', v.meta_description || ('Repuestos disponibles de ' + title + ' en desarme. Consulta disponibilidad por WhatsApp.'));
@@ -100,6 +109,7 @@ function showNotFound() {
 }
 
 load();
+})();
 </script>
 <script>(function(){var header=document.querySelector(".header");if(!header)return;var ticking=false;function onScroll(){if(!ticking){window.requestAnimationFrame(function(){header.classList.toggle("is-scrolled",window.scrollY>30);ticking=false;});ticking=true;}}window.addEventListener("scroll",onScroll,{passive:true});onScroll();})();</script>
 </body>
