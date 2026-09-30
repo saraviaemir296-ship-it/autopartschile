@@ -23,7 +23,8 @@ export const LogoReveal: React.FC<{dur: number; phone?: string}> = ({dur, phone 
         <div style={{position: 'absolute', top: 1000, left: 0, right: 0, textAlign: 'center', fontFamily: INTER, color: K.white}}>
           <div style={{fontSize: 30, fontWeight: 500, letterSpacing: '0.24em', color: K.dim, opacity: a(8)}}>ASISTENCIA VEHICULAR 24/7</div>
           <div style={{marginTop: 26, fontSize: 80, fontWeight: 600, letterSpacing: '0.01em', fontVariantNumeric: 'tabular-nums', opacity: a(12), transform: `translateY(${(1 - a(12)) * 12}px)`}}>{phone}</div>
-          <div style={{marginTop: 46, display: 'inline-block', position: 'relative', opacity: a(20)}}>
+          <div style={{marginTop: 14, fontSize: 30, fontWeight: 500, letterSpacing: '0.04em', color: K.dim, opacity: a(16)}}>gruasaravia.cl</div>
+          <div style={{marginTop: 40, display: 'inline-block', position: 'relative', opacity: a(20)}}>
             <div style={{fontSize: 40, fontWeight: 700, letterSpacing: '0.26em'}}>GUÁRDALO AHORA.</div>
             <div style={{position: 'absolute', left: 0, right: '0.26em', bottom: -14, height: 3, background: K.red, transformOrigin: 'left', transform: `scaleX(${line})`}} />
           </div>

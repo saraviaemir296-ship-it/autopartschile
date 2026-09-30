@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, staticFile} from 'remotion';
 import {Grain, Letterbox, PhotoShot, Seg, Shot, segFrames} from './Shot';
 import {PersonShot} from './PersonShot';
+import {SoftwareShot} from './SoftwareShot';
 import {Sub, TextReveal} from './TextReveal';
 import {VehicleInfo} from './VehicleInfo';
 import {AnimatedMap} from './MapOverlay';
@@ -17,8 +18,8 @@ export const V2 = {
   hook: [0, 90],
   arrival: [90, 210],
   rescue: [210, 390],
-  cinematic: [390, 540],
-  tech: [540, 675],
+  cinematic: [390, 510],
+  tech: [510, 675],
   details: [675, 780],
   close: [780, 921],
   cta: [921, 981],
@@ -55,8 +56,8 @@ const RAMP: Seg[] = [
   {from: 7.9, take: 1.0, rate: 1.0}, // 100 %
 ];
 const CABLE: Seg[] = [{from: 4.6, take: 1.0, rate: 1}];
-const HERO: Seg[] = [{from: 0.3, take: 3.75, rate: 0.75}];
-const TECH_BG: Seg[] = [{from: 8.1, take: 2.7, rate: 0.6}];
+const HERO: Seg[] = [{from: 0.3, take: 3.0, rate: 0.75}];
+const TECH_BG: Seg[] = [{from: 8.4, take: 2.1, rate: 0.6}];
 const DETAILS: {src: string; seg: Seg[]; zoom: [number, number]; origin: string; look?: 'warm'}[] = [
   {src: 'footage/IMG_3240.mp4', seg: [{from: 1.0, take: 0.7, rate: 1}], zoom: [1.42, 1.5], origin: '22% 66%'}, // neumático
   {src: 'footage/IMG_3239.mp4', seg: [{from: 3.5, take: 0.7, rate: 1}], zoom: [1.38, 1.44], origin: '55% 44%', look: 'warm'}, // winche
@@ -109,15 +110,20 @@ export const ReelV2: React.FC<V2Props> = ({voHook, voMid, voClose, music, place}
       {/* ───── 13–18 s · PLANO AUTOMOTRIZ: push-in lento, crop cinematográfico, grano. Sin texto. */}
       <Sequence {...at(V2.cinematic)}>
         <Shot src="footage/IMG_3244.mp4" segs={HERO} look="warm" zoom={[1.0, 1.16]} pan={[-34, 18]} origin="55% 42%" audio={0.35} />
-        <Letterbox size={170} dur={150} />
+        <Letterbox size={170} dur={120} />
       </Sequence>
 
-      {/* ───── 18–22,5 s · software Grúas Saravia sobre video real: mapa en perspectiva + estado + tarjeta */}
+      {/* ───── 17–22,5 s · SOFTWARE DE IA (desarrollo propio): la app real → el servicio en curso sobre video real */}
       <Sequence {...at(V2.tech)}>
-        <Shot src="footage/IMG_3240.mp4" segs={TECH_BG} zoom={[1.1, 1.16]} origin="50% 45%" darken={0.42} blur={1.5} />
-        <AnimatedMap dur={135} dimAt={58} />
-        <Sequence from={6} durationInFrames={126}><ServiceCard dur={126} /></Sequence>
-        <Sequence from={60} durationInFrames={58}><StatusCard dur={58} /></Sequence>
+        <Sequence durationInFrames={60}>
+          <SoftwareShot dur={60} />
+        </Sequence>
+        <Sequence from={60}>
+          <Shot src="footage/IMG_3240.mp4" segs={TECH_BG} zoom={[1.1, 1.16]} origin="50% 45%" darken={0.42} blur={1.5} />
+          <AnimatedMap dur={105} dimAt={50} />
+          <Sequence from={4} durationInFrames={100}><ServiceCard dur={100} /></Sequence>
+          <Sequence from={50} durationInFrames={54}><StatusCard dur={54} /></Sequence>
+        </Sequence>
       </Sequence>
 
       {/* ───── 22,5–26 s · DETALLES a ritmo + voz "Desde que nos contactas…" */}
@@ -173,10 +179,11 @@ export const ReelV2: React.FC<V2Props> = ({voHook, voMid, voClose, music, place}
       <Sequence from={209}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
       <Sequence from={236}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={210 + rampF}><Audio src={S('audio/sfx_metal.wav')} volume={0.4} /></Sequence>
-      <Sequence from={538}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.25} /></Sequence>
-      <Sequence from={546}><Audio src={S('audio/sfx_map.wav')} volume={0.35} /></Sequence>
-      <Sequence from={576}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
-      {[606, 613, 620].map((f) => (
+      <Sequence from={508}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.25} /></Sequence>
+      <Sequence from={530}><Audio src={S('audio/sfx_tick.wav')} volume={0.35} /></Sequence>
+      <Sequence from={572}><Audio src={S('audio/sfx_map.wav')} volume={0.35} /></Sequence>
+      <Sequence from={600}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
+      {[626, 633, 640].map((f) => (
         <Sequence key={f} from={f}><Audio src={S('audio/sfx_blip.wav')} volume={0.28} /></Sequence>
       ))}
       <Sequence from={675}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
