@@ -23,7 +23,7 @@ export const PersonShot: React.FC<{
   const f = useCurrentFrame();
   const k = interpolate(f, [0, dur], [0, 1], {...cl, easing: E.inOut});
   const enter = interpolate(f, [0, 10], [0, 1], {...cl, easing: E.out});
-  const lab = interpolate(f, [8, 22, dur - 8, dur], [0, 1, 1, 0], {...cl, easing: E.out});
+  const lab = interpolate(f, [Math.min(8, dur / 5), Math.min(22, dur / 2.5), dur - Math.min(8, dur / 5), dur], [0, 1, 1, 0], {...cl, easing: E.out});
   return (
     <AbsoluteFill style={{overflow: 'hidden'}}>
       <AbsoluteFill style={{transform: `translateX(${-20 * k}px)`}}>

@@ -131,14 +131,19 @@ export const ReelV4: React.FC<V4Props> = ({vo, music, place}) => {
 
       {/* 20,7–24,7 s · EL CONSEJO: el equipo */}
       <Sequence {...at(V4.close)}>
-        <Sequence durationInFrames={50}>
-          <PersonShot person="equipo/operador-2.png" dur={50} bgSrc="footage/IMG_3239.mp4" bgSegs={[{from: 4.9, take: 0.9, rate: 0.5}]} width={1400} bottom={100} label="EQUIPO GRÚAS SARAVIA" />
+        {/* "Guarda nuestro número…" → el equipo, cortes rápidos */}
+        <Sequence durationInFrames={25}>
+          <PersonShot person="equipo/operador-2.png" dur={25} bgSrc="footage/IMG_3239.mp4" bgSegs={[{from: 4.9, take: 0.45, rate: 0.5}]} width={1400} bottom={100} label="EQUIPO GRÚAS SARAVIA" />
         </Sequence>
+        <Sequence from={25} durationInFrames={25}>
+          <PersonShot person="equipo/operador-1.png" dur={25} bgSrc="footage/IMG_3244.mp4" bgSegs={[{from: 1.0, take: 0.85, rate: 1}]} width={1400} bottom={10} label="EQUIPO GRÚAS SARAVIA" />
+        </Sequence>
+        {/* "…antes de necesitarlo." → el dueño */}
         <Sequence from={50}>
-          <PersonShot person="equipo/operador-1.png" dur={70} bgSrc="footage/IMG_3244.mp4" bgSegs={[{from: 1.0, take: 2.4, rate: 1}]} width={1400} bottom={10} label="ASISTENCIA 24/7" />
+          <PersonShot person="equipo/dueno.png" dur={70} bgSrc="footage/IMG_3240.mp4" bgSegs={[{from: 9.4, take: 1.2, rate: 0.5}]} width={1150} bottom={-140} label="DUEÑO · GRÚAS SARAVIA" />
         </Sequence>
         <Sequence from={6} durationInFrames={44}><Caption4 dur={44} y={1040} words={sync('Guarda nuestro número', [2, 2, 3], 0.08, 0.99, 0, [2])} /></Sequence>
-        <Sequence from={50} durationInFrames={68}><Caption4 dur={68} y={1080} words={sync('antes de necesitarlo.', [2, 1, 5], 1.54, 2.72, 50 - 6, [0, 1, 2])} /></Sequence>
+        <Sequence from={50} durationInFrames={70}><Caption4 dur={70} y={960} words={sync('antes de necesitarlo.', [2, 1, 5], 1.54, 2.72, 50 - 6, [0, 1, 2])} /></Sequence>
       </Sequence>
 
       {/* 24,7–27,7 s · CTA con WhatsApp y redes */}

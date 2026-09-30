@@ -32,3 +32,4 @@ def cutout(src, dst, thr=232):
 U = '/root/.claude/uploads/0ff08e9d-033d-5601-9624-8a53b507c734/'
 cutout(U + '10dc0984-image.png', 'public/equipo/operador-1.png')
 cutout(U + '399ad411-image.png', 'public/equipo/operador-2.png')
+cutout(U + '18e85361-image.jpg', 'public/equipo/dueno.png', thr=160)  # fondo gris claro
