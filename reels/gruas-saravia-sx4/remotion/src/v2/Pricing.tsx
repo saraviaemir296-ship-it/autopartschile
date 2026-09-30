@@ -38,7 +38,7 @@ export const Pricing: React.FC<{dur: number}> = ({dur}) => {
   const f = useCurrentFrame();
   const out = interpolate(f, [dur - 8, dur], [1, 0], cl);
   const route = interpolate(f, [58, 82], [0, 1], {...cl, easing: E.inOut});
-  const stamp = spring({frame: f - 84, fps: 30, config: {damping: 11, stiffness: 180, mass: 0.7}});
+  const stamp = spring({frame: f - 70, fps: 30, config: {damping: 11, stiffness: 180, mass: 0.7}});
   return (
     <div style={{position: 'absolute', inset: 0, opacity: out}}>
       {/* título */}

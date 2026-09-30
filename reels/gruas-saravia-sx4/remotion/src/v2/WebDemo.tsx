@@ -64,7 +64,7 @@ const Car = () => (
  * ubicación, destino y vehículo, toca "Calcular costo" y ve la tarifa
  * (base + km, total antes de pedir). Sin montos inventados.
  */
-export const WebDemo: React.FC<{dur: number}> = ({dur}) => {
+export const WebDemo: React.FC<{dur: number; label?: boolean}> = ({dur, label = true}) => {
   const f = useCurrentFrame();
   const enter = sp(f, 0, 150);
   const out = interpolate(f, [dur - 8, dur], [1, 0], cl);
@@ -80,9 +80,9 @@ export const WebDemo: React.FC<{dur: number}> = ({dur}) => {
   return (
     <div style={{position: 'absolute', inset: 0, opacity: out, transform: `scale(${cam})`, transformOrigin: '50% 60%'}}>
       {/* rótulo */}
-      <div style={{position: 'absolute', top: 250, left: 0, right: 0, textAlign: 'center', fontFamily: MONT, fontWeight: 700, fontSize: 26, letterSpacing: '0.24em', color: K.white, opacity: lin(f, 4, 16)}}>
+      {label && <div style={{position: 'absolute', top: 250, left: 0, right: 0, textAlign: 'center', fontFamily: MONT, fontWeight: 700, fontSize: 26, letterSpacing: '0.24em', color: K.white, opacity: lin(f, 4, 16)}}>
         COTIZA EN <span style={{color: K.red}}>GRUASARAVIA.CL</span>
-      </div>
+      </div>}
       <div
         style={{
           position: 'absolute',

@@ -40,7 +40,7 @@ def impact(sec=2.2, f0=90, f1=38, noise=0.35, dec=0.45):
     n = lp(rng.standard_normal(len(tt)), 0.02) * env(len(tt), 0.001, 0.12) * noise
     return np.tanh((body + n) * 1.6)
 # Cama musical mínima de respaldo (96 BPM): drone → pulso → pico → pad → acorde
-BPM = 96; beat = 60 / BPM; L = 28.2; tt = t(L); n = len(tt)
+BPM = 96; beat = 60 / BPM; L = 27.7; tt = t(L); n = len(tt)
 mix = np.zeros(n)
 def seg(a, b): return (tt >= a) & (tt < b)
 def fade(a, b, fin=0.5, fout=0.5):
@@ -48,26 +48,26 @@ def fade(a, b, fin=0.5, fout=0.5):
     return g
 # drone sub (siempre, muy bajo al inicio)
 drone = (np.sin(2*np.pi*41.2*tt) + 0.5*np.sin(2*np.pi*61.7*tt)) * 0.18
-mix += drone * (0.35 + 0.65*fade(3.17, 28.2, 0.1, 1.5))
+mix += drone * (0.35 + 0.65*fade(3.17, 27.7, 0.1, 1.5))
 # pad (acorde Am9 suave, filtrado)
 pad = sum(np.sin(2*np.pi*f*tt + i) for i, f in enumerate([110, 164.8, 220, 261.6, 329.6, 493.9])) / 6
 pad = lp(pad, 0.08) * 0.35
-mix += pad * (0.3*fade(0, 3.17, 1.0, 0.2) + 0.9*fade(21.1, 28.2, 0.6, 2.0))
+mix += pad * (0.3*fade(0, 3.17, 1.0, 0.2) + 0.9*fade(20.7, 27.7, 0.6, 2.0))
 # pulso de bajo en corcheas (3–28 s)
 pulse = np.zeros(n)
-for k in range(int(3.17/(beat/2)), int(21.1/(beat/2))):
+for k in range(int(3.17/(beat/2)), int(20.7/(beat/2))):
     s0 = int(k*beat/2*SR); m = min(n - s0, int(0.16*SR))
     if m <= 0: continue
     ttt = np.arange(m)/SR
     note = 55 if (k//8) % 2 == 0 else 49
     pulse[s0:s0+m] += np.tanh(2.2*np.sin(2*np.pi*note*ttt)) * np.exp(-ttt*16)
-mix += lp(pulse, 0.05) * 0.55 * fade(3.17, 21.1, 0.2, 0.5)
+mix += lp(pulse, 0.05) * 0.55 * fade(3.17, 20.7, 0.2, 0.5)
 # percusión mínima: kick en negras + hat en corcheas (7–13 y 19–28)
 perc = np.zeros(n)
 for k in range(0, int(L/(beat/2))):
     tk = k*beat/2; s0 = int(tk*SR)
-    active = (10.8 <= tk < 15.3)
-    light = (3.17 <= tk < 10.8) or (15.3 <= tk < 21.1)
+    active = (10.8 <= tk < 18.3)
+    light = (3.17 <= tk < 10.8) or (18.3 <= tk < 20.7)
     if not (active or light): continue
     if k % 2 == 0 and active:
         m = int(0.25*SR); ttt = np.arange(m)/SR
@@ -77,7 +77,7 @@ for k in range(0, int(L/(beat/2))):
     perc[s0:s0+m] += rng.standard_normal(m) * np.exp(-np.arange(m)/SR*90) * (0.12 if active else 0.08)
 mix += perc
 # acorde de resolución final (32 s)
-tt2 = tt - 25.1
+tt2 = tt - 24.7
 res = sum(np.sin(2*np.pi*f*tt) for f in [130.8, 196, 261.6, 329.6]) / 4 * np.where(tt2 > 0, np.exp(-np.clip(tt2, 0, None)*1.2), 0)
 mix += res * 0.5
 save('music_v4.wav', np.tanh(mix * 1.2), 0.4)
