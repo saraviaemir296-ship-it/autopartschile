@@ -495,7 +495,7 @@ const Hook: React.FC = () => {
   );
 };
 
-export const CompraSX4: React.FC<{music?: boolean; fah?: 'precio' | 'multas'}> = ({music = true, fah = 'precio'}) => (
+export const CompraSX4: React.FC<{music?: boolean; fah?: 'precio' | 'multas'}> = ({music = true, fah = 'multas'}) => (
   <AbsoluteFill style={{backgroundColor: '#000'}}>
     <Sequence durationInFrames={HOOK}><Hook /></Sequence>
     <Sequence from={HOOK}><CompraStory /></Sequence>
