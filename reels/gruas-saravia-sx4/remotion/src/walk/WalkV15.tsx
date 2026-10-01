@@ -410,7 +410,7 @@ const Hook: React.FC<{t: number}> = ({t}) => {
   const motor = sp(t, 16, 12, 240);
   return (
     <AbsoluteFill style={{opacity: out}}>
-      <OffthreadVideo src={S('atlas/encendido.mp4')} volume={(fr) => (fr < 26 ? 1 : 0.4)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${interpolate(t, [0, 90], [1.05, 1.15], cl)})`, filter: 'brightness(0.55)'}} />
+      <OffthreadVideo src={S('atlas/encendido.mp4')} volume={(fr) => (fr < 18 ? 1 : 0.32)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${interpolate(t, [0, 90], [1.05, 1.15], cl)})`, filter: 'brightness(0.55)'}} />
       <div style={{position: 'absolute', top: 240, left: 60, right: 140, color: '#fff', transform: `translate(${shake}px, ${-shake * 0.5}px)`}}>
         <div style={{fontFamily: MONT, fontSize: 52, fontWeight: 900, fontStyle: 'italic', opacity: Math.min(1, slam * 2), textShadow: '0 4px 18px rgba(0,0,0,0.6)'}}>¿DUEÑO DE UN</div>
         <div style={{display: 'inline-block', marginTop: 6, background: K.red, padding: '4px 26px 10px', borderRadius: 14, fontFamily: DISP, fontSize: 170, lineHeight: 1, transform: `scale(${1.6 - 0.6 * slam}) rotate(-3deg)`, transformOrigin: 'left center', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'}}>SUZUKI SX4?</div>
@@ -488,11 +488,12 @@ const Local: React.FC<{t: number}> = ({t}) => (
 
 /* locución chilena */
 const VO = [
-  {file: 'audio/vo/sx4p_1.wav', at: 6},
-  {file: 'audio/vo/sx4p_2.wav', at: W.f1[0] + 36},
-  {file: 'audio/vo/sx4p_3.wav', at: W.f3[0] + 12},
-  {file: 'audio/vo/sx4p_4.wav', at: W.count[0] + 30},
-  {file: 'audio/vo/sx4p_5.wav', at: W.cta[0] + 14},
+  {file: 'audio/vo/v15_1.wav', at: 20},
+  {file: 'audio/vo/v15_2.wav', at: W.f1[0] + 20},
+  {file: 'audio/vo/v15_3.wav', at: W.f3[0] + 8},
+  {file: 'audio/vo/v15_4.wav', at: W.count[0] + 34},
+  {file: 'audio/vo/v15_5.wav', at: W.beacon[0] + 30},
+  {file: 'audio/vo/v15_6.wav', at: W.cta[0] + 10},
 ];
 
 export const WalkV15: React.FC = () => {
