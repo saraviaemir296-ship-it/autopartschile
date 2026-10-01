@@ -403,19 +403,20 @@ const CompraStory: React.FC = () => {
       {/* oferta: tachado, monedas mientras baja el contador, ka-ching al final */}
       <Sequence from={576 + 6}><Audio src={S('audio/sfx_metal.wav')} volume={0.25} /></Sequence>
       <Sequence from={576 + 10}><Audio src={S('audio/sfx_coins.wav')} volume={0.55} /></Sequence>
-      <Sequence from={576 + 38}><Audio src={S('audio/sfx_kaching.wav')} volume={0.65} /></Sequence>
-      <Sequence from={576 + 40}><Audio src={S('audio/sfx_coin.wav')} volume={0.5} /></Sequence>
+      <Sequence from={576 + 33}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
+      <Sequence from={576 + 36}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.75} /></Sequence>
       {/* trato hecho + pago */}
-      <Sequence from={651}><Audio src={S('audio/sfx_impact.wav')} volume={0.55} /></Sequence>
-      <Sequence from={651 + 44}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
+      <Sequence from={651}><Audio src={S('audio/sfx_impact.wav')} volume={0.35} /></Sequence>
+      <Sequence from={651 + 2}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
+      <Sequence from={651 + 44}><Audio src={S('audio/sfx_correct.wav')} volume={0.45} /></Sequence>
       <Sequence from={651 + 46}><Audio src={S('audio/sfx_coins.wav')} volume={0.5} /></Sequence>
-      <Sequence from={651 + 70}><Audio src={S('audio/sfx_kaching.wav')} volume={0.65} /></Sequence>
+      <Sequence from={651 + 70}><Audio src={S('audio/sfx_coin.wav')} volume={0.4} /></Sequence>
       {/* grúa */}
       <Sequence from={741 - 26}><Audio src={S('audio/sfx_rev.wav')} volume={0.65} /></Sequence>
       <Sequence from={741 - 16}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
       {/* ya disponible + cotiza */}
       <Sequence from={831 + 4}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
-      <Sequence from={831 + 6}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
+      <Sequence from={831 + 6}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
       {[831 + 38, 831 + 44, 831 + 50].map((x) => (
         <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
       ))}
@@ -423,12 +424,13 @@ const CompraStory: React.FC = () => {
       <Sequence from={831 + 76}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
       {/* compra: toque, pago aprobado (ka-ching), despacho, entrega */}
       <Sequence from={1011 + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
-      <Sequence from={1011 + 40}><Audio src={S('audio/sfx_kaching.wav')} volume={0.65} /></Sequence>
+      <Sequence from={1011 + 40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
       <Sequence from={1011 + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={1011 + 96}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
       <Sequence from={1011 + 98}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
       {/* cierre */}
-      <Sequence from={1146}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.55} /></Sequence>
+      <Sequence from={1146}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
+      <Sequence from={1146 + 14}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.7} /></Sequence>
       {[1146 + 26, 1146 + 33, 1146 + 40, 1146 + 47].map((x) => (
         <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
       ))}
@@ -491,13 +493,13 @@ export const CompraSX4: React.FC<{music?: boolean}> = ({music = true}) => (
     <Sequence durationInFrames={HOOK}><Hook /></Sequence>
     <Sequence from={HOOK}><CompraStory /></Sequence>
     {/* sfx gancho */}
-    <Audio src={S('audio/sfx_fah.wav')} volume={0.85} />
+    <Audio src={S('audio/sfx_fah.wav')} volume={(fr) => interpolate(fr, [0, 26, 31], [0.85, 0.85, 0.12], cl)} />
     <Audio src={S('audio/sfx_impact.wav')} volume={0.45} />
     <Sequence from={22}><Audio src={S('audio/sfx_coin.wav')} volume={0.5} /></Sequence>
     <Sequence from={26}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
-    <Sequence from={31}><Audio src={S('audio/sfx_kaching.wav')} volume={0.7} /></Sequence>
-    <Sequence from={48}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
+    <Sequence from={31}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.65} /></Sequence>
+    <Sequence from={48}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.8} /></Sequence>
     {/* música: fuerte en el gancho, casi muda bajo tu voz, sube en la historia */}
-    {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.07, 0.07, 0.7, 0.7, 0], cl)} />}
+    {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, 40, 45, 50, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.08, 0.75, 0.75, 0.07, 0.07, 0.7, 0.7, 0], cl)} />}
   </AbsoluteFill>
 );
