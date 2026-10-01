@@ -6,7 +6,7 @@ import {Wa} from '../v2/LogoReveal';
 import {E, K, cl} from '../v2/look';
 
 /**
- * SX4 ENTRA A DESARME · "anatomía" del auto: radiografía, piezas señaladas
+ * SX4 ENTRA A DESARME · piezas recién publicadas en la web: radiografía, piezas señaladas
  * que vuelan a autopartschile.cl, prueba del motor andando y CTA a comentar.
  */
 const S = (f: string) => staticFile(f);
@@ -105,7 +105,7 @@ const Panel: React.FC<{rows: {name: string; price: string; t: number}[]; show: n
     <div style={{background: 'rgba(6,18,42,0.92)', border: `2px solid ${CYAN}`, borderRadius: 22, padding: '14px 22px 12px', boxShadow: `0 0 40px rgba(127,227,255,0.25)`}}>
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontWeight: 900, fontSize: 28}}>
         <span>autopartschile.cl</span>
-        <span style={{color: CYAN, fontSize: 22, fontWeight: 800}}>SUZUKI SX4 · EN DESARME</span>
+        <span style={{color: CYAN, fontSize: 22, fontWeight: 800}}>SUZUKI SX4 · RECIÉN PUBLICADAS</span>
       </div>
       <div style={{marginTop: 8, height: 2, background: 'rgba(127,227,255,0.35)'}} />
       {rows.map((r, i) => {
@@ -140,12 +140,12 @@ const Fly: React.FC<{p: Part; t: number; row: number}> = ({p, t, row}) => {
   );
 };
 
-const Title: React.FC<{kicker: string; text: string; red?: string; t: number}> = ({kicker, text, red, t}) => {
+const Title: React.FC<{kicker: string; text: string; red?: string; t: number; size?: number}> = ({kicker, text, red, t, size = 70}) => {
   const p = sp(t, 0, 13, 200);
   return (
     <div style={{position: 'absolute', top: 250, left: 60, right: 140, fontFamily: MONT, color: '#fff', opacity: Math.min(1, p * 2), transform: `translateY(${(1 - p) * 30}px)`}}>
       <div style={{fontSize: 30, fontWeight: 800, letterSpacing: '0.16em', color: CYAN}}>{kicker}</div>
-      <div style={{marginTop: 6, fontSize: 70, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1.0}}>
+      <div style={{marginTop: 6, fontSize: size, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1.0}}>
         {text} {red && <span style={{background: K.red, padding: '0 12px'}}>{red}</span>}
       </div>
     </div>
@@ -213,7 +213,7 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={A.atlas[0]} durationInFrames={A.atlas[1] - A.atlas[0]}>
         <Bg />
         <Car scan={1} />
-        <Title kicker="ANATOMÍA SUZUKI SX4 · 4x4" text="Repuestos con" red="precio real" t={at} />
+        <Title kicker="SUZUKI SX4 · CON PRECIO REAL" text="Piezas recién" red="publicadas en la web" t={at} size={62} />
         {PARTS.map((p, i) => {
           const t = at - PART_AT[i] + (i === 0 ? 40 : 0);
           if (t < 0) return null;
