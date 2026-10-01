@@ -17,27 +17,27 @@ export const A = {
   hook: [0, 100], // foto real → escaneo a radiografía
   motorTag: [100, 145],
   motor: [145, 225], // clip real del motor
-  atlas: [225, 505],
-  web: [505, 655],
-  cta: [655, 835],
+  atlas: [225, 545],
+  web: [545, 695],
+  cta: [695, 875],
 } as const;
-export const A_TOTAL = 835;
+export const A_TOTAL = 875;
 
 /* coordenadas dentro de la foto del auto (1080x626), que va en y = CAR_Y */
 const CAR_Y = 470;
-type Part = {name: string; sub: string; x: number; y: number; lx: number; ly: number; price?: string};
+type Part = {name: string; short: string; x: number; y: number; lx: number; ly: number; price: string; img?: string};
 const PARTS: Part[] = [
-  {name: 'Motor M16A 1.6 VVT', sub: 'Andando', x: 820, y: 245, lx: 380, ly: 500},
-  {name: 'Computador ECU AT 4x4', sub: 'Disponible', x: 690, y: 210, lx: 160, ly: 490, price: '$224.990'},
-  {name: 'Ópticas y focos', sub: 'Disponible', x: 805, y: 300, lx: 360, ly: 900},
-  {name: 'Electrónica y tablero', sub: 'Disponible', x: 540, y: 165, lx: 90, ly: 490},
-  {name: 'Carrocería', sub: 'Puertas · capó · portalón', x: 300, y: 290, lx: 420, ly: 880},
-  {name: 'Llantas y suspensión', sub: 'Disponible', x: 600, y: 450, lx: 70, ly: 960},
-  {name: 'Sistema 4x4 integral', sub: 'Disponible', x: 160, y: 380, lx: 330, ly: 970},
+  {name: 'Motor M16A 1.6 VVT', short: 'Motor M16A 1.6 VVT', x: 820, y: 245, lx: 380, ly: 500, price: 'Consultar'},
+  {name: 'Focos delanteros RH y LH', short: 'Focos delanteros (par)', x: 805, y: 300, lx: 60, ly: 520, price: '$119.990 el par', img: 'p-focos-delanteros.jpg'},
+  {name: 'Parachoque completo', short: 'Parachoque delantero', x: 965, y: 400, lx: 60, ly: 520, price: '$119.990', img: 'p-parachoque.jpg'},
+  {name: 'Refuerzo de parachoque', short: 'Refuerzo parachoque', x: 930, y: 455, lx: 60, ly: 520, price: '$79.990', img: 'p-refuerzo.jpg'},
+  {name: 'Computador ECU AT 4x4', short: 'Computador ECU AT 4x4', x: 690, y: 210, lx: 60, ly: 600, price: '$224.990'},
+  {name: 'Radiador de calefacción', short: 'Radiador calefacción', x: 560, y: 190, lx: 60, ly: 600, price: '$94.990', img: 'p-radiador.jpg'},
+  {name: 'Foco trasero derecho', short: 'Foco trasero derecho', x: 140, y: 265, lx: 600, ly: 520, price: '$84.990', img: 'p-foco-trasero.jpg'},
 ];
 // frame (dentro de atlas) en que aparece cada pieza (la 0 = motor ya se mostró)
-const PART_AT = [0, 10, 50, 90, 130, 170, 210];
-const CAJA_AT = 250;
+const PART_AT = [0, 10, 55, 100, 145, 190, 235];
+const ATLAS_END = 280;
 
 const sp = (f: number, d = 0, damping = 13, stiffness = 210) => spring({frame: f - d, fps: 30, config: {damping, stiffness, mass: 0.6}});
 const fade = (f: number, a: number, len = 8) => interpolate(f, [a, a + len], [0, 1], {...cl, easing: E.out});
@@ -74,13 +74,21 @@ const Marker: React.FC<{p: Part; t: number; active: boolean}> = ({p, t, active})
           <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
             <line x1={px} y1={py} x2={labelX + 40} y2={below ? labelY : labelY + 118} stroke="#fff" strokeWidth={3} strokeDasharray="1200" strokeDashoffset={1200 * (1 - lab)} />
           </svg>
-          <div style={{position: 'absolute', left: labelX, top: labelY, opacity: Math.min(1, lab * 2), transform: `translateY(${(1 - lab) * 16}px)`, fontFamily: MONT}}>
-            <div style={{display: 'inline-block', background: '#fff', color: '#0b0b0b', fontWeight: 900, fontSize: 44, padding: '8px 18px 10px', borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.4)'}}>
+          <div style={{position: 'absolute', left: labelX, top: labelY, width: p.img ? 420 : undefined, opacity: Math.min(1, lab * 2), transform: `translateY(${(1 - lab) * 16}px) scale(${0.9 + 0.1 * lab})`, transformOrigin: 'left top', fontFamily: MONT}}>
+            {p.img && (
+              <div style={{width: 420, height: 230, borderRadius: 14, overflow: 'hidden', border: '4px solid #fff', boxShadow: '0 14px 34px rgba(0,0,0,0.5)', background: '#fff'}}>
+                <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+              </div>
+            )}
+            <div style={{display: 'inline-block', marginTop: p.img ? 10 : 0, background: '#fff', color: '#0b0b0b', fontWeight: 900, fontSize: p.img ? 34 : 44, padding: '6px 16px 8px', borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.4)'}}>
               {p.name}
             </div>
             <div style={{display: 'flex', gap: 10, marginTop: 8}}>
-              <span style={{background: p.sub === 'Andando' ? '#16A34A' : K.red, color: '#fff', fontWeight: 800, fontSize: 30, padding: '4px 14px', borderRadius: 10}}>✓ {p.sub}</span>
-              {p.price && <span style={{background: NAVY, color: CYAN, border: `2px solid ${CYAN}`, fontWeight: 900, fontSize: 30, padding: '2px 14px', borderRadius: 10}}>{p.price}</span>}
+              {p.price === 'Consultar' ? (
+                <span style={{background: '#16A34A', color: '#fff', fontWeight: 800, fontSize: 30, padding: '4px 14px', borderRadius: 10}}>✓ Andando</span>
+              ) : (
+                <span style={{background: K.red, color: '#fff', fontWeight: 900, fontSize: 40, padding: '2px 16px 4px', borderRadius: 10}}>{p.price}</span>
+              )}
             </div>
           </div>
         </>
@@ -90,43 +98,44 @@ const Marker: React.FC<{p: Part; t: number; active: boolean}> = ({p, t, active})
 };
 
 /* ---------- panel "autopartschile.cl" que se va llenando ---------- */
-const ROW_H = 50;
-const PANEL_Y = 1150;
-const Panel: React.FC<{rows: {name: string; t: number; bad?: boolean}[]; show: number}> = ({rows, show}) => (
+const ROW_H = 44;
+const PANEL_Y = 1130;
+const Panel: React.FC<{rows: {name: string; price: string; t: number}[]; show: number; footer: number}> = ({rows, show, footer}) => (
   <div style={{position: 'absolute', left: 60, right: 140, top: PANEL_Y, opacity: show, transform: `translateY(${(1 - show) * 40}px)`, fontFamily: MONT}}>
-    <div style={{background: 'rgba(6,18,42,0.92)', border: `2px solid ${CYAN}`, borderRadius: 22, padding: '16px 22px 14px', boxShadow: `0 0 40px rgba(127,227,255,0.25)`}}>
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontWeight: 900, fontSize: 30}}>
+    <div style={{background: 'rgba(6,18,42,0.92)', border: `2px solid ${CYAN}`, borderRadius: 22, padding: '14px 22px 12px', boxShadow: `0 0 40px rgba(127,227,255,0.25)`}}>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontWeight: 900, fontSize: 28}}>
         <span>autopartschile.cl</span>
-        <span style={{color: CYAN, fontSize: 24, fontWeight: 800}}>SUZUKI SX4 · EN DESARME</span>
+        <span style={{color: CYAN, fontSize: 22, fontWeight: 800}}>SUZUKI SX4 · EN DESARME</span>
       </div>
-      <div style={{marginTop: 10, height: 2, background: 'rgba(127,227,255,0.35)'}} />
+      <div style={{marginTop: 8, height: 2, background: 'rgba(127,227,255,0.35)'}} />
       {rows.map((r, i) => {
         const p = sp(r.t, 0, 14, 220);
         if (r.t < 0) return null;
         return (
-          <div key={i} style={{height: ROW_H, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: r.bad ? 'rgba(255,255,255,0.55)' : '#fff', fontWeight: 700, fontSize: 30, opacity: Math.min(1, p * 2), transform: `translateX(${(1 - p) * -40}px)`, borderBottom: '1px solid rgba(255,255,255,0.08)'}}>
-            <span style={{textDecoration: r.bad ? 'line-through' : 'none'}}>{r.name}</span>
-            <span style={{fontSize: 24, fontWeight: 900, color: r.bad ? '#F87171' : '#4ADE80'}}>{r.bad ? '✗ CON FALLA' : '✓ DISPONIBLE'}</span>
+          <div key={i} style={{height: ROW_H, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontWeight: 700, fontSize: 27, opacity: Math.min(1, p * 2), transform: `translateX(${(1 - p) * -40}px)`, borderBottom: '1px solid rgba(255,255,255,0.08)'}}>
+            <span>{r.name}</span>
+            <span style={{fontSize: 26, fontWeight: 900, color: '#4ADE80'}}>{r.price}</span>
           </div>
         );
       })}
+      <div style={{marginTop: 8, fontSize: 22, fontWeight: 700, color: CYAN, opacity: footer}}>+ carrocería · suspensión · 4x4 · electrónica y más</div>
     </div>
   </div>
 );
 
 /* ---------- ficha que vuela de la pieza al panel ---------- */
 const Fly: React.FC<{p: Part; t: number; row: number}> = ({p, t, row}) => {
-  const k = interpolate(t, [18, 34], [0, 1], {...cl, easing: E.inOut});
-  if (t < 18 || t > 36) return null;
+  const k = interpolate(t, [26, 42], [0, 1], {...cl, easing: E.inOut});
+  if (t < 26 || t > 44) return null;
   const x0 = p.x;
   const y0 = CAR_Y + p.y;
   const x1 = 300;
-  const y1 = PANEL_Y + 70 + row * ROW_H;
+  const y1 = PANEL_Y + 64 + row * ROW_H;
   const x = x0 + (x1 - x0) * k;
   const y = y0 + (y1 - y0) * k - Math.sin(k * Math.PI) * 160;
   return (
-    <div style={{position: 'absolute', left: x - 90, top: y - 26, width: 180, height: 52, borderRadius: 12, background: CYAN, color: NAVY, fontFamily: MONT, fontWeight: 900, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${1 - 0.4 * k})`, boxShadow: `0 0 26px ${CYAN}`}}>
-      + web
+    <div style={{position: 'absolute', left: x - 90, top: y - 50, width: 180, height: 100, borderRadius: 12, overflow: 'hidden', border: `3px solid ${CYAN}`, background: NAVY, color: CYAN, fontFamily: MONT, fontWeight: 900, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${1 - 0.55 * k})`, boxShadow: `0 0 26px ${CYAN}`}}>
+      {p.img ? <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover'}} /> : '+ web'}
     </div>
   );
 };
@@ -155,10 +164,7 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
   const scan = interpolate(f, [58, 98], [0, 1], {...cl, easing: E.inOut});
   const inAtlas = f >= A.atlas[0] && f < A.atlas[1];
   const at = f - A.atlas[0];
-  const rows = [
-    ...PARTS.map((p, i) => ({name: p.name, t: i === 0 ? at : at - PART_AT[i] - 32})),
-    {name: 'Caja automática', t: at - CAJA_AT, bad: true},
-  ];
+  const rows = PARTS.map((p, i) => ({name: p.short, price: p.price === 'Consultar' ? 'CONSULTAR' : p.price.replace(' el par', ''), t: i === 0 ? at : at - PART_AT[i] - 40}));
   return (
     <AbsoluteFill style={{backgroundColor: NAVY}}>
       {/* 1 · GANCHO + escaneo */}
@@ -193,11 +199,11 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={A.atlas[0]} durationInFrames={A.atlas[1] - A.atlas[0]}>
         <Bg />
         <Car scan={1} />
-        <Title kicker="ANATOMÍA SUZUKI SX4 · 4x4" text="Repuestos" red="disponibles" t={at} />
+        <Title kicker="ANATOMÍA SUZUKI SX4 · 4x4" text="Repuestos con" red="precio real" t={at} />
         {PARTS.map((p, i) => {
           const t = at - PART_AT[i] + (i === 0 ? 40 : 0);
           if (t < 0) return null;
-          const next = i + 1 < PARTS.length ? PART_AT[i + 1] : CAJA_AT;
+          const next = i + 1 < PARTS.length ? PART_AT[i + 1] : ATLAS_END;
           const active = i > 0 && at >= PART_AT[i] && at < next;
           return (
             <React.Fragment key={i}>
@@ -206,7 +212,7 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
             </React.Fragment>
           );
         })}
-        <Panel rows={rows} show={inAtlas ? fade(at, 0, 12) : 0} />
+        <Panel rows={rows} show={inAtlas ? fade(at, 0, 12) : 0} footer={fade(at, ATLAS_END - 10, 12)} />
       </Sequence>
 
       {/* 4 · YA EN LA WEB */}
@@ -247,12 +253,11 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       {PART_AT.slice(1).map((x) => (
         <React.Fragment key={x}>
           <Sequence from={A.atlas[0] + x}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
-          <Sequence from={A.atlas[0] + x + 18}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.2} /></Sequence>
-          <Sequence from={A.atlas[0] + x + 34}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
+          <Sequence from={A.atlas[0] + x + 26}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.2} /></Sequence>
+          <Sequence from={A.atlas[0] + x + 42}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
         </React.Fragment>
       ))}
-      <Sequence from={A.atlas[0] + 12}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
-      <Sequence from={A.atlas[0] + CAJA_AT}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.35} /></Sequence>
+      <Sequence from={A.atlas[0] + ATLAS_END - 10}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.4} /></Sequence>
       <Sequence from={A.web[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
       <Sequence from={A.web[0] + 75}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
       <Sequence from={A.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
