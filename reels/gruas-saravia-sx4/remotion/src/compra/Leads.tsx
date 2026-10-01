@@ -173,7 +173,7 @@ export const OrderFlow: React.FC<{dur: number}> = ({dur}) => {
 export const DesarmeCTA: React.FC<{dur: number}> = ({dur}) => {
   const f = useCurrentFrame();
   const lp = sp(f, 0, 14, 160);
-  const items = ['Cualquier marca', 'Pago al contado', 'Retiro con grúa propia', 'Aunque tenga deudas de TAG o multas'];
+  const items = ['En cualquier estado', 'De cualquier marca', 'Pago al contado', 'Retiro con grúa propia', 'Aunque tenga deudas de TAG o multas'];
   return (
     <AbsoluteFill>
       <AbsoluteFill style={{background: 'rgba(8,8,8,0.78)'}} />
