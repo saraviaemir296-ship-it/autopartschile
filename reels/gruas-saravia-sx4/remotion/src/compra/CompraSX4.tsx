@@ -79,7 +79,7 @@ const Chat: React.FC<{dur: number}> = ({dur}) => {
     <AbsoluteFill style={{backgroundColor: '#0b0b0b', overflow: 'hidden'}}>
       <AbsoluteFill style={{transform: `scale(${zoom})`, transformOrigin: '30% 70%'}}>
         <div style={{position: 'absolute', left: 0, top: ty, width: 1080}}>
-          <Img src={S('compra/whatsapp.png')} style={{width: 1080, display: 'block'}} />
+          <Img src={S('compra/whatsapp-anon.png')} style={{width: 1080, display: 'block'}} />
           {marks.map(([x0, y0, x1, y1, a], i) => {
             const p = spring({frame: f - a, fps: 30, config: {damping: 14, stiffness: 220, mass: 0.6}});
             return (
@@ -161,7 +161,7 @@ const GRUA_RAMP: Seg[] = [
   {from: 4.6, take: 0.6, rate: 1.5},
   {from: 5.4, take: 1.2, rate: 1.8},
 ];
-const GRUA_HERO: Seg[] = [{from: 0.6, take: 1.25, rate: 0.9}];
+const GRUA_HERO: Seg[] = [{from: 0.6, take: 1.75, rate: 0.9}];
 
 export const CompraSX4: React.FC = () => {
   const f = useCurrentFrame();
@@ -190,13 +190,13 @@ export const CompraSX4: React.FC = () => {
 
       {/* 4 · LLEGADA + oferta */}
       <Sequence {...at(C.llegada)}>
-        <Shot src="compra/llegada.mp4" segs={[{from: 0, take: 1.13, rate: 0.6}]} zoom={[1.02, 1.1]} origin="40% 45%" audio={0.15} />
+        <Shot src="compra/llegada_anon.mp4" segs={[{from: 0, take: 1.13, rate: 0.6}]} zoom={[1.02, 1.1]} origin="40% 45%" audio={0.15} />
         <Sticker text="Le ofrecimos $1.100.000" red />
       </Sequence>
 
       {/* 5 · PAPELES: aceptó */}
       <Sequence {...at(C.papeles)}>
-        <Shot src="compra/papeles.mp4" segs={[{from: 0, take: 2.37, rate: 1}]} zoom={[1.04, 1.1]} audio={0.15} />
+        <Shot src="compra/papeles_anon.mp4" segs={[{from: 0, take: 2.37, rate: 1}]} zoom={[1.04, 1.1]} audio={0.15} />
         <Sticker text="¡Aceptó!" sub="Pago y papeles en regla" />
       </Sequence>
 
