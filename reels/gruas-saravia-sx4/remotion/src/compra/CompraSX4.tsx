@@ -17,14 +17,14 @@ export const C = {
   chat: [411, 661],
   drive: [661, 706],
   llegada: [706, 841],
-  papeles: [841, 971],
-  grua: [971, 1061],
-  ficha: [1061, 1211],
-  busqueda: [1211, 1256],
-  compra: [1256, 1391],
-  cta: [1391, 1661],
+  papeles: [841, 1001],
+  grua: [1001, 1091],
+  ficha: [1091, 1266],
+  busqueda: [1266, 1311],
+  compra: [1311, 1446],
+  cta: [1446, 1716],
 } as const;
-const C_BODY = 1661;
+const C_BODY = 1716;
 /** Gancho (cold open) antes de tu saludo. */
 export const HOOK = 105;
 export const C_TOTAL = HOOK + C_BODY;
@@ -323,11 +323,11 @@ const CompraStory: React.FC = () => {
 
       {/* 2 · WHATSAPP real (datos del vendedor ocultos) */}
       <Sequence {...at(C.chat)}>
-        <Chat dur={250} at={[64, 141, 210]} />
-        <Sequence durationInFrames={62}><Sticker text="Nos escribió por la web" /></Sequence>
-        <Sequence from={62} durationInFrames={143}><Sticker text="SX4 2010 · 4x4" sub="Automático · caja mala" /></Sequence>
-        <Sequence from={66} durationInFrames={120}><PhotoCard src="compra/sx4-foto.jpg" caption="La foto que nos mandó" dur={120} /></Sequence>
-        <Sequence from={205}><Sticker text="Pidió $1.500.000" red /></Sequence>
+        <Chat dur={250} at={[54, 132, 199]} />
+        <Sequence durationInFrames={54}><Sticker text="Nos escribió por la web" /></Sequence>
+        <Sequence from={54} durationInFrames={145}><Sticker text="SX4 2010 · 4x4" sub="Automático · caja mala" /></Sequence>
+        <Sequence from={56} durationInFrames={125}><PhotoCard src="compra/sx4-foto.jpg" caption="La foto que nos mandó" dur={125} /></Sequence>
+        <Sequence from={199}><Sticker text="Pidió $1.500.000" red /></Sequence>
         <Audio src={S('audio/vo/compra_1.wav')} startFrom={0} volume={1} />
       </Sequence>
 
@@ -343,18 +343,23 @@ const CompraStory: React.FC = () => {
           <Shot src="compra/llegada_anon.mp4" segs={[{from: 0, take: 1.13, rate: 0.45}]} zoom={[1.02, 1.1]} origin="40% 45%" audio={0.15} darken={0.2} />
         </Sequence>
         <Sequence from={75}><CarPhoto src="compra/sx4-foto.jpg" /></Sequence>
-        <PriceDrop from={1500000} to={500000} y={330} label="NUESTRA 1ª OFERTA" tagText="Tenía 109 multas" tagAt={82} />
+        <PriceDrop from={1500000} to={500000} y={330} label="NUESTRA 1ª OFERTA" tagText="Tenía 109 multas" tagAt={76} />
         <Sequence from={4}><Audio src={S('audio/vo/compra_2.wav')} /></Sequence>
       </Sequence>
 
       {/* 5 · ACEPTÓ + PAGO */}
       <Sequence {...at(C.papeles)}>
-        <Shot src="compra/papeles_anon.mp4" segs={[{from: 0, take: 2.37, rate: 0.55}]} zoom={[1.04, 1.12]} audio={0.15} darken={0.15} />
+        <Sequence durationInFrames={90}>
+          <Shot src="compra/papeles_anon.mp4" segs={[{from: 0, take: 2.37, rate: 0.79}]} zoom={[1.04, 1.1]} audio={0.15} darken={0.15} />
+        </Sequence>
+        <Sequence from={90}>
+          <Shot src="footage/IMG_3232.mp4" segs={[{from: 0.3, take: 2.4, rate: 0.9}]} zoom={[1.04, 1.1]} origin="45% 60%" darken={0.2} />
+        </Sequence>
         <Sticker text="Cerramos en $700.000" sub="Cliente conforme ✓" red y={250} />
-        <Sequence from={84} durationInFrames={24}><Stamp text="¡Trato hecho!" color="#16A34A" y={520} /></Sequence>
-        <Sequence from={104}><Stamp text="Pagado" color="#16A34A" y={520} rot={6} /></Sequence>
-        <Sequence from={104}><PayBar y={780} amount={700000} /></Sequence>
-        <Sequence from={4}><Audio src={S('audio/vo/compra_3.wav')} /></Sequence>
+        <Sequence from={104} durationInFrames={24}><Stamp text="¡Trato hecho!" color="#16A34A" y={520} /></Sequence>
+        <Sequence from={128}><Stamp text="Pagado" color="#16A34A" y={520} rot={6} /></Sequence>
+        <Sequence from={128}><PayBar y={780} amount={700000} /></Sequence>
+        <Sequence from={22}><Audio src={S('audio/vo/compra_3.wav')} /></Sequence>
       </Sequence>
 
       {/* 6 · A LA GRÚA (entra con el camión del logo acelerando) */}
@@ -373,10 +378,10 @@ const CompraStory: React.FC = () => {
 
       {/* 7 · YA DISPONIBLE + COTIZA POR WHATSAPP (grabación real del sitio) */}
       <Sequence {...at(C.ficha)}>
-        <Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 3.4, rate: 2.4}, {from: 6.6, take: 4.5, rate: 1.4}, {from: 2.0, take: 1.0, rate: 1}]} />
+        <Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 3.4, rate: 2.4}, {from: 6.6, take: 4.5, rate: 1.4}, {from: 2.0, take: 1.9, rate: 1}]} />
         <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 70%)'}} />
-        <AvailableLead dur={150} tapAt={104} />
-        <Sequence from={8}><Audio src={S('audio/vo/compra_5.wav')} /></Sequence>
+        <AvailableLead dur={175} tapAt={164} />
+        <Sequence from={20}><Audio src={S('audio/vo/compra_5.wav')} /></Sequence>
       </Sequence>
 
       {/* 8 · BUSCA "SX4" (rápido) */}
@@ -399,51 +404,43 @@ const CompraStory: React.FC = () => {
         <AbsoluteFill style={{filter: 'blur(10px)'}}>
           <Shot src="footage/IMG_3240.mp4" segs={[{from: 7.0, take: 4.0, rate: 0.45}]} zoom={[1.1, 1.16]} />
         </AbsoluteFill>
-        <DesarmeCTA dur={270} head={56} items={[85, 119, 155, 170, 185]} url={205} phone={215} />
+        <DesarmeCTA dur={270} head={52} items={[85, 119, 155, 170, 185]} url={205} phone={215} />
         <Sequence from={6}><Audio src={S('audio/vo/compra_7.wav')} /></Sequence>
       </Sequence>
 
       <Grain opacity={0.05} />
 
-      {/* chat */}
-      {[C.chat[0] + 2, C.chat[0] + 62].map((x) => (
-        <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.3} /></Sequence>
+      {/* chat: FAH después de "pedía un millón y medio" */}
+      {[C.chat[0] + 2, C.chat[0] + 52].map((x) => (
+        <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.22} /></Sequence>
       ))}
-      <Sequence from={C.chat[0] + 64}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-      <Sequence from={C.chat[0] + 207}><Audio src={S('audio/sfx_fah.wav')} volume={0.6} /></Sequence>
-      <Sequence from={C.drive[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-      {/* oferta */}
-      <Sequence from={C.llegada[0] + 6}><Audio src={S('audio/sfx_metal.wav')} volume={0.2} /></Sequence>
-      <Sequence from={C.llegada[0] + 10}><Audio src={S('audio/sfx_coins.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.llegada[0] + 36}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
-      <Sequence from={C.llegada[0] + 82}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.55} /></Sequence>
-      {/* cierre del trato + pago */}
-      <Sequence from={C.papeles[0]}><Audio src={S('audio/sfx_impact.wav')} volume={0.3} /></Sequence>
-      <Sequence from={C.papeles[0] + 2}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
-      <Sequence from={C.papeles[0] + 84}><Audio src={S('audio/sfx_correct.wav')} volume={0.35} /></Sequence>
-      <Sequence from={C.papeles[0] + 106}><Audio src={S('audio/sfx_coins.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.papeles[0] + 128}><Audio src={S('audio/sfx_coin.wav')} volume={0.35} /></Sequence>
-      {/* grúa */}
+      <Sequence from={C.chat[0] + 44}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.25} /></Sequence>
+      <Sequence from={C.chat[0] + 244}><Audio src={S('audio/sfx_fah.wav')} volume={0.75} /></Sequence>
+      {/* oferta: ka-ching en la pausa tras "quinientos mil", vine boom tras "109 multas" */}
+      <Sequence from={C.llegada[0] + 10}><Audio src={S('audio/sfx_coins.wav')} volume={0.2} /></Sequence>
+      <Sequence from={C.llegada[0] + 45}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.5} /></Sequence>
+      <Sequence from={C.llegada[0] + 130}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.7} /></Sequence>
+      {/* cierre del trato: ka-ching antes de la voz, correct tras "trato hecho" */}
+      <Sequence from={C.papeles[0] + 4}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.papeles[0] + 126}><Audio src={S('audio/sfx_correct.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.papeles[0] + 132}><Audio src={S('audio/sfx_coins.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.papeles[0] + 154}><Audio src={S('audio/sfx_coin.wav')} volume={0.35} /></Sequence>
+      {/* grúa: motor y whoosh antes de "directo a la grúa" */}
       <Sequence from={C.grua[0] - 26}><Audio src={S('audio/sfx_rev.wav')} volume={0.55} /></Sequence>
       <Sequence from={C.grua[0] - 16}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
-      {/* ya disponible + cotiza */}
-      <Sequence from={C.ficha[0] + 4}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.ficha[0] + 6}><Audio src={S('audio/sfx_correct.wav')} volume={0.3} /></Sequence>
-      {[38, 44, 50].map((x) => (
-        <Sequence key={x} from={C.ficha[0] + x}><Audio src={S('audio/sfx_tick.wav')} volume={0.25} /></Sequence>
-      ))}
-      <Sequence from={C.ficha[0] + 104}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.ficha[0] + 110}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
-      {/* compra */}
-      <Sequence from={C.compra[0] + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.compra[0] + 40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
-      <Sequence from={C.compra[0] + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-      <Sequence from={C.compra[0] + 96}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
-      {/* cierre */}
+      {/* ya disponible: correct antes de la voz, toque tras "WhatsApp" */}
+      <Sequence from={C.ficha[0] + 2}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.ficha[0] + 164}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.ficha[0] + 168}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
+      {/* compra: suave bajo la voz, golpe final tras "y listo" */}
+      <Sequence from={C.compra[0] + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.25} /></Sequence>
+      <Sequence from={C.compra[0] + 35}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.35} /></Sequence>
+      <Sequence from={C.compra[0] + 106}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
+      {/* cierre: vine boom en la pausa antes de "compramos" */}
       <Sequence from={C.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.cta[0] + 56}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.cta[0] + 45}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.55} /></Sequence>
       {[85, 119, 155, 170, 185].map((x) => (
-        <Sequence key={x} from={C.cta[0] + x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
+        <Sequence key={x} from={C.cta[0] + x}><Audio src={S('audio/sfx_tick.wav')} volume={0.18} /></Sequence>
       ))}
       {/* tu voz completa */}
       <Sequence from={0} durationInFrames={411}><Audio src={S('compra/talk.mp4')} startFrom={24} /></Sequence>
