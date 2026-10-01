@@ -57,13 +57,14 @@ const DUR = {
   w2: 73,
   f3: freezeLen(F3, START.f3),
   sum: 190,
+  count: 165,
   web: 80,
   buy: 135,
   cta: 150,
   flyer: 75,
 };
 type Key = keyof typeof DUR;
-const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'buy', 'cta', 'flyer'];
+const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'count', 'web', 'buy', 'cta', 'flyer'];
 export const W = (() => {
   const o = {} as Record<Key, [number, number]>;
   let c = 0;
@@ -384,6 +385,13 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
         <Summary t={f - W.sum[0]} />
       </Sequence>
 
+      {/* 6b · conteo total: el auto completo por sistemas */}
+      <Sequence {...at(W.count)}>
+        <Bg />
+        <AbsoluteFill style={{opacity: 0.22}}><Img src={S(F1.xray)} style={{width: 1080, height: 1920}} /></AbsoluteFill>
+        <CountScene t={f - W.count[0]} />
+      </Sequence>
+
       {/* 7 · la web real */}
       <Sequence from={W.web[0]} durationInFrames={40}>
         <OffthreadVideo src={S('atlas/web_7362820f.mp4')} startFrom={15} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
@@ -465,6 +473,12 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.4} /></Sequence>
       <Sequence from={W.card[0] - 4}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.w0[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={W.count[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
+      {Array.from({length: 10}, (_, i) => (
+        <Sequence key={'c' + i} from={W.count[0] + 4 + i * 3}><Audio src={S('audio/sfx_tick.wav')} volume={0.25} /></Sequence>
+      ))}
+      <Sequence from={W.count[0] + 34}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.count[0] + 36}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.4} /></Sequence>
       <Sequence from={W.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.flyer[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={W.cta[0] + 66}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
@@ -513,6 +527,51 @@ const Hook: React.FC<{t: number}> = ({t}) => {
       </div>
       <AbsoluteFill style={{background: '#fff', opacity: flash, pointerEvents: 'none'}} />
     </AbsoluteFill>
+  );
+};
+
+/* conteo de piezas por sistema (desglose mecánico del SX4 4x4 AT) */
+const SYSTEMS: [string, number, string][] = [
+  ['Motor', 30, 'Motor completo · soportes · alternador'],
+  ['Carrocería', 22, 'Puertas · capot · portalón'],
+  ['Electrónica', 19, 'ECU · tablero · módulos'],
+  ['Suspensión', 13, 'Amortiguadores · bandejas'],
+  ['Interior', 12, 'Asientos · volante · airbags'],
+  ['4x4 y transmisión', 10, 'Homocinéticas · cardán · diferencial'],
+  ['Frenos', 8, 'Calipers · ABS · servofreno'],
+  ['Iluminación', 6, 'Focos · neblineros · stop'],
+  ['Combustible', 6, 'Bomba · estanque · escape'],
+  ['Sensores', 5, 'MAP · CKP · CMP'],
+  ['Climatización', 4, 'Radiador · condensador'],
+  ['Ruedas', 1, 'Llantas'],
+];
+const CountScene: React.FC<{t: number}> = ({t}) => {
+  const n = Math.round(interpolate(t, [4, 34], [0, 100], {...cl, easing: E.out}));
+  const done = t >= 34;
+  const pop = sp(t, 34, 8, 260);
+  return (
+    <div style={{position: 'absolute', top: 240, left: 60, right: 140, fontFamily: MONT, color: '#fff'}}>
+      <div style={{fontSize: 30, fontWeight: 800, letterSpacing: '0.16em', color: CYAN, opacity: fade(t, 0)}}>SE DESARMA COMPLETO</div>
+      <div style={{display: 'flex', alignItems: 'baseline', gap: 18, marginTop: 4}}>
+        <span style={{fontSize: 150, fontWeight: 900, fontStyle: 'italic', lineHeight: 1, fontVariantNumeric: 'tabular-nums', transform: `scale(${done ? 1 + 0.12 * (1 - pop) : 1})`, display: 'inline-block', transformOrigin: 'left bottom'}}>+{n}</span>
+        <span style={{fontSize: 46, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1.05}}>repuestos<br /><span style={{background: K.red, padding: '0 10px'}}>de este SX4</span></span>
+      </div>
+      <div style={{marginTop: 26, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12}}>
+        {SYSTEMS.map(([name, c, ex], i) => {
+          const k = sp(t, 36 + i * 4, 14, 230);
+          return (
+            <div key={name} style={{background: 'rgba(10,11,13,0.9)', border: '1.5px solid rgba(255,255,255,0.22)', borderRadius: 14, padding: '10px 14px', height: 104, boxSizing: 'border-box', opacity: Math.min(1, k * 2), transform: `translateY(${(1 - k) * 24}px)`}}>
+              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                <span style={{fontSize: 27, fontWeight: 900}}>{name}</span>
+                <span style={{fontSize: 34, fontWeight: 900, color: '#4ADE80', fontVariantNumeric: 'tabular-nums'}}>{c}</span>
+              </div>
+              <div style={{marginTop: 6, fontSize: 19, fontWeight: 600, color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{ex}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{marginTop: 16, fontSize: 24, fontWeight: 700, color: 'rgba(255,255,255,0.75)', opacity: fade(t, 96)}}>Consulta disponibilidad por WhatsApp · +56 9 5381 7335</div>
+    </div>
   );
 };
 
