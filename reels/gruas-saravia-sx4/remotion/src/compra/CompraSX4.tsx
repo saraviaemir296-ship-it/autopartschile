@@ -4,6 +4,7 @@ import {Grain, Seg, Shot, segFrames} from '../v2/Shot';
 import {Caption4, MONT, W} from '../v2/Type4';
 import {Wa} from '../v2/LogoReveal';
 import {TruckWipe} from '../v2/TruckAccel';
+import {AvailableLead, DesarmeCTA, OrderFlow} from './Leads';
 import {E, K, cl} from '../v2/look';
 
 /**
@@ -18,11 +19,12 @@ export const C = {
   llegada: [576, 651],
   papeles: [651, 741],
   grua: [741, 831],
-  ficha: [831, 936],
-  busqueda: [936, 1041],
-  cta: [1041, 1131],
+  ficha: [831, 951],
+  busqueda: [951, 1011],
+  compra: [1011, 1146],
+  cta: [1146, 1281],
 } as const;
-export const C_TOTAL = 1131;
+export const C_TOTAL = 1281;
 const at = (r: readonly [number, number]) => ({from: r[0], durationInFrames: r[1] - r[0]});
 const S = (f: string) => staticFile(f);
 
@@ -356,50 +358,77 @@ export const CompraSX4: React.FC = () => {
         </TruckWipe>
       </Sequence>
 
-      {/* 7 · PUBLICADO en autopartschile.cl */}
+      {/* 7 · YA DISPONIBLE + COTIZA POR WHATSAPP (grabación real del sitio) */}
       <Sequence {...at(C.ficha)}>
-        <Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 3.4, rate: 2.4}, {from: 6.6, take: 4.5, rate: 2.1}]} />
-        <Sequence from={6}><NewBadge y={1380} /></Sequence>
-        <Sequence from={40}><Sticker text="Ya está publicado" sub="autopartschile.cl" red y={1520} /></Sequence>
+        <Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 3.4, rate: 2.4}, {from: 6.6, take: 4.5, rate: 1.4}]} />
+        <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 70%)'}} />
+        <AvailableLead dur={120} />
       </Sequence>
 
-      {/* 8 · PIDE TU REPUESTO */}
+      {/* 8 · BUSCA "SX4" (rápido) */}
       <Sequence {...at(C.busqueda)}>
-        <Screen src="compra/web-busqueda.mp4" segs={[{from: 1.0, take: 5.0, rate: 2.9}, {from: 6.4, take: 5.0, rate: 2.9}]} />
-        <Sequence from={50}><CartBump x={820} y={1250} /></Sequence>
-        <Sticker text="Pide tu repuesto" sub="Busca SX4 en autopartschile.cl" red y={1420} />
+        <Screen src="compra/web-busqueda.mp4" segs={[{from: 1.0, take: 5.0, rate: 2.5}]} />
+        <Sticker text="Busca tu repuesto" sub="Con foto y precio real" red y={1420} />
       </Sequence>
 
-      {/* 9 · CIERRE */}
+      {/* 9 · COMPRA → PAGO → DESPACHO → CLIENTE FELIZ */}
+      <Sequence {...at(C.compra)}>
+        <AbsoluteFill style={{filter: 'blur(12px) brightness(0.45)'}}>
+          <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.5, take: 2.25, rate: 0.5}]} look="warm" zoom={[1.1, 1.16]} />
+        </AbsoluteFill>
+        <OrderFlow dur={135} />
+      </Sequence>
+
+      {/* 10 · CIERRE DESARMADURÍA */}
       <Sequence {...at(C.cta)}>
         <AbsoluteFill style={{filter: 'blur(10px)'}}>
-          <Shot src="footage/IMG_3244.mp4" segs={[{from: 2.0, take: 1.5, rate: 0.5}]} look="warm" zoom={[1.1, 1.14]} />
+          <Shot src="footage/IMG_3240.mp4" segs={[{from: 8.0, take: 2.25, rate: 0.5}]} zoom={[1.1, 1.14]} />
         </AbsoluteFill>
-        <CTA dur={90} />
+        <DesarmeCTA dur={135} />
       </Sequence>
 
       <Grain opacity={0.05} />
 
       {/* música: casi muda bajo tu voz, sube en la historia */}
-      <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, 405, 418, 1120, 1131], [0.07, 0.07, 0.75, 0.75, 0], cl)} />
-      {[411 + 30, 411 + 52, 411 + 74].map((x) => (
+      <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, 405, 418, 1270, 1281], [0.07, 0.07, 0.7, 0.7, 0], cl)} />
+      {/* chat */}
+      {[411 + 30, 411 + 52].map((x) => (
         <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
       ))}
+      <Sequence from={411 + 74}><Audio src={S('audio/sfx_kaching.wav')} volume={0.6} /></Sequence>
       <Sequence from={529}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      {/* oferta: tachado, monedas mientras baja el contador, ka-ching al final */}
       <Sequence from={576 + 6}><Audio src={S('audio/sfx_metal.wav')} volume={0.25} /></Sequence>
-      {Array.from({length: 9}, (_, i) => 576 + 10 + i * 3).map((x) => (
-        <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.22} /></Sequence>
-      ))}
-      <Sequence from={576 + 40}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
-      <Sequence from={651}><Audio src={S('audio/sfx_impact.wav')} volume={0.6} /></Sequence>
-      <Sequence from={651 + 44}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.55} /></Sequence>
-      <Sequence from={651 + 70}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
+      <Sequence from={576 + 10}><Audio src={S('audio/sfx_coins.wav')} volume={0.55} /></Sequence>
+      <Sequence from={576 + 38}><Audio src={S('audio/sfx_kaching.wav')} volume={0.65} /></Sequence>
+      <Sequence from={576 + 40}><Audio src={S('audio/sfx_coin.wav')} volume={0.5} /></Sequence>
+      {/* trato hecho + pago */}
+      <Sequence from={651}><Audio src={S('audio/sfx_impact.wav')} volume={0.55} /></Sequence>
+      <Sequence from={651 + 44}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
+      <Sequence from={651 + 46}><Audio src={S('audio/sfx_coins.wav')} volume={0.5} /></Sequence>
+      <Sequence from={651 + 70}><Audio src={S('audio/sfx_kaching.wav')} volume={0.65} /></Sequence>
+      {/* grúa */}
       <Sequence from={741 - 26}><Audio src={S('audio/sfx_rev.wav')} volume={0.65} /></Sequence>
       <Sequence from={741 - 16}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
-      <Sequence from={831 + 6}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
-      <Sequence from={831 + 8}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
-      <Sequence from={936 + 50}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
-      <Sequence from={1039}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
+      {/* ya disponible + cotiza */}
+      <Sequence from={831 + 4}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
+      <Sequence from={831 + 6}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
+      {[831 + 38, 831 + 44, 831 + 50].map((x) => (
+        <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
+      ))}
+      <Sequence from={831 + 70}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
+      <Sequence from={831 + 76}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
+      {/* compra: toque, pago aprobado (ka-ching), despacho, entrega */}
+      <Sequence from={1011 + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
+      <Sequence from={1011 + 40}><Audio src={S('audio/sfx_kaching.wav')} volume={0.65} /></Sequence>
+      <Sequence from={1011 + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
+      <Sequence from={1011 + 96}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
+      <Sequence from={1011 + 98}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
+      {/* cierre */}
+      <Sequence from={1146}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.55} /></Sequence>
+      {[1146 + 26, 1146 + 33, 1146 + 40, 1146 + 47].map((x) => (
+        <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
+      ))}
       {/* tu voz completa */}
       <Sequence from={0} durationInFrames={411}><Audio src={S('compra/talk.mp4')} startFrom={24} /></Sequence>
     </AbsoluteFill>
