@@ -172,10 +172,10 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
         <Bg />
         <Car scan={scan} zoom={interpolate(f, [0, 100], [1.12, 1.0], {...cl, easing: E.out})} />
         <Sequence durationInFrames={58}>
-          <Title kicker="¿SE ACUERDAN DEL SX4" text="de las" red="109 multas?" t={f} />
+          <Title kicker="DUEÑOS DE SUZUKI SX4" text="¿Buscas" red="repuestos?" t={f} />
         </Sequence>
         <Sequence from={58} durationInFrames={87}>
-          <Title kicker="ENTRÓ A DESARME" text="Mira lo que" red="trae adentro" t={f - 58} />
+          <Title kicker="SX4 2006–2015 · 1.6 M16A" text="Llegaron con" red="precio real" t={f - 58} />
         </Sequence>
         <Sequence from={A.motorTag[0]} durationInFrames={45}>
           <Marker p={PARTS[0]} t={f - A.motorTag[0]} active />
@@ -281,29 +281,51 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
 
 const CTA: React.FC<{t: number}> = ({t}) => {
   const p = sp(t, 0, 13, 200);
-  const typed = 'motor SX4'.slice(0, Math.max(0, Math.floor((t - 50) / 3)));
+  const typed = 'SX4'.slice(0, Math.max(0, Math.floor((t - 46) / 5)));
+  const sent = t > 66;
+  const pop = sp(t, 66, 10, 260);
   return (
-    <div style={{position: 'absolute', top: 260, left: 60, right: 140, fontFamily: MONT, color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-      <div style={{background: '#fff', borderRadius: 22, padding: '12px 26px', opacity: Math.min(1, p * 2), transform: `scale(${0.85 + 0.15 * p})`, transformOrigin: 'left'}}>
-        <Img src={S('compra/logo-desarmaduria.svg')} style={{height: 150, display: 'block'}} />
+    <div style={{position: 'absolute', top: 250, left: 60, right: 140, fontFamily: MONT, color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+      <div style={{background: '#fff', borderRadius: 22, padding: '10px 24px', opacity: Math.min(1, p * 2), transform: `scale(${0.85 + 0.15 * p})`, transformOrigin: 'left'}}>
+        <Img src={S('compra/logo-desarmaduria.svg')} style={{height: 120, display: 'block'}} />
       </div>
-      <div style={{marginTop: 40, fontSize: 84, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1, opacity: fade(t, 10), transform: `translateY(${(1 - fade(t, 10)) * 20}px)`}}>
-        Comenta el <span style={{background: K.red, padding: '0 12px'}}>repuesto</span>
-        <br />que buscas
+      <div style={{marginTop: 34, fontSize: 80, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1, opacity: fade(t, 10), transform: `translateY(${(1 - fade(t, 10)) * 20}px)`}}>
+        Escribe <span style={{background: '#25D366', padding: '0 12px'}}>“SX4”</span>
+        <br />al WhatsApp
       </div>
-      <div style={{marginTop: 26, fontSize: 38, fontWeight: 700, opacity: fade(t, 24)}}>y te respondemos con foto y precio</div>
-      <div style={{marginTop: 34, width: '100%', display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.25)', borderRadius: 99, padding: '14px 18px 14px 28px', opacity: fade(t, 36)}}>
-        <span style={{flex: 1, fontSize: 36, fontWeight: 700, color: typed ? '#fff' : 'rgba(255,255,255,0.45)'}}>{typed || 'Agrega un comentario…'}</span>
-        <div style={{width: 64, height: 64, borderRadius: 99, background: K.red, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          <svg width="34" height="34" viewBox="0 0 24 24"><path d="M3 20l18-8L3 4v6l12 2-12 2z" fill="#fff" /></svg>
+      <div style={{marginTop: 22, fontSize: 36, fontWeight: 700, opacity: fade(t, 24)}}>y te respondemos con foto, precio y despacho</div>
+      {/* chat de WhatsApp */}
+      <div style={{marginTop: 30, width: '100%', borderRadius: 26, overflow: 'hidden', background: '#0B141A', border: '1.5px solid rgba(255,255,255,0.15)', opacity: fade(t, 32), transform: `translateY(${(1 - fade(t, 32)) * 30}px)`}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14, background: '#1F2C34', padding: '14px 20px'}}>
+          <div style={{width: 54, height: 54, borderRadius: 99, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'}}>
+            <Img src={S('compra/logo-desarmaduria.svg')} style={{width: 50}} />
+          </div>
+          <div>
+            <div style={{fontSize: 30, fontWeight: 800}}>Desarmaduría Saravia</div>
+            <div style={{fontSize: 22, color: '#8696A0'}}>+56 9 5381 7335</div>
+          </div>
+        </div>
+        <div style={{height: 120, padding: '18px 20px', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start'}}>
+          {sent && (
+            <div style={{background: '#005C4B', borderRadius: 14, padding: '10px 18px', fontSize: 38, fontWeight: 700, transform: `scale(${pop})`, transformOrigin: 'right top'}}>
+              SX4 <span style={{fontSize: 20, color: '#8FD3C4', marginLeft: 8}}>✓✓</span>
+            </div>
+          )}
+        </div>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', background: '#1F2C34'}}>
+          <div style={{flex: 1, background: '#2A3942', borderRadius: 99, padding: '12px 22px', fontSize: 32, color: !sent && typed ? '#fff' : '#8696A0'}}>{!sent && typed ? typed : 'Mensaje'}</div>
+          <div style={{width: 62, height: 62, borderRadius: 99, background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${t > 62 && t < 70 ? 0.88 : 1})`}}>
+            <svg width="32" height="32" viewBox="0 0 24 24"><path d="M3 20l18-8L3 4v6l12 2-12 2z" fill="#0B141A" /></svg>
+          </div>
         </div>
       </div>
-      <div style={{marginTop: 46, display: 'flex', alignItems: 'center', gap: 16, fontSize: 62, fontWeight: 900, opacity: fade(t, 90), transform: `scale(${0.9 + 0.1 * fade(t, 90)})`, transformOrigin: 'left'}}>
-        <Wa s={64} /> +56 9 5381 7335
+      <div style={{marginTop: 34, display: 'flex', alignItems: 'center', gap: 16, fontSize: 60, fontWeight: 900, opacity: fade(t, 84), transform: `scale(${0.9 + 0.1 * fade(t, 84)})`, transformOrigin: 'left'}}>
+        <Wa s={62} /> +56 9 5381 7335
       </div>
-      <div style={{marginTop: 18, fontSize: 34, fontWeight: 800, opacity: fade(t, 100)}}>
+      <div style={{marginTop: 14, fontSize: 30, fontWeight: 800, opacity: fade(t, 96)}}>
         autopartschile.cl · <span style={{color: CYAN}}>Despacho a todo Chile</span>
       </div>
+      <div style={{marginTop: 8, fontSize: 26, fontWeight: 600, color: 'rgba(255,255,255,0.7)', opacity: fade(t, 104)}}>o comenta la pieza que buscas</div>
     </div>
   );
 };
