@@ -4,6 +4,7 @@ import {Grain} from '../v2/Shot';
 import {MONT} from '../v2/Type4';
 import {Wa} from '../v2/LogoReveal';
 import {E, K, cl} from '../v2/look';
+import {OrderFlow} from '../compra/Leads';
 
 /**
  * SX4 · vuelta en 360° alrededor del auto. En cada pieza la toma se congela,
@@ -13,7 +14,7 @@ const S = (f: string) => staticFile(f);
 const CYAN = '#7FE3FF';
 const NAVY = '#06122A';
 
-type Part = {name: string; short: string; x: number; y: number; price: string; img?: string; card?: 'left' | 'right'};
+type Part = {name: string; short: string; x: number; y: number; price: string; img?: string; card?: 'left' | 'right'; oem?: string};
 type Freeze = {still: string; xray: string; parts: Part[]};
 
 const F1: Freeze = {
@@ -21,8 +22,8 @@ const F1: Freeze = {
   xray: 'atlas/walk_f1_xray.jpg',
   parts: [
     {name: 'Motor M16A 1.6 VVT', short: 'Motor M16A 1.6 VVT', x: 300, y: 950, price: 'Andando · consultar', card: 'right'},
-    {name: 'Computador ECU AT 4x4', short: 'Computador ECU AT 4x4', x: 560, y: 900, price: '$224.990', card: 'left'},
-    {name: 'Radiador de calefacción', short: 'Radiador calefacción', x: 880, y: 850, price: '$94.990', img: 'p-radiador.jpg', card: 'left'},
+    {name: 'Computador ECU AT 4x4', short: 'Computador ECU AT 4x4', x: 560, y: 900, price: '$224.990', img: 'p-ecu.jpg', card: 'left', oem: 'OEM 33910-54L20 · 2006–2014'},
+    {name: 'Radiador de calefacción', short: 'Radiador calefacción', x: 880, y: 850, price: '$94.990', img: 'p-radiador.jpg', card: 'left', oem: 'OEM 74120-61MA0'},
   ],
 };
 const F2: Freeze = {
@@ -54,11 +55,12 @@ const DUR = {
   w2: 73,
   f3: freezeLen(F3, START.f3),
   sum: 190,
-  web: 100,
+  web: 80,
+  buy: 135,
   cta: 150,
 };
 type Key = keyof typeof DUR;
-const ORDER: Key[] = ['w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'cta'];
+const ORDER: Key[] = ['w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'buy', 'cta'];
 export const W = (() => {
   const o = {} as Record<Key, [number, number]>;
   let c = 0;
@@ -224,7 +226,7 @@ const Card: React.FC<{p: Part; t: number}> = ({p, t}) => {
   const out = interpolate(t, [PART_STEP - 14, PART_STEP - 8], [1, 0], cl);
   const cx = p.card === 'right' ? 1080 - 140 - CARD_W : 60;
   const cy = 450;
-  const cardH = p.img ? 380 : 160;
+  const cardH = (p.img ? 380 : 160) + (p.oem ? 40 : 0);
   const money = p.price.startsWith('$');
   const target = priceNum(p.price);
   const run = interpolate(t, [14, 32], [0, 1], {...cl, easing: E.out});
@@ -244,13 +246,14 @@ const Card: React.FC<{p: Part; t: number}> = ({p, t}) => {
             </div>
           )}
           <div style={{display: 'inline-block', marginTop: p.img ? 10 : 0, background: '#fff', color: '#0b0b0b', fontWeight: 900, fontSize: 36, padding: '6px 16px 8px', borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.4)'}}>{p.name}</div>
+          {p.oem && <div style={{marginTop: 6, display: 'inline-block', background: NAVY, border: `2px solid ${CYAN}`, color: CYAN, fontWeight: 800, fontSize: 22, padding: '3px 12px', borderRadius: 8, letterSpacing: '0.04em'}}>{p.oem}</div>}
           <div style={{marginTop: 8, display: 'flex', alignItems: 'center', gap: 10}}>
             <span style={{background: money ? K.red : '#16A34A', color: '#fff', fontWeight: 900, fontSize: money ? 44 : 32, padding: '2px 16px 4px', borderRadius: 10, fontVariantNumeric: 'tabular-nums', boxShadow: '0 10px 26px rgba(0,0,0,0.4)'}}>
               {money ? clp(target * run) + (run >= 1 ? suffix : '') : p.price}
             </span>
           </div>
           {t >= 30 && (
-            <div style={{position: 'absolute', right: p.img ? -6 : 0, top: p.img ? 170 : 118, transform: `rotate(-10deg) scale(${2.2 - 1.2 * stamp})`, opacity: Math.min(1, stamp * 3), border: '5px solid #4ADE80', color: '#4ADE80', background: 'rgba(6,18,42,0.85)', borderRadius: 10, padding: '4px 14px', fontWeight: 900, fontSize: 30, letterSpacing: '0.06em'}}>✓ PUBLICADO</div>
+            <div style={{position: 'absolute', right: p.img ? -10 : 0, top: p.img ? 14 : 118, transform: `rotate(-10deg) scale(${2.2 - 1.2 * stamp})`, opacity: Math.min(1, stamp * 3), border: '5px solid #4ADE80', color: '#4ADE80', background: 'rgba(6,18,42,0.85)', borderRadius: 10, padding: '4px 14px', fontWeight: 900, fontSize: 30, letterSpacing: '0.06em'}}>✓ PUBLICADO</div>
           )}
         </div>
       </div>
@@ -364,22 +367,30 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       </Sequence>
 
       {/* 7 · la web real */}
-      <Sequence from={W.web[0]} durationInFrames={50}>
+      <Sequence from={W.web[0]} durationInFrames={40}>
         <OffthreadVideo src={S('atlas/web_7362820f.mp4')} startFrom={15} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
         <div style={{position: 'absolute', left: 210, top: 711, width: 312, height: 46, background: '#0b0b0b', color: '#fff', fontFamily: MONT, fontWeight: 800, fontSize: 23, display: 'flex', alignItems: 'center', paddingLeft: 10, whiteSpace: 'nowrap'}}>INTEGRAL ·&nbsp;<span style={{color: '#FCA5A5'}}>CAJA MALA</span></div>
       </Sequence>
-      <Sequence from={W.web[0] + 50} durationInFrames={50}>
+      <Sequence from={W.web[0] + 40} durationInFrames={40}>
         <OffthreadVideo src={S('atlas/web_b02931f7.mp4')} startFrom={15} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
       </Sequence>
       <Sequence {...at(W.web)}>
         <div style={{position: 'absolute', left: 0, right: 80, top: 1330, display: 'flex', justifyContent: 'center', fontFamily: MONT}}>
           <div style={{background: K.red, color: '#fff', fontWeight: 900, fontSize: 50, padding: '12px 26px 16px', borderRadius: 16, textTransform: 'uppercase', fontStyle: 'italic', boxShadow: '0 16px 40px rgba(0,0,0,0.45)', transform: `scale(${sp(f - W.web[0])}) rotate(-2deg)`}}>
-            {f - W.web[0] < 50 ? 'Ya publicado en la web' : 'Búscalo en 30 segundos'}
+            {f - W.web[0] < 40 ? 'Ya publicado en la web' : 'Búscalo en 30 segundos'}
           </div>
         </div>
       </Sequence>
 
-      {/* 8 · CTA WhatsApp */}
+      {/* 8 · cómo comprar: pago → aprobado → despacho → recibido */}
+      <Sequence {...at(W.buy)}>
+        <Bg />
+        <AbsoluteFill style={{opacity: 0.22, filter: 'blur(6px)'}}><Img src={S(F1.xray)} style={{width: 1080, height: 1920}} /></AbsoluteFill>
+        <div style={{position: 'absolute', top: 150, left: 0, right: 80, textAlign: 'center', fontFamily: MONT, fontWeight: 800, fontSize: 28, letterSpacing: '0.18em', color: CYAN, opacity: fade(f - W.buy[0], 0)}}>ASÍ DE FÁCIL COMPRAS</div>
+        <OrderFlow dur={135} />
+      </Sequence>
+
+      {/* 9 · CTA WhatsApp */}
       <Sequence {...at(W.cta)}>
         <Bg />
         <CTA t={f - W.cta[0]} />
@@ -417,6 +428,11 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       ))}
       <Sequence from={W.enc[0] + 66}><Audio src={S('audio/sfx_correct.wav')} volume={0.35} /></Sequence>
       <Sequence from={W.sum[0] + 70}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.4} /></Sequence>
+      <Sequence from={W.buy[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
+      <Sequence from={W.buy[0] + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.buy[0] + 40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.buy[0] + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
+      <Sequence from={W.buy[0] + 96}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
       <Sequence from={W.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.cta[0] + 66}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
     </AbsoluteFill>
