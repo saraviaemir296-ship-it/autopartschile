@@ -24,7 +24,10 @@ export const C = {
   compra: [1011, 1146],
   cta: [1146, 1281],
 } as const;
-export const C_TOTAL = 1281;
+const C_BODY = 1281;
+/** Gancho (cold open) antes de tu saludo. */
+export const HOOK = 72;
+export const C_TOTAL = HOOK + C_BODY;
 const at = (r: readonly [number, number]) => ({from: r[0], durationInFrames: r[1] - r[0]});
 const S = (f: string) => staticFile(f);
 
@@ -290,7 +293,7 @@ const GRUA_RAMP: Seg[] = [
 ];
 const GRUA_HERO: Seg[] = [{from: 0.6, take: 1.75, rate: 0.9}];
 
-export const CompraSX4: React.FC = () => {
+const CompraStory: React.FC = () => {
   const rampF = segFrames(GRUA_RAMP);
   // talk.mp4 se usa desde 0,8 s y sin cortes. tiempos de palabras en segundos del archivo.
   const T0 = 0.8;
@@ -308,6 +311,7 @@ export const CompraSX4: React.FC = () => {
         <Sequence durationInFrames={120}><Sticker text="Compramos un SX4 con la caja mala" sub="Desarmaduría Saravia" /></Sequence>
         <Sequence from={cut(4.1)} durationInFrames={50}><Pill text="Suzuki SX4 2010 · 4x4 · automático" y={1080} /></Sequence>
         <Sequence from={cut(8.8)} durationInFrames={45}><Pill text="Con nuestra grúa · Grúas Saravia" y={1080} red /></Sequence>
+        <Sequence from={120} durationInFrames={291}><OpenLoop /></Sequence>
         {line(0.9, 2.05, [['Muy', 0.9], ['buenas,', 1.1], ['mi', 1.4], ['gente.', 1.8, true]])}
         {line(2.05, 3.35, [['Ya', 2.1], ['nos', 2.2], ['encontramos', 2.6], ['en', 3.0], ['camino', 3.3]])}
         {line(3.35, 5.45, [['a', 3.4], ['retirar', 3.6], ['el', 3.9], ['vehículo', 4.1, true], ['que', 4.4], ['compramos.', 4.8, true]])}
@@ -389,8 +393,6 @@ export const CompraSX4: React.FC = () => {
 
       <Grain opacity={0.05} />
 
-      {/* música: casi muda bajo tu voz, sube en la historia */}
-      <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, 405, 418, 1270, 1281], [0.07, 0.07, 0.7, 0.7, 0], cl)} />
       {/* chat */}
       {[411 + 30, 411 + 52].map((x) => (
         <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
@@ -434,3 +436,66 @@ export const CompraSX4: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/** Loop abierto durante tu saludo: recuerda la pregunta sin taparte la cara. */
+const OpenLoop: React.FC = () => {
+  const f = useCurrentFrame();
+  const p = spring({frame: f, fps: 30, config: {damping: 14, stiffness: 200}});
+  const pulse = 1 + 0.04 * Math.max(0, Math.sin(f / 9));
+  return (
+    <div style={{position: 'absolute', top: 270, left: 60, right: 140, display: 'flex', opacity: Math.min(1, p * 2), transform: `translateY(${(1 - p) * -30}px)`}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(8,8,8,0.72)', border: '1.5px solid rgba(255,255,255,0.18)', borderRadius: 16, padding: '12px 20px', fontFamily: MONT, color: '#fff', fontWeight: 800, fontSize: 34}}>
+        <span style={{textDecoration: 'line-through', textDecorationColor: K.red, textDecorationThickness: 4, color: 'rgba(255,255,255,0.7)'}}>$1.500.000</span>
+        <span>→</span>
+        <span style={{background: K.red, padding: '2px 10px', borderRadius: 8}}>$1.100.000</span>
+        <span style={{display: 'inline-block', transform: `scale(${pulse})`, fontWeight: 900}}>¿Aceptó?</span>
+      </div>
+    </div>
+  );
+};
+
+/** COLD OPEN: el conflicto (precio) en el primer segundo, pregunta abierta. */
+const Hook: React.FC = () => {
+  const f = useCurrentFrame();
+  const a = spring({frame: f, fps: 30, config: {damping: 12, stiffness: 230, mass: 0.6}});
+  const strike = interpolate(f, [22, 28], [0, 1], cl);
+  const b = spring({frame: f - 30, fps: 30, config: {damping: 11, stiffness: 240, mass: 0.6}});
+  const q = spring({frame: f - 48, fps: 30, config: {damping: 9, stiffness: 260, mass: 0.6}});
+  const flash = interpolate(f, [0, 4], [0.9, 0], cl) + interpolate(f, [29, 30, 34], [0, 0.5, 0], cl);
+  const out = interpolate(f, [HOOK - 6, HOOK], [1, 0], cl);
+  return (
+    <AbsoluteFill style={{opacity: out}}>
+      <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.6, take: 2.6, rate: 1}]} look="warm" zoom={[1.22, 1.04]} origin="55% 42%" darken={0.35} />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.6) 100%)'}} />
+      <div style={{position: 'absolute', top: 300, left: 60, right: 140, fontFamily: MONT, color: '#fff'}}>
+        <div style={{display: 'inline-block', background: '#fff', color: '#111', fontWeight: 900, fontSize: 30, letterSpacing: '0.12em', padding: '8px 16px', borderRadius: 10, opacity: Math.min(1, a * 2)}}>SUZUKI SX4 · CAJA MALA</div>
+        <div style={{marginTop: 22, fontSize: 52, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', opacity: Math.min(1, a * 2), transform: `translateX(${(1 - a) * -60}px)`}}>Nos pidió</div>
+        <div style={{position: 'relative', display: 'inline-block', fontSize: 132, fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.6 + 0.4 * a})`, transformOrigin: 'left center', opacity: f >= 30 ? 0.55 : 1}}>
+          $1.500.000
+          <div style={{position: 'absolute', left: -8, right: -8, top: '50%', height: 12, background: K.red, transformOrigin: 'left', transform: `scaleX(${strike}) rotate(-4deg)`}} />
+        </div>
+        <div style={{marginTop: 34, fontSize: 52, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', opacity: Math.min(1, b * 2), transform: `translateX(${(1 - b) * -60}px)`}}>Le ofrecimos</div>
+        <div style={{display: 'inline-block', marginTop: 6, background: K.red, padding: '4px 22px 10px', borderRadius: 14, fontSize: 132, fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.4 + 0.6 * b}) rotate(${(1 - b) * -6}deg)`, transformOrigin: 'left center', opacity: Math.min(1, b * 2), boxShadow: '0 20px 50px rgba(0,0,0,0.45)'}}>
+          $1.100.000
+        </div>
+        <div style={{marginTop: 40, fontSize: 110, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', transform: `scale(${q})`, transformOrigin: 'left center', textShadow: '0 10px 30px rgba(0,0,0,0.6)'}}>¿Aceptó?</div>
+      </div>
+      <AbsoluteFill style={{background: '#fff', opacity: flash, pointerEvents: 'none'}} />
+    </AbsoluteFill>
+  );
+};
+
+export const CompraSX4: React.FC = () => (
+  <AbsoluteFill style={{backgroundColor: '#000'}}>
+    <Sequence durationInFrames={HOOK}><Hook /></Sequence>
+    <Sequence from={HOOK}><CompraStory /></Sequence>
+    {/* sfx gancho */}
+    <Audio src={S('audio/sfx_impact.wav')} volume={0.7} />
+    <Sequence from={22}><Audio src={S('audio/sfx_coin.wav')} volume={0.5} /></Sequence>
+    <Sequence from={26}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
+    <Sequence from={31}><Audio src={S('audio/sfx_kaching.wav')} volume={0.7} /></Sequence>
+    <Sequence from={48}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
+    {/* música: fuerte en el gancho, casi muda bajo tu voz, sube en la historia */}
+    <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.07, 0.07, 0.7, 0.7, 0], cl)} />
+  </AbsoluteFill>
+);
