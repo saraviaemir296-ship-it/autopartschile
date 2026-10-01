@@ -438,10 +438,6 @@ const CompraStory: React.FC = () => {
       <Sequence from={C.compra[0] + 106}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       {/* cierre: vine boom en la pausa antes de "compramos" */}
       <Sequence from={C.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
-      <Sequence from={C.cta[0] + 45}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.55} /></Sequence>
-      {[85, 119, 155, 170, 185].map((x) => (
-        <Sequence key={x} from={C.cta[0] + x}><Audio src={S('audio/sfx_tick.wav')} volume={0.18} /></Sequence>
-      ))}
       {/* tu voz completa */}
       <Sequence from={0} durationInFrames={411}><Audio src={S('compra/talk.mp4')} startFrom={24} /></Sequence>
     </AbsoluteFill>
