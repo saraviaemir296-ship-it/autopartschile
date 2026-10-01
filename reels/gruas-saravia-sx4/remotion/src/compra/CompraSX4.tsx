@@ -398,7 +398,7 @@ const CompraStory: React.FC = () => {
       {[411 + 30, 411 + 52].map((x) => (
         <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
       ))}
-      <Sequence from={411 + 74}><Audio src={S('audio/sfx_kaching.wav')} volume={0.6} /></Sequence>
+      <Sequence from={411 + 74}><Audio src={S('audio/sfx_fah.wav')} volume={0.85} /></Sequence>
       <Sequence from={529}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
       {/* oferta: tachado, monedas mientras baja el contador, ka-ching al final */}
       <Sequence from={576 + 6}><Audio src={S('audio/sfx_metal.wav')} volume={0.25} /></Sequence>
@@ -486,17 +486,18 @@ const Hook: React.FC = () => {
   );
 };
 
-export const CompraSX4: React.FC = () => (
+export const CompraSX4: React.FC<{music?: boolean}> = ({music = true}) => (
   <AbsoluteFill style={{backgroundColor: '#000'}}>
     <Sequence durationInFrames={HOOK}><Hook /></Sequence>
     <Sequence from={HOOK}><CompraStory /></Sequence>
     {/* sfx gancho */}
-    <Audio src={S('audio/sfx_impact.wav')} volume={0.7} />
+    <Audio src={S('audio/sfx_fah.wav')} volume={0.85} />
+    <Audio src={S('audio/sfx_impact.wav')} volume={0.45} />
     <Sequence from={22}><Audio src={S('audio/sfx_coin.wav')} volume={0.5} /></Sequence>
     <Sequence from={26}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
     <Sequence from={31}><Audio src={S('audio/sfx_kaching.wav')} volume={0.7} /></Sequence>
     <Sequence from={48}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.6} /></Sequence>
     {/* música: fuerte en el gancho, casi muda bajo tu voz, sube en la historia */}
-    <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.07, 0.07, 0.7, 0.7, 0], cl)} />
+    {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.07, 0.07, 0.7, 0.7, 0], cl)} />}
   </AbsoluteFill>
 );
