@@ -495,13 +495,22 @@ const Hook: React.FC = () => {
   );
 };
 
-export const CompraSX4: React.FC<{music?: boolean}> = ({music = true}) => (
+export const CompraSX4: React.FC<{music?: boolean; fah?: 'precio' | 'multas'}> = ({music = true, fah = 'precio'}) => (
   <AbsoluteFill style={{backgroundColor: '#000'}}>
     <Sequence durationInFrames={HOOK}><Hook /></Sequence>
     <Sequence from={HOOK}><CompraStory /></Sequence>
     {/* sfx gancho: FAH en el precio, ka-ching en la oferta, vine boom en la pregunta */}
-    <Audio src={S('audio/sfx_fah.wav')} volume={(fr) => interpolate(fr, [0, 48, 56], [0.9, 0.9, 0.08], cl)} />
-    <Audio src={S('audio/sfx_impact.wav')} volume={0.3} />
+    {fah === 'precio' ? (
+      <>
+        <Audio src={S('audio/sfx_fah.wav')} volume={(fr) => interpolate(fr, [0, 48, 56], [0.9, 0.9, 0.08], cl)} />
+        <Audio src={S('audio/sfx_impact.wav')} volume={0.3} />
+      </>
+    ) : (
+      <>
+        <Audio src={S('audio/sfx_pa.wav')} volume={0.9} />
+        <Sequence from={18}><Audio src={S('audio/sfx_fah.wav')} volume={(fr) => interpolate(fr, [0, 34, 40], [0.9, 0.9, 0.08], cl)} /></Sequence>
+      </>
+    )}
     <Sequence from={58}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.65} /></Sequence>
     <Sequence from={78}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.8} /></Sequence>
     {/* música: fuerte en el gancho, casi muda bajo tu voz, sube en la historia */}
