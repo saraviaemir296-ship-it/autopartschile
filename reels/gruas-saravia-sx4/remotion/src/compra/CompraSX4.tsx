@@ -203,12 +203,12 @@ const Pill: React.FC<{text: string; y?: number; red?: boolean}> = ({text, y = 10
 };
 
 /** Contador de precio: de `from` a `to`, el precio anterior se tacha y aparece la diferencia. */
-const PriceDrop: React.FC<{from: number; to: number; y?: number}> = ({from, to, y = 760}) => {
+const PriceDrop: React.FC<{from: number; to: number; y?: number; label?: string; tagText?: string}> = ({from, to, y = 760, label = 'NUESTRA OFERTA', tagText}) => {
   const f = useCurrentFrame();
   const enter = spring({frame: f, fps: 30, config: {damping: 14, stiffness: 200}});
   const t = interpolate(f, [10, 38], [0, 1], {...cl, easing: E.inOut});
   const strike = interpolate(f, [6, 14], [0, 1], cl);
-  const tag = spring({frame: f - 40, fps: 30, config: {damping: 10, stiffness: 220, mass: 0.6}});
+  const tag = spring({frame: f - 36, fps: 30, config: {damping: 10, stiffness: 220, mass: 0.6}});
   return (
     <div style={{position: 'absolute', top: y, left: 0, right: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: MONT, transform: `scale(${0.8 + 0.2 * enter})`, opacity: Math.min(1, enter * 2)}}>
       <div style={{position: 'relative', fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,0.75)'}}>
@@ -216,11 +216,11 @@ const PriceDrop: React.FC<{from: number; to: number; y?: number}> = ({from, to, 
         <div style={{position: 'absolute', left: -6, right: -6, top: '52%', height: 6, background: K.red, transformOrigin: 'left', transform: `scaleX(${strike}) rotate(-3deg)`}} />
       </div>
       <div style={{marginTop: 10, background: '#fff', color: '#111', borderRadius: 22, padding: '10px 30px 14px', boxShadow: '0 20px 50px rgba(0,0,0,0.45)'}}>
-        <div style={{fontSize: 24, fontWeight: 800, letterSpacing: '0.2em', color: K.red}}>NUESTRA OFERTA</div>
+        <div style={{fontSize: 24, fontWeight: 800, letterSpacing: '0.2em', color: K.red}}>{label}</div>
         <div style={{fontSize: 96, fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums'}}>{fmt(from + (to - from) * t)}</div>
       </div>
-      <div style={{marginTop: 14, background: K.red, color: '#fff', fontSize: 36, fontWeight: 900, padding: '8px 20px', borderRadius: 12, transform: `scale(${tag}) rotate(-4deg)`, opacity: f >= 40 ? 1 : 0}}>
-        −{fmt(from - to)}
+      <div style={{marginTop: 14, background: K.red, color: '#fff', fontSize: tagText ? 54 : 36, fontWeight: 900, textTransform: 'uppercase', padding: '8px 20px', borderRadius: 12, transform: `scale(${tag}) rotate(-4deg)`, opacity: f >= 36 ? 1 : 0}}>
+        {tagText ?? `−${fmt(from - to)}`}
       </div>
     </div>
   );
@@ -241,14 +241,14 @@ const Stamp: React.FC<{text: string; color: string; y: number; rot?: number}> = 
 };
 
 /** Barra de pago que se completa. */
-const PayBar: React.FC<{y: number}> = ({y}) => {
+const PayBar: React.FC<{y: number; amount: number}> = ({y, amount}) => {
   const f = useCurrentFrame();
   const t = interpolate(f, [0, 26], [0, 1], {...cl, easing: E.inOut});
   return (
     <div style={{position: 'absolute', top: y, left: 120, right: 200, fontFamily: MONT, color: '#fff', opacity: interpolate(f, [0, 6], [0, 1], cl)}}>
       <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 28, fontWeight: 800}}>
         <span>Pago</span>
-        <span style={{fontVariantNumeric: 'tabular-nums'}}>{fmt(1100000 * t)}</span>
+        <span style={{fontVariantNumeric: 'tabular-nums'}}>{fmt(amount * t)}</span>
       </div>
       <div style={{marginTop: 10, height: 16, borderRadius: 99, background: 'rgba(255,255,255,0.25)', overflow: 'hidden'}}>
         <div style={{height: '100%', width: `${t * 100}%`, background: '#22C55E', borderRadius: 99}} />
@@ -338,15 +338,16 @@ const CompraStory: React.FC = () => {
       {/* 4 · LLEGADA + OFERTA (contador) */}
       <Sequence {...at(C.llegada)}>
         <Shot src="compra/llegada_anon.mp4" segs={[{from: 0, take: 1.13, rate: 0.45}]} zoom={[1.02, 1.1]} origin="40% 45%" audio={0.15} darken={0.2} />
-        <PriceDrop from={1500000} to={1100000} y={330} />
+        <PriceDrop from={1500000} to={500000} y={330} label="NUESTRA 1ª OFERTA" tagText="Tenía 109 multas" />
       </Sequence>
 
       {/* 5 · ACEPTÓ + PAGO */}
       <Sequence {...at(C.papeles)}>
         <Shot src="compra/papeles_anon.mp4" segs={[{from: 0, take: 2.37, rate: 0.79}]} zoom={[1.04, 1.1]} audio={0.15} darken={0.15} />
-        <Sequence durationInFrames={48}><Stamp text="¡Trato hecho!" color="#16A34A" y={420} /></Sequence>
-        <Sequence from={44}><Stamp text="Pagado" color="#16A34A" y={420} rot={6} /></Sequence>
-        <Sequence from={44}><PayBar y={680} /></Sequence>
+        <Sticker text="Cerramos en $700.000" sub="Cliente conforme ✓" red y={250} />
+        <Sequence durationInFrames={48}><Stamp text="¡Trato hecho!" color="#16A34A" y={520} /></Sequence>
+        <Sequence from={44}><Stamp text="Pagado" color="#16A34A" y={520} rot={6} /></Sequence>
+        <Sequence from={44}><PayBar y={780} amount={700000} /></Sequence>
       </Sequence>
 
       {/* 6 · A LA GRÚA (entra con el camión del logo acelerando) */}
@@ -447,7 +448,7 @@ const OpenLoop: React.FC = () => {
       <div style={{display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(8,8,8,0.72)', border: '1.5px solid rgba(255,255,255,0.18)', borderRadius: 16, padding: '12px 20px', fontFamily: MONT, color: '#fff', fontWeight: 800, fontSize: 34}}>
         <span style={{textDecoration: 'line-through', textDecorationColor: K.red, textDecorationThickness: 4, color: 'rgba(255,255,255,0.7)'}}>$1.500.000</span>
         <span>→</span>
-        <span style={{background: K.red, padding: '2px 10px', borderRadius: 8}}>$1.100.000</span>
+        <span style={{background: K.red, padding: '2px 10px', borderRadius: 8}}>$500.000</span>
         <span style={{display: 'inline-block', transform: `scale(${pulse})`, fontWeight: 900}}>¿Abusamos?</span>
       </div>
     </div>
@@ -476,7 +477,7 @@ const Hook: React.FC = () => {
         </div>
         <div style={{marginTop: 34, fontSize: 52, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', opacity: Math.min(1, b * 2), transform: `translateX(${(1 - b) * -60}px)`}}>Le ofrecimos</div>
         <div style={{display: 'inline-block', marginTop: 6, background: K.red, padding: '4px 22px 10px', borderRadius: 14, fontSize: 132, fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.4 + 0.6 * b}) rotate(${(1 - b) * -6}deg)`, transformOrigin: 'left center', opacity: Math.min(1, b * 2), boxShadow: '0 20px 50px rgba(0,0,0,0.45)'}}>
-          $1.100.000
+          $500.000
         </div>
         <div style={{marginTop: 40, fontSize: 92, lineHeight: 1, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', transform: `scale(${q})`, transformOrigin: 'left center', textShadow: '0 10px 30px rgba(0,0,0,0.6)'}}>¿Fuimos<br />abusadores?</div>
       </div>
