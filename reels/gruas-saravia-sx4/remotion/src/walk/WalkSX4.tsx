@@ -43,7 +43,7 @@ const ALL = [...F1.parts, ...F2.parts, ...F3.parts];
 
 /* línea de tiempo (se arma por duraciones) */
 const PART_STEP = 60;
-const START = {f1: 40, f2: 26, f3: 26};
+const START = {f1: 90, f2: 26, f3: 26};
 const freezeLen = (fr: Freeze, start: number) => start + fr.parts.length * PART_STEP + 6;
 const DUR = {
   w0: 48,
@@ -53,7 +53,7 @@ const DUR = {
   f2: freezeLen(F2, START.f2),
   w2: 73,
   f3: freezeLen(F3, START.f3),
-  sum: 105,
+  sum: 190,
   web: 100,
   cta: 150,
 };
@@ -292,6 +292,16 @@ const Bg: React.FC = () => (
   </AbsoluteFill>
 );
 
+/* locución (voz chilena): dónde parte cada frase y cuánto dura (frames) */
+const VO = [
+  {file: 'audio/vo/sx4p_1.wav', at: 6, len: 142},
+  {file: 'audio/vo/sx4p_2.wav', at: 152, len: 107},
+  {file: 'audio/vo/sx4p_3.wav', at: W.sum[0] + 8, len: 82},
+  {file: 'audio/vo/sx4p_4.wav', at: W.sum[0] + 100, len: 84},
+  {file: 'audio/vo/sx4p_5.wav', at: W.cta[0] + 14, len: 117},
+];
+const talking = (fr: number) => VO.some((v) => fr >= v.at - 4 && fr < v.at + v.len + 4);
+
 export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
   const f = useCurrentFrame();
   return (
@@ -378,7 +388,10 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Grain opacity={0.05} />
 
       {/* sonido */}
-      {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, W.enc[0] - 4, W.enc[0] + 4, W.enc[1] - 4, W.enc[1] + 4, W_TOTAL - 15, W_TOTAL], [0.55, 0.55, 0.12, 0.12, 0.55, 0.55, 0], cl)} />}
+      {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => (talking(fr) ? 0.2 : fr >= W.enc[0] && fr < W.enc[1] ? 0.12 : 0.55) * interpolate(fr, [W_TOTAL - 15, W_TOTAL], [1, 0], cl)} />}
+      {VO.map((v) => (
+        <Sequence key={v.file} from={v.at}><Audio src={S(v.file)} volume={1} /></Sequence>
+      ))}
       {[W.f1[0], W.f2[0], W.f3[0]].map((x) => (
         <React.Fragment key={x}>
           <Sequence from={x}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
