@@ -60,9 +60,10 @@ const DUR = {
   web: 80,
   buy: 135,
   cta: 150,
+  flyer: 75,
 };
 type Key = keyof typeof DUR;
-const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'buy', 'cta'];
+const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'buy', 'cta', 'flyer'];
 export const W = (() => {
   const o = {} as Record<Key, [number, number]>;
   let c = 0;
@@ -72,7 +73,7 @@ export const W = (() => {
   }
   return o;
 })();
-export const W_TOTAL = W.cta[1];
+export const W_TOTAL = W.flyer[1];
 
 /* frames absolutos en que cada pieza "llega" a la web */
 const ARRIVALS: number[] = [
@@ -413,6 +414,13 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
         <CTA t={f - W.cta[0]} />
       </Sequence>
 
+      {/* 10 · flyer con datos del local (para captura) */}
+      <Sequence {...at(W.flyer)}>
+        <AbsoluteFill style={{backgroundColor: '#fff', opacity: fade(f - W.flyer[0], 0, 6)}}>
+          <Img src={S('atlas/flyer-sx4.jpg')} style={{width: 1080, height: 1920, objectFit: 'cover', transform: `scale(${interpolate(f - W.flyer[0], [0, 75], [1.0, 1.03], cl)})`}} />
+        </AbsoluteFill>
+      </Sequence>
+
       <Grain opacity={0.05} />
 
       {/* sonido */}
@@ -458,6 +466,7 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={W.card[0] - 4}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.w0[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
       <Sequence from={W.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.flyer[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={W.cta[0] + 66}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
     </AbsoluteFill>
   );
