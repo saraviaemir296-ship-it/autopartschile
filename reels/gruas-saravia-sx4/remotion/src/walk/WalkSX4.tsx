@@ -60,11 +60,12 @@ const DUR = {
   count: 165,
   web: 80,
   buy: 135,
+  loc: 220,
   cta: 150,
   flyer: 75,
 };
 type Key = keyof typeof DUR;
-const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'count', 'web', 'buy', 'cta', 'flyer'];
+const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'count', 'web', 'buy', 'loc', 'cta', 'flyer'];
 export const W = (() => {
   const o = {} as Record<Key, [number, number]>;
   let c = 0;
@@ -416,6 +417,11 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
         <OrderFlow dur={135} />
       </Sequence>
 
+      {/* 8b · ubicación: desde el cielo → Google Maps → cae el pin → casa matriz */}
+      <Sequence {...at(W.loc)}>
+        <LocationScene t={f - W.loc[0]} />
+      </Sequence>
+
       {/* 9 · CTA WhatsApp */}
       <Sequence {...at(W.cta)}>
         <Bg />
@@ -479,6 +485,13 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       ))}
       <Sequence from={W.count[0] + 34}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.count[0] + 36}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.4} /></Sequence>
+      <Sequence from={W.loc[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.5} /></Sequence>
+      <Sequence from={W.loc[0] + 30}><Audio src={S('audio/sfx_map.wav')} volume={0.4} /></Sequence>
+      <Sequence from={W.loc[0] + 44}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
+      <Sequence from={W.loc[0] + 58}><Audio src={S('audio/sfx_impact.wav')} volume={0.5} /></Sequence>
+      <Sequence from={W.loc[0] + 62}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.loc[0] + 70}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={W.loc[0] + 112}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.flyer[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={W.cta[0] + 66}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
@@ -572,6 +585,88 @@ const CountScene: React.FC<{t: number}> = ({t}) => {
       </div>
       <div style={{marginTop: 16, fontSize: 24, fontWeight: 700, color: 'rgba(255,255,255,0.75)', opacity: fade(t, 96)}}>Consulta disponibilidad por WhatsApp · +56 9 5381 7335</div>
     </div>
+  );
+};
+
+/* ubicación en Google Maps con caída desde el cielo y la casa matriz real */
+const MAP_W = 1179;
+const MAP_H = 990;
+const PIN = {x: 588, y: 440};
+const LocationScene: React.FC<{t: number}> = ({t}) => {
+  const MAP_END = 112;
+  // cámara bajando: mapa lejano → cerca
+  const z = interpolate(t, [0, 58], [0.4, 1.55], {...cl, easing: E.inOut}) + interpolate(t, [58, MAP_END], [0, 0.1], cl);
+  const sx = 540, sy = 860;
+  const left = sx - PIN.x * z;
+  const top = sy - PIN.y * z;
+  const clouds = interpolate(t, [0, 26], [1, 0], cl);
+  const cloudZ = interpolate(t, [0, 26], [2.2, 4.5], {...cl, easing: E.in});
+  const pinY = interpolate(t, [44, 58], [-900, 0], {...cl, easing: E.in});
+  const bounce = t >= 58 ? Math.exp(-(t - 58) / 5) * Math.sin((t - 58) * 1.3) * 26 : 0;
+  const landed = t >= 58;
+  const lab = sp(t, 62, 13, 220);
+  const card = sp(t, 70, 15, 170);
+  const toLocal = interpolate(t, [MAP_END - 6, MAP_END], [0, 1], cl);
+  return (
+    <AbsoluteFill style={{backgroundColor: '#E8EAED', overflow: 'hidden'}}>
+      {t < MAP_END && (
+        <>
+          {/* fondo de mapa difuso para los bordes cuando el mapa está lejos */}
+          <Img src={S('atlas/maps.png')} style={{position: 'absolute', left: -600, top: -200, width: 2280, height: 2300, objectFit: 'cover', filter: 'blur(18px) saturate(0.6)', opacity: 0.9}} />
+          <Img src={S('atlas/maps.png')} style={{position: 'absolute', left, top, width: MAP_W * z, height: MAP_H * z, boxShadow: z < 1 ? '0 30px 80px rgba(0,0,0,0.35)' : 'none', borderRadius: z < 1 ? 20 : 0}} />
+          {/* sombra y ondas del pin */}
+          {landed && [0, 1].map((i) => {
+            const k = ((t - 58 + i * 12) % 26) / 26;
+            return <div key={i} style={{position: 'absolute', left: sx - 80 * k - 10, top: sy - 22 * k - 4, width: 160 * k + 20, height: 44 * k + 8, borderRadius: '50%', border: `4px solid rgba(234,67,53,${0.7 * (1 - k)})`}} />;
+          })}
+          <div style={{position: 'absolute', left: sx - 34, top: sy - 6, width: 68, height: 16, borderRadius: '50%', background: 'rgba(0,0,0,0.3)', transform: `scale(${interpolate(t, [44, 58], [0.2, 1], cl)})`}} />
+          {/* pin estilo Google Maps */}
+          <svg width={110} height={150} viewBox="0 0 24 34" style={{position: 'absolute', left: sx - 55, top: sy - 146 + pinY - bounce, filter: 'drop-shadow(0 8px 12px rgba(0,0,0,0.35))'}}>
+            <path d="M12 0C5.4 0 0 5.2 0 11.7 0 20.4 12 34 12 34s12-13.6 12-22.3C24 5.2 18.6 0 12 0z" fill="#EA4335" />
+            <circle cx="12" cy="11.6" r="4.6" fill="#A50E0E" />
+          </svg>
+          {/* etiqueta del local (tapa el texto original del mapa) */}
+          <div style={{position: 'absolute', left: sx + 50, top: sy - 150, fontFamily: MONT, opacity: Math.min(1, lab * 2), transform: `scale(${0.7 + 0.3 * lab})`, transformOrigin: 'left center'}}>
+            <div style={{background: '#fff', borderRadius: 14, padding: '10px 18px', boxShadow: '0 10px 30px rgba(0,0,0,0.25)'}}>
+              <div style={{color: '#C5221F', fontWeight: 800, fontSize: 36, lineHeight: 1.05}}>Desarmaduría<br />Saravia</div>
+            </div>
+          </div>
+          {/* ficha tipo Google */}
+          <div style={{position: 'absolute', left: 40, right: 40, top: 1150, background: '#fff', borderRadius: 30, padding: '30px 34px', fontFamily: MONT, color: '#202124', boxShadow: '0 -10px 50px rgba(0,0,0,0.25)', transform: `translateY(${(1 - card) * 900}px)`, opacity: t >= 68 ? 1 : 0}}>
+            <div style={{fontSize: 52, fontWeight: 800, lineHeight: 1.05}}>Desarmaduría Saravia</div>
+            <div style={{marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, fontSize: 32, color: '#5F6368', fontWeight: 600}}>
+              <span style={{color: '#202124', fontWeight: 800}}>4,8</span>
+              <span style={{color: '#FBBC04', letterSpacing: 2}}>★★★★★</span>
+              <span>(16)</span>
+            </div>
+            <div style={{marginTop: 8, fontSize: 28, color: '#5F6368', fontWeight: 600}}>Tienda de repuestos para automóvil</div>
+            <div style={{marginTop: 8, fontSize: 30, fontWeight: 700}}>Av. Lo Blanco 1072, La Pintana · <span style={{color: '#188038'}}>Casa matriz</span></div>
+            <div style={{marginTop: 20, display: 'flex', gap: 14}}>
+              <div style={{background: '#0B57D0', color: '#fff', borderRadius: 99, padding: '14px 30px', fontSize: 30, fontWeight: 800}}>Cómo llegar</div>
+              <div style={{background: '#D3E3FD', color: '#0B57D0', borderRadius: 99, padding: '14px 30px', fontSize: 30, fontWeight: 800}}>Llamar</div>
+            </div>
+          </div>
+          {/* nubes al inicio (bajando desde el cielo) */}
+          <AbsoluteFill style={{opacity: clouds}}>
+            <Img src={S('atlas/cielo.jpg')} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${cloudZ})`, transformOrigin: '50% 0%', filter: 'blur(2px) brightness(1.1)'}} />
+          </AbsoluteFill>
+          <AbsoluteFill style={{background: '#fff', opacity: toLocal}} />
+        </>
+      )}
+      {/* la casa matriz real: la cámara baja del cielo al letrero */}
+      {t >= MAP_END && (
+        <>
+          <OffthreadVideo src={S('atlas/local.mp4')} startFrom={6} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          <AbsoluteFill style={{background: '#fff', opacity: interpolate(t, [MAP_END, MAP_END + 6], [1, 0], cl)}} />
+          <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.65) 100%)'}} />
+          <div style={{position: 'absolute', left: 60, right: 140, top: 1190, fontFamily: MONT, color: '#fff'}}>
+            <div style={{display: 'inline-block', background: K.red, fontWeight: 900, fontStyle: 'italic', fontSize: 52, padding: '6px 20px 10px', borderRadius: 14, textTransform: 'uppercase', transform: `scale(${sp(t, MAP_END + 30)})`, transformOrigin: 'left'}}>Nuestra casa matriz</div>
+            <div style={{marginTop: 12, fontSize: 36, fontWeight: 800, opacity: fade(t, MAP_END + 40)}}>Av. Lo Blanco 1072 · La Pintana</div>
+            <div style={{marginTop: 6, fontSize: 28, fontWeight: 700, opacity: fade(t, MAP_END + 50)}}>Lun–Vie 9:30–18:30 · Sáb 10:00–16:00</div>
+          </div>
+        </>
+      )}
+    </AbsoluteFill>
   );
 };
 
