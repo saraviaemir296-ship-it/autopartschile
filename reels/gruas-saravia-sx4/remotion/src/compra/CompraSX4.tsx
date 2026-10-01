@@ -179,12 +179,40 @@ const TalkShot: React.FC<{from: number; dur: number; cuts: number[]}> = ({from, 
   const cur = levels[idx % levels.length];
   const since = idx === 0 ? 99 : f - cuts[idx - 1];
   const z = since < 3 ? prev + (cur - prev) * (since / 3) : cur;
+  // fondo resumido: cada frase muestra lo que viene (tú quedas recortado al frente)
+  const b = [0, ...cuts, dur];
+  const bg = (i: number) => ({from: b[i], durationInFrames: b[i + 1] - b[i]});
+  const BG = {blur: 5, darken: 0.38};
   return (
     <AbsoluteFill style={{overflow: 'hidden', backgroundColor: '#000'}}>
-      <AbsoluteFill style={{transform: `scale(${z})`, transformOrigin: '50% 32%', filter: 'contrast(1.06) saturate(0.95)'}}>
-        <OffthreadVideo src={S('compra/talk.mp4')} startFrom={Math.round(from * 30)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-      </AbsoluteFill>
+      <Sequence {...bg(0)}>
+        <AbsoluteFill style={{transform: `scale(${z})`, transformOrigin: '50% 32%', filter: 'contrast(1.06) saturate(0.95)'}}>
+          <OffthreadVideo src={S('compra/talk.mp4')} startFrom={Math.round(from * 30)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+        </AbsoluteFill>
+      </Sequence>
+      <Sequence {...bg(1)}><Shot src="compra/drive.mp4" segs={[{from: 0.4, take: 2.0, rate: 1.4}]} zoom={[1.12, 1.2]} {...BG} /></Sequence>
+      <Sequence {...bg(2)}><Shot src="footage/IMG_3232.mp4" segs={[{from: 0.3, take: 2.4, rate: 1.1}]} zoom={[1.1, 1.18]} origin="45% 60%" {...BG} /></Sequence>
+      <Sequence {...bg(3)}><ChatBG dur={b[4] - b[3]} /></Sequence>
+      <Sequence {...bg(4)}><Shot src="footage/IMG_3240.mp4" segs={[{from: 4.6, take: 2.0, rate: 1.2}]} zoom={[1.1, 1.2]} origin="38% 62%" {...BG} /></Sequence>
+      <Sequence {...bg(5)}><Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 2.0, rate: 1.6}]} /><AbsoluteFill style={{background: 'rgba(8,8,8,0.45)', backdropFilter: 'blur(5px)'}} /></Sequence>
+      <Sequence {...bg(6)}><Shot src="footage/IMG_3244.mp4" segs={[{from: 0.6, take: 3.6, rate: 0.93}]} look="warm" zoom={[1.1, 1.2]} origin="55% 42%" {...BG} /></Sequence>
+      <Sequence from={b[1]}>
+        <AbsoluteFill style={{transform: `scale(${z})`, transformOrigin: '50% 32%', filter: 'contrast(1.06) saturate(0.95) drop-shadow(0 0 28px rgba(0,0,0,0.55))'}}>
+          <OffthreadVideo src={S('compra/talk_cutout.webm')} startFrom={b[1]} transparent muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+        </AbsoluteFill>
+      </Sequence>
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.5) 100%)'}} />
+    </AbsoluteFill>
+  );
+};
+
+/** Pantallazo del WhatsApp (anonimizado) que sube lento, de fondo. */
+const ChatBG: React.FC<{dur: number}> = ({dur}) => {
+  const f = useCurrentFrame();
+  const ty = interpolate(f, [0, dur], [-200, -520], cl);
+  return (
+    <AbsoluteFill style={{backgroundColor: '#0b0b0b', overflow: 'hidden', filter: 'blur(4px) brightness(0.62)'}}>
+      <Img src={S('compra/whatsapp-anon.png')} style={{position: 'absolute', left: -60, top: ty, width: 1200}} />
     </AbsoluteFill>
   );
 };
