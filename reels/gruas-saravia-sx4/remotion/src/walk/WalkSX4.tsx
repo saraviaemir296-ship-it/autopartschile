@@ -11,8 +11,8 @@ import {OrderFlow} from '../compra/Leads';
  * pasa a rayos X, se muestra la pieza real con su precio y vuela a la web.
  */
 const S = (f: string) => staticFile(f);
-const CYAN = '#7FE3FF';
-const NAVY = '#06122A';
+const CYAN = '#E6EEF2';
+const NAVY = '#0A0B0D';
 
 type Part = {name: string; short: string; x: number; y: number; price: string; img?: string; card?: 'left' | 'right'; oem?: string};
 type Freeze = {still: string; xray: string; parts: Part[]};
@@ -103,7 +103,7 @@ const Title: React.FC<{kicker: string; text: string; red?: string; t: number; si
 /* contador "piezas publicadas en la web" (destino de cada pieza) */
 const Counter: React.FC<{n: number; bump: number}> = ({n, bump}) => (
   <div style={{position: 'absolute', left: 0, right: 80, top: 1390, display: 'flex', justifyContent: 'center', fontFamily: MONT}}>
-    <div style={{display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(6,18,42,0.92)', border: `2px solid ${CYAN}`, borderRadius: 99, padding: '12px 26px', color: '#fff', fontWeight: 800, fontSize: 30, boxShadow: `0 0 30px rgba(127,227,255,0.35)`, transform: `scale(${1 + 0.12 * bump})`}}>
+    <div style={{display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(10,11,13,0.92)', border: `2px solid ${CYAN}`, borderRadius: 99, padding: '12px 26px', color: '#fff', fontWeight: 800, fontSize: 30, boxShadow: `0 0 30px rgba(255,255,255,0.35)`, transform: `scale(${1 + 0.12 * bump})`}}>
       <span style={{width: 16, height: 16, borderRadius: 99, background: '#4ADE80'}} />
       autopartschile.cl · <span style={{color: '#4ADE80', fontWeight: 900}}>{n} {n === 1 ? 'pieza publicada' : 'piezas publicadas'}</span>
     </div>
@@ -135,7 +135,7 @@ const FreezeScene: React.FC<{fr: Freeze; t: number; base: number; title?: boolea
         <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 0)`}} />
         {glitch > 0 && (
           <>
-            <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 ${Math.max(0, sx - 160)}px)`, transform: 'translateX(-10px)', mixBlendMode: 'screen', opacity: 0.55, filter: 'sepia(1) saturate(6) hue-rotate(-50deg)'}} />
+            <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 ${Math.max(0, sx - 160)}px)`, transform: 'translateX(-10px)', mixBlendMode: 'screen', opacity: 0.55}} />
             <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 ${Math.max(0, sx - 160)}px)`, transform: 'translateX(10px)', mixBlendMode: 'screen', opacity: 0.45}} />
           </>
         )}
@@ -147,7 +147,7 @@ const FreezeScene: React.FC<{fr: Freeze; t: number; base: number; title?: boolea
         })}
       </AbsoluteFill>
       {scan > 0 && scan < 1 && <div style={{position: 'absolute', top: 0, bottom: 0, left: sx - 3, width: 6, background: CYAN, boxShadow: `0 0 34px 12px ${CYAN}`}} />}
-      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(6,18,42,0.92) 0%, rgba(6,18,42,0.7) 22%, rgba(6,18,42,0) 38%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(10,11,13,0.92) 0%, rgba(10,11,13,0.7) 22%, rgba(10,11,13,0) 38%)'}} />
       <HudFrame t={t} />
       {title && <Title kicker="SUZUKI SX4 2006–2015" text="Piezas recién" red="publicadas en la web" t={t - 6} size={62} />}
       {fr.parts.map((p, i) => {
@@ -192,7 +192,7 @@ const Dot: React.FC<{p: Part; t: number; active: boolean}> = ({p, t, active}) =>
   return (
     <>
       {active && <div style={{position: 'absolute', left: p.x - 60, top: p.y - 60, width: 120, height: 120, borderRadius: 99, border: `3px solid ${K.red}`, opacity: interpolate(t % 20, [0, 20], [0.9, 0]), transform: `scale(${interpolate(t % 20, [0, 20], [0.3, 1.2])})`}} />}
-      <div style={{position: 'absolute', left: p.x - 22, top: p.y - 22, width: 44, height: 44, borderRadius: 99, border: `4px solid ${active ? '#fff' : CYAN}`, background: active ? K.red : 'rgba(127,227,255,0.45)', transform: `scale(${pop * (active ? pulse : 0.6)})`, boxShadow: `0 0 26px ${active ? K.red : CYAN}`}} />
+      <div style={{position: 'absolute', left: p.x - 22, top: p.y - 22, width: 44, height: 44, borderRadius: 99, border: `4px solid ${active ? '#fff' : CYAN}`, background: active ? K.red : 'rgba(255,255,255,0.45)', transform: `scale(${pop * (active ? pulse : 0.6)})`, boxShadow: `0 0 26px ${active ? K.red : CYAN}`}} />
     </>
   );
 };
@@ -244,7 +244,7 @@ const Card: React.FC<{p: Part; t: number}> = ({p, t}) => {
       <div style={{position: 'absolute', left: cx, top: cy, width: CARD_W, perspective: 900, opacity: Math.min(1, lab * 2) * out}}>
         <div style={{transform: `rotateY(${(1 - lab) * (p.card === 'right' ? 70 : -70)}deg) scale(${0.85 + 0.15 * lab})`, transformOrigin: p.card === 'right' ? 'right center' : 'left center', fontFamily: MONT, position: 'relative'}}>
           {p.img && (
-            <div style={{width: CARD_W, height: 220, borderRadius: 16, overflow: 'hidden', border: '4px solid #fff', boxShadow: `0 16px 40px rgba(0,0,0,0.55), 0 0 30px rgba(127,227,255,${0.5 * lab})`, background: '#fff'}}>
+            <div style={{width: CARD_W, height: 220, borderRadius: 16, overflow: 'hidden', border: '4px solid #fff', boxShadow: `0 16px 40px rgba(0,0,0,0.55), 0 0 30px rgba(255,255,255,${0.5 * lab})`, background: '#fff'}}>
               <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1.15 - 0.15 * lab})`}} />
             </div>
           )}
@@ -256,7 +256,7 @@ const Card: React.FC<{p: Part; t: number}> = ({p, t}) => {
             </span>
           </div>
           {t >= 30 && (
-            <div style={{position: 'absolute', right: p.img ? -10 : 0, top: p.img ? 14 : 118, transform: `rotate(-10deg) scale(${2.2 - 1.2 * stamp})`, opacity: Math.min(1, stamp * 3), border: '5px solid #4ADE80', color: '#4ADE80', background: 'rgba(6,18,42,0.85)', borderRadius: 10, padding: '4px 14px', fontWeight: 900, fontSize: 30, letterSpacing: '0.06em'}}>✓ PUBLICADO</div>
+            <div style={{position: 'absolute', right: p.img ? -10 : 0, top: p.img ? 14 : -46, transform: `rotate(-10deg) scale(${2.2 - 1.2 * stamp})`, opacity: Math.min(1, stamp * 3), border: '5px solid #4ADE80', color: '#4ADE80', background: 'rgba(10,11,13,0.85)', borderRadius: 10, padding: '4px 14px', fontWeight: 900, fontSize: 30, letterSpacing: '0.06em'}}>✓ PUBLICADO</div>
           )}
         </div>
       </div>
@@ -293,8 +293,8 @@ const Walk: React.FC<{from: number; rate?: number}> = ({from, rate = 1}) => (
 );
 
 const Bg: React.FC = () => (
-  <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 45%, #0B2347 0%, ${NAVY} 55%, #02060F 100%)`}}>
-    <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(127,227,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(127,227,255,0.07) 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
+  <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 45%, #1C1F23 0%, ${NAVY} 55%, #000000 100%)`}}>
+    <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
   </AbsoluteFill>
 );
 
@@ -507,7 +507,7 @@ const Hook: React.FC<{t: number}> = ({t}) => {
         );
       })}
       <div style={{position: 'absolute', left: 0, right: 80, top: 1430, display: 'flex', justifyContent: 'center', fontFamily: MONT, opacity: fade(t, 40)}}>
-        <div style={{background: 'rgba(6,18,42,0.92)', border: `2px solid ${CYAN}`, borderRadius: 16, padding: '10px 26px', color: '#fff', fontWeight: 900, fontSize: 40, textTransform: 'uppercase', fontStyle: 'italic'}}>
+        <div style={{background: 'rgba(10,11,13,0.92)', border: `2px solid ${CYAN}`, borderRadius: 16, padding: '10px 26px', color: '#fff', fontWeight: 900, fontSize: 40, textTransform: 'uppercase', fontStyle: 'italic'}}>
           Repuestos originales desde <span style={{color: '#4ADE80'}}>$79.990</span>
         </div>
       </div>
@@ -522,7 +522,7 @@ const Summary: React.FC<{t: number}> = ({t}) => (
     <div style={{marginTop: 6, fontSize: 62, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1.0, opacity: fade(t, 4)}}>
       Piezas recién <span style={{background: K.red, padding: '0 12px'}}>publicadas en la web</span>
     </div>
-    <div style={{marginTop: 30, background: 'rgba(6,18,42,0.94)', border: `2px solid ${CYAN}`, borderRadius: 22, padding: '14px 24px', boxShadow: `0 0 40px rgba(127,227,255,0.25)`}}>
+    <div style={{marginTop: 30, background: 'rgba(10,11,13,0.94)', border: `2px solid ${CYAN}`, borderRadius: 22, padding: '14px 24px', boxShadow: `0 0 40px rgba(255,255,255,0.25)`}}>
       {ALL.map((p, i) => {
         const pp = sp(t, 10 + i * 6, 14, 220);
         return (
