@@ -9,9 +9,12 @@ import {CoverV2} from './v2/CoverV2';
 import {ReelV4, V4_TOTAL, v4Defaults} from './v2/ReelV4';
 import {CompraSX4, C_TOTAL} from './compra/CompraSX4';
 import {AtlasSX4, A_TOTAL} from './atlas/AtlasSX4';
+import {WalkSX4, W_TOTAL} from './walk/WalkSX4';
 
 export const Root: React.FC = () => (
   <>
+    <Composition id="WalkSX4" component={WalkSX4} durationInFrames={W_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="WalkSX4SinMusica" component={WalkSX4} durationInFrames={W_TOTAL} fps={FPS} width={W} height={H} defaultProps={{music: false}} />
     <Composition id="AtlasSX4" component={AtlasSX4} durationInFrames={A_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="AtlasSX4SinMusica" component={AtlasSX4} durationInFrames={A_TOTAL} fps={FPS} width={W} height={H} defaultProps={{music: false}} />
     <Composition id="CompraSX4" component={CompraSX4} durationInFrames={C_TOTAL} fps={FPS} width={W} height={H} />
