@@ -480,8 +480,8 @@ const Hook: React.FC = () => {
           $1.500.000
           <div style={{position: 'absolute', left: -8, right: -8, top: '50%', height: 12, background: K.red, transformOrigin: 'left', transform: `scaleX(${strike}) rotate(-4deg)`}} />
         </div>
-        <div style={{marginTop: 14, fontSize: 44, fontWeight: 800, lineHeight: 1.2, opacity: f >= 58 ? 0.6 : 1}}>
-          <span style={{opacity: Math.min(1, c1 * 2), display: 'inline-block', transform: `translateY(${(1 - c1) * 20}px)`}}>por un auto con la caja de cambios mala</span>{' '}
+        <div style={{marginTop: 14, fontSize: 42, fontWeight: 800, lineHeight: 1.2, opacity: f >= 58 ? 0.6 : 1}}>
+          <span style={{opacity: Math.min(1, c1 * 2), display: 'inline-block', transform: `translateY(${(1 - c1) * 20}px)`}}>por un auto con caja de cambios mala</span>{' '}
           <span style={{display: 'inline-block', marginTop: 8, background: K.red, padding: '2px 14px 6px', borderRadius: 10, fontSize: 54, fontWeight: 900, textTransform: 'uppercase', transform: `scale(${c2}) rotate(-2deg)`, transformOrigin: 'left center'}}>y 109 multas de TAG</span>
         </div>
         <div style={{marginTop: 30, fontSize: 52, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', opacity: Math.min(1, b * 2), transform: `translateX(${(1 - b) * -60}px)`}}>Le ofrecimos</div>
