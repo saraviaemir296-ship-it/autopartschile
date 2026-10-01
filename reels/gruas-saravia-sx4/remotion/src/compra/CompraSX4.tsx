@@ -448,7 +448,7 @@ const OpenLoop: React.FC = () => {
         <span style={{textDecoration: 'line-through', textDecorationColor: K.red, textDecorationThickness: 4, color: 'rgba(255,255,255,0.7)'}}>$1.500.000</span>
         <span>→</span>
         <span style={{background: K.red, padding: '2px 10px', borderRadius: 8}}>$1.100.000</span>
-        <span style={{display: 'inline-block', transform: `scale(${pulse})`, fontWeight: 900}}>¿Aceptó?</span>
+        <span style={{display: 'inline-block', transform: `scale(${pulse})`, fontWeight: 900}}>¿Abusamos?</span>
       </div>
     </div>
   );
@@ -478,7 +478,7 @@ const Hook: React.FC = () => {
         <div style={{display: 'inline-block', marginTop: 6, background: K.red, padding: '4px 22px 10px', borderRadius: 14, fontSize: 132, fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.03em', lineHeight: 1, transform: `scale(${0.4 + 0.6 * b}) rotate(${(1 - b) * -6}deg)`, transformOrigin: 'left center', opacity: Math.min(1, b * 2), boxShadow: '0 20px 50px rgba(0,0,0,0.45)'}}>
           $1.100.000
         </div>
-        <div style={{marginTop: 40, fontSize: 110, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', transform: `scale(${q})`, transformOrigin: 'left center', textShadow: '0 10px 30px rgba(0,0,0,0.6)'}}>¿Aceptó?</div>
+        <div style={{marginTop: 40, fontSize: 92, lineHeight: 1, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', transform: `scale(${q})`, transformOrigin: 'left center', textShadow: '0 10px 30px rgba(0,0,0,0.6)'}}>¿Fuimos<br />abusadores?</div>
       </div>
       <AbsoluteFill style={{background: '#fff', opacity: flash, pointerEvents: 'none'}} />
     </AbsoluteFill>
