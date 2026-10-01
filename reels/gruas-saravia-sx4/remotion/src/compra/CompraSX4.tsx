@@ -22,9 +22,9 @@ export const C = {
   ficha: [1091, 1266],
   busqueda: [1266, 1311],
   compra: [1311, 1446],
-  cta: [1446, 1716],
+  cta: [1446, 1776],
 } as const;
-const C_BODY = 1716;
+const C_BODY = 1776;
 /** Gancho (cold open) antes de tu saludo. */
 export const HOOK = 105;
 export const C_TOTAL = HOOK + C_BODY;
@@ -432,8 +432,9 @@ const CompraStory: React.FC = () => {
         <AbsoluteFill style={{filter: 'blur(10px)'}}>
           <Shot src="footage/IMG_3240.mp4" segs={[{from: 7.0, take: 4.0, rate: 0.45}]} zoom={[1.1, 1.16]} />
         </AbsoluteFill>
-        <DesarmeCTA dur={270} head={52} items={[85, 119, 155, 170, 185]} url={205} phone={215} />
+        <DesarmeCTA dur={330} head={52} items={[85, 119, 155, 170, 185]} url={205} phone={215} />
         <Sequence from={6}><Audio src={S('audio/vo/compra_7.wav')} /></Sequence>
+        <Sequence from={244}><CommentCTA /></Sequence>
       </Sequence>
 
       <Grain opacity={0.05} />
@@ -466,6 +467,8 @@ const CompraStory: React.FC = () => {
       <Sequence from={C.compra[0] + 106}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       {/* cierre: vine boom en la pausa antes de "compramos" */}
       <Sequence from={C.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.cta[0] + 246}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.cta[0] + 270}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
       {/* tu voz completa */}
       <Sequence from={0} durationInFrames={411}><Audio src={S('compra/talk.mp4')} startFrom={24} /></Sequence>
     </AbsoluteFill>
@@ -500,6 +503,30 @@ const PhotoCard: React.FC<{src: string; caption: string; dur: number}> = ({src, 
         </div>
       </div>
     </div>
+  );
+};
+
+/** Llamado a comentar (captación de leads por comentarios). */
+const CommentCTA: React.FC = () => {
+  const f = useCurrentFrame();
+  const p = spring({frame: f, fps: 30, config: {damping: 13, stiffness: 200}});
+  const typed = 'SX4'.slice(0, Math.max(0, Math.min(3, Math.floor((f - 16) / 4))));
+  const sent = spring({frame: f - 28, fps: 30, config: {damping: 10, stiffness: 240, mass: 0.6}});
+  return (
+    <AbsoluteFill style={{background: `rgba(8,8,8,${0.95 * Math.min(1, p * 1.5)})`, backdropFilter: `blur(${14 * Math.min(1, p)}px)`, alignItems: 'center', justifyContent: 'center', fontFamily: MONT}}>
+      <div style={{transform: `translateY(${(1 - p) * 60}px)`, opacity: Math.min(1, p * 2), display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: 80}}>
+        <svg width="120" height="120" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#fff" /><circle cx="8" cy="11" r="1.4" fill={K.red} /><circle cx="12" cy="11" r="1.4" fill={K.red} /><circle cx="16" cy="11" r="1.4" fill={K.red} /></svg>
+        <div style={{marginTop: 18, color: '#fff', fontSize: 96, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 1}}>Comenta</div>
+        <div style={{marginTop: 14, background: K.red, color: '#fff', fontSize: 150, fontWeight: 900, fontStyle: 'italic', padding: '0 34px 10px', borderRadius: 20, lineHeight: 1.05, transform: `rotate(-3deg) scale(${0.9 + 0.1 * p})`}}>“SX4”</div>
+        <div style={{marginTop: 30, color: '#fff', fontSize: 46, fontWeight: 800, textAlign: 'center', lineHeight: 1.2}}>y te mando el precio<br />del repuesto que buscas</div>
+        <div style={{marginTop: 44, width: 760, display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.25)', borderRadius: 99, padding: '16px 18px 16px 30px'}}>
+          <span style={{flex: 1, color: typed ? '#fff' : 'rgba(255,255,255,0.45)', fontSize: 38, fontWeight: 700}}>{typed || 'Agrega un comentario…'}{typed && typed.length < 3 && f % 16 < 8 ? '|' : ''}</span>
+          <div style={{width: 70, height: 70, borderRadius: 99, background: K.red, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${1 + 0.25 * Math.max(0, sent) * (f < 40 ? 1 : 0)})`}}>
+            <svg width="38" height="38" viewBox="0 0 24 24"><path d="M3 20l18-8L3 4v6l12 2-12 2z" fill="#fff" /></svg>
+          </div>
+        </div>
+      </div>
+    </AbsoluteFill>
   );
 };
 
