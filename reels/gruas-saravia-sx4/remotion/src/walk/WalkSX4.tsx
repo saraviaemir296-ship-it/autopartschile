@@ -47,6 +47,8 @@ const PART_STEP = 60;
 const START = {f1: 90, f2: 26, f3: 26};
 const freezeLen = (fr: Freeze, start: number) => start + fr.parts.length * PART_STEP + 6;
 const DUR = {
+  hook: 60,
+  card: 45,
   w0: 48,
   f1: freezeLen(F1, START.f1),
   enc: 120,
@@ -60,7 +62,7 @@ const DUR = {
   cta: 150,
 };
 type Key = keyof typeof DUR;
-const ORDER: Key[] = ['w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'buy', 'cta'];
+const ORDER: Key[] = ['hook', 'card', 'w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'buy', 'cta'];
 export const W = (() => {
   const o = {} as Record<Key, [number, number]>;
   let c = 0;
@@ -298,7 +300,7 @@ const Bg: React.FC = () => (
 /* locución (voz chilena): dónde parte cada frase y cuánto dura (frames) */
 const VO = [
   {file: 'audio/vo/sx4p_1.wav', at: 6, len: 142},
-  {file: 'audio/vo/sx4p_2.wav', at: 152, len: 107},
+  {file: 'audio/vo/sx4p_2.wav', at: W.f1[0] + 104, len: 107},
   {file: 'audio/vo/sx4p_3.wav', at: W.sum[0] + 8, len: 82},
   {file: 'audio/vo/sx4p_4.wav', at: W.sum[0] + 100, len: 84},
   {file: 'audio/vo/sx4p_5.wav', at: W.cta[0] + 14, len: 117},
@@ -309,11 +311,26 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
   const f = useCurrentFrame();
   return (
     <AbsoluteFill style={{backgroundColor: NAVY}}>
-      {/* 1 · gancho sobre la vuelta real */}
+      {/* 0 · GANCHO: llamado + ráfaga de piezas con precio */}
+      <Sequence {...at(W.hook)}>
+        <Hook t={f - W.hook[0]} />
+      </Sequence>
+
+      {/* 0b · tarjeta del local + NFC de Google */}
+      <Sequence {...at(W.card)}>
+        <OffthreadVideo src={S('atlas/tarjeta.mp4')} startFrom={3} playbackRate={0.6} muted style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${interpolate(f - W.card[0], [0, 45], [1.12, 1.0], cl)})`}} />
+        <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 30%)'}} />
+        <div style={{position: 'absolute', top: 250, left: 60, right: 140, fontFamily: MONT, color: '#fff'}}>
+          <div style={{display: 'inline-block', background: '#fff', color: '#111', fontWeight: 900, fontSize: 46, padding: '8px 20px 10px', borderRadius: 14, transform: `scale(${sp(f - W.card[0])})`, transformOrigin: 'left'}}>DESARMADURÍA SARAVIA</div>
+          <div style={{marginTop: 12, display: 'inline-block', background: K.red, fontWeight: 800, fontSize: 32, padding: '6px 18px 8px', borderRadius: 12, transform: `scale(${sp(f - W.card[0], 6)})`, transformOrigin: 'left'}}>La Pintana · Despacho a todo Chile</div>
+        </div>
+      </Sequence>
+
+      {/* 1 · arranca la vuelta real */}
       <Sequence {...at(W.w0)}>
         <Walk from={0.9} />
         <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 28%)'}} />
-        <Title kicker="DUEÑOS DE SUZUKI SX4" text="¿Buscas" red="repuestos?" t={f} />
+        <Title kicker="SUZUKI SX4 · ENTRÓ A DESARME" text="Mira lo que" red="trae adentro" t={f - W.w0[0]} />
       </Sequence>
 
       {/* 2 · congelada lateral: motor, ECU, radiador */}
@@ -433,8 +450,59 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={W.buy[0] + 40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.buy[0] + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={W.buy[0] + 96}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
+      <Audio src={S('audio/sfx_pa.wav')} volume={0.85} />
+      {[14, 26, 38].map((x) => (
+        <Sequence key={x} from={x}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
+      ))}
+      <Sequence from={40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.4} /></Sequence>
+      <Sequence from={W.card[0] - 4}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.w0[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
       <Sequence from={W.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.cta[0] + 66}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
+    </AbsoluteFill>
+  );
+};
+
+/* GANCHO: golpe "DUEÑO DE UN SUZUKI SX4" + 3 piezas reales con precio en ráfaga */
+const BURST: {img: string; price: string; name: string}[] = [
+  {img: 'p-parachoque.jpg', price: '$119.990', name: 'Parachoque'},
+  {img: 'p-focos-delanteros.jpg', price: '$119.990', name: 'Focos (par)'},
+  {img: 'p-ecu.jpg', price: '$224.990', name: 'ECU AT 4x4'},
+];
+const Hook: React.FC<{t: number}> = ({t}) => {
+  const slam = sp(t, 0, 9, 280);
+  const shake = t < 10 ? Math.sin(t * 2.7) * (10 - t) * 2 : 0;
+  const flash = interpolate(t, [0, 4], [0.9, 0], cl) + interpolate(t, [15, 16, 20], [0, 0.4, 0], cl);
+  const out = interpolate(t, [52, 60], [1, 0], cl);
+  return (
+    <AbsoluteFill style={{opacity: out}}>
+      <Bg />
+      <AbsoluteFill style={{opacity: 0.35}}><Img src={S(F3.xray)} style={{width: 1080, height: 1920, transform: `scale(${1.2 - 0.1 * (t / 60)})`}} /></AbsoluteFill>
+      <div style={{position: 'absolute', top: 250, left: 60, right: 140, fontFamily: MONT, color: '#fff', transform: `translate(${shake}px, ${-shake * 0.5}px)`}}>
+        <div style={{fontSize: 56, fontWeight: 900, fontStyle: 'italic', opacity: Math.min(1, slam * 2)}}>¿DUEÑO DE UN</div>
+        <div style={{display: 'inline-block', marginTop: 4, background: K.red, padding: '0 22px 8px', borderRadius: 14, fontSize: 138, fontWeight: 900, fontStyle: 'italic', lineHeight: 1.02, transform: `scale(${1.6 - 0.6 * slam}) rotate(-3deg)`, transformOrigin: 'left center', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'}}>SUZUKI SX4?</div>
+      </div>
+      {BURST.map((b, i) => {
+        const a = 14 + i * 12;
+        if (t < a) return null;
+        const k = sp(t, a, 10, 260);
+        const rot = [-6, 5, -3][i];
+        return (
+          <div key={i} style={{position: 'absolute', left: [110, 260, 120][i], top: [640, 830, 1010][i], width: 640, fontFamily: MONT, transform: `scale(${1.5 - 0.5 * k}) rotate(${rot}deg)`, opacity: Math.min(1, k * 2)}}>
+            <div style={{width: 640, height: 360, borderRadius: 18, overflow: 'hidden', border: '6px solid #fff', boxShadow: '0 24px 60px rgba(0,0,0,0.6)', background: '#fff'}}>
+              <Img src={S('atlas/' + b.img)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+            </div>
+            <div style={{position: 'absolute', right: -20, bottom: -26, background: K.red, color: '#fff', fontWeight: 900, fontSize: 60, padding: '4px 20px 8px', borderRadius: 14, boxShadow: '0 12px 30px rgba(0,0,0,0.5)'}}>{b.price}</div>
+            <div style={{position: 'absolute', left: -14, top: -22, background: '#fff', color: '#111', fontWeight: 900, fontSize: 34, padding: '4px 16px 6px', borderRadius: 10}}>{b.name}</div>
+          </div>
+        );
+      })}
+      <div style={{position: 'absolute', left: 0, right: 80, top: 1430, display: 'flex', justifyContent: 'center', fontFamily: MONT, opacity: fade(t, 40)}}>
+        <div style={{background: 'rgba(6,18,42,0.92)', border: `2px solid ${CYAN}`, borderRadius: 16, padding: '10px 26px', color: '#fff', fontWeight: 900, fontSize: 40, textTransform: 'uppercase', fontStyle: 'italic'}}>
+          Repuestos originales desde <span style={{color: '#4ADE80'}}>$79.990</span>
+        </div>
+      </div>
+      <AbsoluteFill style={{background: '#fff', opacity: flash, pointerEvents: 'none'}} />
     </AbsoluteFill>
   );
 };
