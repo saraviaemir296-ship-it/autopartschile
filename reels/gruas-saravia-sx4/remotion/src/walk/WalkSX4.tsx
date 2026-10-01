@@ -60,7 +60,7 @@ const DUR = {
   count: 165,
   web: 80,
   buy: 135,
-  loc: 220,
+  loc: 340,
   cta: 150,
   flyer: 75,
 };
@@ -491,7 +491,10 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={W.loc[0] + 58}><Audio src={S('audio/sfx_impact.wav')} volume={0.5} /></Sequence>
       <Sequence from={W.loc[0] + 62}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.loc[0] + 70}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-      <Sequence from={W.loc[0] + 112}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.loc[0] + 112}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.loc[0] + 138}><Audio src={S('audio/sfx_rev.wav')} volume={0.3} /></Sequence>
+      <Sequence from={W.loc[0] + 162}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
+      <Sequence from={W.loc[0] + 232}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
       <Sequence from={W.flyer[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
       <Sequence from={W.cta[0] + 66}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
@@ -592,8 +595,65 @@ const CountScene: React.FC<{t: number}> = ({t}) => {
 const MAP_W = 1179;
 const MAP_H = 990;
 const PIN = {x: 588, y: 440};
+/* animación propia: mapa oscuro en 3D, faro rojo sobre el local, radar y rutas que llegan */
+const ROUTES = [
+  'M 0 512 L 560 548 L 588 470',
+  'M 1179 606 L 620 552 L 588 470',
+  'M 420 0 L 420 500 L 560 548 L 588 470',
+];
+const Beacon: React.FC<{t: number}> = ({t}) => {
+  const tilt = interpolate(t, [0, 30], [0, 58], {...cl, easing: E.out});
+  const rot = interpolate(t, [0, 120], [-8, 10], cl);
+  const zoom = interpolate(t, [0, 120], [1.7, 2.05], cl);
+  const route = interpolate(t, [18, 70], [0, 1], {...cl, easing: E.inOut});
+  const beam = sp(t, 26, 12, 160);
+  const lab = sp(t, 50, 13, 200);
+  const flash = interpolate(t, [0, 6], [0.8, 0], cl);
+  return (
+    <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 55%, #2A0606 0%, #0A0B0D 60%, #000 100%)', overflow: 'hidden', perspective: 1500}}>
+      <div style={{position: 'absolute', left: 540 - PIN.x, top: 1050 - PIN.y, width: MAP_W, height: MAP_H, transformStyle: 'preserve-3d', transformOrigin: `${PIN.x}px ${PIN.y}px`, transform: `scale(${zoom}) rotateX(${tilt}deg) rotateZ(${rot}deg)`}}>
+        <Img src={S('atlas/maps.png')} style={{position: 'absolute', inset: 0, width: MAP_W, height: MAP_H, filter: 'invert(1) hue-rotate(180deg) grayscale(0.8) brightness(0.95) contrast(1.25)'}} />
+        <svg width={MAP_W} height={MAP_H} style={{position: 'absolute', inset: 0}}>
+          {ROUTES.map((d, i) => (
+            <g key={i}>
+              <path d={d} fill="none" stroke={K.red} strokeOpacity={0.45} strokeWidth={26} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - route} style={{filter: 'blur(8px)'}} />
+              <path d={d} fill="none" stroke="#FF3B30" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - route} />
+            </g>
+          ))}
+          {/* radar en el suelo */}
+          {[0, 1, 2].map((i) => {
+            const k = (((t - 20) + i * 14) % 42) / 42;
+            if (t < 20) return null;
+            return <circle key={i} cx={PIN.x} cy={PIN.y} r={30 + 260 * k} fill="none" stroke="#FF3B30" strokeWidth={6} strokeOpacity={0.8 * (1 - k)} />;
+          })}
+          <circle cx={PIN.x} cy={PIN.y} r={26} fill="#FF3B30" />
+          <circle cx={PIN.x} cy={PIN.y} r={12} fill="#fff" />
+        </svg>
+        {/* columna de luz que se levanta desde el local */}
+        <div style={{position: 'absolute', left: PIN.x - 40, top: PIN.y - 700, width: 80, height: 700, transformOrigin: 'bottom center', transform: `rotateX(-90deg) scaleY(${beam})`, background: 'linear-gradient(0deg, rgba(255,59,48,0.95) 0%, rgba(255,59,48,0.35) 55%, rgba(255,59,48,0) 100%)', filter: 'blur(4px)', borderRadius: 40}} />
+        <div style={{position: 'absolute', left: PIN.x - 12, top: PIN.y - 700, width: 24, height: 700, transformOrigin: 'bottom center', transform: `rotateX(-90deg) scaleY(${beam})`, background: 'linear-gradient(0deg, #fff 0%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0) 100%)'}} />
+      </div>
+      {/* etiqueta flotante */}
+      <div style={{position: 'absolute', left: 0, right: 80, top: 300, display: 'flex', justifyContent: 'center', fontFamily: MONT, opacity: Math.min(1, lab * 2), transform: `translateY(${(1 - lab) * -40}px) scale(${0.85 + 0.15 * lab})`}}>
+        <div style={{textAlign: 'center', color: '#fff'}}>
+          <div style={{display: 'inline-flex', alignItems: 'center', gap: 14, background: K.red, padding: '8px 26px 12px', borderRadius: 16, fontSize: 70, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', boxShadow: '0 0 60px rgba(255,59,48,0.6)'}}>
+            <svg width="52" height="70" viewBox="0 0 24 34"><path d="M12 0C5.4 0 0 5.2 0 11.7 0 20.4 12 34 12 34s12-13.6 12-22.3C24 5.2 18.6 0 12 0z" fill="#fff" /><circle cx="12" cy="11.6" r="4.6" fill={K.red} /></svg>
+            Estamos aquí
+          </div>
+          <div style={{marginTop: 16, fontSize: 44, fontWeight: 900}}>Desarmaduría Saravia</div>
+          <div style={{marginTop: 6, fontSize: 32, fontWeight: 700, color: 'rgba(255,255,255,0.85)'}}>Av. Lo Blanco 1072 · La Pintana</div>
+        </div>
+      </div>
+      {/* nombres de calles reales en las rutas */}
+      <div style={{position: 'absolute', left: 60, bottom: 470, fontFamily: MONT, fontWeight: 800, fontSize: 26, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.75)', opacity: fade(t, 40)}}>AV. LO BLANCO · LOS LIMONEROS</div>
+      <AbsoluteFill style={{background: '#fff', opacity: flash}} />
+    </AbsoluteFill>
+  );
+};
+
 const LocationScene: React.FC<{t: number}> = ({t}) => {
   const MAP_END = 112;
+  const BEACON_END = MAP_END + 120;
   // cámara bajando: mapa lejano → cerca
   const z = interpolate(t, [0, 58], [0.4, 1.55], {...cl, easing: E.inOut}) + interpolate(t, [58, MAP_END], [0, 0.1], cl);
   const sx = 540, sy = 860;
@@ -654,15 +714,16 @@ const LocationScene: React.FC<{t: number}> = ({t}) => {
         </>
       )}
       {/* la casa matriz real: la cámara baja del cielo al letrero */}
-      {t >= MAP_END && (
+      {t >= MAP_END && t < BEACON_END && <Beacon t={t - MAP_END} />}
+      {t >= BEACON_END && (
         <>
           <OffthreadVideo src={S('atlas/local.mp4')} startFrom={6} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-          <AbsoluteFill style={{background: '#fff', opacity: interpolate(t, [MAP_END, MAP_END + 6], [1, 0], cl)}} />
+          <AbsoluteFill style={{background: '#fff', opacity: interpolate(t, [BEACON_END, BEACON_END + 6], [1, 0], cl)}} />
           <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.65) 100%)'}} />
           <div style={{position: 'absolute', left: 60, right: 140, top: 1190, fontFamily: MONT, color: '#fff'}}>
-            <div style={{display: 'inline-block', background: K.red, fontWeight: 900, fontStyle: 'italic', fontSize: 52, padding: '6px 20px 10px', borderRadius: 14, textTransform: 'uppercase', transform: `scale(${sp(t, MAP_END + 30)})`, transformOrigin: 'left'}}>Nuestra casa matriz</div>
-            <div style={{marginTop: 12, fontSize: 36, fontWeight: 800, opacity: fade(t, MAP_END + 40)}}>Av. Lo Blanco 1072 · La Pintana</div>
-            <div style={{marginTop: 6, fontSize: 28, fontWeight: 700, opacity: fade(t, MAP_END + 50)}}>Lun–Vie 9:30–18:30 · Sáb 10:00–16:00</div>
+            <div style={{display: 'inline-block', background: K.red, fontWeight: 900, fontStyle: 'italic', fontSize: 52, padding: '6px 20px 10px', borderRadius: 14, textTransform: 'uppercase', transform: `scale(${sp(t, BEACON_END + 30)})`, transformOrigin: 'left'}}>Nuestra casa matriz</div>
+            <div style={{marginTop: 12, fontSize: 36, fontWeight: 800, opacity: fade(t, BEACON_END + 40)}}>Av. Lo Blanco 1072 · La Pintana</div>
+            <div style={{marginTop: 6, fontSize: 28, fontWeight: 700, opacity: fade(t, BEACON_END + 50)}}>Lun–Vie 9:30–18:30 · Sáb 10:00–16:00</div>
           </div>
         </>
       )}
