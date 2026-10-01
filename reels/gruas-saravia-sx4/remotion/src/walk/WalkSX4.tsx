@@ -41,26 +41,47 @@ const F3: Freeze = {
 };
 const ALL = [...F1.parts, ...F2.parts, ...F3.parts];
 
-/* línea de tiempo */
-export const W = {
-  w0: [0, 48], // vuelta 0,9 → 2,5 s
-  f1: [48, 208],
-  enc: [208, 328], // encendido real
-  w1: [328, 400], // vuelta 2,5 → 8,5 s (x2,5)
-  f2: [400, 470],
-  w2: [470, 543], // vuelta 8,5 → 14,6 s (x2,5)
-  f3: [543, 703],
-  sum: [703, 808],
-  web: [808, 908],
-  cta: [908, 1058],
-} as const;
-export const W_TOTAL = 1058;
-const PART_STEP = 44;
-const PART_START = 26;
+/* línea de tiempo (se arma por duraciones) */
+const PART_STEP = 60;
+const START = {f1: 40, f2: 26, f3: 26};
+const freezeLen = (fr: Freeze, start: number) => start + fr.parts.length * PART_STEP + 6;
+const DUR = {
+  w0: 48,
+  f1: freezeLen(F1, START.f1),
+  enc: 120,
+  w1: 72,
+  f2: freezeLen(F2, START.f2),
+  w2: 73,
+  f3: freezeLen(F3, START.f3),
+  sum: 105,
+  web: 100,
+  cta: 150,
+};
+type Key = keyof typeof DUR;
+const ORDER: Key[] = ['w0', 'f1', 'enc', 'w1', 'f2', 'w2', 'f3', 'sum', 'web', 'cta'];
+export const W = (() => {
+  const o = {} as Record<Key, [number, number]>;
+  let c = 0;
+  for (const k of ORDER) {
+    o[k] = [c, c + DUR[k]];
+    c += DUR[k];
+  }
+  return o;
+})();
+export const W_TOTAL = W.cta[1];
+
+/* frames absolutos en que cada pieza "llega" a la web */
+const ARRIVALS: number[] = [
+  ...F1.parts.map((_, i) => W.f1[0] + START.f1 + i * PART_STEP + PART_STEP - 2),
+  ...F2.parts.map((_, i) => W.f2[0] + START.f2 + i * PART_STEP + PART_STEP - 2),
+  ...F3.parts.map((_, i) => W.f3[0] + START.f3 + i * PART_STEP + PART_STEP - 2),
+];
+const countAt = (f: number) => ARRIVALS.filter((a) => f >= a).length;
+const bumpAt = (f: number) => Math.max(0, ...ARRIVALS.map((a) => (f >= a && f < a + 10 ? 1 - (f - a) / 10 : 0)));
 
 const sp = (f: number, d = 0, damping = 13, stiffness = 210) => spring({frame: f - d, fps: 30, config: {damping, stiffness, mass: 0.6}});
 const fade = (f: number, a: number, len = 8) => interpolate(f, [a, a + len], [0, 1], {...cl, easing: E.out});
-const at = (r: readonly [number, number]) => ({from: r[0], durationInFrames: r[1] - r[0]});
+const at = (r: readonly number[]) => ({from: r[0], durationInFrames: r[1] - r[0]});
 
 const Title: React.FC<{kicker: string; text: string; red?: string; t: number; size?: number}> = ({kicker, text, red, t, size = 70}) => {
   const p = sp(t, 0, 13, 200);
@@ -84,95 +105,180 @@ const Counter: React.FC<{n: number; bump: number}> = ({n, bump}) => (
   </div>
 );
 
-/* congelada: foto real → escaneo → rayos X + piezas */
-const FreezeScene: React.FC<{fr: Freeze; t: number; base: number; title?: boolean}> = ({fr, t, base, title}) => {
-  const scan = interpolate(t, [2, 24], [0, 1], {...cl, easing: E.inOut});
+/* congelada: foto real → flash → escaneo con glitch → rayos X, cámara que entra a cada pieza */
+const FreezeScene: React.FC<{fr: Freeze; t: number; base: number; title?: boolean; start: number}> = ({fr, t, base, title, start}) => {
+  const scan = interpolate(t, [3, 24], [0, 1], {...cl, easing: E.inOut});
   const sx = scan * 1080;
-  const z = interpolate(t, [0, 160], [1.0, 1.05], cl);
+  const flash = interpolate(t, [0, 5], [0.7, 0], cl);
+  // cámara: entra a la pieza activa (zoom anclado en el punto de la pieza)
+  let origin = '50% 50%';
+  let zoom = 1;
+  fr.parts.forEach((p, i) => {
+    const tt = t - (start + i * PART_STEP);
+    if (tt >= 0 && tt < PART_STEP) {
+      origin = `${p.x}px ${p.y}px`;
+      const zin = interpolate(tt, [0, 14], [0, 1], {...cl, easing: E.inOut});
+      const zout = interpolate(tt, [PART_STEP - 12, PART_STEP], [1, 0], {...cl, easing: E.inOut});
+      zoom = 1 + 0.28 * Math.min(zin, zout);
+    }
+  });
+  const glitch = scan > 0 && scan < 1 ? 1 : 0;
   return (
     <AbsoluteFill style={{backgroundColor: NAVY, overflow: 'hidden'}}>
-      <AbsoluteFill style={{transform: `scale(${z})`}}>
+      <AbsoluteFill style={{transform: `scale(${zoom})`, transformOrigin: origin}}>
         <Img src={S(fr.still)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 0 0 ${sx}px)`}} />
         <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 0)`}} />
+        {glitch > 0 && (
+          <>
+            <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 ${Math.max(0, sx - 160)}px)`, transform: 'translateX(-10px)', mixBlendMode: 'screen', opacity: 0.55, filter: 'sepia(1) saturate(6) hue-rotate(-50deg)'}} />
+            <Img src={S(fr.xray)} style={{position: 'absolute', inset: 0, width: 1080, height: 1920, clipPath: `inset(0 ${1080 - sx}px 0 ${Math.max(0, sx - 160)}px)`, transform: 'translateX(10px)', mixBlendMode: 'screen', opacity: 0.45}} />
+          </>
+        )}
+        {/* marcadores dentro de la cámara (siguen el zoom) */}
+        {fr.parts.map((p, i) => {
+          const tt = t - (start + i * PART_STEP);
+          if (tt < 0) return null;
+          return <Dot key={i} p={p} t={tt} active={tt < PART_STEP} />;
+        })}
       </AbsoluteFill>
       {scan > 0 && scan < 1 && <div style={{position: 'absolute', top: 0, bottom: 0, left: sx - 3, width: 6, background: CYAN, boxShadow: `0 0 34px 12px ${CYAN}`}} />}
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(6,18,42,0.92) 0%, rgba(6,18,42,0.7) 22%, rgba(6,18,42,0) 38%)'}} />
-      {title && <Title kicker="SUZUKI SX4 · CON PRECIO REAL" text="Piezas recién" red="publicadas en la web" t={t - 6} size={62} />}
+      <HudFrame t={t} />
+      {title && <Title kicker="SUZUKI SX4 2006–2015" text="Piezas recién" red="publicadas en la web" t={t - 6} size={62} />}
       {fr.parts.map((p, i) => {
-        const a = PART_START + i * PART_STEP;
-        const tt = t - a;
-        if (tt < 0) return null;
-        const active = tt < PART_STEP;
+        const tt = t - (start + i * PART_STEP);
+        if (tt < 0 || tt > PART_STEP + 4) return null;
         return (
           <React.Fragment key={i}>
-            <Marker p={p} t={tt} active={active} />
+            <Reticle p={p} t={tt} />
+            <Card p={p} t={tt} />
             <Fly p={p} t={tt} />
           </React.Fragment>
         );
       })}
       <Counter n={countAt(base + t)} bump={bumpAt(base + t)} />
+      <AbsoluteFill style={{background: '#fff', opacity: flash, pointerEvents: 'none'}} />
     </AbsoluteFill>
   );
 };
 
-/* frames absolutos en que cada pieza "llega" a la web */
-const ARRIVALS: number[] = (() => {
-  const out: number[] = [];
-  const add = (fr: Freeze, start: number) => fr.parts.forEach((_, i) => out.push(start + PART_START + i * PART_STEP + 40));
-  add(F1, W.f1[0]);
-  add(F2, W.f2[0]);
-  add(F3, W.f3[0]);
-  return out;
-})();
-const countAt = (f: number) => ARRIVALS.filter((a) => f >= a).length;
-const bumpAt = (f: number) => Math.max(0, ...ARRIVALS.map((a) => (f >= a && f < a + 10 ? 1 - (f - a) / 10 : 0)));
-
-const CARD_W = 400;
-const Marker: React.FC<{p: Part; t: number; active: boolean}> = ({p, t, active}) => {
-  const pop = sp(t, 0, 10, 260);
-  const pulse = 1 + 0.35 * Math.max(0, Math.sin(t / 5));
-  const lab = sp(t, 4, 14, 200);
-  const out = interpolate(t, [34, 40], [1, 0], cl);
-  const cx = p.card === 'right' ? 1080 - 140 - CARD_W : 60;
-  const cy = 450;
-  const cardH = p.img ? 360 : 140;
+/* esquinas tipo visor que encuadran toda la pantalla durante la congelada */
+const HudFrame: React.FC<{t: number}> = ({t}) => {
+  const k = sp(t, 6, 16, 160);
+  const L = 70;
+  const corner = (x: number, y: number, rx: number, ry: number) => (
+    <div style={{position: 'absolute', left: x, top: y, width: L, height: L, borderLeft: rx < 0 ? 'none' : `4px solid ${CYAN}`, borderRight: rx < 0 ? `4px solid ${CYAN}` : 'none', borderTop: ry < 0 ? 'none' : `4px solid ${CYAN}`, borderBottom: ry < 0 ? `4px solid ${CYAN}` : 'none', opacity: 0.8 * k, transform: `translate(${(1 - k) * rx * 40}px, ${(1 - k) * ry * 40}px)`}} />
+  );
   return (
     <>
-      <div style={{position: 'absolute', left: p.x - 24, top: p.y - 24, width: 48, height: 48, borderRadius: 99, border: `4px solid ${active ? '#fff' : CYAN}`, background: active ? K.red : 'rgba(127,227,255,0.4)', transform: `scale(${pop * (active ? pulse : 0.65)})`, boxShadow: `0 0 24px ${active ? K.red : CYAN}`}} />
-      {active && (
-        <>
-          <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, opacity: out}}>
-            <line x1={p.x} y1={p.y} x2={cx + CARD_W / 2} y2={cy + cardH} stroke="#fff" strokeWidth={3} strokeDasharray="1600" strokeDashoffset={1600 * (1 - lab)} />
-          </svg>
-          <div style={{position: 'absolute', left: cx, top: cy, width: CARD_W, opacity: Math.min(1, lab * 2) * out, transform: `translateY(${(1 - lab) * 16}px) scale(${0.9 + 0.1 * lab})`, transformOrigin: 'center bottom', fontFamily: MONT}}>
-            {p.img && (
-              <div style={{width: CARD_W, height: 220, borderRadius: 14, overflow: 'hidden', border: '4px solid #fff', boxShadow: '0 14px 34px rgba(0,0,0,0.5)', background: '#fff'}}>
-                <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-              </div>
-            )}
-            <div style={{display: 'inline-block', marginTop: p.img ? 10 : 0, background: '#fff', color: '#0b0b0b', fontWeight: 900, fontSize: 36, padding: '6px 16px 8px', borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.4)'}}>{p.name}</div>
-            <div style={{marginTop: 8}}>
-              <span style={{background: p.price.startsWith('$') ? K.red : '#16A34A', color: '#fff', fontWeight: 900, fontSize: p.price.startsWith('$') ? 42 : 32, padding: '2px 16px 4px', borderRadius: 10}}>{p.price}</span>
-            </div>
-          </div>
-        </>
-      )}
+      {corner(40, 470, -1, -1)}
+      {corner(1080 - 40 - L - 100, 470, 1, -1)}
+      {corner(40, 1500 - L, -1, 1)}
+      {corner(1080 - 40 - L - 100, 1500 - L, 1, 1)}
+      <div style={{position: 'absolute', left: 50, top: 1510, fontFamily: MONT, fontSize: 20, fontWeight: 800, letterSpacing: '0.2em', color: CYAN, opacity: 0.8 * k}}>SCAN · SUZUKI SX4 · M16A</div>
     </>
   );
 };
 
-/* la pieza viaja al contador de la web */
+/* punto de la pieza */
+const Dot: React.FC<{p: Part; t: number; active: boolean}> = ({p, t, active}) => {
+  const pop = sp(t, 0, 10, 260);
+  const pulse = 1 + 0.3 * Math.max(0, Math.sin(t / 4));
+  return (
+    <>
+      {active && <div style={{position: 'absolute', left: p.x - 60, top: p.y - 60, width: 120, height: 120, borderRadius: 99, border: `3px solid ${K.red}`, opacity: interpolate(t % 20, [0, 20], [0.9, 0]), transform: `scale(${interpolate(t % 20, [0, 20], [0.3, 1.2])})`}} />}
+      <div style={{position: 'absolute', left: p.x - 22, top: p.y - 22, width: 44, height: 44, borderRadius: 99, border: `4px solid ${active ? '#fff' : CYAN}`, background: active ? K.red : 'rgba(127,227,255,0.45)', transform: `scale(${pop * (active ? pulse : 0.6)})`, boxShadow: `0 0 26px ${active ? K.red : CYAN}`}} />
+    </>
+  );
+};
+
+/* visor que se cierra sobre la pieza (en coordenadas de pantalla: el punto queda fijo con el zoom) */
+const Reticle: React.FC<{p: Part; t: number}> = ({p, t}) => {
+  const k = interpolate(t, [0, 12], [0, 1], {...cl, easing: E.out});
+  const out = interpolate(t, [PART_STEP - 10, PART_STEP], [1, 0], cl);
+  const d = 150 - 70 * k;
+  const L = 34;
+  const c = (sx: number, sy: number) => (
+    <div style={{position: 'absolute', left: p.x + sx * d - (sx < 0 ? 0 : L), top: p.y + sy * d - (sy < 0 ? 0 : L), width: L, height: L, borderLeft: sx < 0 ? '5px solid #fff' : 'none', borderRight: sx > 0 ? '5px solid #fff' : 'none', borderTop: sy < 0 ? '5px solid #fff' : 'none', borderBottom: sy > 0 ? '5px solid #fff' : 'none', opacity: k * out}} />
+  );
+  return (
+    <>
+      <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, opacity: k * out}}>
+        <circle cx={p.x} cy={p.y} r={66} fill="none" stroke={CYAN} strokeWidth={3} strokeDasharray="14 10" transform={`rotate(${t * 6} ${p.x} ${p.y})`} />
+      </svg>
+      {c(-1, -1)}
+      {c(1, -1)}
+      {c(-1, 1)}
+      {c(1, 1)}
+    </>
+  );
+};
+
+const CARD_W = 400;
+const priceNum = (s: string) => Number(s.replace(/[^0-9]/g, '')) || 0;
+const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL').replace(/,/g, '.');
+
+/* tarjeta: gira en 3D, precio que corre hasta el valor real y sello PUBLICADO */
+const Card: React.FC<{p: Part; t: number}> = ({p, t}) => {
+  const lab = sp(t, 6, 15, 170);
+  const out = interpolate(t, [PART_STEP - 14, PART_STEP - 8], [1, 0], cl);
+  const cx = p.card === 'right' ? 1080 - 140 - CARD_W : 60;
+  const cy = 450;
+  const cardH = p.img ? 380 : 160;
+  const money = p.price.startsWith('$');
+  const target = priceNum(p.price);
+  const run = interpolate(t, [14, 32], [0, 1], {...cl, easing: E.out});
+  const suffix = p.price.includes('el par') ? ' el par' : '';
+  const stamp = sp(t, 30, 9, 260);
+  return (
+    <>
+      <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, opacity: out}}>
+        <line x1={p.x} y1={p.y} x2={cx + CARD_W / 2} y2={cy + cardH} stroke="#fff" strokeWidth={3} strokeDasharray="1600" strokeDashoffset={1600 * (1 - lab)} />
+        <circle cx={cx + CARD_W / 2} cy={cy + cardH} r={7 * lab} fill="#fff" />
+      </svg>
+      <div style={{position: 'absolute', left: cx, top: cy, width: CARD_W, perspective: 900, opacity: Math.min(1, lab * 2) * out}}>
+        <div style={{transform: `rotateY(${(1 - lab) * (p.card === 'right' ? 70 : -70)}deg) scale(${0.85 + 0.15 * lab})`, transformOrigin: p.card === 'right' ? 'right center' : 'left center', fontFamily: MONT, position: 'relative'}}>
+          {p.img && (
+            <div style={{width: CARD_W, height: 220, borderRadius: 16, overflow: 'hidden', border: '4px solid #fff', boxShadow: `0 16px 40px rgba(0,0,0,0.55), 0 0 30px rgba(127,227,255,${0.5 * lab})`, background: '#fff'}}>
+              <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1.15 - 0.15 * lab})`}} />
+            </div>
+          )}
+          <div style={{display: 'inline-block', marginTop: p.img ? 10 : 0, background: '#fff', color: '#0b0b0b', fontWeight: 900, fontSize: 36, padding: '6px 16px 8px', borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.4)'}}>{p.name}</div>
+          <div style={{marginTop: 8, display: 'flex', alignItems: 'center', gap: 10}}>
+            <span style={{background: money ? K.red : '#16A34A', color: '#fff', fontWeight: 900, fontSize: money ? 44 : 32, padding: '2px 16px 4px', borderRadius: 10, fontVariantNumeric: 'tabular-nums', boxShadow: '0 10px 26px rgba(0,0,0,0.4)'}}>
+              {money ? clp(target * run) + (run >= 1 ? suffix : '') : p.price}
+            </span>
+          </div>
+          {t >= 30 && (
+            <div style={{position: 'absolute', right: p.img ? -6 : 0, top: p.img ? 170 : 118, transform: `rotate(-10deg) scale(${2.2 - 1.2 * stamp})`, opacity: Math.min(1, stamp * 3), border: '5px solid #4ADE80', color: '#4ADE80', background: 'rgba(6,18,42,0.85)', borderRadius: 10, padding: '4px 14px', fontWeight: 900, fontSize: 30, letterSpacing: '0.06em'}}>✓ PUBLICADO</div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* la pieza viaja al contador de la web con estela */
 const Fly: React.FC<{p: Part; t: number}> = ({p, t}) => {
-  if (t < 32 || t > 42) return null;
-  const k = interpolate(t, [32, 42], [0, 1], {...cl, easing: E.inOut});
+  const a = PART_STEP - 14;
+  if (t < a || t > a + 14) return null;
   const x0 = p.card === 'right' ? 1080 - 140 - CARD_W / 2 : 60 + CARD_W / 2;
   const y0 = 560;
-  const x = x0 + (470 - x0) * k;
-  const y = y0 + (1420 - y0) * k - Math.sin(k * Math.PI) * 140;
+  const pos = (k: number) => ({x: x0 + (470 - x0) * k, y: y0 + (1420 - y0) * k - Math.sin(k * Math.PI) * 160});
+  const k0 = interpolate(t, [a, a + 12], [0, 1], {...cl, easing: E.inOut});
   return (
-    <div style={{position: 'absolute', left: x - 90, top: y - 50, width: 180, height: 100, borderRadius: 12, overflow: 'hidden', border: `3px solid ${CYAN}`, background: NAVY, color: CYAN, fontFamily: MONT, fontWeight: 900, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', transform: `scale(${1 - 0.6 * k})`, boxShadow: `0 0 26px ${CYAN}`}}>
-      {p.img ? <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover'}} /> : p.short}
-    </div>
+    <>
+      {[4, 3, 2, 1, 0].map((j) => {
+        const k = Math.max(0, k0 - j * 0.07);
+        const {x, y} = pos(k);
+        const main = j === 0;
+        return (
+          <div key={j} style={{position: 'absolute', left: x - 90, top: y - 50, width: 180, height: 100, borderRadius: 12, overflow: 'hidden', border: `3px solid ${CYAN}`, background: NAVY, color: CYAN, fontFamily: MONT, fontWeight: 900, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', transform: `scale(${1 - 0.6 * k})`, boxShadow: main ? `0 0 30px ${CYAN}` : 'none', opacity: main ? 1 : 0.18 * (5 - j) / 5}}>
+            {p.img ? <Img src={S('atlas/' + p.img)} style={{width: '100%', height: '100%', objectFit: 'cover'}} /> : p.short}
+          </div>
+        );
+      })}
+    </>
   );
 };
 
@@ -199,7 +305,7 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
 
       {/* 2 · congelada lateral: motor, ECU, radiador */}
       <Sequence {...at(W.f1)}>
-        <FreezeScene fr={F1} t={f - W.f1[0]} base={W.f1[0]} title />
+        <FreezeScene fr={F1} t={f - W.f1[0]} base={W.f1[0]} start={START.f1} title />
       </Sequence>
 
       {/* 3 · prueba: encendido real */}
@@ -228,7 +334,7 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
         <Counter n={countAt(f)} bump={0} />
       </Sequence>
       <Sequence {...at(W.f2)}>
-        <FreezeScene fr={F2} t={f - W.f2[0]} base={W.f2[0]} />
+        <FreezeScene fr={F2} t={f - W.f2[0]} base={W.f2[0]} start={START.f2} />
       </Sequence>
 
       {/* 5 · sigue la vuelta → frente */}
@@ -237,7 +343,7 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
         <Counter n={countAt(f)} bump={0} />
       </Sequence>
       <Sequence {...at(W.f3)}>
-        <FreezeScene fr={F3} t={f - W.f3[0]} base={W.f3[0]} />
+        <FreezeScene fr={F3} t={f - W.f3[0]} base={W.f3[0]} start={START.f3} />
       </Sequence>
 
       {/* 6 · resumen: todo lo publicado con precio */}
@@ -279,14 +385,16 @@ export const WalkSX4: React.FC<{music?: boolean}> = ({music = true}) => {
           <Sequence from={x + 2}><Audio src={S('audio/sfx_map.wav')} volume={0.4} /></Sequence>
         </React.Fragment>
       ))}
-      {[[W.f1[0], 3], [W.f2[0], 1], [W.f3[0], 3]].flatMap(([x, n]) =>
+      {[[W.f1[0] + START.f1, 3], [W.f2[0] + START.f2, 1], [W.f3[0] + START.f3, 3]].flatMap(([x, n]) =>
         Array.from({length: n}, (_, i) => {
-          const a = x + PART_START + i * PART_STEP;
+          const a = x + i * PART_STEP;
           return (
             <React.Fragment key={a}>
               <Sequence from={a}><Audio src={S('audio/sfx_blip.wav')} volume={0.45} /></Sequence>
-              <Sequence from={a + 32}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.22} /></Sequence>
-              <Sequence from={a + 40}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
+              <Sequence from={a + 14}><Audio src={S('audio/sfx_tick.wav')} volume={0.25} /></Sequence>
+              <Sequence from={a + 30}><Audio src={S('audio/sfx_correct.wav')} volume={0.2} /></Sequence>
+              <Sequence from={a + PART_STEP - 14}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.22} /></Sequence>
+              <Sequence from={a + PART_STEP - 2}><Audio src={S('audio/sfx_coin.wav')} volume={0.3} /></Sequence>
             </React.Fragment>
           );
         }),
