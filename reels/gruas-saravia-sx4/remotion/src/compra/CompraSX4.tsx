@@ -326,6 +326,7 @@ const CompraStory: React.FC = () => {
         <Chat dur={120} />
         <Sequence durationInFrames={30}><Sticker text="Nos escribió por la web" /></Sequence>
         <Sequence from={30} durationInFrames={44}><Sticker text="SX4 2010 · 4x4" sub="Automático · caja mala" /></Sequence>
+        <Sequence from={26} durationInFrames={70}><PhotoCard src="compra/sx4-foto.jpg" caption="La foto que nos mandó" dur={70} /></Sequence>
         <Sequence from={74}><Sticker text="Pidió $1.500.000" red /></Sequence>
       </Sequence>
 
@@ -398,6 +399,8 @@ const CompraStory: React.FC = () => {
       {[411 + 30, 411 + 52].map((x) => (
         <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
       ))}
+      <Sequence from={411 + 26}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
+      <Sequence from={411 + 30}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.35} /></Sequence>
       <Sequence from={411 + 74}><Audio src={S('audio/sfx_fah.wav')} volume={0.85} /></Sequence>
       <Sequence from={529}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
       {/* oferta: tachado, monedas mientras baja el contador, ka-ching al final */}
@@ -437,6 +440,26 @@ const CompraStory: React.FC = () => {
       {/* tu voz completa */}
       <Sequence from={0} durationInFrames={411}><Audio src={S('compra/talk.mp4')} startFrom={24} /></Sequence>
     </AbsoluteFill>
+  );
+};
+
+/** Foto del vehículo tipo polaroid que entra girando y sale hacia arriba. */
+const PhotoCard: React.FC<{src: string; caption: string; dur: number}> = ({src, caption, dur}) => {
+  const f = useCurrentFrame();
+  const p = spring({frame: f, fps: 30, config: {damping: 12, stiffness: 190, mass: 0.7}});
+  const o = interpolate(f, [dur - 8, dur], [0, 1], {...cl, easing: E.inOut});
+  const zoom = interpolate(f, [0, dur], [1.0, 1.08], cl);
+  return (
+    <div style={{position: 'absolute', top: 640, left: 0, right: 80, display: 'flex', justifyContent: 'center', opacity: 1 - o}}>
+      <div style={{background: '#fff', padding: '18px 18px 22px', borderRadius: 18, boxShadow: '0 30px 70px rgba(0,0,0,0.55)', transform: `translateY(${(1 - p) * 300 - o * 120}px) rotate(${(1 - p) * 10 - 3}deg) scale(${0.85 + 0.15 * p})`}}>
+        <div style={{width: 820, height: 446, overflow: 'hidden', borderRadius: 8}}>
+          <Img src={S(src)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${zoom})`}} />
+        </div>
+        <div style={{marginTop: 14, display: 'flex', alignItems: 'center', gap: 12, fontFamily: MONT, fontWeight: 800, fontSize: 34, color: '#111'}}>
+          <Wa s={38} /> {caption}
+        </div>
+      </div>
+    </div>
   );
 };
 
