@@ -16,12 +16,12 @@ const NAVY = '#06122A';
 export const A = {
   hook: [0, 100], // foto real → escaneo a radiografía
   motorTag: [100, 145],
-  motor: [145, 225], // clip real del motor
-  atlas: [225, 545],
-  web: [545, 695],
-  cta: [695, 875],
+  motor: [145, 295], // encendido real + motor
+  atlas: [295, 615],
+  web: [615, 765],
+  cta: [765, 945],
 } as const;
-export const A_TOTAL = 875;
+export const A_TOTAL = 945;
 
 /* coordenadas dentro de la foto del auto (1080x626), que va en y = CAR_Y */
 const CAR_Y = 470;
@@ -184,14 +184,28 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
 
       {/* 2 · PRUEBA: motor real */}
       <Sequence from={A.motor[0]} durationInFrames={A.motor[1] - A.motor[0]}>
-        <AbsoluteFill style={{overflow: 'hidden'}}>
-          <OffthreadVideo src={S('atlas/motor.mp4')} startFrom={Math.round(4.6 * 30)} volume={0.9} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${interpolate(f - A.motor[0], [0, 80], [1.05, 1.15], cl)})`}} />
-        </AbsoluteFill>
-        <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0) 65%, rgba(0,0,0,0.55) 100%)'}} />
+        <Sequence durationInFrames={120}>
+          <OffthreadVideo src={S('atlas/encendido.mp4')} volume={1} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${interpolate(f - A.motor[0], [0, 120], [1.0, 1.08], cl)})`}} />
+        </Sequence>
+        <Sequence from={120}>
+          <AbsoluteFill style={{overflow: 'hidden'}}>
+            <OffthreadVideo src={S('atlas/motor.mp4')} startFrom={Math.round(5.2 * 30)} volume={0.5} style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.1)'}} />
+          </AbsoluteFill>
+        </Sequence>
+        <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.55) 100%)'}} />
         <div style={{position: 'absolute', top: 260, left: 60, right: 140, fontFamily: MONT, color: '#fff'}}>
-          <div style={{display: 'inline-block', background: '#fff', color: '#111', fontWeight: 900, fontSize: 58, padding: '10px 22px 12px', borderRadius: 14, transform: `scale(${sp(f - A.motor[0])})`, transformOrigin: 'left'}}>MOTOR M16A 1.6 VVT</div>
-          <div style={{marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 12, background: '#16A34A', fontWeight: 900, fontSize: 50, padding: '6px 22px 10px', borderRadius: 14, transform: `scale(${sp(f - A.motor[0], 12)})`, transformOrigin: 'left'}}>✓ ANDANDO</div>
-          <div style={{marginTop: 12, fontSize: 30, fontWeight: 700, opacity: fade(f - A.motor[0], 30)}}>Caja automática con falla · se informa siempre</div>
+          {f - A.motor[0] < 58 ? (
+            <div style={{display: 'inline-flex', alignItems: 'center', gap: 14, background: K.red, fontWeight: 900, fontSize: 56, fontStyle: 'italic', textTransform: 'uppercase', padding: '8px 22px 12px', borderRadius: 14, transform: `scale(${sp(f - A.motor[0])})`, transformOrigin: 'left'}}>
+              <span style={{width: 22, height: 22, borderRadius: 99, background: '#fff', opacity: (f % 20) < 12 ? 1 : 0.3}} /> Encendido en vivo
+            </div>
+          ) : (
+            <>
+              <div style={{display: 'inline-block', background: '#fff', color: '#111', fontWeight: 900, fontSize: 58, padding: '10px 22px 12px', borderRadius: 14, transform: `scale(${sp(f - A.motor[0], 58)})`, transformOrigin: 'left'}}>MOTOR M16A 1.6 VVT</div>
+              <br />
+              <div style={{marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 12, background: '#16A34A', fontWeight: 900, fontSize: 50, padding: '6px 22px 10px', borderRadius: 14, transform: `scale(${sp(f - A.motor[0], 66)})`, transformOrigin: 'left'}}>✓ ANDANDO</div>
+              <div style={{marginTop: 12, fontSize: 30, fontWeight: 700, opacity: fade(f - A.motor[0], 84)}}>Caja automática con falla · se informa siempre</div>
+            </>
+          )}
         </div>
       </Sequence>
 
@@ -248,7 +262,7 @@ export const AtlasSX4: React.FC<{music?: boolean}> = ({music = true}) => {
       <Sequence from={60}><Audio src={S('audio/sfx_map.wav')} volume={0.45} /></Sequence>
       <Sequence from={A.motorTag[0]}><Audio src={S('audio/sfx_blip.wav')} volume={0.5} /></Sequence>
       <Sequence from={A.motor[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
-      <Sequence from={A.motor[0] + 12}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
+      <Sequence from={A.motor[0] + 66}><Audio src={S('audio/sfx_correct.wav')} volume={0.35} /></Sequence>
       <Sequence from={A.atlas[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
       {PART_AT.slice(1).map((x) => (
         <React.Fragment key={x}>
