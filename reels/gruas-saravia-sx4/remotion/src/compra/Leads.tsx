@@ -27,11 +27,10 @@ const Tap: React.FC<{x: number; y: number; at: number}> = ({x, y, at}) => {
 };
 
 /* ============ YA DISPONIBLE + COTIZA (sobre la grabación del sitio) ============ */
-export const AvailableLead: React.FC<{dur: number}> = ({dur}) => {
+export const AvailableLead: React.FC<{dur: number; tapAt?: number}> = ({dur, tapAt = 70}) => {
   const f = useCurrentFrame();
   const badge = sp(f, 4, 10, 230);
   const card = sp(f, 30, 16, 170);
-  const tapAt = 70;
   const pressed = f >= tapAt && f < tapAt + 6;
   const items = ['Repuestos originales con foto y precio', 'Con garantía', 'Despacho a todo Chile'];
   return (
@@ -170,7 +169,7 @@ export const OrderFlow: React.FC<{dur: number}> = ({dur}) => {
 };
 
 /* ============ CIERRE DESARMADURÍA ============ */
-export const DesarmeCTA: React.FC<{dur: number}> = ({dur}) => {
+export const DesarmeCTA: React.FC<{dur: number; head?: number; items?: number[]; url?: number; phone?: number}> = ({dur, head = 12, items: itemAt = [26, 33, 40, 47, 54], url = 60, phone = 70}) => {
   const f = useCurrentFrame();
   const lp = sp(f, 0, 14, 160);
   const items = ['En cualquier estado', 'De cualquier marca', 'Pago al contado', 'Retiro con grúa propia', 'Aunque tenga deudas de TAG o multas'];
@@ -184,20 +183,20 @@ export const DesarmeCTA: React.FC<{dur: number}> = ({dur}) => {
       </div>
       <div style={{position: 'absolute', top: 560, left: 64, right: 140, fontFamily: MONT, color: '#fff'}}>
         <div style={{fontSize: 28, fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.75)', opacity: fade(f, 8)}}>¿TIENES UN AUTO PARA DESARME?</div>
-        <div style={{marginTop: 8, fontSize: 82, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 0.98, clipPath: `inset(0 ${(1 - fade(f, 12, 14)) * 100}% 0 0)`}}>
+        <div style={{marginTop: 8, fontSize: 82, fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 0.98, clipPath: `inset(0 ${(1 - fade(f, head, 14)) * 100}% 0 0)`}}>
           Te lo <span style={{background: K.red, padding: '0 12px'}}>compramos</span>
         </div>
         <div style={{marginTop: 26, display: 'flex', flexDirection: 'column', gap: 14}}>
           {items.map((it, i) => (
-            <div key={it} style={{display: 'flex', alignItems: 'center', gap: 16, fontSize: 38, fontWeight: 800, opacity: fade(f, 26 + i * 7), transform: `translateX(${(1 - fade(f, 26 + i * 7)) * -40}px)`}}>
+            <div key={it} style={{display: 'flex', alignItems: 'center', gap: 16, fontSize: 38, fontWeight: 800, opacity: fade(f, itemAt[i]), transform: `translateX(${(1 - fade(f, itemAt[i])) * -40}px)`}}>
               <Check s={42} /> {it}
             </div>
           ))}
         </div>
-        <div style={{marginTop: 34, padding: '18px 22px', borderRadius: 18, background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.2)', opacity: fade(f, 60), fontSize: 30, fontWeight: 700}}>
+        <div style={{marginTop: 34, padding: '18px 22px', borderRadius: 18, background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.2)', opacity: fade(f, url), fontSize: 30, fontWeight: 700}}>
           Repuestos con despacho a todo Chile · <span style={{color: '#fff', fontWeight: 900}}>autopartschile.cl</span>
         </div>
-        <div style={{marginTop: 28, display: 'flex', alignItems: 'center', gap: 18, fontSize: 66, fontWeight: 900, opacity: fade(f, 70), transform: `scale(${0.9 + 0.1 * fade(f, 70)})`, transformOrigin: 'left'}}>
+        <div style={{marginTop: 28, display: 'flex', alignItems: 'center', gap: 18, fontSize: 66, fontWeight: 900, opacity: fade(f, phone), transform: `scale(${0.9 + 0.1 * fade(f, phone)})`, transformOrigin: 'left'}}>
           <Wa s={68} /> +56 9 5381 7335
         </div>
       </div>

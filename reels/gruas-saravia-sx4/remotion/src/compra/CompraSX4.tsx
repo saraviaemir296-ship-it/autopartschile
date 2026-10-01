@@ -14,17 +14,17 @@ import {E, K, cl} from '../v2/look';
  */
 export const C = {
   talk: [0, 411],
-  chat: [411, 531],
-  drive: [531, 576],
-  llegada: [576, 651],
-  papeles: [651, 741],
-  grua: [741, 831],
-  ficha: [831, 951],
-  busqueda: [951, 1011],
-  compra: [1011, 1146],
-  cta: [1146, 1281],
+  chat: [411, 661],
+  drive: [661, 706],
+  llegada: [706, 841],
+  papeles: [841, 971],
+  grua: [971, 1061],
+  ficha: [1061, 1211],
+  busqueda: [1211, 1256],
+  compra: [1256, 1391],
+  cta: [1391, 1661],
 } as const;
-const C_BODY = 1281;
+const C_BODY = 1661;
 /** Gancho (cold open) antes de tu saludo. */
 export const HOOK = 105;
 export const C_TOTAL = HOOK + C_BODY;
@@ -70,16 +70,16 @@ const Sticker: React.FC<{text: string; sub?: string; red?: boolean; y?: number}>
 };
 
 /** Pantallazo real del WhatsApp con paneo y marcadores sobre los mensajes clave. */
-const Chat: React.FC<{dur: number}> = ({dur}) => {
+const Chat: React.FC<{dur: number; at?: [number, number, number]}> = ({dur, at = [44, 70, 96]}) => {
   const f = useCurrentFrame();
   const k = 1080 / 923;
   const ty = interpolate(f, [0, dur], [-330, -430], {...cl, easing: E.inOut});
   const zoom = interpolate(f, [0, dur], [1.0, 1.06], cl);
   // [x0, y0, x1, y1] en coordenadas del pantallazo + frame de aparición
   const marks: [number, number, number, number, number][] = [
-    [36, 955, 694, 1100, 44],
-    [36, 1252, 340, 1342, 70],
-    [36, 1494, 448, 1590, 96],
+    [36, 955, 694, 1100, at[0]],
+    [36, 1252, 340, 1342, at[1]],
+    [36, 1494, 448, 1590, at[2]],
   ];
   return (
     <AbsoluteFill style={{backgroundColor: '#0b0b0b', overflow: 'hidden'}}>
@@ -203,12 +203,12 @@ const Pill: React.FC<{text: string; y?: number; red?: boolean}> = ({text, y = 10
 };
 
 /** Contador de precio: de `from` a `to`, el precio anterior se tacha y aparece la diferencia. */
-const PriceDrop: React.FC<{from: number; to: number; y?: number; label?: string; tagText?: string}> = ({from, to, y = 760, label = 'NUESTRA OFERTA', tagText}) => {
+const PriceDrop: React.FC<{from: number; to: number; y?: number; label?: string; tagText?: string; tagAt?: number}> = ({from, to, y = 760, label = 'NUESTRA OFERTA', tagText, tagAt = 36}) => {
   const f = useCurrentFrame();
   const enter = spring({frame: f, fps: 30, config: {damping: 14, stiffness: 200}});
   const t = interpolate(f, [10, 38], [0, 1], {...cl, easing: E.inOut});
   const strike = interpolate(f, [6, 14], [0, 1], cl);
-  const tag = spring({frame: f - 36, fps: 30, config: {damping: 10, stiffness: 220, mass: 0.6}});
+  const tag = spring({frame: f - tagAt, fps: 30, config: {damping: 10, stiffness: 220, mass: 0.6}});
   return (
     <div style={{position: 'absolute', top: y, left: 0, right: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: MONT, transform: `scale(${0.8 + 0.2 * enter})`, opacity: Math.min(1, enter * 2)}}>
       <div style={{position: 'relative', fontSize: 44, fontWeight: 800, color: 'rgba(255,255,255,0.75)'}}>
@@ -219,7 +219,7 @@ const PriceDrop: React.FC<{from: number; to: number; y?: number; label?: string;
         <div style={{fontSize: 24, fontWeight: 800, letterSpacing: '0.2em', color: K.red}}>{label}</div>
         <div style={{fontSize: 96, fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums'}}>{fmt(from + (to - from) * t)}</div>
       </div>
-      <div style={{marginTop: 14, background: K.red, color: '#fff', fontSize: tagText ? 54 : 36, fontWeight: 900, textTransform: 'uppercase', padding: '8px 20px', borderRadius: 12, transform: `scale(${tag}) rotate(-4deg)`, opacity: f >= 36 ? 1 : 0}}>
+      <div style={{marginTop: 14, background: K.red, color: '#fff', fontSize: tagText ? 54 : 36, fontWeight: 900, textTransform: 'uppercase', padding: '8px 20px', borderRadius: 12, transform: `scale(${tag}) rotate(-4deg)`, opacity: f >= tagAt ? 1 : 0}}>
         {tagText ?? `−${fmt(from - to)}`}
       </div>
     </div>
@@ -323,11 +323,12 @@ const CompraStory: React.FC = () => {
 
       {/* 2 · WHATSAPP real (datos del vendedor ocultos) */}
       <Sequence {...at(C.chat)}>
-        <Chat dur={120} />
-        <Sequence durationInFrames={30}><Sticker text="Nos escribió por la web" /></Sequence>
-        <Sequence from={30} durationInFrames={44}><Sticker text="SX4 2010 · 4x4" sub="Automático · caja mala" /></Sequence>
-        <Sequence from={26} durationInFrames={70}><PhotoCard src="compra/sx4-foto.jpg" caption="La foto que nos mandó" dur={70} /></Sequence>
-        <Sequence from={74}><Sticker text="Pidió $1.500.000" red /></Sequence>
+        <Chat dur={250} at={[64, 141, 210]} />
+        <Sequence durationInFrames={62}><Sticker text="Nos escribió por la web" /></Sequence>
+        <Sequence from={62} durationInFrames={143}><Sticker text="SX4 2010 · 4x4" sub="Automático · caja mala" /></Sequence>
+        <Sequence from={66} durationInFrames={120}><PhotoCard src="compra/sx4-foto.jpg" caption="La foto que nos mandó" dur={120} /></Sequence>
+        <Sequence from={205}><Sticker text="Pidió $1.500.000" red /></Sequence>
+        <Audio src={S('audio/vo/compra_1.wav')} startFrom={0} volume={1} />
       </Sequence>
 
       {/* 3 · VAMOS A BUSCARLO */}
@@ -338,17 +339,22 @@ const CompraStory: React.FC = () => {
 
       {/* 4 · LLEGADA + OFERTA (contador) */}
       <Sequence {...at(C.llegada)}>
-        <Shot src="compra/llegada_anon.mp4" segs={[{from: 0, take: 1.13, rate: 0.45}]} zoom={[1.02, 1.1]} origin="40% 45%" audio={0.15} darken={0.2} />
-        <PriceDrop from={1500000} to={500000} y={330} label="NUESTRA 1ª OFERTA" tagText="Tenía 109 multas" />
+        <Sequence durationInFrames={75}>
+          <Shot src="compra/llegada_anon.mp4" segs={[{from: 0, take: 1.13, rate: 0.45}]} zoom={[1.02, 1.1]} origin="40% 45%" audio={0.15} darken={0.2} />
+        </Sequence>
+        <Sequence from={75}><CarPhoto src="compra/sx4-foto.jpg" /></Sequence>
+        <PriceDrop from={1500000} to={500000} y={330} label="NUESTRA 1ª OFERTA" tagText="Tenía 109 multas" tagAt={82} />
+        <Sequence from={4}><Audio src={S('audio/vo/compra_2.wav')} /></Sequence>
       </Sequence>
 
       {/* 5 · ACEPTÓ + PAGO */}
       <Sequence {...at(C.papeles)}>
-        <Shot src="compra/papeles_anon.mp4" segs={[{from: 0, take: 2.37, rate: 0.79}]} zoom={[1.04, 1.1]} audio={0.15} darken={0.15} />
+        <Shot src="compra/papeles_anon.mp4" segs={[{from: 0, take: 2.37, rate: 0.55}]} zoom={[1.04, 1.12]} audio={0.15} darken={0.15} />
         <Sticker text="Cerramos en $700.000" sub="Cliente conforme ✓" red y={250} />
-        <Sequence durationInFrames={48}><Stamp text="¡Trato hecho!" color="#16A34A" y={520} /></Sequence>
-        <Sequence from={44}><Stamp text="Pagado" color="#16A34A" y={520} rot={6} /></Sequence>
-        <Sequence from={44}><PayBar y={780} amount={700000} /></Sequence>
+        <Sequence from={84} durationInFrames={24}><Stamp text="¡Trato hecho!" color="#16A34A" y={520} /></Sequence>
+        <Sequence from={104}><Stamp text="Pagado" color="#16A34A" y={520} rot={6} /></Sequence>
+        <Sequence from={104}><PayBar y={780} amount={700000} /></Sequence>
+        <Sequence from={4}><Audio src={S('audio/vo/compra_3.wav')} /></Sequence>
       </Sequence>
 
       {/* 6 · A LA GRÚA (entra con el camión del logo acelerando) */}
@@ -361,19 +367,21 @@ const CompraStory: React.FC = () => {
             <Shot src="footage/IMG_3244.mp4" segs={GRUA_HERO} look="warm" zoom={[1.0, 1.08]} origin="55% 42%" audio={0.3} />
           </Sequence>
           <Sequence from={22}><Sticker text="Directo a la grúa" sub="Grúas Saravia" /></Sequence>
+          <Sequence from={24}><Audio src={S('audio/vo/compra_4.wav')} /></Sequence>
         </TruckWipe>
       </Sequence>
 
       {/* 7 · YA DISPONIBLE + COTIZA POR WHATSAPP (grabación real del sitio) */}
       <Sequence {...at(C.ficha)}>
-        <Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 3.4, rate: 2.4}, {from: 6.6, take: 4.5, rate: 1.4}]} />
+        <Screen src="compra/web-ficha.mp4" segs={[{from: 1.2, take: 3.4, rate: 2.4}, {from: 6.6, take: 4.5, rate: 1.4}, {from: 2.0, take: 1.0, rate: 1}]} />
         <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 70%)'}} />
-        <AvailableLead dur={120} />
+        <AvailableLead dur={150} tapAt={104} />
+        <Sequence from={8}><Audio src={S('audio/vo/compra_5.wav')} /></Sequence>
       </Sequence>
 
       {/* 8 · BUSCA "SX4" (rápido) */}
       <Sequence {...at(C.busqueda)}>
-        <Screen src="compra/web-busqueda.mp4" segs={[{from: 1.0, take: 5.0, rate: 2.5}]} />
+        <Screen src="compra/web-busqueda.mp4" segs={[{from: 1.0, take: 5.2, rate: 3.4}]} />
         <Sticker text="Busca tu repuesto" sub="Con foto y precio real" red y={1420} />
       </Sequence>
 
@@ -383,59 +391,59 @@ const CompraStory: React.FC = () => {
           <Shot src="footage/IMG_3244.mp4" segs={[{from: 0.5, take: 2.25, rate: 0.5}]} look="warm" zoom={[1.1, 1.16]} />
         </AbsoluteFill>
         <OrderFlow dur={135} />
+        <Sequence from={4}><Audio src={S('audio/vo/compra_6.wav')} /></Sequence>
       </Sequence>
 
       {/* 10 · CIERRE DESARMADURÍA */}
       <Sequence {...at(C.cta)}>
         <AbsoluteFill style={{filter: 'blur(10px)'}}>
-          <Shot src="footage/IMG_3240.mp4" segs={[{from: 8.0, take: 2.25, rate: 0.5}]} zoom={[1.1, 1.14]} />
+          <Shot src="footage/IMG_3240.mp4" segs={[{from: 7.0, take: 4.0, rate: 0.45}]} zoom={[1.1, 1.16]} />
         </AbsoluteFill>
-        <DesarmeCTA dur={135} />
+        <DesarmeCTA dur={270} head={56} items={[85, 119, 155, 170, 185]} url={205} phone={215} />
+        <Sequence from={6}><Audio src={S('audio/vo/compra_7.wav')} /></Sequence>
       </Sequence>
 
       <Grain opacity={0.05} />
 
       {/* chat */}
-      {[411 + 30, 411 + 52].map((x) => (
-        <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
+      {[C.chat[0] + 2, C.chat[0] + 62].map((x) => (
+        <Sequence key={x} from={x}><Audio src={S('audio/sfx_blip.wav')} volume={0.3} /></Sequence>
       ))}
-      <Sequence from={411 + 26}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
-      <Sequence from={411 + 30}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.35} /></Sequence>
-      <Sequence from={411 + 74}><Audio src={S('audio/sfx_fah.wav')} volume={0.85} /></Sequence>
-      <Sequence from={529}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-      {/* oferta: tachado, monedas mientras baja el contador, ka-ching al final */}
-      <Sequence from={576 + 6}><Audio src={S('audio/sfx_metal.wav')} volume={0.25} /></Sequence>
-      <Sequence from={576 + 10}><Audio src={S('audio/sfx_coins.wav')} volume={0.55} /></Sequence>
-      <Sequence from={576 + 33}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
-      <Sequence from={576 + 36}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.75} /></Sequence>
-      {/* trato hecho + pago */}
-      <Sequence from={651}><Audio src={S('audio/sfx_impact.wav')} volume={0.35} /></Sequence>
-      <Sequence from={651 + 2}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
-      <Sequence from={651 + 44}><Audio src={S('audio/sfx_correct.wav')} volume={0.45} /></Sequence>
-      <Sequence from={651 + 46}><Audio src={S('audio/sfx_coins.wav')} volume={0.5} /></Sequence>
-      <Sequence from={651 + 70}><Audio src={S('audio/sfx_coin.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.chat[0] + 64}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={C.chat[0] + 207}><Audio src={S('audio/sfx_fah.wav')} volume={0.6} /></Sequence>
+      <Sequence from={C.drive[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      {/* oferta */}
+      <Sequence from={C.llegada[0] + 6}><Audio src={S('audio/sfx_metal.wav')} volume={0.2} /></Sequence>
+      <Sequence from={C.llegada[0] + 10}><Audio src={S('audio/sfx_coins.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.llegada[0] + 36}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.llegada[0] + 82}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.55} /></Sequence>
+      {/* cierre del trato + pago */}
+      <Sequence from={C.papeles[0]}><Audio src={S('audio/sfx_impact.wav')} volume={0.3} /></Sequence>
+      <Sequence from={C.papeles[0] + 2}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.papeles[0] + 84}><Audio src={S('audio/sfx_correct.wav')} volume={0.35} /></Sequence>
+      <Sequence from={C.papeles[0] + 106}><Audio src={S('audio/sfx_coins.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.papeles[0] + 128}><Audio src={S('audio/sfx_coin.wav')} volume={0.35} /></Sequence>
       {/* grúa */}
-      <Sequence from={741 - 26}><Audio src={S('audio/sfx_rev.wav')} volume={0.65} /></Sequence>
-      <Sequence from={741 - 16}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.grua[0] - 26}><Audio src={S('audio/sfx_rev.wav')} volume={0.55} /></Sequence>
+      <Sequence from={C.grua[0] - 16}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
       {/* ya disponible + cotiza */}
-      <Sequence from={831 + 4}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
-      <Sequence from={831 + 6}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
-      {[831 + 38, 831 + 44, 831 + 50].map((x) => (
-        <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
+      <Sequence from={C.ficha[0] + 4}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.ficha[0] + 6}><Audio src={S('audio/sfx_correct.wav')} volume={0.3} /></Sequence>
+      {[38, 44, 50].map((x) => (
+        <Sequence key={x} from={C.ficha[0] + x}><Audio src={S('audio/sfx_tick.wav')} volume={0.25} /></Sequence>
       ))}
-      <Sequence from={831 + 70}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
-      <Sequence from={831 + 76}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
-      {/* compra: toque, pago aprobado (ka-ching), despacho, entrega */}
-      <Sequence from={1011 + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.45} /></Sequence>
-      <Sequence from={1011 + 40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
-      <Sequence from={1011 + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
-      <Sequence from={1011 + 96}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.5} /></Sequence>
-      <Sequence from={1011 + 98}><Audio src={S('audio/sfx_blip.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.ficha[0] + 104}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.ficha[0] + 110}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
+      {/* compra */}
+      <Sequence from={C.compra[0] + 26}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.compra[0] + 40}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.45} /></Sequence>
+      <Sequence from={C.compra[0] + 62}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={C.compra[0] + 96}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
       {/* cierre */}
-      <Sequence from={1146}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.45} /></Sequence>
-      <Sequence from={1146 + 14}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.7} /></Sequence>
-      {[1146 + 26, 1146 + 33, 1146 + 40, 1146 + 47].map((x) => (
-        <Sequence key={x} from={x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
+      <Sequence from={C.cta[0]}><Audio src={S('audio/sfx_impact_soft.wav')} volume={0.4} /></Sequence>
+      <Sequence from={C.cta[0] + 56}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.45} /></Sequence>
+      {[85, 119, 155, 170, 185].map((x) => (
+        <Sequence key={x} from={C.cta[0] + x}><Audio src={S('audio/sfx_tick.wav')} volume={0.3} /></Sequence>
       ))}
       {/* tu voz completa */}
       <Sequence from={0} durationInFrames={411}><Audio src={S('compra/talk.mp4')} startFrom={24} /></Sequence>
@@ -443,6 +451,17 @@ const CompraStory: React.FC = () => {
   );
 };
 
+/** Foto del auto a pantalla completa con Ken Burns (rellena escenas cortas). */
+const CarPhoto: React.FC<{src: string}> = ({src}) => {
+  const f = useCurrentFrame();
+  const z = interpolate(f, [0, 90], [1.0, 1.1], cl);
+  return (
+    <AbsoluteFill style={{backgroundColor: '#000', opacity: interpolate(f, [0, 5], [0, 1], cl)}}>
+      <Img src={S(src)} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(26px) brightness(0.45)', transform: 'scale(1.15)'}} />
+      <Img src={S(src)} style={{position: 'absolute', left: 0, top: 880, width: 1080, height: 587, objectFit: 'cover', transform: `scale(${z})`, transformOrigin: '30% 70%', filter: 'brightness(0.85)'}} />
+    </AbsoluteFill>
+  );
+};
 /** Foto del vehículo tipo polaroid que entra girando y sale hacia arriba. */
 const PhotoCard: React.FC<{src: string; caption: string; dur: number}> = ({src, caption, dur}) => {
   const f = useCurrentFrame();
@@ -537,6 +556,6 @@ export const CompraSX4: React.FC<{music?: boolean; fah?: 'precio' | 'multas'}> =
     <Sequence from={58}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.65} /></Sequence>
     <Sequence from={78}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.8} /></Sequence>
     {/* música: fuerte en el gancho, casi muda bajo tu voz, sube en la historia */}
-    {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, 70, 75, 80, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.08, 0.75, 0.75, 0.07, 0.07, 0.7, 0.7, 0], cl)} />}
+    {music && <Audio src={S('audio/music_fallback.wav')} volume={(fr) => interpolate(fr, [0, 70, 75, 80, HOOK - 6, HOOK + 4, HOOK + 405, HOOK + 418, C_TOTAL - 11, C_TOTAL], [0.75, 0.75, 0.08, 0.75, 0.75, 0.07, 0.07, 0.24, 0.24, 0], cl)} />}
   </AbsoluteFill>
 );
