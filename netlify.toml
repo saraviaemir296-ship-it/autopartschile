@@ -52,7 +52,14 @@
     # sumarlos aqui o se bloquearan.
     # img-src incluye Supabase Storage porque catalogo.html y producto.html ahora
     # muestran fotos de productos subidas desde /admin/ (bucket product-images).
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://ipapi.co https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com https://zlyforhywunqhitrdreo.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
+    # 2026-10-01: GA4 usa analytics.google.com y www.google.com/www.google.cl como
+    # transporte de respaldo del endpoint de medición (/g/collect) y del pixel de
+    # audiencias de remarketing (/ads/ga-audiences) cuando el navegador o la red del
+    # visitante no permite el host primario www.google-analytics.com. Sin estos
+    # dominios en connect-src/img-src, esos eventos se bloqueaban silenciosamente
+    # (confirmado en consola: "violates... connect-src" y "violates... img-src"),
+    # perdiendo visibilidad real de visitas y audiencias de remarketing en Google Ads.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://ipapi.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://region1.google-analytics.com https://www.google.com; img-src 'self' data: https://www.google-analytics.com https://zlyforhywunqhitrdreo.supabase.co https://www.google.com https://www.google.cl; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
 
 # CSP propia para /admin/: el panel carga el cliente de Supabase como módulo ES
 # desde esm.sh (no hay build step que lo empaquete localmente). No se relaja la
