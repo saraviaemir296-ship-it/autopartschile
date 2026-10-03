@@ -331,7 +331,7 @@ const Walk: React.FC<{from: number; rate?: number}> = ({from, rate = 1}) => (
   <OffthreadVideo src={S('atlas/walk.mp4')} startFrom={Math.round(from * 30)} playbackRate={rate} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
 );
 
-const Bg: React.FC = () => (
+export const Bg: React.FC = () => (
   <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 45%, #1C1F23 0%, ${NAVY} 55%, #000000 100%)`}}>
     <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
   </AbsoluteFill>
@@ -474,7 +474,7 @@ const CountScene: React.FC<{t: number}> = ({t}) => {
 };
 
 /* la casa matriz real (1,6 s) */
-const Local: React.FC<{t: number}> = ({t}) => (
+export const Local: React.FC<{t: number}> = ({t}) => (
   <AbsoluteFill>
     <OffthreadVideo src={S('atlas/local.mp4')} startFrom={48} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
     <AbsoluteFill style={{background: '#fff', opacity: interpolate(t, [0, 6], [1, 0], cl)}} />
@@ -574,9 +574,9 @@ export const WalkV15: React.FC = () => {
   );
 };
 
-const CTA: React.FC<{t: number}> = ({t}) => {
+export const CTA: React.FC<{t: number; word?: string}> = ({t, word = 'SX4'}) => {
   const p = sp(t, 0, 13, 200);
-  const typed = 'SX4'.slice(0, Math.max(0, Math.floor((t - 46) / 5)));
+  const typed = word.slice(0, Math.max(0, Math.floor((t - 46) / Math.min(5, 18 / word.length))));
   const sent = t > 66;
   const pop = sp(t, 66, 10, 260);
   return (
@@ -585,7 +585,7 @@ const CTA: React.FC<{t: number}> = ({t}) => {
         <Img src={S('compra/logo-desarmaduria.svg')} style={{height: 120, display: 'block'}} />
       </div>
       <div style={{marginTop: 34, fontFamily: DISP, fontSize: 104, fontWeight: 400, textTransform: 'uppercase', lineHeight: 1, opacity: fade(t, 10), transform: `translateY(${(1 - fade(t, 10)) * 20}px)`}}>
-        Escribe <span style={{background: '#25D366', padding: '0 12px'}}>“SX4”</span>
+        Escribe <span style={{background: '#25D366', padding: '0 12px'}}>“{word}”</span>
         <br />al WhatsApp
       </div>
       <div style={{marginTop: 22, fontSize: 38, fontWeight: 700, opacity: fade(t, 24)}}>y te respondemos con foto, precio y despacho</div>
@@ -602,7 +602,7 @@ const CTA: React.FC<{t: number}> = ({t}) => {
         <div style={{height: 120, padding: '18px 20px', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start'}}>
           {sent && (
             <div style={{background: '#005C4B', borderRadius: 14, padding: '10px 18px', fontSize: 38, fontWeight: 700, transform: `scale(${pop})`, transformOrigin: 'right top'}}>
-              SX4 <span style={{fontSize: 20, color: '#8FD3C4', marginLeft: 8}}>✓✓</span>
+              {word} <span style={{fontSize: 20, color: '#8FD3C4', marginLeft: 8}}>✓✓</span>
             </div>
           )}
         </div>
