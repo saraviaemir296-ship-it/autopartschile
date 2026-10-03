@@ -60,6 +60,12 @@ export const SuzukiLeads: React.FC = () => {
         <Cap t={f - HOOK} y={1180} lines={['Lo cotizó en nuestra web', 'y vino a verlo en persona']} size={48} />
       </Sequence>
 
+      {f < M0 && (
+        <div style={{position: 'absolute', top: 40, left: 36, width: 300, borderRadius: 14, overflow: 'hidden', boxShadow: '0 6px 20px rgba(0,0,0,0.45)'}}>
+          <Img src={S('suzuki/marca.jpg')} style={{display: 'block', width: '100%'}} />
+        </div>
+      )}
+
       {/* 3. desfile de repuestos Suzuki con precio real */}
       {PARTS.map((p, i) => {
         const a = M0 + i * EACH;
@@ -84,8 +90,11 @@ export const SuzukiLeads: React.FC = () => {
             <Img src={S('swift/motor-vano.jpg')} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(26px) brightness(0.4)', transform: 'scale(1.2)'}} />
           </AbsoluteFill>
         </Punch>
-        <Cap t={f - F0} y={420} lines={['¿Buscas un repuesto', 'para tu Suzuki?']} size={64} />
-        <div style={{position: 'absolute', top: 720, left: 90, right: 90, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16}}>
+        <div style={{position: 'absolute', top: 150, left: 70, right: 70, borderRadius: 26, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', transform: `scale(${interpolate(f - F0, [0, 5, 10], [1.25, 0.97, 1], cl)})`}}>
+          <Img src={S('suzuki/marca.jpg')} style={{display: 'block', width: '100%'}} />
+        </div>
+        <Cap t={f - F0} y={620} lines={['¿Buscas un repuesto', 'para tu Suzuki?']} size={64} />
+        <div style={{position: 'absolute', top: 900, left: 90, right: 90, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16}}>
           {MODELS.map((m, i) => {
             const k = f - F0 - 10 - i * 4;
             return (
@@ -95,9 +104,9 @@ export const SuzukiLeads: React.FC = () => {
             );
           })}
         </div>
-        {f - F0 >= 36 && <Cap t={f - F0 - 36} y={1020} lines={['Escribe tu modelo', 'al WhatsApp 👇']} size={60} />}
-        {f - F0 >= 50 && <Cap t={f - F0 - 50} y={1220} lines={['+56 9 5381 7335']} size={58} dark />}
-        {f - F0 >= 58 && <Cap t={f - F0 - 58} y={1340} lines={['Despacho a todo Chile 📦']} size={42} dark />}
+        {f - F0 >= 36 && <Cap t={f - F0 - 36} y={1180} lines={['Escribe tu modelo', 'al WhatsApp 👇']} size={60} />}
+        {f - F0 >= 50 && <Cap t={f - F0 - 50} y={1370} lines={['+56 9 5381 7335']} size={58} dark />}
+        {f - F0 >= 58 && <Cap t={f - F0 - 58} y={1480} lines={['Despacho a todo Chile 📦']} size={42} dark />}
       </Sequence>
 
       {/* sonido mínimo: la canción la pone la app */}
