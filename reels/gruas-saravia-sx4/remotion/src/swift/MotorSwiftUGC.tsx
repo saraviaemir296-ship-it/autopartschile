@@ -33,15 +33,15 @@ export const SWIFT_UGC_TOTAL = T.fin[1];
 const at = (r: [number, number]) => ({from: r[0], durationInFrames: r[1] - r[0]});
 
 /* zoom "punch" de cada corte, como en CapCut */
-const Punch: React.FC<{t: number; children: React.ReactNode; drift?: number}> = ({t, children, drift = 0.04}) => {
+export const Punch: React.FC<{t: number; children: React.ReactNode; drift?: number}> = ({t, children, drift = 0.04}) => {
   const s = interpolate(t, [0, 7], [1.1, 1], {...cl}) + t * (drift / 60);
   return <AbsoluteFill style={{transform: `scale(${s})`}}>{children}</AbsoluteFill>;
 };
-const Clip: React.FC<{src: string; from: number; vol?: number}> = ({src, from, vol = 0.5}) => (
+export const Clip: React.FC<{src: string; from: number; vol?: number}> = ({src, from, vol = 0.5}) => (
   <OffthreadVideo src={S(src)} startFrom={Math.round(from * 30)} volume={vol} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
 );
 /* foto real a pantalla completa: fondo desenfocado + foto entera */
-const Photo: React.FC<{src: string; top: number}> = ({src, top}) => (
+export const Photo: React.FC<{src: string; top: number}> = ({src, top}) => (
   <AbsoluteFill style={{background: '#000'}}>
     <Img src={S(src)} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(36px) brightness(0.55)', transform: 'scale(1.2)'}} />
     <Img src={S(src)} style={{position: 'absolute', left: 0, top, width: '100%'}} />
@@ -49,7 +49,7 @@ const Photo: React.FC<{src: string; top: number}> = ({src, top}) => (
 );
 
 /* texto nativo: cada línea en su caja blanca */
-const Cap: React.FC<{t: number; lines: React.ReactNode[]; y: number; size?: number; dark?: boolean}> = ({t, lines, y, size = 52, dark}) => {
+export const Cap: React.FC<{t: number; lines: React.ReactNode[]; y: number; size?: number; dark?: boolean}> = ({t, lines, y, size = 52, dark}) => {
   const p = spring({frame: t, fps: 30, config: {damping: 14, stiffness: 320, mass: 0.5}});
   return (
     <div style={{position: 'absolute', left: 70, right: 70, top: y, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, transform: `scale(${0.92 + 0.08 * p})`, opacity: Math.min(1, p * 3)}}>
