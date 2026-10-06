@@ -19,21 +19,21 @@ const sp = (f: number, d = 0, damping = 13, stiffness = 220) => spring({frame: f
 const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL').replace(/,/g, '.');
 const glow = (c: string, k = 1) => `0 0 ${8 * k}px ${c}, 0 0 ${22 * k}px ${c}, 0 0 ${48 * k}px ${c}88`;
 
-type Item = {title: string; sub: string; price: number; src: string; from: number; chip: string; chat?: string; ask?: string};
-const ITEMS: Item[] = [
+export type Item = {title: string; sub: string; price: number; src: string; from: number; chip: string; chat?: string; ask?: string};
+export const ITEMS: Item[] = [
   {title: 'Motor Suzuki Swift', sub: '1.2 K12', price: 900000, src: 'swift/entrega_anon.mp4', from: 0.3, chip: 'Directo a su automotora'},
   {title: 'Motor Suzuki Mastervan', sub: 'G13B 1.3', price: 520000, src: 'swift/mv_carga.mp4', from: 0.9, chip: 'Cargado en su camioneta'},
   {title: 'Repuestos Suzuki Vitara', sub: 'portalón · refuerzo · parachoques · corte', price: 900000, src: 'swift/vitara_portalon.mp4', from: 0.6, chip: 'Un corte va a Viña del Mar', chat: 'swift/chat_vitara.png', ask: '“¿el portalón está disponible?”'},
   {title: 'Kit airbag Swift + piolas SX4', sub: 'embalado y listo', price: 384990, src: 'swift/airbag_kit.mp4', from: 0.4, chip: 'Kit completo, embalado', chat: 'swift/chat_airbag.png', ask: '“busco kit airbag Swift”'},
 ];
-const TOTAL = ITEMS.reduce((a, b) => a + b.price, 0); // 2.704.990
+export const TOTAL = ITEMS.reduce((a, b) => a + b.price, 0); // 2.704.990
 const HOOK = 84;
 const EACH = 120;
-const CHAT_LEN = 46;
+export const CHAT_LEN = 46;
 const END = 120;
 export const VENDIMOS_TOTAL = HOOK + ITEMS.length * EACH + END;
 
-const Bg: React.FC<{f: number}> = ({f}) => (
+export const Bg: React.FC<{f: number}> = ({f}) => (
   <AbsoluteFill style={{background: BG, overflow: 'hidden'}}>
     <AbsoluteFill style={{background: `radial-gradient(60% 40% at 50% 40%, ${RED}40 0%, transparent 70%)`}} />
     <div style={{position: 'absolute', left: -540, right: -540, bottom: -200, height: 900, transform: 'perspective(700px) rotateX(62deg)', transformOrigin: 'bottom', backgroundImage: `linear-gradient(${RED}55 2px, transparent 2px), linear-gradient(90deg, ${RED}55 2px, transparent 2px)`, backgroundSize: '90px 90px', backgroundPosition: `0 ${(f * 3) % 90}px`, maskImage: 'linear-gradient(to top, black 30%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to top, black 30%, transparent 100%)'}} />
@@ -85,7 +85,7 @@ const Hook: React.FC<{t: number}> = ({t}) => {
   );
 };
 
-const ItemScene: React.FC<{it: Item; t: number; i: number}> = ({it, t, i}) => {
+export const ItemScene: React.FC<{it: Item; t: number; i: number}> = ({it, t, i}) => {
   const p = sp(t, 0, 14, 170);
   const off = it.chat ? CHAT_LEN : 0;
   const priceOn = t >= 20 + off;

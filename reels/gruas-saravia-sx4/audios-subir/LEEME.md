@@ -17,3 +17,7 @@ misma carpeta con el nombre `voz-vendimos.mp3`:
 - Voz A (Will): https://app-uploads.krea.ai/audio/d2991d75-4db3-44bc-bd39-53da46565d10.mp3
 - Voz B (Chris): https://app-uploads.krea.ai/audio/e8ec2500-d535-4e97-8440-8164df81f6dc.mp3
 Si no se puede descargar: ábrelo en el celular y graba la pantalla con sonido.
+
+## Voz "Historia 4 autos" (storytelling) — 2026-10-06
+Súbela aquí como `voz-historia.mp3`:
+- https://app-uploads.krea.ai/audio/bd04aecc-6514-4e77-a95a-20df95e5a880.mp3
