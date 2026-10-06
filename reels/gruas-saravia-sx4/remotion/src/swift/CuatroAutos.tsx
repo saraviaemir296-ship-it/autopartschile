@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
+import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {Bug, LogoSting, STING_LEN} from './LogoSting';
 
 /* "4 AUTOS / 4 CLIENTES" — reedición completa (no es StoryVentas con más efectos).
@@ -73,7 +74,7 @@ const ShotBody: React.FC<{src: string; dur: number; abs: number; start: number; 
   const hx = Math.sin((abs + f) * 0.11) * 5 + Math.sin((abs + f) * 0.031) * 4;
   const hy = Math.cos((abs + f) * 0.087) * 5;
   const isVid = src.endsWith('.mp4');
-  const media: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover'};
+  const media: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover', filter: GRADE};
   return (
     <DBlur id={`b${abs}`} x={bx} y={by}>
       <AbsoluteFill style={{transform: `translate(${tx + hx}px, ${ty + hy}px) scale(${s})`, transformOrigin: origin, filter: gray ? `grayscale(${gray})` : undefined}}>
@@ -212,7 +213,8 @@ const Context: React.FC<{f: number}> = ({f}) => {
   const color = t >= 34;
   const strike = interpolate(t, [24, 30], [0, 1], cl);
   return (
-    <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 62%, #241010 0%, ${BG} 62%)`}}>
+    <AbsoluteFill>
+      <PremiumBg f={f} />
       <AbsoluteFill style={{perspective: 1300, transformStyle: 'preserve-3d'}}>
         {CARS.map((c, i) => {
           const z = i % 2 ? -140 : 40;
@@ -222,7 +224,7 @@ const Context: React.FC<{f: number}> = ({f}) => {
           return (
             <div key={i} style={{position: 'absolute', left: x, top: 760, width: 600, transform: `translateZ(${z}px) rotateY(${(540 - (x + 300)) * 0.012}deg)`, transformStyle: 'preserve-3d'}}>
               <div style={{width: 600, height: 400, overflow: 'hidden', border: '5px solid #fff', boxShadow: `0 40px 70px rgba(0,0,0,0.75)${focus > 0.6 ? `, 0 0 40px rgba(209,11,12,${0.45 * focus})` : ''}`}}>
-                <Img src={S(c.img)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: color ? 'none' : 'grayscale(1) brightness(0.75)', transform: `scale(${1.05 + focus * 0.08})`}} />
+                <Img src={S(c.img)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: color ? GRADE : 'grayscale(1) brightness(0.75)', transform: `scale(${1.05 + focus * 0.08})`}} />
               </div>
               <div style={{marginTop: 18, fontFamily: DISP, fontSize: 58, color: '#fff', letterSpacing: 2 + (1 - focus) * 12, opacity: 0.4 + focus * 0.6}}>{c.name}</div>
             </div>
@@ -464,7 +466,9 @@ const Reveal: React.FC<{f: number}> = ({f}) => {
     </div>
   );
   return (
-    <AbsoluteFill style={{background: f >= land ? `radial-gradient(circle at 50% 52%, rgba(209,11,12,${0.35 * Math.min(1, (f - land) / 6)}) 0%, ${BG} 58%)` : BG}}>
+    <AbsoluteFill style={{background: BG}}>
+      {f >= T.reveal && <PremiumBg f={f} />}
+      {f >= land && <AbsoluteFill style={{background: `radial-gradient(circle at 50% 52%, rgba(209,11,12,${0.4 * Math.min(1, (f - land) / 6)}) 0%, rgba(7,7,7,0) 58%)`}} />}
       {f >= land && Array.from({length: 46}).map((_, i) => {
         const k = f - land;
         const x = random(`px${i}`) * 1080;
@@ -619,6 +623,10 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) =
         <Reveal f={f} />
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
+        <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697]} />
+        <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
+        <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
+        <Brackets f={f} at={616} until={T.black} x={70} y={390} w={940} h={590} />
         <Bug show={f >= T.ctx && f < T.cta && (f < T.black || f >= T.reveal)} />
       </AbsoluteFill>
       {fade > 0 && <AbsoluteFill style={{background: `rgba(0,0,0,${fade})`}} />}

@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
+import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {Bug, LogoSting, STING_LEN} from './LogoSting';
 import {Chip, Rise, Shot} from './CuatroAutos';
 
@@ -87,7 +88,8 @@ const Problem: React.FC<{f: number}> = ({f}) => {
   const wipe = interpolate(t, [108, 120], [0, 1], {...cl, easing: Easing.in(Easing.cubic)});
   const jit = t > 96 && t < 108 ? Math.sin(t * 5) * 6 : 0;
   return (
-    <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 45%, #1c1c1c 0%, ${BG} 70%)`}}>
+    <AbsoluteFill>
+      <PremiumBg f={f} />
       <div style={{position: 'absolute', left: 230, top: 470, width: 620, height: 620, transform: `perspective(1200px) rotateY(${interpolate(lt, [0, 24], [14, -8], cl)}deg) scale(${interpolate(lt, [0, 5], [0.88, 1], {...cl, easing: OUT})}) translateX(${jit}px)`, boxShadow: '0 40px 80px rgba(0,0,0,0.7)', border: '6px solid #fff', overflow: 'hidden', background: '#fff'}}>
         <Img src={S(PARTS[idx])} style={{width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(0.35)'}} />
         <div style={{position: 'absolute', right: 20, top: 20, width: 110, height: 110, background: RED, color: '#fff', fontFamily: DISP, fontSize: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `rotate(${Math.sin(t * 0.3) * 6}deg)`}}>?</div>
@@ -114,7 +116,8 @@ const Demo: React.FC<{f: number}> = ({f}) => {
   const enter = interpolate(t, [0, 7], [1, 0], {...cl, easing: OUT});
   const modelo = n >= 27, ano = n >= 32, foto = photo;
   return (
-    <AbsoluteFill style={{background: BG, transform: `translateY(${enter * 1300}px)`}}>
+    <AbsoluteFill style={{transform: `translateY(${enter * 1300}px)`}}>
+      <PremiumBg f={f} />
       <div style={{position: 'absolute', top: 200, left: 70}}>
         <Chip red size={54}>ASÍ DE FÁCIL:</Chip>
       </div>
@@ -264,7 +267,8 @@ const Experience: React.FC<{f: number}> = ({f}) => {
   const item = f >= R0 && k < RAIL.length ? RAIL[k] : null;
   const end = f >= R0 + RAIL.length * EACH;
   return (
-    <AbsoluteFill style={{background: BG}}>
+    <AbsoluteFill>
+      <PremiumBg f={f} />
       <div style={{position: 'absolute', top: 220, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 96, color: '#fff', transform: `scale(${interpolate(f - T.exp, [0, 3, 8], [1.5, 0.96, 1], cl)})`}}>
         REPUESTOS <span style={{color: RED2}}>SUZUKI</span>
       </div>
@@ -273,10 +277,10 @@ const Experience: React.FC<{f: number}> = ({f}) => {
           <div style={{position: 'absolute', left: 140, top: 430, width: 800, height: 800, overflow: 'hidden', border: '6px solid #fff', boxShadow: '0 40px 90px rgba(0,0,0,0.8)', transform: `perspective(1400px) rotateY(${interpolate(lt, [0, 5, EACH], [-28, -2, 3], {...cl, easing: OUT})}deg) translateX(${interpolate(lt, [0, 5], [260, 0], {...cl, easing: OUT})}px)`, background: '#fff'}}>
             {item[1].endsWith('.mp4') ? (
               <Sequence from={R0 + k * EACH} durationInFrames={EACH}>
-                <OffthreadVideo src={S(item[1])} muted startFrom={Math.round((item[2] ?? 0) * 30)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1.1 + lt * 0.006})`}} />
+                <OffthreadVideo src={S(item[1])} muted startFrom={Math.round((item[2] ?? 0) * 30)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: GRADE, transform: `scale(${1.1 + lt * 0.006})`}} />
               </Sequence>
             ) : (
-              <Img src={S(item[1])} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1.02 + lt * 0.006})`}} />
+              <Img src={S(item[1])} style={{width: '100%', height: '100%', objectFit: 'cover', filter: GRADE, transform: `scale(${1.02 + lt * 0.006})`}} />
             )}
           </div>
           <div style={{position: 'absolute', top: 1270, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 190, lineHeight: 1, color: '#fff', letterSpacing: interpolate(lt, [0, 8], [40, 4], {...cl, easing: OUT}), textShadow: '0 8px 30px rgba(0,0,0,0.9)'}}>{item[0]}</div>
@@ -414,6 +418,9 @@ export const SuzukiConfianza: React.FC<{vo?: string}> = ({vo}) => {
         <ConfText f={f} />
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
+        <LightLeaks f={f} at={[T.prob, T.sol, T.demo, T.ayuda, T.prueba, T.airChat, T.exp, T.conf]} />
+        <Brackets f={f} at={T.prob + 4} until={T.sol - 12} x={230} y={470} w={620} h={620} />
+        <Brackets f={f} at={R0} until={R0 + RAIL.length * EACH} x={140} y={430} w={800} h={800} />
         <Bug show={f >= T.prob && f < T.cta} />
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
