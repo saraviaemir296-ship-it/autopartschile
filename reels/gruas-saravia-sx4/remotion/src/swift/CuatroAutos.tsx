@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
 import {VO_DIA, voOn} from './voLines';
-import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
+import {Brackets, GRADE, LightLeaks, PremiumBg, PriceOrbit} from './Fx';
 import {LogoSting, STING_LEN} from './LogoSting';
 
 /* "4 AUTOS / 4 CLIENTES" — reedición completa (no es StoryVentas con más efectos).
@@ -545,7 +545,7 @@ const Despachos: React.FC<{f: number}> = ({f}) => {
 /* compra en la web: el mockup del afiche entra en 3D, la cámara se mete en su
    celular y pasa a la grabación real del recorrido en autopartschile.cl */
 const WEB_SEGS: [number, number, number, number, string][] = [ // desde, largo, inicio(s), velocidad, paso
-  [44, 18, 0.4, 2, 'TE BUSCAS EN GOOGLE'], [62, 22, 2.3, 1.5, 'ENTRAS AL SITIO'], [84, 32, 4.6, 2, 'BUSCAS TU REPUESTO'], [116, 34, 7.9, 1, 'COMPRAS O COTIZAS'],
+  [44, 18, 0.4, 2, 'TE BUSCAS EN GOOGLE'], [62, 20, 2.3, 1.5, 'ENTRAS AL SITIO'], [82, 26, 4.6, 2, 'BUSCAS TU REPUESTO'], [108, 42, -1, 1, 'PRECIO Y STOCK AL TIRO'],
 ];
 const WebScene: React.FC<{f: number}> = ({f}) => {
   if (f < T.web || f >= T.end) return null;
@@ -591,12 +591,18 @@ const WebScene: React.FC<{f: number}> = ({f}) => {
         </span>
       </div>
       <div style={{position: 'absolute', left: cx - W / 2, top: cy - H / 2, width: W, height: H, transform: `scale(${sc})`, borderRadius: 54, overflow: 'hidden', border: '12px solid #161616', boxShadow: '0 50px 100px rgba(0,0,0,0.85), 0 0 60px rgba(209,11,12,0.25)', background: '#fff'}}>
-        {WEB_SEGS.map(([a, d, st, rate]) => (
+        {WEB_SEGS.map(([a, d, st, rate]) => st < 0 ? (
+          // ficha real del airbag Swift en autopartschile.cl: zoom hacia la pieza
+          <Sequence key={a} from={T.web + a} durationInFrames={d}>
+            <Img src={S('swift/web_airbag_swift.png')} style={{width: '100%', height: '100%', objectFit: 'cover', transformOrigin: '385px 581px', transform: `scale(${interpolate(t - a, [0, 14], [1, 1.3], {...cl, easing: OUT})})`}} />
+          </Sequence>
+        ) : (
           <Sequence key={a} from={T.web + a} durationInFrames={d}>
             <OffthreadVideo src={S('swift/web_recorrido.mp4')} muted startFrom={Math.round(st * 30)} playbackRate={rate} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1 + 0.03 * Math.min(1, (t - a) / d)})`}} />
           </Sequence>
         ))}
       </div>
+      <PriceOrbit f={f} at={T.web + 112} until={T.end} cx={625} cy={881} rx={330} ry={95} text=" $149.990 • DISPONIBLE • AIRBAG SWIFT •" size={56} />
       {t >= 60 && (
         <div style={{position: 'absolute', top: 1520, left: 0, right: 0, textAlign: 'center', transform: `scale(${spring({frame: t - 60, fps: 30, config: {damping: 12, stiffness: 260, mass: 0.5}})})`}}>
           <Img src={S('marca/pastilla-url.png')} style={{width: 780}} />
@@ -751,7 +757,9 @@ export const SFX: Sfx[] = [
   [T.desp + 82, 'sfx_pop', 0.5], [T.desp + 86, 'sfx_pop', 0.5], [T.desp + 90, 'sfx_pop', 0.5], [T.desp + 96, 'sfx_notif', 0.8],
   // compra web
   [T.web - 2, 'sfx_whoosh', 0.6], [T.web + 8, 'sfx_impact_soft', 0.5, 30], [T.web + 14, 'sfx_whoosh', 0.4], [T.web + 30, 'sfx_riser', 0.4, 14], [T.web + 44, 'sfx_whip', 0.7],
-  [T.web + 62, 'sfx_click', 0.6], [T.web + 84, 'sfx_click', 0.6], [T.web + 88, 'sfx_key', 0.4], [T.web + 92, 'sfx_key', 0.4], [T.web + 96, 'sfx_key', 0.4], [T.web + 116, 'sfx_ding', 0.5], [T.web + 60, 'sfx_pop', 0.5],
+  [T.web + 62, 'sfx_click', 0.6], [T.web + 84, 'sfx_click', 0.6], [T.web + 88, 'sfx_key', 0.4], [T.web + 92, 'sfx_key', 0.4], [T.web + 96, 'sfx_key', 0.4], [T.web + 60, 'sfx_pop', 0.5],
+  // anillos de precio + ka-ching de la ficha web
+  [206, 'sfx_riser', 0.3, 14], [324, 'sfx_riser', 0.3, 14], [566, 'sfx_riser', 0.3, 14], [T.web + 108, 'sfx_whoosh', 0.5], [T.web + 112, 'sfx_kaching_real', 0.85], [T.web + 113, 'sfx_coins', 0.4],
   // CTA
   [868, 'sfx_whip', 0.75], [896, 'sfx_click', 0.6], [902, 'sfx_click', 0.6], [908, 'sfx_click', 0.6], [924, 'sfx_pop', 0.6],
   [936, 'sfx_notif', 0.7],
@@ -808,6 +816,9 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}>
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting mute={mute} /></Sequence>
         <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697, T.desp, T.desp + 24]} />
+        <PriceOrbit f={f} at={206} until={T.master - 4} cx={540} cy={900} rx={390} ry={105} text=" $900.000 • MOTOR SWIFT • VENDIDO •" />
+        <PriceOrbit f={f} at={324} until={T.vitara - 4} cx={540} cy={975} rx={370} ry={100} text=" $520.000 • MOTOR MASTERVAN • VENDIDO •" />
+        <PriceOrbit f={f} at={566} until={612} cx={540} cy={960} rx={400} ry={108} text=" $384.990 • KIT AIRBAG SWIFT • VENDIDO •" />
         <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
         <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
         <Brackets f={f} at={616} until={T.black} x={70} y={390} w={940} h={590} />

@@ -83,3 +83,38 @@ export const Brackets: React.FC<{f: number; at: number; until: number; x: number
     </AbsoluteFill>
   );
 };
+
+/* precio orbitando en 3D alrededor de un repuesto: las letras recorren una
+   elipse inclinada; adelante se ven grandes y brillantes, atrás chicas,
+   tenues y desenfocadas (sensación de pasar por detrás del objeto) */
+export const PriceOrbit: React.FC<{f: number; at: number; until: number; cx: number; cy: number; rx: number; ry: number; text: string; size?: number; speed?: number; tilt?: number}> = ({f, at, until, cx, cy, rx, ry, text, size = 58, speed = 0.045, tilt = -8}) => {
+  if (f < at || f >= until) return null;
+  const t = f - at;
+  const grow = interpolate(t, [0, 12], [0.25, 1], {...cl, easing: OUT});
+  const fade = interpolate(f, [until - 6, until], [1, 0], cl) * interpolate(t, [0, 5], [0, 1], cl);
+  const ch = text.split('');
+  const n = ch.length;
+  const base = Math.PI / 2 + t * speed + (1 - grow) * 2.5;
+  const rad = (tilt * Math.PI) / 180;
+  const items = ch.map((c, i) => {
+    const th = base - (i / n) * Math.PI * 2; // sentido inverso: adelante se lee de izquierda a derecha
+    const x0 = Math.cos(th) * rx * grow, y0 = Math.sin(th) * ry * grow;
+    const x = cx + x0 * Math.cos(rad) - y0 * Math.sin(rad);
+    const y = cy + x0 * Math.sin(rad) + y0 * Math.cos(rad);
+    const depth = Math.sin(th); // 1 = adelante, -1 = atrás
+    const ang = 0;
+    return {c, x, y, depth, ang, i};
+  });
+  items.sort((a, b) => a.depth - b.depth);
+  return (
+    <AbsoluteFill style={{pointerEvents: 'none', opacity: fade}}>
+      {items.map(({c, x, y, depth, ang, i}) => {
+        const k = (depth + 1) / 2;
+        const red = c === '$' || c === '•';
+        return (
+          <span key={i} style={{position: 'absolute', left: x, top: y, transform: `translate(-50%, -50%) rotate(${-Math.cos(Math.atan2(y - cy, x - cx)) * 10 + tilt * 0.5}deg) scale(${0.55 + 0.75 * k})`, fontFamily: "'Anton', sans-serif", fontSize: size, lineHeight: 1, color: red ? '#FF2A2A' : '#fff', opacity: 0.25 + 0.75 * k, filter: k < 0.45 ? `blur(${(0.45 - k) * 6}px)` : undefined, textShadow: k > 0.5 ? '0 0 14px rgba(209,11,12,0.9), 0 4px 10px rgba(0,0,0,0.8)' : 'none'}}>{c}</span>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
