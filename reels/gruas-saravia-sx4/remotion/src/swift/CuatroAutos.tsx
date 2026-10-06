@@ -162,8 +162,18 @@ const HookFootage: React.FC = () => {
     </>
   );
 };
-const HookText: React.FC<{f: number}> = ({f}) => {
+const HookText: React.FC<{f: number; dia?: boolean}> = ({f, dia}) => {
   if (f >= T.ctx) return null;
+  if (dia) {
+    // variante "1 día en mi desarmadería": el gancho es el formato vlog, no la cifra
+    return (
+      <>
+        {f >= 16 && <div style={{position: 'absolute', top: 520, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 16, [0, 3, 8], [1.7, 0.96, 1], cl)})`, fontFamily: DISP, fontSize: 300, lineHeight: 1, color: '#fff', textShadow: '0 10px 40px rgba(0,0,0,0.9)'}}><span style={{color: RED2}}>1</span> DÍA</div>}
+        {f >= 26 && <div style={{position: 'absolute', top: 850, left: 0, right: 0, textAlign: 'center'}}><Rise f={f} at={26} style={{fontFamily: DISP, fontSize: 104, color: '#fff', textShadow: '0 8px 30px rgba(0,0,0,0.9)'}}>EN MI DESARMADURÍA</Rise></div>}
+        {f >= 38 && <div style={{position: 'absolute', top: 1010, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 38, [0, 3, 8], [1.5, 0.96, 1], cl)})`}}><Chip red size={76}>CON NUESTROS CLIENTES</Chip></div>}
+      </>
+    );
+  }
   const roll = (i: number) => (f >= 66 ? '?' : String(Math.floor(random(`d${i}-${Math.floor(f / 2)}`) * 10)));
   const big = (at: number, word: string, top: number) => f >= at && (
     <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - at, [0, 3, 8], [1.7, 0.96, 1], cl)})`, fontFamily: DISP, fontSize: 200, lineHeight: 1, color: '#fff', textShadow: '0 10px 40px rgba(0,0,0,0.9)'}}>
@@ -426,6 +436,20 @@ const AirbagText: React.FC<{f: number}> = ({f}) => {
   );
 };
 
+
+/* sello VENDIDO + número de cliente (variante "1 día") */
+const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 940, 3], [629, T.black, 1040, 4]];
+const Sold: React.FC<{f: number}> = ({f}) => (
+  <>
+    {STAMPS.map(([at, until, top, n]) => f >= at && f < until && (
+      <div key={n} style={{position: 'absolute', top, right: 70, transform: `rotate(-10deg) scale(${interpolate(f - at, [0, 3, 7], [2.3, 0.92, 1], cl)})`, opacity: interpolate(f - at, [0, 2], [0, 1], cl), textAlign: 'center'}}>
+        <div style={{border: `7px solid ${RED2}`, padding: '0 22px 4px', fontFamily: DISP, fontSize: 84, color: RED2, letterSpacing: 4, background: 'rgba(10,10,10,0.55)', textShadow: `0 0 18px ${RED}`}}>VENDIDO</div>
+        <div style={{marginTop: 8, fontFamily: DISP, fontSize: 38, color: '#fff', letterSpacing: 2, textShadow: '0 4px 14px rgba(0,0,0,0.9)'}}>CLIENTE {n} DE 4</div>
+      </div>
+    ))}
+  </>
+);
+
 /* reveal: negro + silencio → 4 AUTOS → 4 CLIENTES → cifra que crece */
 const Reveal: React.FC<{f: number}> = ({f}) => {
   if (f < T.black || f >= T.cta) return null;
@@ -563,7 +587,7 @@ const SFX: Sfx[] = [
   [816, 'sfx_notif', 0.7], [838, 'sfx_whoosh', 0.6], [846, 'sfx_ding', 0.5],
 ];
 
-export const CuatroAutos: React.FC<{vo?: string}> = ({vo}) => {
+export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) => {
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) {
@@ -601,7 +625,8 @@ export const CuatroAutos: React.FC<{vo?: string}> = ({vo}) => {
         <Shot src="swift/airbag_kit.mp4" from={598} dur={16} start={7.2} z={[1.1, 1.22]} dim={0.2} />
         <Shot src="swift/car_sx4.jpg" from={614} dur={T.black - 614} z={[1.0, 1.12]} origin="40% 50%" dim={0.45} />
         {/* texto */}
-        <HookText f={f} />
+        <HookText f={f} dia={dia} />
+        {dia && <Sold f={f} />}
         <SwiftText f={f} />
         <MasterText f={f} />
         <VitaraText f={f} />
@@ -616,7 +641,10 @@ export const CuatroAutos: React.FC<{vo?: string}> = ({vo}) => {
       {SFX.map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
       ))}
+      {dia && STAMPS.map(([at]) => <Sequence key={`st${at}`} from={at} durationInFrames={20}><Audio src={S('audio/sfx_metal.wav')} volume={0.8} /></Sequence>)}
       {vo && <Audio src={S(vo)} />}
     </AbsoluteFill>
   );
 };
+
+export const UnDiaClientes: React.FC<{vo?: string}> = ({vo}) => <CuatroAutos vo={vo} dia />;
