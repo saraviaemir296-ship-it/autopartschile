@@ -17,14 +17,16 @@ import {cl} from '../v2/look';
      2026-10-06). Marcas con stock: Suzuki, Kia, Chevrolet, Jeep. */
 
 const S = (f: string) => staticFile(f);
-const SORA = "'Sora', 'Montserrat', sans-serif";
+// Letra de títulos = la condensada de los flyers de la marca.
+const SORA = "'Anton', 'Sora', 'Montserrat', sans-serif";
 const MONO = "'JetBrains Mono', monospace";
 const SCRIPT = "'Kaushan', cursive";
-const BLUE = '#3D8BFF';
-const CYAN = '#7FD8FF';
-const RED = '#FF2D46';
-const GREEN = '#2BE38A';
-const BG = '#04060C';
+// Paleta de la marca: negro, blanco y rojo (el rojo del logo y uno más vivo para brillos).
+const BLUE = '#D10B0C';
+const CYAN = '#FFFFFF';
+const RED = '#FF2A2A';
+const GREEN = '#FFFFFF';
+const BG = '#0A0A0A';
 
 const sp = (f: number, d = 0, damping = 13, stiffness = 200) => spring({frame: f - d, fps: 30, config: {damping, stiffness, mass: 0.6}});
 const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL').replace(/,/g, '.');
@@ -90,7 +92,7 @@ const Kicker: React.FC<{t: number; children: React.ReactNode; color?: string; to
 const Chip: React.FC<{t: number; a: number; children: React.ReactNode; color?: string}> = ({t, a, children, color = GREEN}) => {
   const p = sp(t, a, 12, 260);
   return (
-    <div style={{display: 'flex', alignItems: 'center', gap: 16, padding: '14px 26px', borderRadius: 18, background: 'rgba(10,18,36,0.85)', border: `2px solid ${color}88`, boxShadow: `0 0 24px ${color}44, inset 0 0 18px ${color}22`, fontFamily: SORA, fontWeight: 800, fontSize: 38, color: '#fff', opacity: Math.min(1, p * 2), transform: `translateX(${(1 - p) * -80}px)`}}>
+    <div style={{display: 'flex', alignItems: 'center', gap: 16, padding: '14px 26px', borderRadius: 18, background: 'rgba(14,14,14,0.9)', border: `2px solid ${color}88`, boxShadow: `0 0 24px ${color}44, inset 0 0 18px ${color}22`, fontFamily: SORA, fontWeight: 800, fontSize: 38, color: '#fff', opacity: Math.min(1, p * 2), transform: `translateX(${(1 - p) * -80}px)`}}>
       <span style={{width: 34, height: 34, borderRadius: 99, background: color, boxShadow: glow(color, 0.5), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: BG}}>✓</span>
       {children}
     </div>
@@ -161,13 +163,13 @@ const Chart: React.FC<{t: number; top: number}> = ({t, top}) => {
     <svg width={900} height={240} style={{position: 'absolute', left: 90, top, overflow: 'visible'}}>
       <defs>
         <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={GREEN} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={GREEN} stopOpacity="0" />
+          <stop offset="0%" stopColor={RED} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={RED} stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={`${d} L900 240 L0 240 Z`} fill="url(#area)" opacity={interpolate(t, [10, 22], [0, 1], cl)} />
-      <path d={d} fill="none" stroke={GREEN} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={len} strokeDashoffset={draw} style={{filter: `drop-shadow(0 0 10px ${GREEN})`}} />
-      {t > 22 && <circle cx={900} cy={20} r={12 + Math.sin(t / 3) * 3} fill={GREEN} style={{filter: `drop-shadow(0 0 14px ${GREEN})`}} />}
+      <path d={d} fill="none" stroke={RED} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={len} strokeDashoffset={draw} style={{filter: `drop-shadow(0 0 10px ${RED})`}} />
+      {t > 22 && <circle cx={900} cy={20} r={12 + Math.sin(t / 3) * 3} fill={RED} style={{filter: `drop-shadow(0 0 14px ${RED})`}} />}
     </svg>
   );
 };
@@ -182,7 +184,7 @@ const Swift: React.FC<{t: number}> = ({t}) => {
       </div>
       <HoloCard t={t - 4} src="swift/motor-vano.jpg" top={360} h={560} />
       <Chart t={t - PRICE_AT + 10} top={940} />
-      <div style={{position: 'absolute', top: 1020, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 800, fontSize: 150, color: t >= PRICE_AT + 14 ? GREEN : '#fff', textShadow: glow(t >= PRICE_AT + 14 ? GREEN : BLUE, 0.9), transform: `scale(${t >= PRICE_AT + 14 ? interpolate(t, [PRICE_AT + 14, PRICE_AT + 18, PRICE_AT + 22], [1.2, 0.96, 1], cl) : 1})`}}>
+      <div style={{position: 'absolute', top: 1020, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 800, fontSize: 150, color: t >= PRICE_AT + 14 ? GREEN : '#fff', textShadow: glow(RED, 0.9), transform: `scale(${t >= PRICE_AT + 14 ? interpolate(t, [PRICE_AT + 14, PRICE_AT + 18, PRICE_AT + 22], [1.2, 0.96, 1], cl) : 1})`}}>
         {t >= PRICE_AT && <Decode text={clp(1078990)} t={(t - PRICE_AT) * 0.7} speed={1} />}
       </div>
       <div style={{position: 'absolute', top: 1230, left: 90, right: 90, display: 'flex', flexDirection: 'column', gap: 16}}>
@@ -213,7 +215,7 @@ const Master: React.FC<{t: number}> = ({t}) => {
           <Img src={S('swift/factura_mv.png')} style={{display: 'block', width: '100%'}} />
         </div>
       )}
-      <div style={{position: 'absolute', top: 1100, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 800, fontSize: 150, color: done ? GREEN : '#fff', textShadow: glow(done ? GREEN : RED, 0.9), transform: `scale(${done ? interpolate(t, [PRICE_AT + 12, PRICE_AT + 16, PRICE_AT + 20], [1.2, 0.96, 1], cl) : 1})`}}>
+      <div style={{position: 'absolute', top: 1100, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 800, fontSize: 150, color: done ? GREEN : '#fff', textShadow: glow(RED, 0.9), transform: `scale(${done ? interpolate(t, [PRICE_AT + 12, PRICE_AT + 16, PRICE_AT + 20], [1.2, 0.96, 1], cl) : 1})`}}>
         {t >= PRICE_AT && <Decode text={clp(119000)} t={(t - PRICE_AT) * 0.8} speed={1} />}
       </div>
       <div style={{position: 'absolute', top: 1300, left: 90, right: 90, display: 'flex', flexDirection: 'column', gap: 16}}>
@@ -248,22 +250,22 @@ const Ruta: React.FC<{t: number}> = ({t}) => {
   return (
     <AbsoluteFill>
       <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
-        <path d={d} fill="none" stroke={`${GREEN}33`} strokeWidth="14" strokeLinecap="round" />
-        <path d={d} fill="none" stroke={GREEN} strokeWidth="10" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={draw} style={{filter: `drop-shadow(0 0 12px ${GREEN})`}} />
+        <path d={d} fill="none" stroke={`${RED}33`} strokeWidth="14" strokeLinecap="round" />
+        <path d={d} fill="none" stroke={RED} strokeWidth="10" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={draw} style={{filter: `drop-shadow(0 0 12px ${GREEN})`}} />
         <circle cx={760} cy={1300} r={20} fill="#fff" style={{filter: `drop-shadow(0 0 12px ${CYAN})`}} />
         <g transform={`translate(280 470) scale(${pin})`}>
-          <circle r={70} fill={GREEN} opacity={0.2} />
-          <circle r={26} fill={GREEN} style={{filter: `drop-shadow(0 0 16px ${GREEN})`}} />
+          <circle r={70} fill={RED} opacity={0.2} />
+          <circle r={26} fill={RED} style={{filter: `drop-shadow(0 0 16px ${GREEN})`}} />
         </g>
       </svg>
-      {t > 6 && t < 42 && <div style={{position: 'absolute', left: x - 46, top: y - 46, width: 92, height: 92, borderRadius: 99, background: BG, border: `4px solid ${GREEN}`, boxShadow: glow(GREEN, 0.8), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48}}>🚚</div>}
+      {t > 6 && t < 42 && <div style={{position: 'absolute', left: x - 46, top: y - 46, width: 92, height: 92, borderRadius: 99, background: BG, border: `4px solid ${RED}`, boxShadow: glow(RED, 0.8), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48}}>🚚</div>}
       <div style={{position: 'absolute', left: 560, top: 1340, fontFamily: SORA, color: '#fff'}}>
         <div style={{fontFamily: MONO, fontSize: 28, color: CYAN, letterSpacing: '0.2em'}}>DESDE</div>
         <div style={{fontWeight: 800, fontSize: 44}}>La Pintana</div>
       </div>
       <div style={{position: 'absolute', left: 380, top: 400, fontFamily: SORA, color: '#fff', opacity: interpolate(t, [40, 48], [0, 1], cl)}}>
-        <div style={{fontFamily: MONO, fontSize: 28, color: GREEN, letterSpacing: '0.2em'}}>HASTA</div>
-        <div style={{fontWeight: 800, fontSize: 64, textShadow: glow(GREEN, 0.5)}}>Viña del Mar</div>
+        <div style={{fontFamily: MONO, fontSize: 28, color: RED, letterSpacing: '0.2em'}}>HASTA</div>
+        <div style={{fontWeight: 800, fontSize: 64, textShadow: glow(RED, 0.5)}}>Viña del Mar</div>
       </div>
     </AbsoluteFill>
   );
@@ -276,14 +278,14 @@ const Vitara: React.FC<{t: number}> = ({t}) => {
   const scroll = interpolate(t, [a1 + 14, a2 - 6], [0, -40], {...cl, easing: (x) => x * x * (3 - 2 * x)});
   return (
     <AbsoluteFill>
-      <Kicker t={t} top={150} color={GREEN}>CLIENTE #3 · DESDE LA WEB</Kicker>
-      <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 80, color: '#fff', textShadow: glow(GREEN, 0.5)}}>
+      <Kicker t={t} top={150} color={RED}>CLIENTE #3 · DESDE LA WEB</Kicker>
+      <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 80, color: '#fff', textShadow: glow(RED, 0.5)}}>
         <Decode text="SUZUKI VITARA AZUL" t={t} speed={1.4} />
       </div>
       {/* 1. lo vio publicado */}
       {t < a1 && (
         <>
-          <div style={{position: 'absolute', left: 320, width: 440, top: 340, borderRadius: 34, overflow: 'hidden', border: `4px solid ${GREEN}`, boxShadow: glow(GREEN, 0.9), transform: `perspective(1200px) rotateX(${(1 - webP) * 40}deg) scale(${0.8 + 0.2 * webP})`, opacity: Math.min(1, webP * 2)}}>
+          <div style={{position: 'absolute', left: 320, width: 440, top: 340, borderRadius: 34, overflow: 'hidden', border: `4px solid ${RED}`, boxShadow: glow(RED, 0.9), transform: `perspective(1200px) rotateX(${(1 - webP) * 40}deg) scale(${0.8 + 0.2 * webP})`, opacity: Math.min(1, webP * 2)}}>
             <Img src={S('swift/web_vitara.png')} style={{display: 'block', width: '100%'}} />
           </div>
           <div style={{position: 'absolute', top: 1520, left: 90, right: 90}}><Chip t={t} a={10}>Lo vio publicado en autopartschile.cl</Chip></div>
@@ -291,39 +293,44 @@ const Vitara: React.FC<{t: number}> = ({t}) => {
       )}
       {/* 2. escribió */}
       {t >= a1 && t < a2 && (
-        <div style={{position: 'absolute', left: 130, right: 130, top: 380, height: 780, borderRadius: 40, overflow: 'hidden', border: `4px solid ${GREEN}`, boxShadow: `${glow(GREEN, 0.9)}`, background: '#efe7de', transform: `translateY(${(1 - chatP) * 400}px) rotate(${(1 - chatP) * 6}deg)`, opacity: Math.min(1, chatP * 2)}}>
+        <div style={{position: 'absolute', left: 130, right: 130, top: 380, height: 780, borderRadius: 40, overflow: 'hidden', border: `4px solid ${RED}`, boxShadow: `${glow(RED, 0.9)}`, background: '#efe7de', transform: `translateY(${(1 - chatP) * 400}px) rotate(${(1 - chatP) * 6}deg)`, opacity: Math.min(1, chatP * 2)}}>
           <Img src={S('swift/chat_vitara.png')} style={{width: '100%', transform: `translateY(${scroll}px)`}} />
         </div>
       )}
       {t >= a1 + 16 && t < a2 && (
-        <div style={{position: 'absolute', top: 1260, left: 0, right: 0, textAlign: 'center', fontFamily: SCRIPT, fontSize: 84, color: '#fff', textShadow: glow(GREEN, 0.8), opacity: interpolate(t, [a1 + 16, a1 + 24], [0, 1], cl)}}>
+        <div style={{position: 'absolute', top: 1260, left: 0, right: 0, textAlign: 'center', fontFamily: SCRIPT, fontSize: 84, color: '#fff', textShadow: glow(RED, 0.8), opacity: interpolate(t, [a1 + 16, a1 + 24], [0, 1], cl)}}>
           "¿el portalón está disponible?"
         </div>
       )}
       {/* 3. el auto en el local */}
-      <Sequence from={a2} durationInFrames={V_LOCAL}><HoloVideo t={t - a2} src="swift/vitara_local_anon.mp4" from={0} top={360} h={980} color={GREEN} /></Sequence>
+      <Sequence from={a2} durationInFrames={V_LOCAL}><HoloVideo t={t - a2} src="swift/vitara_local_anon.mp4" from={0} top={360} h={980} color={RED} /></Sequence>
       {t >= a2 && t < a3 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a2} a={4}>En desarme en nuestro local</Chip></div>}
       {/* 4. lo que se llevó */}
-      <Sequence from={a3} durationInFrames={V_PORT}><HoloVideo t={t - a3} src="swift/vitara_portalon.mp4" from={0.6} top={360} h={760} color={GREEN} /></Sequence>
+      <Sequence from={a3} durationInFrames={V_PORT}><HoloVideo t={t - a3} src="swift/vitara_portalon.mp4" from={0.6} top={360} h={760} color={RED} /></Sequence>
       {t >= a3 && t < a4 && (
         <>
-          <div style={{position: 'absolute', top: 1150, left: 90, fontFamily: MONO, fontWeight: 800, fontSize: 34, color: GREEN, letterSpacing: '0.2em', textShadow: glow(GREEN, 0.5)}}>SE LLEVÓ:</div>
+          <div style={{position: 'absolute', top: 1150, left: 90, fontFamily: MONO, fontWeight: 800, fontSize: 34, color: RED, letterSpacing: '0.2em', textShadow: glow(RED, 0.5)}}>SE LLEVÓ:</div>
           <div style={{position: 'absolute', top: 1210, left: 90, right: 90, display: 'flex', flexDirection: 'column', gap: 14}}>
             {V_ITEMS.map((it, i) => <Chip key={it} t={t - a3} a={8 + i * 12}>{it}</Chip>)}
-            <Chip t={t - a3} a={48} color={CYAN}>+ un corte que sale mañana</Chip>
+            <Chip t={t - a3} a={48} color={CYAN}>+ un corte para Viña del Mar</Chip>
           </div>
+          {t - a3 >= 62 && (
+            <div style={{position: 'absolute', top: 560, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
+              <div style={{fontFamily: SORA, fontSize: 150, color: '#fff', background: BLUE, border: '8px solid #fff', borderRadius: 24, padding: '0 40px 8px', boxShadow: glow(RED, 0.9), transform: `rotate(-6deg) scale(${interpolate(t - a3, [62, 66, 70], [2.2, 0.94, 1], cl)})`}}>VENDIDO</div>
+            </div>
+          )}
         </>
       )}
       {/* 5. cargado */}
-      <Sequence from={a4} durationInFrames={V_CARGA}><HoloVideo t={t - a4} src="swift/vitara_carga.mp4" from={1.0} top={360} h={980} color={GREEN} /></Sequence>
+      <Sequence from={a4} durationInFrames={V_CARGA}><HoloVideo t={t - a4} src="swift/vitara_carga.mp4" from={1.0} top={360} h={980} color={RED} /></Sequence>
       {t >= a4 && t < a5 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a4} a={2}>Cargado y listo</Chip></div>}
       {/* 6. despacho a región */}
       {t >= a5 && (
         <>
           <Ruta t={t - a5} />
           <div style={{position: 'absolute', top: 1520, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
-            <div style={{fontFamily: SORA, fontWeight: 800, fontSize: 52, color: BG, background: GREEN, borderRadius: 18, padding: '10px 30px', boxShadow: glow(GREEN, 0.8), opacity: interpolate(t - a5, [44, 50], [0, 1], cl), transform: `scale(${interpolate(t - a5, [44, 48, 52], [1.4, 0.95, 1], cl)})`}}>
-              El corte sale mañana a región 📦
+            <div style={{fontFamily: SORA, fontWeight: 800, fontSize: 52, color: BG, background: GREEN, borderRadius: 18, padding: '10px 30px', boxShadow: glow(RED, 0.8), opacity: interpolate(t - a5, [44, 50], [0, 1], cl), transform: `scale(${interpolate(t - a5, [44, 48, 52], [1.4, 0.95, 1], cl)})`}}>
+              Todo vendido · despacho a región 📦
             </div>
           </div>
         </>
@@ -355,7 +362,7 @@ const Stock: React.FC<{t: number}> = ({t}) => {
         const a = (i / BRANDS.length) * Math.PI * 2 + t / 40;
         const p = sp(t, 56 + i * 5, 12, 240);
         return (
-          <div key={b} style={{position: 'absolute', left: 540 + Math.cos(a) * 360 - 120, top: 860 + Math.sin(a) * 300 - 36, width: 240, textAlign: 'center', padding: '14px 0', borderRadius: 16, background: 'rgba(10,18,36,0.9)', border: `2px solid ${CYAN}`, boxShadow: glow(CYAN, 0.4), fontFamily: SORA, fontWeight: 800, fontSize: 36, color: '#fff', opacity: Math.min(1, p * 2), transform: `scale(${p})`}}>
+          <div key={b} style={{position: 'absolute', left: 540 + Math.cos(a) * 360 - 120, top: 860 + Math.sin(a) * 300 - 36, width: 240, textAlign: 'center', padding: '14px 0', borderRadius: 16, background: 'rgba(14,14,14,0.92)', border: `2px solid ${CYAN}`, boxShadow: glow(CYAN, 0.4), fontFamily: SORA, fontWeight: 800, fontSize: 36, color: '#fff', opacity: Math.min(1, p * 2), transform: `scale(${p})`}}>
             {b}
           </div>
         );
@@ -410,7 +417,7 @@ const Fin: React.FC<{t: number}> = ({t}) => {
         <Decode text="AUTOPARTSCHILE.CL" t={t - 20} speed={1.5} />
       </div>
       <div style={{position: 'absolute', top: 1080, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: interpolate(t, [36, 44], [0, 1], cl)}}>
-        <div style={{fontFamily: MONO, fontWeight: 800, fontSize: 58, color: BG, background: GREEN, borderRadius: 18, padding: '12px 34px', boxShadow: glow(GREEN, 0.8)}}>WhatsApp +56 9 5381 7335</div>
+        <div style={{fontFamily: SORA, fontSize: 64, color: '#fff', background: BLUE, border: '4px solid #fff', borderRadius: 18, padding: '6px 34px 10px', boxShadow: glow(RED, 0.8)}}>WhatsApp +56 9 5381 7335</div>
       </div>
       <div style={{position: 'absolute', top: 1230, left: 90, right: 90, display: 'flex', justifyContent: 'space-between', opacity: interpolate(t, [48, 56], [0, 1], cl)}}>
         {[['242', 'repuestos'], ['3', 'clientes reales'], ['CL', 'despacho a todo Chile']].map(([a, b]) => (
@@ -428,7 +435,7 @@ const Fin: React.FC<{t: number}> = ({t}) => {
 export const NeonMotores: React.FC = () => {
   const f = useCurrentFrame();
   const l = (k: Key) => f - T[k][0];
-  const tint = f >= T.master[0] && f < T.master[1] ? RED : f >= T.vitara[0] && f < T.vitara[1] ? GREEN : BLUE;
+  const tint = f >= T.master[0] && f < T.master[1] ? RED : f >= T.vitara[0] && f < T.vitara[1] ? RED : BLUE;
   // destello entre escenas
   const cut = Math.min(...ORDER.map(([k]) => Math.abs(f - T[k][0])));
   return (
