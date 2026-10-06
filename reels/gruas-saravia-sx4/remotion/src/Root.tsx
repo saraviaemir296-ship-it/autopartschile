@@ -15,9 +15,11 @@ import {MotorSwift, SWIFT_TOTAL} from './swift/MotorSwift';
 import {MotorSwiftUGC, SWIFT_UGC_TOTAL} from './swift/MotorSwiftUGC';
 import {SuzukiLeads, SUZUKI_LEADS_TOTAL} from './swift/SuzukiLeads';
 import {MotorCompra, COMPRA_TOTAL} from './swift/MotorCompra';
+import {NeonMotores, NEON_TOTAL} from './swift/NeonMotores';
 
 export const Root: React.FC = () => (
   <>
+    <Composition id="NeonMotores" component={NeonMotores} durationInFrames={NEON_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="MotorCompra" component={MotorCompra} durationInFrames={COMPRA_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="SuzukiLeads" component={SuzukiLeads} durationInFrames={SUZUKI_LEADS_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="MotorSwiftUGC" component={MotorSwiftUGC} durationInFrames={SWIFT_UGC_TOTAL} fps={FPS} width={W} height={H} />

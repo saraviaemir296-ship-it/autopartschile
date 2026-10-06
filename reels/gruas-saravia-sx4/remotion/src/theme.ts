@@ -53,3 +53,9 @@ export const springSoft = {damping: 200, stiffness: 120, mass: 0.9};
 export const springPop = {damping: 18, stiffness: 160, mass: 0.7};
 
 export const s = (seconds: number) => Math.round(seconds * FPS);
+// Tipografías del estilo "neón" (OFL): Sora geométrica + Kaushan Script para acentos.
+loadFont({family: 'Sora', url: staticFile('fonts/Sora-800.woff2'), weight: '800', format: 'woff2'});
+loadFont({family: 'Sora', url: staticFile('fonts/Sora-800-ext.woff2'), weight: '800', format: 'woff2'});
+loadFont({family: 'Sora', url: staticFile('fonts/Sora-400.woff2'), weight: '400', format: 'woff2'});
+loadFont({family: 'Kaushan', url: staticFile('fonts/Kaushan.woff2'), weight: '400', format: 'woff2'});
+loadFont({family: 'Kaushan', url: staticFile('fonts/Kaushan-ext.woff2'), weight: '400', format: 'woff2'});
