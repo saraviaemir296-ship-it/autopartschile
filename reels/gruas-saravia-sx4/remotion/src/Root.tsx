@@ -17,9 +17,11 @@ import {SuzukiLeads, SUZUKI_LEADS_TOTAL} from './swift/SuzukiLeads';
 import {MotorCompra, COMPRA_TOTAL} from './swift/MotorCompra';
 import {NeonMotores, NEON_TOTAL} from './swift/NeonMotores';
 import {SemanaDesarme, SEMANA_TOTAL, Carrusel} from './swift/SemanaDesarme';
+import {VendimosTodo, VENDIMOS_TOTAL} from './swift/VendimosTodo';
 
 export const Root: React.FC = () => (
   <>
+    <Composition id="VendimosTodo" component={VendimosTodo} durationInFrames={VENDIMOS_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="SemanaDesarme" component={SemanaDesarme} durationInFrames={SEMANA_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Carrusel" component={Carrusel} durationInFrames={1} fps={FPS} width={1080} height={1350} defaultProps={{i: 0}} />
     <Composition id="NeonMotores" component={NeonMotores} durationInFrames={NEON_TOTAL} fps={FPS} width={W} height={H} />

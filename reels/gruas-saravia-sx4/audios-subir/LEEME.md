@@ -10,3 +10,10 @@ en la rama `claude/gruasaravia-reel-video-jnm80i`. Después avísale a Claude pa
 | `musica-pop-latina.mp3` | Pista bailable años 80–90, sin derechos | https://app-uploads.krea.ai/audio/7fbc5657-389d-400b-bce9-0f49ce454dbf.mp3 |
 
 Basta con una de las dos voces. Si grabas tu propia voz, súbela como `voz-v15-propia.m4a`.
+
+## Voz "Vendimos $2.704.990" (comerciante chileno) — 2026-10-06
+Descarga UNA de estas dos (elige la que suene más chilena) y súbela a esta
+misma carpeta con el nombre `voz-vendimos.mp3`:
+- Voz A (Will): https://app-uploads.krea.ai/audio/d2991d75-4db3-44bc-bd39-53da46565d10.mp3
+- Voz B (Chris): https://app-uploads.krea.ai/audio/e8ec2500-d535-4e97-8440-8164df81f6dc.mp3
+Si no se puede descargar: ábrelo en el celular y graba la pantalla con sonido.
