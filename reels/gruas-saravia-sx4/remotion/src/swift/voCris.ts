@@ -1,0 +1,5 @@
+// Voz de Cristian (grabación propia) cortada por frase. Timeline re-mapeado para que cada
+// escena dure lo que dura su frase. SEGS: [inicioInterno, finInterno, inicioExterno, largoExterno]
+export const CRIS_SEGS: [number, number, number, number][] = [[0, 72, 0, 90], [72, 150, 90, 95], [150, 270, 185, 124], [270, 375, 309, 137], [375, 505, 446, 135], [505, 540, 581, 41], [540, 641, 622, 108], [641, 679, 730, 59], [679, 750, 789, 120], [750, 870, 909, 120], [870, 958, 1029, 111], [958, 1018, 1140, 62]];
+export const CRIS_VO: [number, number, string][] = [[4, 81, "audio/vo/cris_d00.wav"], [92, 88, "audio/vo/cris_d01.wav"], [189, 115, "audio/vo/cris_d02.wav"], [312, 129, "audio/vo/cris_d03.wav"], [450, 126, "audio/vo/cris_d04.wav"], [583, 34, "audio/vo/cris_d05.wav"], [625, 100, "audio/vo/cris_d06.wav"], [750, 34, "audio/vo/cris_d07.wav"], [789, 115, "audio/vo/cris_d08.wav"], [915, 85, "audio/vo/cris_d09.wav"], [1032, 103, "audio/vo/cris_d10.wav"], [1144, 53, "audio/vo/cris_d11.wav"]];
+export const CRIS_TOTAL = 1202;

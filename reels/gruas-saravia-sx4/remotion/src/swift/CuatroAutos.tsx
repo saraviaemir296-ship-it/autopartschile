@@ -32,7 +32,7 @@ const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL').replace(/
 const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t - d, fps: 30, config: {damping, stiffness, mass: 0.5}});
 
 /* ───────────── línea de tiempo (frames @30) ───────────── */
-const T = {
+export const T = {
   hook: 0, ctx: 72, swift: 150, master: 270, vitara: 375, vitPieces: 442, vitPrice: 478,
   airbag: 540, airPrice: 624, black: 641, reveal: 651, desp: 750, cta: 870, end: 958, total: 958 + STING_LEN,
 };
@@ -542,7 +542,7 @@ const Despachos: React.FC<{f: number}> = ({f}) => {
 };
 
 /* sello VENDIDO + número de cliente (variante "1 día") */
-const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 940, 3], [629, T.black, 1040, 4]];
+export const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 940, 3], [629, T.black, 1040, 4]];
 const Sold: React.FC<{f: number}> = ({f}) => (
   <>
     {STAMPS.map(([at, until, top, n]) => f >= at && f < until && (
@@ -647,7 +647,7 @@ const Grain: React.FC<{f: number}> = ({f}) => (
 
 /* ───────────── sonido: una capa por evento ───────────── */
 type Sfx = [number, string, number, number?];
-const SFX: Sfx[] = [
+export const SFX: Sfx[] = [
   // gancho
   [0, 'sfx_whip', 0.8], [0, 'sfx_sub', 0.7], [4, 'sfx_shutter', 0.5], [8, 'sfx_shutter', 0.5], [12, 'sfx_shutter', 0.5],
   [16, 'sfx_impact', 0.75, 14], [30, 'sfx_impact', 0.75, 14], [44, 'sfx_billcount', 0.55], [58, 'sfx_tick', 0.5],
@@ -681,7 +681,7 @@ const SFX: Sfx[] = [
   [936, 'sfx_notif', 0.7],
 ];
 
-export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) => {
+export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}> = ({vo, dia, mute}) => {
   const voLines = dia ? VO_DIA : null;
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
@@ -729,7 +729,7 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) =
         <Reveal f={f} />
         <Despachos f={f} />
         <Cta f={f} />
-        <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
+        <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting mute={mute} /></Sequence>
         <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697, T.desp, T.desp + 24]} />
         <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
         <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
@@ -740,11 +740,11 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) =
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       <Grain f={f} />
       {/* sonido */}
-      {SFX.map(([at, n, v, d], i) => (
+      {!mute && SFX.map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v) * (voLines && voOn(voLines, at + x) ? 0.45 : 1)} /></Sequence>
       ))}
-      {dia && STAMPS.map(([at]) => <Sequence key={`st${at}`} from={at} durationInFrames={20}><Audio src={S('audio/sfx_metal.wav')} volume={0.8} /></Sequence>)}
-      {voLines && voLines.map(([st, du, file]) => <Sequence key={file} from={st} durationInFrames={du + 2}><Audio src={S(file)} volume={1} /></Sequence>)}
+      {dia && !mute && STAMPS.map(([at]) => <Sequence key={`st${at}`} from={at} durationInFrames={20}><Audio src={S('audio/sfx_metal.wav')} volume={0.8} /></Sequence>)}
+      {!mute && voLines && voLines.map(([st, du, file]) => <Sequence key={file} from={st} durationInFrames={du + 2}><Audio src={S(file)} volume={1} /></Sequence>)}
       {vo && <Audio src={S(vo)} />}
     </AbsoluteFill>
   );

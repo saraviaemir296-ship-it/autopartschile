@@ -31,7 +31,7 @@ const Stripes: React.FC<{k: number}> = ({k}) => {
   );
 };
 
-export const LogoSting: React.FC = () => {
+export const LogoSting: React.FC<{mute?: boolean}> = ({mute}) => {
   const t = useCurrentFrame();
   const apc = p(t, 2, 12);
   const div = p(t, 9, 17);
@@ -62,10 +62,14 @@ export const LogoSting: React.FC = () => {
       <div style={{position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${sw - 9}%, rgba(255,255,255,0.8) ${sw}%, transparent ${sw + 9}%)`}} />
       {t >= 36 && <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 180, top: 1350, width: 720, transform: `scale(${pop(36)})`}} />}
       {t >= 40 && <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 140, top: 1460, width: 800, transform: `scale(${pop(40)})`}} />}
-      <Sequence from={0} durationInFrames={25}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.6} /></Sequence>
-      <Sequence from={14} durationInFrames={30}><Audio src={S('audio/sfx_impact_soft.wav')} volume={(x) => 0.5 * interpolate(x, [24, 30], [1, 0], cl)} /></Sequence>
-      <Sequence from={27} durationInFrames={10}><Audio src={S('audio/sfx_click.wav')} volume={0.5} /></Sequence>
-      <Sequence from={36} durationInFrames={20}><Audio src={S('audio/sfx_notif.wav')} volume={0.6} /></Sequence>
+      {!mute && (
+        <>
+          <Sequence from={0} durationInFrames={25}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.6} /></Sequence>
+          <Sequence from={14} durationInFrames={30}><Audio src={S('audio/sfx_impact_soft.wav')} volume={(x) => 0.5 * interpolate(x, [24, 30], [1, 0], cl)} /></Sequence>
+          <Sequence from={27} durationInFrames={10}><Audio src={S('audio/sfx_click.wav')} volume={0.5} /></Sequence>
+          <Sequence from={36} durationInFrames={20}><Audio src={S('audio/sfx_notif.wav')} volume={0.6} /></Sequence>
+        </>
+      )}
     </AbsoluteFill>
   );
 };
@@ -73,3 +77,6 @@ export const LogoSting: React.FC = () => {
 /* marca de agua blanca discreta para escenas oscuras (presencia de marca) */
 export const Bug: React.FC<{show: boolean}> = ({show}) =>
   !show ? null : <Img src={S('marca/anim/saravia.png')} style={{position: 'absolute', left: 60, top: 118, width: 200, filter: 'brightness(0) invert(1) drop-shadow(0 2px 6px rgba(0,0,0,0.6))', opacity: 0.85}} />;
+
+// mismos SFX del cierre, para quien re-mapea el tiempo y monta el audio por fuera
+export const STING_SFX: [number, string, number, number][] = [[0, 'sfx_whoosh', 0.6, 25], [14, 'sfx_impact_soft', 0.5, 30], [27, 'sfx_click', 0.5, 10], [36, 'sfx_notif', 0.6, 20]];
