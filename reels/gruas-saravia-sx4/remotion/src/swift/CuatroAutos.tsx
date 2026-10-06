@@ -3,7 +3,7 @@ import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate,
 import {cl} from '../v2/look';
 import {VO_DIA, voOn} from './voLines';
 import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
-import {Bug, LogoSting, STING_LEN} from './LogoSting';
+import {LogoSting, STING_LEN} from './LogoSting';
 
 /* "4 AUTOS / 4 CLIENTES" — reedición completa (no es StoryVentas con más efectos).
    Decisiones de edición:
@@ -34,7 +34,7 @@ const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t
 /* ───────────── línea de tiempo (frames @30) ───────────── */
 export const T = {
   hook: 0, ctx: 72, swift: 150, master: 270, vitara: 375, vitPieces: 442, vitPrice: 478,
-  airbag: 540, airPrice: 624, black: 641, reveal: 651, desp: 750, cta: 870, end: 958, total: 958 + STING_LEN,
+  airbag: 540, airPrice: 624, black: 641, reveal: 651, desp: 750, cta: 870, web: 958, end: 1108, total: 1108 + STING_LEN,
 };
 export const CUATRO_TOTAL = T.total;
 
@@ -373,7 +373,7 @@ const VitaraText: React.FC<{f: number}> = ({f}) => {
   return (
     <>
       {/* progreso de la venta */}
-      <div style={{position: 'absolute', top: 210, left: 50, right: 50, display: 'flex', justifyContent: 'center', gap: 10}}>
+      <div style={{position: 'absolute', top: 240, left: 50, right: 50, display: 'flex', justifyContent: 'center', gap: 10}}>
         {STEP4.map((s, i) => {
           const on = f >= act[i];
           return <span key={i} style={{fontFamily: DISP, fontSize: 36, padding: '6px 14px 8px', background: on ? (i === 3 ? RED : '#fff') : 'rgba(255,255,255,0.12)', color: on ? (i === 3 ? '#fff' : BG) : 'rgba(255,255,255,0.5)', transform: `scale(${on && f - act[i] < 6 ? interpolate(f - act[i], [0, 2, 6], [1, 1.2, 1], cl) : 1})`}}>{s}</span>;
@@ -541,6 +541,79 @@ const Despachos: React.FC<{f: number}> = ({f}) => {
   );
 };
 
+
+/* compra en la web: el mockup del afiche entra en 3D, la cámara se mete en su
+   celular y pasa a la grabación real del recorrido en autopartschile.cl */
+const WEB_SEGS: [number, number, number, number, string][] = [ // desde, largo, inicio(s), velocidad, paso
+  [44, 18, 0.4, 2, 'TE BUSCAS EN GOOGLE'], [62, 22, 2.3, 1.5, 'ENTRAS AL SITIO'], [84, 32, 4.6, 2, 'BUSCAS TU REPUESTO'], [116, 34, 7.9, 1, 'COMPRAS O COTIZAS'],
+];
+const WebScene: React.FC<{f: number}> = ({f}) => {
+  if (f < T.web || f >= T.end) return null;
+  const t = f - T.web;
+  const PX = 721, PY = 971; // centro del celular dentro del mockup
+  if (t < 44) {
+    const k = spring({frame: t, fps: 30, config: {damping: 15, stiffness: 160, mass: 0.7}});
+    const zoom = interpolate(t, [30, 43], [1, 5.5], {...cl, easing: Easing.in(Easing.cubic)});
+    const bl = interpolate(t, [32, 43], [0, 14], cl);
+    return (
+      <AbsoluteFill>
+        <PremiumBg f={f} />
+        <div style={{position: 'absolute', top: 230, left: 70, right: 70}}>
+          <Rise f={f} at={T.web + 2} style={{fontFamily: DISP, fontSize: 80, color: '#fff'}}>O COMPRA DIRECTO</Rise>
+          <Rise f={f} at={T.web + 6} style={{fontFamily: DISP, fontSize: 120, lineHeight: 1, color: RED2}}>EN LA WEB</Rise>
+        </div>
+        <AbsoluteFill style={{transform: `scale(${zoom})`, transformOrigin: `${PX}px ${PY}px`, filter: bl ? `blur(${bl}px)` : undefined}}>
+          <Img src={S('marca/piezas-grupo.png')} style={{position: 'absolute', left: 40, top: 1250 + (1 - k) * 300, width: 1000, opacity: 0.55 * k, transform: `translateX(${Math.sin(f * 0.05) * 12}px)`}} />
+          <div style={{position: 'absolute', left: 60, top: 640, width: 960, perspective: 1600}}>
+            <Img src={S('marca/mockup-web-oscuro.png')} style={{width: 960, transform: `translateY(${(1 - k) * 900}px) rotateX(${(1 - k) * 35}deg) rotateY(${(1 - k) * -12}deg)`, boxShadow: '0 50px 90px rgba(0,0,0,0.7)'}} />
+          </div>
+        </AbsoluteFill>
+        {t >= 14 && t < 32 && <Img src={S('marca/compra-directo-domicilio.png')} style={{position: 'absolute', left: 70, top: 1340, width: 640, transform: `translateX(${interpolate(t, [14, 20], [-800, 0], {...cl, easing: OUT})}px)`}} />}
+      </AbsoluteFill>
+    );
+  }
+  // dentro del celular: recorrido real (sin el formulario con datos personales)
+  const p = spring({frame: t - 44, fps: 30, config: {damping: 14, stiffness: 180, mass: 0.6}});
+  const seg = [...WEB_SEGS].reverse().find(([a]) => t >= a) ?? WEB_SEGS[0];
+  const si = WEB_SEGS.indexOf(seg);
+  const lt = t - seg[0];
+  const W = 600, H = Math.round(600 * 2556 / 1180), L = 240, TOP = 300;
+  const s0 = 0.22;
+  const sc = s0 + (1 - s0) * p;
+  const cx = PX + (L + W / 2 - PX) * p, cy = PY + (TOP + H / 2 - PY) * p;
+  return (
+    <AbsoluteFill>
+      <PremiumBg f={f} />
+      <div style={{position: 'absolute', top: 205, left: 0, right: 0, textAlign: 'center'}}>
+        <span style={{display: 'inline-flex', alignItems: 'center', gap: 14, transform: `scale(${interpolate(lt, [0, 3, 7], [1.25, 0.96, 1], cl)})`}}>
+          <span style={{width: 60, height: 60, background: RED, color: '#fff', fontFamily: DISP, fontSize: 42, display: 'inline-flex', alignItems: 'center', justifyContent: 'center'}}>{si + 1}</span>
+          <Chip size={56}>{seg[4]}</Chip>
+        </span>
+      </div>
+      <div style={{position: 'absolute', left: cx - W / 2, top: cy - H / 2, width: W, height: H, transform: `scale(${sc})`, borderRadius: 54, overflow: 'hidden', border: '12px solid #161616', boxShadow: '0 50px 100px rgba(0,0,0,0.85), 0 0 60px rgba(209,11,12,0.25)', background: '#fff'}}>
+        {WEB_SEGS.map(([a, d, st, rate]) => (
+          <Sequence key={a} from={T.web + a} durationInFrames={d}>
+            <OffthreadVideo src={S('swift/web_recorrido.mp4')} muted startFrom={Math.round(st * 30)} playbackRate={rate} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${1 + 0.03 * Math.min(1, (t - a) / d)})`}} />
+          </Sequence>
+        ))}
+      </div>
+      {t >= 60 && (
+        <div style={{position: 'absolute', top: 1520, left: 0, right: 0, textAlign: 'center', transform: `scale(${spring({frame: t - 60, fps: 30, config: {damping: 12, stiffness: 260, mass: 0.5}})})`}}>
+          <Img src={S('marca/pastilla-url.png')} style={{width: 780}} />
+        </div>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+/* logo de la empresa arriba, siempre visible (versión blanca en fondos oscuros,
+   a color sobre el CTA blanco) */
+const TopLogo: React.FC<{f: number}> = ({f}) => {
+  if (f >= T.end || (f >= T.black && f < T.reveal)) return null;
+  const white = f >= T.cta && f < T.web;
+  return <Img src={S(`marca/anim/${white ? 'logo_color' : 'logo_blanco'}.png`)} style={{position: 'absolute', left: 305, top: 62, width: 470, filter: white ? undefined : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))', opacity: interpolate(f, [0, 6], [0, 1], cl)}} />;
+};
+
 /* sello VENDIDO + número de cliente (variante "1 día") */
 export const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 940, 3], [629, T.black, 1040, 4]];
 const Sold: React.FC<{f: number}> = ({f}) => (
@@ -599,7 +672,7 @@ const Reveal: React.FC<{f: number}> = ({f}) => {
 
 /* CTA sobre blanco (cambio de contraste = nueva atención) + cierre de marca */
 const Cta: React.FC<{f: number}> = ({f}) => {
-  if (f < T.cta) return null;
+  if (f < T.cta || f >= T.web) return null;
   const t = f - T.cta;
   if (f < T.end) {
     const chip = (at: number, txt: string, i: number) => f >= at && (
@@ -676,6 +749,9 @@ export const SFX: Sfx[] = [
   [T.desp - 2, 'sfx_whip', 0.6], [T.desp + 1, 'sfx_shutter', 0.6], [T.desp + 26, 'sfx_crinkle', 0.6], [T.desp + 33, 'sfx_crinkle', 0.5],
   [T.desp + 46, 'sfx_metal', 0.85], [T.desp + 46, 'sfx_impact', 0.6, 16], [T.desp + 70, 'sfx_whoosh', 0.5],
   [T.desp + 82, 'sfx_pop', 0.5], [T.desp + 86, 'sfx_pop', 0.5], [T.desp + 90, 'sfx_pop', 0.5], [T.desp + 96, 'sfx_notif', 0.8],
+  // compra web
+  [T.web - 2, 'sfx_whoosh', 0.6], [T.web + 8, 'sfx_impact_soft', 0.5, 30], [T.web + 14, 'sfx_whoosh', 0.4], [T.web + 30, 'sfx_riser', 0.4, 14], [T.web + 44, 'sfx_whip', 0.7],
+  [T.web + 62, 'sfx_click', 0.6], [T.web + 84, 'sfx_click', 0.6], [T.web + 88, 'sfx_key', 0.4], [T.web + 92, 'sfx_key', 0.4], [T.web + 96, 'sfx_key', 0.4], [T.web + 116, 'sfx_ding', 0.5], [T.web + 60, 'sfx_pop', 0.5],
   // CTA
   [868, 'sfx_whip', 0.75], [896, 'sfx_click', 0.6], [902, 'sfx_click', 0.6], [908, 'sfx_click', 0.6], [924, 'sfx_pop', 0.6],
   [936, 'sfx_notif', 0.7],
@@ -728,13 +804,14 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}>
         <AirbagText f={f} />
         <Reveal f={f} />
         <Despachos f={f} />
+        <WebScene f={f} />
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting mute={mute} /></Sequence>
         <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697, T.desp, T.desp + 24]} />
         <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
         <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
         <Brackets f={f} at={616} until={T.black} x={70} y={390} w={940} h={590} />
-        <Bug show={f >= T.ctx && f < T.cta && (f < T.black || f >= T.reveal)} />
+        <TopLogo f={f} />
       </AbsoluteFill>
       {fade > 0 && <AbsoluteFill style={{background: `rgba(0,0,0,${fade})`}} />}
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
