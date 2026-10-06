@@ -43,7 +43,7 @@ const FLASH: [number, number][] = [[0, 0.7], [4, 0.5], [8, 0.5], [12, 0.5], [106
 
 type Tr = 'cut' | 'whipL' | 'zoom' | 'up';
 
-const DBlur: React.FC<{id: string; x: number; y?: number; children: React.ReactNode}> = ({id, x, y = 0, children}) =>
+export const DBlur: React.FC<{id: string; x: number; y?: number; children: React.ReactNode}> = ({id, x, y = 0, children}) =>
   x < 0.5 && y < 0.5 ? (
     <AbsoluteFill>{children}</AbsoluteFill>
   ) : (
@@ -90,14 +90,14 @@ const ShotBody: React.FC<{src: string; dur: number; abs: number; start: number; 
     </DBlur>
   );
 };
-const Shot: React.FC<{src: string; from: number; dur: number; start?: number; z?: [number, number]; origin?: string; inT?: Tr; outT?: Tr; dim?: number; rate?: number}> = ({src, from, dur, start = 0, z = [1.06, 1.16], origin = '50% 50%', inT = 'cut', outT = 'cut', dim = 0, rate = 1}) => (
+export const Shot: React.FC<{src: string; from: number; dur: number; start?: number; z?: [number, number]; origin?: string; inT?: Tr; outT?: Tr; dim?: number; rate?: number}> = ({src, from, dur, start = 0, z = [1.06, 1.16], origin = '50% 50%', inT = 'cut', outT = 'cut', dim = 0, rate = 1}) => (
   <Sequence from={from} durationInFrames={dur}>
     <ShotBody src={src} dur={dur} abs={from} start={start} z={z} origin={origin} inT={inT} outT={outT} dim={dim} rate={rate} />
   </Sequence>
 );
 
 /* texto que sube desde una máscara */
-const Rise: React.FC<{f: number; at: number; style?: React.CSSProperties; children: React.ReactNode; dur?: number}> = ({f, at, style, children, dur = 7}) => {
+export const Rise: React.FC<{f: number; at: number; style?: React.CSSProperties; children: React.ReactNode; dur?: number}> = ({f, at, style, children, dur = 7}) => {
   if (f < at) return null;
   const p = interpolate(f - at, [0, dur], [1, 0], {...cl, easing: OUT});
   return (
@@ -129,7 +129,7 @@ const Price: React.FC<{f: number; at: number; seq: number[]; step?: number; size
   );
 };
 
-const Chip: React.FC<{children: React.ReactNode; red?: boolean; size?: number; style?: React.CSSProperties}> = ({children, red, size = 44, style}) => (
+export const Chip: React.FC<{children: React.ReactNode; red?: boolean; size?: number; style?: React.CSSProperties}> = ({children, red, size = 44, style}) => (
   <span style={{display: 'inline-block', background: red ? RED : '#fff', color: red ? '#fff' : BG, fontFamily: DISP, fontSize: size, lineHeight: 1.15, padding: '4px 18px 6px', letterSpacing: 1, ...style}}>{children}</span>
 );
 

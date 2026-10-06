@@ -20,9 +20,11 @@ import {SemanaDesarme, SEMANA_TOTAL, Carrusel} from './swift/SemanaDesarme';
 import {VendimosTodo, VENDIMOS_TOTAL} from './swift/VendimosTodo';
 import {StoryVentas, STORY_TOTAL} from './swift/StoryVentas';
 import {CuatroAutos, CUATRO_TOTAL} from './swift/CuatroAutos';
+import {SuzukiConfianza, SUZUKI_CONF_TOTAL} from './swift/SuzukiConfianza';
 
 export const Root: React.FC = () => (
   <>
+    <Composition id="SuzukiConfianza" component={SuzukiConfianza} durationInFrames={SUZUKI_CONF_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="CuatroAutos" component={CuatroAutos} durationInFrames={CUATRO_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="StoryVentas" component={StoryVentas} durationInFrames={STORY_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="VendimosTodo" component={VendimosTodo} durationInFrames={VENDIMOS_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
