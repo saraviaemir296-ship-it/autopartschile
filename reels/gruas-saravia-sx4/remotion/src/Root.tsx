@@ -16,9 +16,12 @@ import {MotorSwiftUGC, SWIFT_UGC_TOTAL} from './swift/MotorSwiftUGC';
 import {SuzukiLeads, SUZUKI_LEADS_TOTAL} from './swift/SuzukiLeads';
 import {MotorCompra, COMPRA_TOTAL} from './swift/MotorCompra';
 import {NeonMotores, NEON_TOTAL} from './swift/NeonMotores';
+import {SemanaDesarme, SEMANA_TOTAL, Carrusel} from './swift/SemanaDesarme';
 
 export const Root: React.FC = () => (
   <>
+    <Composition id="SemanaDesarme" component={SemanaDesarme} durationInFrames={SEMANA_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="Carrusel" component={Carrusel} durationInFrames={1} fps={FPS} width={1080} height={1350} defaultProps={{i: 0}} />
     <Composition id="NeonMotores" component={NeonMotores} durationInFrames={NEON_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="MotorCompra" component={MotorCompra} durationInFrames={COMPRA_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="SuzukiLeads" component={SuzukiLeads} durationInFrames={SUZUKI_LEADS_TOTAL} fps={FPS} width={W} height={H} />
