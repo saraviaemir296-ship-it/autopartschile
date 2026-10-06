@@ -7,8 +7,8 @@ import {cl} from '../v2/look';
    brillan). Datos reales:
    - Motor Suzuki Swift 1.2 vendido en $1.078.990 (dato del dueño); cotizó
      en la web, vino a verlo y se le despachó a su automotora.
-   - Motor Suzuki Mastervan G13B 1.3 vendido (precio NO confirmado: no se
-     muestra).
+   - Block de motor Suzuki Mastervan G13B 1.3 vendido en $119.000 IVA
+     incluido (factura electrónica N°164, datos personales tapados).
    - Cliente #3 vio el Suzuki Vitara azul publicado en la web y escribió
      por el portalón (chat real, nombre tapado). Se llevó portalón,
      refuerzo de parachoques y parachoques trasero, más un corte que sale
@@ -134,15 +134,15 @@ const Intro: React.FC<{t: number}> = ({t}) => {
     <AbsoluteFill>
       <Kicker t={t} top={520}>DESARMADURÍA SARAVIA</Kicker>
       <div style={{position: 'absolute', top: 640, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 112, color: '#fff', textShadow: glow(BLUE, 0.8), letterSpacing: '-0.02em'}}>
-        <Decode text="VENDIMOS" t={t - 4} speed={1} />
+        <Decode text="VENDIMOS A" t={t - 4} speed={1} />
       </div>
       {t >= 26 && (
         <div style={{position: 'absolute', top: 780, left: 0, right: 0, display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 26, transform: `scale(${interpolate(big, [0, 1], [2.2, 1])})`, opacity: Math.min(1, big * 2)}}>
-          <span style={{fontFamily: SCRIPT, fontSize: 330, color: RED, textShadow: glow(RED, 1.2), lineHeight: 1}}>2</span>
-          <span style={{fontFamily: SORA, fontWeight: 800, fontSize: 130, color: '#fff', textShadow: glow(RED, 0.6)}}>MOTORES</span>
+          <span style={{fontFamily: SCRIPT, fontSize: 330, color: RED, textShadow: glow(RED, 1.2), lineHeight: 1}}>3</span>
+          <span style={{fontFamily: SORA, fontWeight: 800, fontSize: 130, color: '#fff', textShadow: glow(RED, 0.6)}}>CLIENTES</span>
         </div>
       )}
-      {t >= 40 && <Kicker t={t - 40} top={1180} color="#fff">SUZUKI · CLIENTES REALES</Kicker>}
+      {t >= 40 && <Kicker t={t - 40} top={1180} color="#fff">SUZUKI · VENTAS REALES</Kicker>}
       {/* anillo de impacto */}
       {t >= 26 && t < 60 && (
         <div style={{position: 'absolute', left: 540 - (t - 26) * 30, top: 960 - (t - 26) * 30, width: (t - 26) * 60, height: (t - 26) * 60, borderRadius: 9999, border: `4px solid ${RED}`, boxShadow: glow(RED, 0.8), opacity: interpolate(t, [26, 60], [1, 0], cl)}} />
@@ -176,7 +176,7 @@ const Swift: React.FC<{t: number}> = ({t}) => {
   const PRICE_AT = 34;
   return (
     <AbsoluteFill>
-      <Kicker t={t} top={150}>MOTOR #1</Kicker>
+      <Kicker t={t} top={150}>CLIENTE #1 · MOTOR</Kicker>
       <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 82, color: '#fff', textShadow: glow(BLUE, 0.6)}}>
         <Decode text="SUZUKI SWIFT 1.2" t={t} speed={1.4} />
       </div>
@@ -195,29 +195,31 @@ const Swift: React.FC<{t: number}> = ({t}) => {
 };
 
 const Master: React.FC<{t: number}> = ({t}) => {
-  const st = sp(t, 40, 9, 300);
+  const PRICE_AT = 30;
+  const done = t >= PRICE_AT + 12;
+  const fac = sp(t, 58, 13, 200);
   return (
     <AbsoluteFill>
-      <Kicker t={t} top={150} color={RED}>MOTOR #2</Kicker>
+      <Kicker t={t} top={150} color={RED}>CLIENTE #2 · BLOCK DE MOTOR</Kicker>
       <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 76, color: '#fff', textShadow: glow(RED, 0.5)}}>
         <Decode text="SUZUKI MASTERVAN" t={t} speed={1.4} />
       </div>
       <div style={{position: 'absolute', top: 310, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 700, fontSize: 46, color: CYAN, textShadow: glow(CYAN, 0.4)}}>
-        <Decode text="G13B · 1.3 · COMPLETO" t={t - 8} speed={1.6} />
+        <Decode text="BLOCK G13B · 1.3" t={t - 8} speed={1.6} />
       </div>
-      <HoloCard t={t - 6} src="suzuki/mastervan.jpg" top={420} h={600} color={RED} />
-      {t >= 40 && (
-        <div style={{position: 'absolute', top: 1090, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
-          <div style={{fontFamily: SORA, fontWeight: 800, fontSize: 140, color: RED, border: `8px solid ${RED}`, borderRadius: 26, padding: '0 40px 10px', textShadow: glow(RED, 1), boxShadow: `${glow(RED, 0.8)}, inset ${glow(RED, 0.4)}`, transform: `rotate(-6deg) scale(${interpolate(st, [0, 1], [2.4, 1])})`, opacity: Math.min(1, st * 3)}}>
-            VENDIDO
-          </div>
+      {t < 58 && <HoloVideo t={t - 4} src="swift/mv_carga.mp4" from={0.9} top={400} h={640} color={RED} />}
+      {t >= 58 && (
+        <div style={{position: 'absolute', left: 110, right: 110, top: 410, borderRadius: 24, overflow: 'hidden', border: `3px solid ${RED}`, boxShadow: glow(RED, 0.8), transform: `perspective(1200px) rotateY(${(1 - fac) * 40}deg) scale(${0.85 + 0.15 * fac})`, opacity: Math.min(1, fac * 2)}}>
+          <Img src={S('swift/factura_mv.png')} style={{display: 'block', width: '100%'}} />
         </div>
       )}
-      {t >= 54 && (
-        <div style={{position: 'absolute', top: 1330, left: 0, right: 0, textAlign: 'center', fontFamily: SCRIPT, fontSize: 92, color: '#fff', textShadow: glow(BLUE, 0.8), opacity: interpolate(t, [54, 62], [0, 1], cl)}}>
-          otro cliente más
-        </div>
-      )}
+      <div style={{position: 'absolute', top: 1100, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 800, fontSize: 150, color: done ? GREEN : '#fff', textShadow: glow(done ? GREEN : RED, 0.9), transform: `scale(${done ? interpolate(t, [PRICE_AT + 12, PRICE_AT + 16, PRICE_AT + 20], [1.2, 0.96, 1], cl) : 1})`}}>
+        {t >= PRICE_AT && <Decode text={clp(119000)} t={(t - PRICE_AT) * 0.8} speed={1} />}
+      </div>
+      <div style={{position: 'absolute', top: 1300, left: 90, right: 90, display: 'flex', flexDirection: 'column', gap: 16}}>
+        <Chip t={t} a={44}>Cargado en su camioneta</Chip>
+        <Chip t={t} a={62}>Venta con factura</Chip>
+      </div>
     </AbsoluteFill>
   );
 };
@@ -411,7 +413,7 @@ const Fin: React.FC<{t: number}> = ({t}) => {
         <div style={{fontFamily: MONO, fontWeight: 800, fontSize: 58, color: BG, background: GREEN, borderRadius: 18, padding: '12px 34px', boxShadow: glow(GREEN, 0.8)}}>WhatsApp +56 9 5381 7335</div>
       </div>
       <div style={{position: 'absolute', top: 1230, left: 90, right: 90, display: 'flex', justifyContent: 'space-between', opacity: interpolate(t, [48, 56], [0, 1], cl)}}>
-        {[['242', 'repuestos'], ['2', 'motores vendidos'], ['CL', 'despacho a todo Chile']].map(([a, b]) => (
+        {[['242', 'repuestos'], ['3', 'clientes reales'], ['CL', 'despacho a todo Chile']].map(([a, b]) => (
           <div key={b} style={{textAlign: 'center', width: 280}}>
             <div style={{fontFamily: MONO, fontWeight: 800, fontSize: 72, color: '#fff', textShadow: glow(CYAN, 0.6)}}>{a}</div>
             <div style={{fontFamily: SORA, fontWeight: 400, fontSize: 28, color: CYAN}}>{b}</div>
@@ -463,10 +465,11 @@ export const NeonMotores: React.FC = () => {
       ))}
       {/* mastervan */}
       <Sequence from={T.master[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
-      <Sequence from={T.master[0] + 18}><Audio src={S('audio/sfx_riser.wav')} volume={0.35} /></Sequence>
-      <Sequence from={T.master[0] + 40}><Audio src={S('audio/sfx_pa.wav')} volume={0.6} /></Sequence>
-      <Sequence from={T.master[0] + 41}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
-      <Sequence from={T.master[0] + 54}><Audio src={S('audio/sfx_sparkle.wav')} volume={0.3} /></Sequence>
+      <Sequence from={T.master[0] + 22}><Audio src={S('audio/sfx_billcount.wav')} volume={0.7} /></Sequence>
+      <Sequence from={T.master[0] + 41}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.7} /></Sequence>
+      <Sequence from={T.master[0] + 44}><Audio src={S('audio/sfx_pop.wav')} volume={0.4} /></Sequence>
+      <Sequence from={T.master[0] + 58}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={T.master[0] + 62}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
       {/* vitara */}
       <Sequence from={T.vitara[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
       <Sequence from={T.vitara[0] + 10}><Audio src={S('audio/sfx_pop.wav')} volume={0.4} /></Sequence>
