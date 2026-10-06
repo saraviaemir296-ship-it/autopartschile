@@ -8,7 +8,7 @@ import {cl} from '../v2/look';
    SARAVIA, línea roja desde el centro, bajada, fila de marcas — y después
    WhatsApp + web. Se usa dentro de un <Sequence>: el frame es local. */
 
-export const STING_LEN = 60;
+export const STING_LEN = 90;
 const S = (f: string) => staticFile(f);
 const RED = '#D10B0C';
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
@@ -31,6 +31,31 @@ const Stripes: React.FC<{k: number}> = ({k}) => {
   );
 };
 
+
+const SOCIAL: ['tiktok' | 'instagram' | 'facebook', string][] = [
+  ['tiktok', 'Desarmaduría Saravia'], ['instagram', '@desarmaduria.saravia'], ['facebook', 'Desarmaduría Saravia'],
+];
+const SocialIcon: React.FC<{kind: 'tiktok' | 'instagram' | 'facebook'}> = ({kind}) => {
+  if (kind === 'facebook') {
+    return <div style={{width: 56, height: 56, borderRadius: 28, background: '#1877F2', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', boxShadow: '0 8px 18px rgba(0,0,0,0.25)'}}><span style={{fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 900, fontSize: 52, lineHeight: 0.92, color: '#fff', marginLeft: 6}}>f</span></div>;
+  }
+  if (kind === 'instagram') {
+    return (
+      <div style={{width: 56, height: 56, borderRadius: 16, background: 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 18px rgba(0,0,0,0.25)'}}>
+        <div style={{width: 34, height: 34, borderRadius: 10, border: '4px solid #fff', boxSizing: 'border-box', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <div style={{width: 13, height: 13, borderRadius: 7, border: '3px solid #fff', boxSizing: 'border-box'}} />
+          <div style={{position: 'absolute', right: 2, top: 2, width: 4, height: 4, borderRadius: 3, background: '#fff'}} />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div style={{width: 56, height: 56, borderRadius: 16, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 18px rgba(0,0,0,0.25)'}}>
+      <span style={{fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 900, fontSize: 38, color: '#fff', textShadow: '-2px -2px 0 #25F4EE, 3px 2px 0 #FE2C55'}}>♪</span>
+    </div>
+  );
+};
+
 export const LogoSting: React.FC<{mute?: boolean}> = ({mute}) => {
   const t = useCurrentFrame();
   const apc = p(t, 2, 12);
@@ -46,22 +71,39 @@ export const LogoSting: React.FC<{mute?: boolean}> = ({mute}) => {
     <AbsoluteFill style={{background: '#fff', overflow: 'hidden'}}>
       <Stripes k={p(t, 0, 9)} />
       {/* AutopartsChile: barrido de izquierda a derecha, como el trazo de la A */}
-      <Img src={S('marca/anim/apc.png')} style={{position: 'absolute', left: 240, top: 230, width: 600, clipPath: `inset(0 ${(1 - apc) * 100}% 0 0)`, transform: `translateX(${(1 - apc) * -90}px)`}} />
-      <div style={{position: 'absolute', left: 540 - 260 * div, top: 660, width: 520 * div, height: 4, background: '#0A0A0A'}} />
+      <Img src={S('marca/anim/apc.png')} style={{position: 'absolute', left: 240, top: 100, width: 600, clipPath: `inset(0 ${(1 - apc) * 100}% 0 0)`, transform: `translateX(${(1 - apc) * -90}px)`}} />
+      <div style={{position: 'absolute', left: 540 - 260 * div, top: 530, width: 520 * div, height: 4, background: '#0A0A0A'}} />
       {/* DESARMADURÍA: se cierra el tracking */}
-      <Img src={S('marca/anim/desarm.png')} style={{position: 'absolute', left: 220, top: 715, width: 640, opacity: des, transform: `scaleX(${1.35 - 0.35 * des})`}} />
+      <Img src={S('marca/anim/desarm.png')} style={{position: 'absolute', left: 220, top: 585, width: 640, opacity: des, transform: `scaleX(${1.35 - 0.35 * des})`}} />
       {/* SARAVIA: sube desde una máscara con un pequeño golpe */}
-      <div style={{position: 'absolute', left: 90, top: 805, width: 900, height: 190, overflow: 'hidden'}}>
+      <div style={{position: 'absolute', left: 90, top: 675, width: 900, height: 190, overflow: 'hidden'}}>
         <Img src={S('marca/anim/saravia.png')} style={{width: 900, transform: `translateY(${(1 - sar) * 105}%) scale(${t >= 22 ? interpolate(t, [22, 25, 30], [1.06, 0.99, 1], cl) : 1})`}} />
       </div>
       {/* línea roja que se abre desde el centro */}
-      <Img src={S('marca/anim/linea.png')} style={{position: 'absolute', left: 90, top: 1010, width: 900, clipPath: `inset(0 ${(1 - lin) * 50}% 0 ${(1 - lin) * 50}%)`}} />
-      <Img src={S('marca/anim/tagline.png')} style={{position: 'absolute', left: 120, top: 1065, width: 840, opacity: tag, transform: `translateY(${(1 - tag) * 24}px)`}} />
-      <Img src={S('marca/anim/marcas.png')} style={{position: 'absolute', left: 160, top: 1175, width: 760, clipPath: `inset(0 ${(1 - mar) * 100}% 0 0)`}} />
+      <Img src={S('marca/anim/linea.png')} style={{position: 'absolute', left: 90, top: 880, width: 900, clipPath: `inset(0 ${(1 - lin) * 50}% 0 ${(1 - lin) * 50}%)`}} />
+      <Img src={S('marca/anim/tagline.png')} style={{position: 'absolute', left: 120, top: 935, width: 840, opacity: tag, transform: `translateY(${(1 - tag) * 24}px)`}} />
+      <Img src={S('marca/anim/marcas.png')} style={{position: 'absolute', left: 160, top: 1045, width: 760, clipPath: `inset(0 ${(1 - mar) * 100}% 0 0)`}} />
       {/* barrido de luz sobre toda la marca */}
       <div style={{position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${sw - 9}%, rgba(255,255,255,0.8) ${sw}%, transparent ${sw + 9}%)`}} />
-      {t >= 36 && <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 180, top: 1350, width: 720, transform: `scale(${pop(36)})`}} />}
-      {t >= 40 && <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 140, top: 1460, width: 800, transform: `scale(${pop(40)})`}} />}
+      {/* redes sociales */}
+      {t >= 44 && <div style={{position: 'absolute', top: 1400, left: 0, right: 0, textAlign: 'center', fontFamily: "'Anton', sans-serif", fontSize: 40, color: '#0A0A0A', letterSpacing: 4, opacity: interpolate(t, [44, 48], [0, 1], cl)}}>SÍGUENOS</div>}
+      <div style={{position: 'absolute', top: 1458, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10}}>
+        {SOCIAL.map(([kind, handle], i) => t >= 47 + i * 4 && (
+          <div key={kind} style={{width: 560, display: 'flex', alignItems: 'center', gap: 18, transform: `translateX(${interpolate(t - (47 + i * 4), [0, 6], [-120, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(t - (47 + i * 4), [0, 4], [0, 1], cl)}}>
+            <SocialIcon kind={kind} />
+            <div style={{fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: 36, color: '#0A0A0A'}}>{handle}</div>
+          </div>
+        ))}
+      </div>
+      {t >= 36 && <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 200, top: 1185, width: 680, transform: `scale(${pop(36)})`}} />}
+      {t >= 40 && <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 160, top: 1290, width: 760, transform: `scale(${pop(40)})`}} />}
+      {!mute && t >= 47 && (
+        <>
+          <Sequence from={47} durationInFrames={8}><Audio src={S('audio/sfx_pop.wav')} volume={0.5} /></Sequence>
+          <Sequence from={51} durationInFrames={8}><Audio src={S('audio/sfx_pop.wav')} volume={0.5} /></Sequence>
+          <Sequence from={55} durationInFrames={8}><Audio src={S('audio/sfx_pop.wav')} volume={0.5} /></Sequence>
+        </>
+      )}
       {!mute && (
         <>
           <Sequence from={0} durationInFrames={25}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.6} /></Sequence>
