@@ -110,24 +110,33 @@ export const Rise: React.FC<{f: number; at: number; style?: React.CSSProperties;
   );
 };
 
-/* precio con conteo por pasos, golpe al aterrizar, aberración breve y barrido de luz */
-const Price: React.FC<{f: number; at: number; seq: number[]; step?: number; size?: number; top: number; color?: string}> = ({f, at, seq, step = 3, size = 168, top, color = '#fff'}) => {
+/* etiqueta de precio de marca: caja roja inclinada (como en la web y los
+   afiches) con letra Anton blanca; entra con barrido, aterriza con golpe y la
+   cruza un brillo */
+const Tag: React.FC<{txt: string; size: number; wipe: number; k: number}> = ({txt, size, wipe, k}) => {
+  const sw = interpolate(k, [3, 20], [-40, 140], cl);
+  return (
+    <div style={{display: 'inline-block', position: 'relative', transform: 'skewX(-9deg)', clipPath: `inset(-30% ${(1 - wipe) * 100}% -30% 0)`}}>
+      <div style={{background: 'linear-gradient(180deg, #FF3030 0%, #D10B0C 55%, #9E0707 100%)', padding: `${size * 0.05}px ${size * 0.2}px ${size * 0.09}px`, borderTop: '5px solid rgba(255,255,255,0.4)', boxShadow: '0 0 46px rgba(209,11,12,0.7), 0 20px 44px rgba(0,0,0,0.8)'}}>
+        <span style={{display: 'inline-block', transform: 'skewX(9deg)', fontFamily: DISP, fontSize: size, lineHeight: 1.02, color: '#fff', letterSpacing: 3, textShadow: '0 5px 0 rgba(0,0,0,0.3)'}}>{txt}</span>
+      </div>
+      {k > 2 && <div style={{position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${sw - 12}%, rgba(255,255,255,0.6) ${sw}%, transparent ${sw + 12}%)`}} />}
+      <div style={{position: 'absolute', left: 0, bottom: -14, height: 9, width: `${wipe * 100}%`, background: '#fff'}} />
+    </div>
+  );
+};
+
+/* precio con conteo por pasos dentro de la etiqueta roja */
+const Price: React.FC<{f: number; at: number; seq: number[]; step?: number; size?: number; top: number}> = ({f, at, seq, step = 3, size = 150, top}) => {
   if (f < at) return null;
   const land = at + (seq.length - 1) * step;
   const v = seq[Math.min(seq.length - 1, Math.floor((f - at) / step))];
   const k = f - land;
-  const sc = k < 0 ? 0.9 : interpolate(k, [0, 3, 9], [1.4, 0.94, 1], cl);
-  const ab = k >= 0 && k < 5 ? (5 - k) * 2.4 : 0;
-  const sw = interpolate(k, [5, 22], [-40, 140], cl);
-  const base: React.CSSProperties = {fontFamily: MONO, fontWeight: 800, fontSize: size, letterSpacing: -4, lineHeight: 1};
+  const sc = k < 0 ? 0.92 : interpolate(k, [0, 3, 9], [1.3, 0.95, 1], cl);
+  const wipe = interpolate(f - at, [0, 6], [0, 1], {...cl, easing: OUT});
   return (
-    <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center', transform: `scale(${sc})`}}>
-      <div style={{position: 'relative', display: 'inline-block'}}>
-        <span style={{...base, color, textShadow: `${-ab}px 0 ${RED2}, ${ab}px 0 rgba(255,255,255,0.55), 0 0 26px rgba(209,11,12,0.55), 0 8px 30px rgba(0,0,0,0.9)`}}>{clp(v)}</span>
-        {k > 4 && (
-          <span style={{...base, position: 'absolute', left: 0, top: 0, color: 'transparent', backgroundImage: `linear-gradient(105deg, transparent ${sw - 18}%, rgba(255,255,255,0.95) ${sw}%, transparent ${sw + 18}%)`, WebkitBackgroundClip: 'text', backgroundClip: 'text'}}>{clp(v)}</span>
-        )}
-      </div>
+    <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center', transform: `scale(${sc}) rotate(${k >= 0 && k < 8 ? Math.sin(k * 2.2) * (8 - k) * 0.4 : 0}deg)`}}>
+      <Tag txt={clp(v)} size={size} wipe={wipe} k={k} />
     </div>
   );
 };
@@ -190,7 +199,7 @@ const HookText: React.FC<{f: number; dia?: boolean}> = ({f, dia}) => {
       {f >= 44 && (
         <div style={{position: 'absolute', top: 1060, left: 0, right: 0, textAlign: 'center', opacity: interpolate(f, [44, 47], [0, 1], cl)}}>
           <Chip red size={50}>¿CUÁNTO NOS DEJARON?</Chip>
-          <div style={{marginTop: 22, fontFamily: MONO, fontWeight: 800, fontSize: 130, letterSpacing: -3, color: '#fff', textShadow: '0 0 24px rgba(209,11,12,0.6)'}}>
+          <div style={{marginTop: 22, fontFamily: DISP, fontSize: 150, letterSpacing: 6, color: '#fff', textShadow: '0 0 24px rgba(209,11,12,0.6)'}}>
             ${roll(1)}.{roll(2)}{roll(3)}{roll(4)}.{roll(5)}{roll(6)}{roll(7)}
           </div>
         </div>
@@ -433,7 +442,7 @@ const AirbagText: React.FC<{f: number}> = ({f}) => {
       )}
       {f >= 624 && (
         <div style={{position: 'absolute', top: 1290, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 624, [0, 3, 8], [2.1, 0.94, 1], cl)})`}}>
-          <span style={{fontFamily: MONO, fontWeight: 800, fontSize: 168, letterSpacing: -4, color: '#fff', textShadow: `${-Math.max(0, 5 - (f - 624)) * 2.4}px 0 ${RED2}, 0 0 26px rgba(209,11,12,0.55), 0 8px 30px rgba(0,0,0,0.9)`}}>{clp(384990)}</span>
+          <Tag txt={clp(384990)} size={150} wipe={interpolate(f - 624, [0, 3], [0.2, 1], cl)} k={f - 624} />
         </div>
       )}
     </>
@@ -621,13 +630,13 @@ const TopLogo: React.FC<{f: number}> = ({f}) => {
 };
 
 /* sello VENDIDO + número de cliente (variante "1 día") */
-export const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 940, 3], [629, T.black, 1040, 4]];
+export const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 880, 3], [629, T.black, 1040, 4]];
 const Sold: React.FC<{f: number}> = ({f}) => (
   <>
     {STAMPS.map(([at, until, top, n]) => f >= at && f < until && (
       <div key={n} style={{position: 'absolute', top, right: 70, transform: `rotate(-10deg) scale(${interpolate(f - at, [0, 3, 7], [2.3, 0.92, 1], cl)})`, opacity: interpolate(f - at, [0, 2], [0, 1], cl), textAlign: 'center'}}>
         <div style={{border: `7px solid ${RED2}`, padding: '0 22px 4px', fontFamily: DISP, fontSize: 84, color: RED2, letterSpacing: 4, background: 'rgba(10,10,10,0.55)', textShadow: `0 0 18px ${RED}`}}>VENDIDO</div>
-        <div style={{marginTop: 8, fontFamily: DISP, fontSize: 38, color: '#fff', letterSpacing: 2, textShadow: '0 4px 14px rgba(0,0,0,0.9)'}}>CLIENTE {n} DE 4</div>
+        <div style={{marginTop: 10, display: 'inline-block', background: '#fff', padding: '2px 14px 4px', fontFamily: DISP, fontSize: 40, color: BG, letterSpacing: 2, boxShadow: '0 6px 18px rgba(0,0,0,0.6)'}}>CLIENTE <span style={{color: RED}}>{n}</span> DE 4</div>
       </div>
     ))}
   </>
@@ -660,7 +669,7 @@ const Reveal: React.FC<{f: number}> = ({f}) => {
       {word(665, 'CLIENTES', 830)}
       {f >= 679 && (
         <div style={{position: 'absolute', top: interpolate(shrink, [0, 1], [1100, 880]), left: 0, right: 0, textAlign: 'center', transform: `scale(${ps})`}}>
-          <span style={{fontFamily: MONO, fontWeight: 800, fontSize: 150, letterSpacing: -6, color: '#fff', textShadow: `0 0 18px ${RED}, 0 0 50px rgba(209,11,12,0.6)${f >= land && f < land + 5 ? `, ${-(land + 5 - f) * 3}px 0 ${RED2}` : ''}`}}>{clp(v)}</span>
+          <Tag txt={clp(v)} size={136} wipe={interpolate(f, [679, 686], [0, 1], {...cl, easing: OUT})} k={f - land} />
         </div>
       )}
       {f >= 712 && (
@@ -701,7 +710,7 @@ const Cta: React.FC<{f: number}> = ({f}) => {
         {t >= 54 && <div style={{position: 'absolute', top: 1185, left: 70, right: 70}}><Rise f={f} at={T.cta + 54} style={{fontFamily: DISP, fontSize: 66, color: BG}}>Y TE AYUDAMOS A ENCONTRARLO.</Rise></div>}
         {t >= 66 && (
           <div style={{position: 'absolute', top: 1290, left: 70, display: 'flex', flexDirection: 'column', gap: 10, transform: `translateY(${interpolate(t, [66, 72], [40, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(t, [66, 70], [0, 1], cl)}}>
-            <span style={{display: 'inline-flex', alignItems: 'center', gap: 16, background: BG, color: '#fff', fontFamily: MONO, fontWeight: 800, fontSize: 54, padding: '10px 26px', alignSelf: 'flex-start'}}>
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: 16, background: BG, color: '#fff', fontFamily: DISP, fontSize: 60, padding: '10px 26px', alignSelf: 'flex-start'}}>
               <span style={{width: 26, height: 26, borderRadius: 13, background: '#25D366'}} /> +56 9 5381 7335
             </span>
             <span style={{fontFamily: DISP, fontSize: 70, color: RED, letterSpacing: 2}}>AUTOPARTSCHILE.CL</span>
