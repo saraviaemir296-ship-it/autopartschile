@@ -34,7 +34,7 @@ const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t
 /* ───────────── línea de tiempo (frames @30) ───────────── */
 export const T = {
   hook: 0, ctx: 72, swift: 150, master: 270, vitara: 375, vitPieces: 442, vitPrice: 478,
-  airbag: 540, airPrice: 624, black: 641, reveal: 651, desp: 750, cta: 870, web: 958, end: 1108, total: 1108 + STING_LEN,
+  airbag: 540, airPrice: 624, black: 641, reveal: 651, desp: 750, cta: 870, web: 958, end: 1108, loop: 1108 + STING_LEN, total: 1108 + STING_LEN + 10,
 };
 export const CUATRO_TOTAL = T.total;
 
@@ -182,6 +182,7 @@ const HookText: React.FC<{f: number; dia?: boolean}> = ({f, dia}) => {
       <>
         {f >= 16 && <div style={{position: 'absolute', top: 520, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 16, [0, 3, 8], [1.7, 0.96, 1], cl)})`, fontFamily: DISP, fontSize: 300, lineHeight: 1, color: '#fff', textShadow: '0 10px 40px rgba(0,0,0,0.9)'}}><span style={{color: RED2}}>1</span> DÍA</div>}
         {f >= 26 && <div style={{position: 'absolute', top: 850, left: 0, right: 0, textAlign: 'center'}}><Rise f={f} at={26} style={{fontFamily: DISP, fontSize: 104, color: '#fff', textShadow: '0 8px 30px rgba(0,0,0,0.9)'}}>EN MI DESARMADURÍA</Rise></div>}
+        {f >= 50 && <div style={{position: 'absolute', top: 1190, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 50, [0, 3, 8], [1.5, 0.95, 1], cl)})`}}><span style={{display: 'inline-block', background: '#fff', color: BG, fontFamily: DISP, fontSize: 62, padding: '4px 22px 8px'}}>👀 ESPERA EL <span style={{color: RED}}>TOTAL</span> AL FINAL</span></div>}
         {f >= 38 && <div style={{position: 'absolute', top: 1010, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 38, [0, 3, 8], [1.5, 0.96, 1], cl)})`}}><Chip red size={76}>CON NUESTROS CLIENTES</Chip></div>}
       </>
     );
@@ -308,7 +309,7 @@ const SwiftText: React.FC<{f: number}> = ({f}) => {
       <Title f={f} at={T.swift + 4} small="MOTOR SUZUKI" big="SWIFT" />
       {f >= T.swift + 12 && <div style={{position: 'absolute', top: 470, left: 70, letterSpacing: interpolate(f - T.swift - 12, [0, 12], [30, 4], {...cl, easing: OUT})}}><Chip red size={60}>1.2 K12</Chip></div>}
       <Steps f={f} top={1060} until={T.swift + 52} items={[[T.swift + 18, 'COTIZÓ EN LA WEB'], [T.swift + 28, 'VINO A VERLO'], [T.swift + 38, 'SE LO LLEVÓ']]} />
-      <Price f={f} at={214} seq={[0, 300000, 600000, 900000]} top={1290} />
+      <Price f={f} at={214} seq={[0, 300000, 600000, 900000]} top={1130} />
     </>
   );
 };
@@ -323,7 +324,7 @@ const MasterText: React.FC<{f: number}> = ({f}) => {
       <div style={{position: 'absolute', top: 480, left: 70, transform: `translateY(${interpolate(f - ta, [0, 5], [30, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(f - ta, [0, 4], [0, 1], cl)}}>
         <Chip red size={52}>{tag}</Chip>
       </div>
-      <Price f={f} at={330} seq={[0, 260000, 520000]} step={2} top={1290} />
+      <Price f={f} at={330} seq={[0, 260000, 520000]} step={2} top={1130} />
     </>
   );
 };
@@ -388,12 +389,7 @@ const VitaraText: React.FC<{f: number}> = ({f}) => {
           return <span key={i} style={{fontFamily: DISP, fontSize: 36, padding: '6px 14px 8px', background: on ? (i === 3 ? RED : '#fff') : 'rgba(255,255,255,0.12)', color: on ? (i === 3 ? '#fff' : BG) : 'rgba(255,255,255,0.5)', transform: `scale(${on && f - act[i] < 6 ? interpolate(f - act[i], [0, 2, 6], [1, 1.2, 1], cl) : 1})`}}>{s}</span>;
         })}
       </div>
-      {f < T.vitPieces && f >= T.vitara + 18 && (
-        <div style={{position: 'absolute', top: 1450, left: 0, right: 0, textAlign: 'center'}}>
-          <Rise f={f} at={T.vitara + 18} style={{fontFamily: DISP, fontSize: 76, color: '#fff', textShadow: '0 6px 20px rgba(0,0,0,0.9)'}}>PREGUNTÓ POR UN PORTALÓN…</Rise>
-        </div>
-      )}
-      {f >= T.vitPieces && (
+            {f >= T.vitPieces && (
         <>
           <div style={{position: 'absolute', top: 320, left: 70}}>
             <Rise f={f} at={T.vitPieces + 2} style={{fontFamily: DISP, fontSize: 92, color: '#fff', textShadow: '0 6px 22px rgba(0,0,0,0.9)'}}>…Y SE LLEVÓ:</Rise>
@@ -441,7 +437,7 @@ const AirbagText: React.FC<{f: number}> = ({f}) => {
         </div>
       )}
       {f >= 624 && (
-        <div style={{position: 'absolute', top: 1290, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 624, [0, 3, 8], [2.1, 0.94, 1], cl)})`}}>
+        <div style={{position: 'absolute', top: 1130, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 624, [0, 3, 8], [2.1, 0.94, 1], cl)})`}}>
           <Tag txt={clp(384990)} size={150} wipe={interpolate(f - 624, [0, 3], [0.2, 1], cl)} k={f - 624} />
         </div>
       )}
@@ -626,11 +622,81 @@ const WebScene: React.FC<{f: number}> = ({f}) => {
 const TopLogo: React.FC<{f: number}> = ({f}) => {
   if (f >= T.end || (f >= T.black && f < T.reveal)) return null;
   const white = f >= T.cta && f < T.web;
-  return <Img src={S(`marca/anim/${white ? 'logo_color' : 'logo_blanco'}.png`)} style={{position: 'absolute', left: 305, top: 62, width: 470, filter: white ? undefined : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))', opacity: interpolate(f, [0, 6], [0, 1], cl)}} />;
+  return <Img src={S(`marca/anim/${white ? 'logo_color' : 'logo_blanco'}.png`)} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: white ? undefined : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))', opacity: interpolate(f, [0, 6], [0, 1], cl)}} />;
+};
+
+
+/* barra "VENTAS DE HOY": se llena con cada venta (1/4 → 4/4) */
+const SalesBar: React.FC<{f: number}> = ({f}) => {
+  if (f < T.swift || f >= T.black) return null;
+  const done = STAMPS.filter(([at]) => f >= at).length;
+  const last = [...STAMPS].reverse().find(([at]) => f >= at);
+  const pop = last ? interpolate(f - last[0], [0, 3, 9], [1.25, 0.97, 1], cl) : 1;
+  return (
+    <div style={{position: 'absolute', top: 182, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: interpolate(f, [T.swift, T.swift + 6], [0, 1], cl)}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(10,10,10,0.78)', border: '2px solid rgba(255,255,255,0.18)', borderRadius: 30, padding: '6px 18px', transform: `scale(${pop})`}}>
+        <span style={{fontFamily: DISP, fontSize: 30, color: '#fff', letterSpacing: 2}}>VENTAS DE HOY</span>
+        {[0, 1, 2, 3].map((i) => {
+          const fill = i < done ? 1 : 0;
+          const just = last && i === done - 1 ? interpolate(f - last[0], [0, 6], [0, 1], cl) : 1;
+          return <span key={i} style={{width: 46, height: 14, borderRadius: 7, background: 'rgba(255,255,255,0.18)', overflow: 'hidden', display: 'inline-block'}}><span style={{display: 'block', height: '100%', width: `${fill * just * 100}%`, background: '#FF2A2A', boxShadow: '0 0 12px #D10B0C'}} /></span>;
+        })}
+        <span style={{fontFamily: DISP, fontSize: 34, color: done ? '#FF2A2A' : '#fff'}}>{done}/4</span>
+      </div>
+    </div>
+  );
+};
+
+/* ficha del sitio web junto a la venta: entra en 3D, toque de cursor y el
+   estado pasa de "Disponible" a "VENDIDO" justo cuando cae el sello */
+const WebCard: React.FC<{f: number; at: number; until: number; flip: number; img: string; title: string; x?: number; y?: number; w?: number}> = ({f, at, until, flip, img, title, x = 700, y = 250, w = 320}) => {
+  if (f < at || f >= until) return null;
+  const k = spring({frame: f - at, fps: 30, config: {damping: 14, stiffness: 190, mass: 0.6}});
+  const out = interpolate(f, [until - 6, until], [0, 1], cl);
+  const sold = f >= flip;
+  const fp = sold ? interpolate(f - flip, [0, 3, 8], [1.35, 0.95, 1], cl) : 1;
+  const tap = f - (at + 10);
+  return (
+    <div style={{position: 'absolute', left: x, top: y, width: w, perspective: 900, opacity: 1 - out}}>
+      <div style={{transform: `translateX(${(1 - k) * 420 + out * 300}px) rotateY(${(1 - k) * -35}deg)`, background: '#fff', borderRadius: 18, overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.7), 0 0 0 3px rgba(255,255,255,0.25)'}}>
+        <div style={{background: '#0A0A0A', padding: '7px 10px', display: 'flex', alignItems: 'center', gap: 8}}>
+          <span style={{width: 9, height: 9, borderRadius: 5, background: '#D10B0C'}} />
+          <span style={{flex: 1, background: '#1f1f1f', borderRadius: 10, padding: '3px 10px', fontFamily: TXT, fontWeight: 700, fontSize: 15, color: '#ddd'}}>🔒 autopartschile.cl</span>
+        </div>
+        <div style={{position: 'relative', height: w * 0.62, overflow: 'hidden'}}>
+          <Img src={S(img)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: GRADE, transform: `scale(${1.05 + (f - at) * 0.002})`}} />
+          {sold && <div style={{position: 'absolute', inset: 0, background: 'rgba(209,11,12,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><span style={{border: '5px solid #fff', color: '#fff', fontFamily: DISP, fontSize: 46, padding: '0 14px 4px', transform: `rotate(-10deg) scale(${fp})`, letterSpacing: 2}}>VENDIDO</span></div>}
+        </div>
+        <div style={{padding: '10px 14px 14px'}}>
+          <div style={{fontFamily: TXT, fontWeight: 800, fontSize: 21, lineHeight: 1.2, color: '#111'}}>{title}</div>
+          <span style={{display: 'inline-block', marginTop: 8, borderRadius: 14, padding: '3px 12px', fontFamily: TXT, fontWeight: 800, fontSize: 17, background: sold ? '#D10B0C' : '#e3f6e8', color: sold ? '#fff' : '#1f9d4a', transform: `scale(${fp})`, transformOrigin: 'left center'}}>{sold ? 'VENDIDO' : 'Disponible'}</span>
+        </div>
+      </div>
+      {tap >= 0 && tap < 14 && <div style={{position: 'absolute', left: w * 0.55 - 30, top: w * 0.4 - 30, width: 60, height: 60, borderRadius: 30, border: '4px solid #FF2A2A', transform: `scale(${0.4 + tap * 0.12})`, opacity: 1 - tap / 14}} />}
+    </div>
+  );
+};
+
+/* ficha real del Vitara en la web (lo que vio el cliente antes de escribir) */
+const VitaraWeb: React.FC<{f: number}> = ({f}) => {
+  const at = T.vitara, until = T.vitara + 30;
+  if (f < at || f >= until) return null;
+  const k = spring({frame: f - at, fps: 30, config: {damping: 14, stiffness: 200, mass: 0.6}});
+  const fly = interpolate(f, [until - 9, until], [0, 1], {...cl, easing: Easing.in(Easing.cubic)});
+  const tap = f - (at + 12);
+  return (
+    <AbsoluteFill style={{pointerEvents: 'none'}}>
+      <div style={{position: 'absolute', top: 236, left: 0, right: 0, textAlign: 'center', opacity: 1 - fly}}><Chip red size={54}>LO VIO EN LA WEB 👀</Chip></div>
+      <div style={{position: 'absolute', left: 290, top: 330, width: 500, height: 1030, overflow: 'hidden', borderRadius: 26, boxShadow: '0 40px 90px rgba(0,0,0,0.85)', transform: `translateY(${(1 - k) * 1200}px) translate(${fly * 380}px, ${fly * -260}px) scale(${1 - fly * 0.7}) rotate(${fly * 8}deg)`, opacity: 1 - fly * 0.6}}>
+        <Img src={S('swift/web_vitara.png')} style={{width: 500, display: 'block'}} />
+        {tap >= 0 && tap < 14 && <div style={{position: 'absolute', left: 250 - 40, top: 870 - 40, width: 80, height: 80, borderRadius: 40, border: '5px solid #FF2A2A', transform: `scale(${0.4 + tap * 0.12})`, opacity: 1 - tap / 14}} />}
+      </div>
+    </AbsoluteFill>
+  );
 };
 
 /* sello VENDIDO + número de cliente (variante "1 día") */
-export const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 880, 3], [629, T.black, 1040, 4]];
+export const STAMPS: [number, number, number, number][] = [[228, T.master, 900, 1], [340, T.vitara, 900, 2], [498, T.airbag, 880, 3], [629, T.black, 900, 4]];
 const Sold: React.FC<{f: number}> = ({f}) => (
   <>
     {STAMPS.map(([at, until, top, n]) => f >= at && f < until && (
@@ -769,6 +835,9 @@ export const SFX: Sfx[] = [
   [T.web + 62, 'sfx_click', 0.6], [T.web + 84, 'sfx_click', 0.6], [T.web + 88, 'sfx_key', 0.4], [T.web + 92, 'sfx_key', 0.4], [T.web + 96, 'sfx_key', 0.4], [T.web + 60, 'sfx_pop', 0.5],
   // anillos de precio + ka-ching de la ficha web
   [206, 'sfx_riser', 0.3, 14], [324, 'sfx_riser', 0.3, 14], [566, 'sfx_riser', 0.3, 14], [T.web + 108, 'sfx_whoosh', 0.5], [T.web + 112, 'sfx_kaching_real', 0.85], [T.web + 113, 'sfx_coins', 0.4],
+  // fichas web, barra de ventas y loop final
+  [158, 'sfx_whoosh', 0.35], [170, 'sfx_click', 0.5], [274, 'sfx_whoosh', 0.35], [286, 'sfx_click', 0.5], [T.vitara + 2, 'sfx_whoosh', 0.4], [T.vitara + 12, 'sfx_click', 0.6],
+  [229, 'sfx_coin', 0.5], [341, 'sfx_coin', 0.5], [499, 'sfx_coin', 0.5], [630, 'sfx_coin', 0.5], [50, 'sfx_pop', 0.5], [T.loop - 2, 'sfx_whip', 0.7],
   // CTA
   [868, 'sfx_whip', 0.75], [896, 'sfx_click', 0.6], [902, 'sfx_click', 0.6], [908, 'sfx_click', 0.6], [924, 'sfx_pop', 0.6],
   [936, 'sfx_notif', 0.7],
@@ -824,6 +893,7 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}>
         <WebScene f={f} />
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting mute={mute} /></Sequence>
+        <Shot src="swift/mv_carga.mp4" from={T.loop} dur={10} start={1.17} z={[1.55, 1.34]} inT="whipL" />
         <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697, T.desp, T.desp + 24]} />
         <PriceOrbit f={f} at={206} until={T.master - 4} cx={540} cy={900} rx={390} ry={105} text=" $900.000 • MOTOR SWIFT • VENDIDO •" />
         <PriceOrbit f={f} at={324} until={T.vitara - 4} cx={540} cy={975} rx={370} ry={100} text=" $520.000 • MOTOR MASTERVAN • VENDIDO •" />
@@ -831,6 +901,10 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}>
         <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
         <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
         <Brackets f={f} at={616} until={T.black} x={70} y={390} w={940} h={590} />
+        <SalesBar f={f} />
+        <WebCard f={f} at={160} until={T.master - 2} flip={228} img="swift/c_swift.jpg" title="Motor completo 1.2 japonés (tapa plástica)" />
+        <WebCard f={f} at={276} until={T.vitara - 2} flip={340} img="swift/c_mvblock.jpg" title="Motor completo G13B 1.3 · Mastervan" />
+        <VitaraWeb f={f} />
         <TopLogo f={f} />
       </AbsoluteFill>
       {fade > 0 && <AbsoluteFill style={{background: `rgba(0,0,0,${fade})`}} />}

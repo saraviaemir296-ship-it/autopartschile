@@ -1,5 +1,5 @@
 // Voz de Cristian (2ª grabación, velocidad real, mejorada con DeepFilterNet + EQ suave) por frase.
 // Timeline re-mapeado: cada escena dura lo que dura su frase. SEGS: [inicioInterno, finInterno, inicioExterno, largoExterno]
-export const CRIS_SEGS: [number, number, number, number][] = [[0, 72, 0, 98], [72, 150, 98, 118], [150, 270, 216, 148], [270, 375, 364, 139], [375, 505, 503, 160], [505, 540, 663, 58], [540, 641, 721, 144], [641, 679, 865, 79], [679, 750, 944, 151], [750, 870, 1095, 120], [870, 958, 1215, 127], [958, 1108, 1342, 150], [1108, 1168, 1492, 60]];
+export const CRIS_SEGS: [number, number, number, number][] = [[0, 72, 0, 98], [72, 150, 98, 118], [150, 270, 216, 148], [270, 375, 364, 139], [375, 505, 503, 160], [505, 540, 663, 58], [540, 641, 721, 144], [641, 679, 865, 79], [679, 750, 944, 151], [750, 870, 1095, 120], [870, 958, 1215, 127], [958, 1108, 1342, 150], [1108, 1168, 1492, 60], [1168, 1178, 1552, 10]];
 export const CRIS_VO: [number, number, string][] = [[4, 89, "audio/vo/cris_d00.wav"], [100, 111, "audio/vo/cris_d01.wav"], [220, 139, "audio/vo/cris_d02.wav"], [367, 131, "audio/vo/cris_d03.wav"], [507, 151, "audio/vo/cris_d04.wav"], [665, 51, "audio/vo/cris_d05.wav"], [724, 136, "audio/vo/cris_d06.wav"], [885, 54, "audio/vo/cris_d07.wav"], [944, 146, "audio/vo/cris_d08.wav"], [1101, 87, "audio/vo/cris_d09.wav"], [1218, 119, "audio/vo/cris_d10.wav"], [1496, 48, "audio/vo/cris_d11.wav"]];
-export const CRIS_TOTAL = 1552;
+export const CRIS_TOTAL = 1562;
