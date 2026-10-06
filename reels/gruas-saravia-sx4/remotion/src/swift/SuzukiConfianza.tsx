@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
+import {VO_SUZ, voOn} from './voLines';
 import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {Bug, LogoSting, STING_LEN} from './LogoSting';
 import {Chip, Rise, Shot} from './CuatroAutos';
@@ -386,6 +387,7 @@ const SFX: Sfx[] = [
 ];
 
 export const SuzukiConfianza: React.FC<{vo?: string}> = ({vo}) => {
+  const voLines = VO_SUZ;
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) {
@@ -426,8 +428,9 @@ export const SuzukiConfianza: React.FC<{vo?: string}> = ({vo}) => {
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       <Grain f={f} />
       {SFX.map(([at, n, v, d], i) => (
-        <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
+        <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v) * (voLines && voOn(voLines, at + x) ? 0.45 : 1)} /></Sequence>
       ))}
+      {voLines && voLines.map(([st, du, file]) => <Sequence key={file} from={st} durationInFrames={du + 2}><Audio src={S(file)} volume={1} /></Sequence>)}
       {vo && <Audio src={S(vo)} />}
     </AbsoluteFill>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
+import {VO_DIA, voOn} from './voLines';
 import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {Bug, LogoSting, STING_LEN} from './LogoSting';
 
@@ -681,6 +682,7 @@ const SFX: Sfx[] = [
 ];
 
 export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) => {
+  const voLines = dia ? VO_DIA : null;
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) {
@@ -739,9 +741,10 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) =
       <Grain f={f} />
       {/* sonido */}
       {SFX.map(([at, n, v, d], i) => (
-        <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
+        <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v) * (voLines && voOn(voLines, at + x) ? 0.45 : 1)} /></Sequence>
       ))}
       {dia && STAMPS.map(([at]) => <Sequence key={`st${at}`} from={at} durationInFrames={20}><Audio src={S('audio/sfx_metal.wav')} volume={0.8} /></Sequence>)}
+      {voLines && voLines.map(([st, du, file]) => <Sequence key={file} from={st} durationInFrames={du + 2}><Audio src={S(file)} volume={1} /></Sequence>)}
       {vo && <Audio src={S(vo)} />}
     </AbsoluteFill>
   );
