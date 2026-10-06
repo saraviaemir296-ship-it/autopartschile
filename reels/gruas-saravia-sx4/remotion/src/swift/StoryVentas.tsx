@@ -17,6 +17,7 @@ const BG = '#0A0A0A';
 const DISP = "'Anton', 'Montserrat', sans-serif";
 const TXT = "'Montserrat', sans-serif";
 const MONO = "'JetBrains Mono', monospace";
+const SCRIPT = "'Kaushan', cursive";
 const sp = (f: number, d = 0, damping = 13, stiffness = 220) => spring({frame: f - d, fps: 30, config: {damping, stiffness, mass: 0.6}});
 const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL').replace(/,/g, '.');
 const glow = (c: string, k = 1) => `0 0 ${8 * k}px ${c}, 0 0 ${22 * k}px ${c}, 0 0 ${48 * k}px ${c}88`;
@@ -61,7 +62,10 @@ const Hook: React.FC<{t: number}> = ({t}) => {
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', top: 300, left: 50, right: 50, textAlign: 'center'}}>
-        <span style={{display: 'inline-block', background: '#fff', color: BG, fontFamily: DISP, fontSize: 92, lineHeight: 1.05, padding: '2px 26px 8px', transform: `scale(${sp(t, 0, 12, 260)})`}}>ESTOS 4 AUTOS EN DESARME</span>
+        <div style={{transform: `scale(${sp(t, 0, 12, 260)})`}}>
+          <div style={{fontFamily: DISP, fontSize: 120, lineHeight: 1, color: '#fff', textShadow: '0 6px 24px rgba(0,0,0,0.7)'}}>ESTOS 4 AUTOS</div>
+          <div style={{fontFamily: SCRIPT, fontSize: 104, lineHeight: 1.1, color: RED2, textShadow: glow(RED, 0.6), marginTop: -6, transform: 'rotate(-4deg)'}}>en desarme…</div>
+        </div>
       </div>
       {CARS.map((_, i) => <CarCard key={i} i={i} t={t} gray={color} fan />)}
       {t >= 36 && (
@@ -82,12 +86,32 @@ const Turn: React.FC<{t: number}> = ({t}) => {
       {CARS.map((_, i) => <CarCard key={i} i={i} t={60} gray={flip ? interpolate(t, [42, 52], [1, 0], cl) : 1} fan crossed={flip ? 0 : interpolate(t, [10, 22], [0, 1], cl)} />)}
       <div style={{position: 'absolute', top: 320, left: 50, right: 50, textAlign: 'center'}}>
         {!flip ? (
-          <span style={{display: 'inline-block', background: BG, color: '#fff', fontFamily: DISP, fontSize: 96, padding: '2px 26px 8px', border: '4px solid #fff'}}>PARA MUCHOS: CHATARRA 🗑️</span>
+          <div><span style={{fontFamily: DISP, fontSize: 96, color: '#fff'}}>PARA MUCHOS: </span><span style={{fontFamily: SCRIPT, fontSize: 110, color: '#bbb'}}>chatarra</span></div>
         ) : (
           <span style={{display: 'inline-block', background: RED, color: '#fff', fontFamily: DISP, fontSize: 84, lineHeight: 1.08, padding: '4px 26px 10px', transform: `scale(${interpolate(t, [42, 46, 50], [1.4, 0.95, 1], cl)})`}}>PARA NOSOTROS:<br />REPUESTOS QUE ALGUIEN NECESITA ✅</span>
         )}
       </div>
     </AbsoluteFill>
+  );
+};
+
+
+/* anillo de texto 3D que gira (estilo "movimiento anular" de CapCut) */
+const RingText: React.FC<{t: number; text: string; r: number; top: number; size?: number}> = ({t, text, r, top, size = 54}) => {
+  const ch = text.split('');
+  const step = 360 / ch.length;
+  return (
+    <div style={{position: 'absolute', left: 540, top, perspective: 1600, transformStyle: 'preserve-3d'}}>
+      <div style={{transformStyle: 'preserve-3d', transform: `rotateX(-14deg) rotateY(${t * 2.4}deg)`}}>
+        {ch.map((c, i) => {
+          const ang = ((i * step + t * 2.4) % 360 + 360) % 360;
+          const front = Math.cos((ang * Math.PI) / 180);
+          return (
+            <span key={i} style={{position: 'absolute', left: -size * 0.3, top: -size * 0.6, fontFamily: DISP, fontSize: size, color: front > 0 ? '#fff' : RED, opacity: 0.35 + 0.65 * Math.max(0, front), textShadow: front > 0 ? glow(RED, 0.5) : 'none', transform: `rotateY(${i * step}deg) translateZ(${r}px)`, backfaceVisibility: 'visible'}}>{c}</span>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
@@ -97,6 +121,7 @@ const Climax: React.FC<{t: number}> = ({t}) => (
     <div style={{position: 'absolute', top: 300, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 84, color: '#fff'}}>
       <span style={{background: BG, padding: '0 20px 6px', border: '4px solid #fff'}}>4 AUTOS · 4 CLIENTES</span>
     </div>
+    <RingText t={t} text=" VENDIDO • VENDIDO • VENDIDO • VENDIDO •" r={400} top={590} size={62} />
     <div style={{position: 'absolute', top: 1190, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontWeight: 800, fontSize: 160, color: '#fff', textShadow: glow(RED2, 1.2), transform: `scale(${interpolate(t, [0, 5, 10], [1.4, 0.95, 1], cl)})`}}>{clp(TOTAL)}</div>
     <div style={{position: 'absolute', top: 1420, left: 0, right: 0, textAlign: 'center'}}>
       <span style={{display: 'inline-block', background: RED, color: '#fff', fontFamily: DISP, fontSize: 64, padding: '0 24px 6px', opacity: interpolate(t, [14, 20], [0, 1], cl)}}>Y UNO VIAJA A VIÑA DEL MAR 📦</span>
@@ -120,15 +145,50 @@ const Cta: React.FC<{t: number}> = ({t}) => {
       <div style={{position: 'absolute', top: 170, left: 70, right: 70, borderRadius: 24, overflow: 'hidden', border: `4px solid ${RED}`, boxShadow: glow(RED, 0.8), transform: `scale(${0.8 + 0.2 * p})`, opacity: Math.min(1, p * 2)}}>
         <Img src={S('suzuki/marca.jpg')} style={{display: 'block', width: '100%'}} />
       </div>
-      <div style={{position: 'absolute', top: 640, left: 60, right: 60, display: 'flex', flexDirection: 'column', gap: 24}}>
+      <div style={{position: 'absolute', top: 615, left: 60, right: 60, textAlign: 'center', opacity: interpolate(t, [2, 8], [0, 1], cl)}}>
+        <span style={{display: 'inline-block', background: RED, color: '#fff', fontFamily: TXT, fontWeight: 900, fontSize: 40, padding: '8px 20px', borderRadius: 10}}>Nunca vendas tu auto como "chatarra" sin antes cotizar con nosotros</span>
+      </div>
+      <div style={{position: 'absolute', top: 750, left: 60, right: 60, display: 'flex', flexDirection: 'column', gap: 24}}>
         <Card a={8} q="¿BUSCAS UN REPUESTO?" a2="Escríbenos tu modelo y te mandamos foto y precio" />
         <Card a={22} q="¿AUTO CHOCADO O EN MAL ESTADO?" a2="Te lo compramos en cualquier estado" red />
       </div>
-      <div style={{position: 'absolute', top: 1260, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, opacity: interpolate(t, [40, 48], [0, 1], cl)}}>
+      <div style={{position: 'absolute', top: 1300, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, opacity: interpolate(t, [40, 48], [0, 1], cl)}}>
         <div style={{fontFamily: DISP, fontSize: 70, color: '#fff', textShadow: glow(RED, 0.7)}}>WhatsApp +56 9 5381 7335</div>
         <div style={{fontFamily: DISP, fontSize: 56, color: BG, background: '#fff', padding: '0 26px 6px', borderRadius: 12}}>autopartschile.cl · despacho a todo Chile</div>
       </div>
     </AbsoluteFill>
+  );
+};
+
+
+/* subtítulos gigantes palabra a palabra (se ven sin sonido; con voz se
+   re-sincronizan con los tiempos reales) */
+const LINES: [number, number, string][] = [
+  [0, HOOK, 'Estos cuatro autos en desarme nos dejaron… dos millones setecientas lucas'],
+  [HOOK, S0, 'Pa muchos chatarra… pa nosotros repuestos que alguien necesita'],
+  [S0, S0 + EACH, 'Motor de Swift novecientas lucas directo a una automotora'],
+  [S0 + EACH, S0 + 2 * EACH, 'Motor de Mastervan quinientas veinte lucas'],
+  [S0 + 2 * EACH, S0 + 3 * EACH, 'Nos escribió por el portalón del Vitara… novecientas lucas'],
+  [S0 + 3 * EACH, C0, 'Kit de airbag del Swift más piolas del SX4'],
+  [C0, E0, 'Y un pedazo viaja a Viña del Mar'],
+];
+const HOT = /lucas|chatarra|repuestos|novecientas|quinientas|millones|vitara|swift|mastervan|sx4|viña/i;
+const Captions: React.FC<{f: number}> = ({f}) => {
+  const line = LINES.find(([a, b]) => f >= a && f < b);
+  if (!line) return null;
+  const [a, b, txt] = line;
+  const words = txt.split(' ');
+  const per = (b - a - 8) / Math.ceil(words.length / 2);
+  const k = Math.min(Math.ceil(words.length / 2) - 1, Math.floor((f - a) / per));
+  const chunk = words.slice(k * 2, k * 2 + 2);
+  const lt = f - a - k * per;
+  const p = interpolate(lt, [0, 3], [1.25, 1], cl);
+  return (
+    <div style={{position: 'absolute', left: 30, right: 30, top: 1600, textAlign: 'center', transform: `scale(${p})`}}>
+      {chunk.map((w, i) => (
+        <span key={i} style={{fontFamily: DISP, fontSize: 92, lineHeight: 1, margin: '0 10px', textTransform: 'uppercase', color: HOT.test(w) ? RED2 : '#fff', WebkitTextStroke: '3px #000', textShadow: '0 6px 0 #000, 0 0 24px rgba(0,0,0,0.8)'}}>{w}</span>
+      ))}
+    </div>
   );
 };
 
@@ -161,6 +221,7 @@ export const StoryVentas: React.FC<{vo?: string}> = ({vo}) => {
       ))}
       <Sequence from={C0} durationInFrames={CLIMAX}><Climax t={f - C0} /></Sequence>
       <Sequence from={E0} durationInFrames={CTA}><Cta t={f - E0} /></Sequence>
+      <Captions f={f} />
       {/* barrido rojo/blanco en cada corte */}
       {Math.abs(f - near) < 7 && f > 4 && (
         <AbsoluteFill style={{pointerEvents: 'none', overflow: 'hidden'}}>
