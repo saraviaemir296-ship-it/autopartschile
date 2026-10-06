@@ -9,9 +9,10 @@ import {cl} from '../v2/look';
      en la web, vino a verlo y se le despachó a su automotora.
    - Motor Suzuki Mastervan G13B 1.3 vendido (precio NO confirmado: no se
      muestra).
-   - Cliente #3 escribió desde la web por el portalón del Suzuki Vitara
-     azul en desarme (chat real, nombre tapado); se ve el Vitara en el
-     local (patente pixelada), el portalón desmontado y cargado.
+   - Cliente #3 vio el Suzuki Vitara azul publicado en la web y escribió
+     por el portalón (chat real, nombre tapado). Se llevó portalón,
+     refuerzo de parachoques y parachoques trasero, más un corte que sale
+     al día siguiente a Viña del Mar (dato del dueño). Sin precios.
    - 242 repuestos con stock en autopartschile.cl (tabla products,
      2026-10-06). Marcas con stock: Suzuki, Kia, Chevrolet, Jeep. */
 
@@ -33,7 +34,7 @@ const ORDER = [
   ['intro', 72],
   ['swift', 126],
   ['master', 96],
-  ['vitara', 186],
+  ['vitara', 326],
   ['stock', 108],
   ['flujo', 84],
   ['fin', 96],
@@ -222,35 +223,109 @@ const Master: React.FC<{t: number}> = ({t}) => {
 };
 
 
-const V_CHAT = 64;
-const V_LOCAL = 40;
-const V_PORT = 44;
+const V_WEB = 40;
+const V_CHAT = 54;
+const V_LOCAL = 34;
+const V_PORT = 84;
+const V_CARGA = 32;
+const V_RUTA = 66;
+export const VITARA_LEN = V_WEB + V_CHAT + V_LOCAL + V_PORT + V_CARGA + V_RUTA;
+const V_ITEMS = ['Portalón', 'Refuerzo de parachoques', 'Parachoques trasero'];
+
+/* ruta neón La Pintana → Viña del Mar */
+const Ruta: React.FC<{t: number}> = ({t}) => {
+  const d = 'M760 1300 C 700 1100, 520 1050, 470 860 S 300 600, 280 470';
+  const len = 1000;
+  const draw = interpolate(t, [6, 40], [len, 0], {...cl, easing: (x) => x * x * (3 - 2 * x)});
+  const pts: [number, number][] = [[760, 1300], [705, 1150], [560, 1030], [470, 860], [380, 680], [280, 470]];
+  const k = interpolate(t, [6, 40], [0, 1], cl) * (pts.length - 1);
+  const i = Math.min(pts.length - 2, Math.floor(k));
+  const x = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * (k - i);
+  const y = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * (k - i);
+  const pin = sp(t, 40, 9, 300);
+  return (
+    <AbsoluteFill>
+      <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
+        <path d={d} fill="none" stroke={`${GREEN}33`} strokeWidth="14" strokeLinecap="round" />
+        <path d={d} fill="none" stroke={GREEN} strokeWidth="10" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={draw} style={{filter: `drop-shadow(0 0 12px ${GREEN})`}} />
+        <circle cx={760} cy={1300} r={20} fill="#fff" style={{filter: `drop-shadow(0 0 12px ${CYAN})`}} />
+        <g transform={`translate(280 470) scale(${pin})`}>
+          <circle r={70} fill={GREEN} opacity={0.2} />
+          <circle r={26} fill={GREEN} style={{filter: `drop-shadow(0 0 16px ${GREEN})`}} />
+        </g>
+      </svg>
+      {t > 6 && t < 42 && <div style={{position: 'absolute', left: x - 46, top: y - 46, width: 92, height: 92, borderRadius: 99, background: BG, border: `4px solid ${GREEN}`, boxShadow: glow(GREEN, 0.8), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48}}>🚚</div>}
+      <div style={{position: 'absolute', left: 560, top: 1340, fontFamily: SORA, color: '#fff'}}>
+        <div style={{fontFamily: MONO, fontSize: 28, color: CYAN, letterSpacing: '0.2em'}}>DESDE</div>
+        <div style={{fontWeight: 800, fontSize: 44}}>La Pintana</div>
+      </div>
+      <div style={{position: 'absolute', left: 380, top: 400, fontFamily: SORA, color: '#fff', opacity: interpolate(t, [40, 48], [0, 1], cl)}}>
+        <div style={{fontFamily: MONO, fontSize: 28, color: GREEN, letterSpacing: '0.2em'}}>HASTA</div>
+        <div style={{fontWeight: 800, fontSize: 64, textShadow: glow(GREEN, 0.5)}}>Viña del Mar</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const Vitara: React.FC<{t: number}> = ({t}) => {
-  const a1 = V_CHAT, a2 = V_CHAT + V_LOCAL, a3 = V_CHAT + V_LOCAL + V_PORT;
-  const chatP = sp(t, 4, 14, 170);
-  const scroll = interpolate(t, [18, 56], [0, -40], {...cl, easing: (x) => x * x * (3 - 2 * x)});
+  const a1 = V_WEB, a2 = a1 + V_CHAT, a3 = a2 + V_LOCAL, a4 = a3 + V_PORT, a5 = a4 + V_CARGA;
+  const webP = sp(t, 2, 14, 170);
+  const chatP = sp(t, a1 + 2, 14, 170);
+  const scroll = interpolate(t, [a1 + 14, a2 - 6], [0, -40], {...cl, easing: (x) => x * x * (3 - 2 * x)});
   return (
     <AbsoluteFill>
       <Kicker t={t} top={150} color={GREEN}>CLIENTE #3 · DESDE LA WEB</Kicker>
       <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 80, color: '#fff', textShadow: glow(GREEN, 0.5)}}>
         <Decode text="SUZUKI VITARA AZUL" t={t} speed={1.4} />
       </div>
+      {/* 1. lo vio publicado */}
       {t < a1 && (
+        <>
+          <div style={{position: 'absolute', left: 320, width: 440, top: 340, borderRadius: 34, overflow: 'hidden', border: `4px solid ${GREEN}`, boxShadow: glow(GREEN, 0.9), transform: `perspective(1200px) rotateX(${(1 - webP) * 40}deg) scale(${0.8 + 0.2 * webP})`, opacity: Math.min(1, webP * 2)}}>
+            <Img src={S('swift/web_vitara.png')} style={{display: 'block', width: '100%'}} />
+          </div>
+          <div style={{position: 'absolute', top: 1520, left: 90, right: 90}}><Chip t={t} a={10}>Lo vio publicado en autopartschile.cl</Chip></div>
+        </>
+      )}
+      {/* 2. escribió */}
+      {t >= a1 && t < a2 && (
         <div style={{position: 'absolute', left: 130, right: 130, top: 380, height: 780, borderRadius: 40, overflow: 'hidden', border: `4px solid ${GREEN}`, boxShadow: `${glow(GREEN, 0.9)}`, background: '#efe7de', transform: `translateY(${(1 - chatP) * 400}px) rotate(${(1 - chatP) * 6}deg)`, opacity: Math.min(1, chatP * 2)}}>
           <Img src={S('swift/chat_vitara.png')} style={{width: '100%', transform: `translateY(${scroll}px)`}} />
         </div>
       )}
-      {t >= 26 && t < a1 && (
-        <div style={{position: 'absolute', top: 1300, left: 0, right: 0, textAlign: 'center', fontFamily: SCRIPT, fontSize: 84, color: '#fff', textShadow: glow(GREEN, 0.8), opacity: interpolate(t, [26, 34], [0, 1], cl)}}>
+      {t >= a1 + 16 && t < a2 && (
+        <div style={{position: 'absolute', top: 1260, left: 0, right: 0, textAlign: 'center', fontFamily: SCRIPT, fontSize: 84, color: '#fff', textShadow: glow(GREEN, 0.8), opacity: interpolate(t, [a1 + 16, a1 + 24], [0, 1], cl)}}>
           "¿el portalón está disponible?"
         </div>
       )}
-      <Sequence from={a1} durationInFrames={V_LOCAL}><HoloVideo t={t - a1} src="swift/vitara_local_anon.mp4" from={0} top={360} h={980} color={GREEN} /></Sequence>
-      {t >= a1 && t < a2 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a1} a={6}>En desarme en nuestro local</Chip></div>}
-      <Sequence from={a2} durationInFrames={V_PORT}><HoloVideo t={t - a2} src="swift/vitara_portalon.mp4" from={0.8} top={360} h={980} color={GREEN} /></Sequence>
-      {t >= a2 && t < a3 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a2} a={6}>Portalón desmontado</Chip></div>}
-      <Sequence from={a3}><HoloVideo t={t - a3} src="swift/vitara_carga.mp4" from={1.0} top={360} h={980} color={GREEN} /></Sequence>
-      {t >= a3 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a3} a={4}>Cargado y listo para el cliente</Chip></div>}
+      {/* 3. el auto en el local */}
+      <Sequence from={a2} durationInFrames={V_LOCAL}><HoloVideo t={t - a2} src="swift/vitara_local_anon.mp4" from={0} top={360} h={980} color={GREEN} /></Sequence>
+      {t >= a2 && t < a3 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a2} a={4}>En desarme en nuestro local</Chip></div>}
+      {/* 4. lo que se llevó */}
+      <Sequence from={a3} durationInFrames={V_PORT}><HoloVideo t={t - a3} src="swift/vitara_portalon.mp4" from={0.6} top={360} h={760} color={GREEN} /></Sequence>
+      {t >= a3 && t < a4 && (
+        <>
+          <div style={{position: 'absolute', top: 1150, left: 90, fontFamily: MONO, fontWeight: 800, fontSize: 34, color: GREEN, letterSpacing: '0.2em', textShadow: glow(GREEN, 0.5)}}>SE LLEVÓ:</div>
+          <div style={{position: 'absolute', top: 1210, left: 90, right: 90, display: 'flex', flexDirection: 'column', gap: 14}}>
+            {V_ITEMS.map((it, i) => <Chip key={it} t={t - a3} a={8 + i * 12}>{it}</Chip>)}
+            <Chip t={t - a3} a={48} color={CYAN}>+ un corte que sale mañana</Chip>
+          </div>
+        </>
+      )}
+      {/* 5. cargado */}
+      <Sequence from={a4} durationInFrames={V_CARGA}><HoloVideo t={t - a4} src="swift/vitara_carga.mp4" from={1.0} top={360} h={980} color={GREEN} /></Sequence>
+      {t >= a4 && t < a5 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a4} a={2}>Cargado y listo</Chip></div>}
+      {/* 6. despacho a región */}
+      {t >= a5 && (
+        <>
+          <Ruta t={t - a5} />
+          <div style={{position: 'absolute', top: 1520, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
+            <div style={{fontFamily: SORA, fontWeight: 800, fontSize: 52, color: BG, background: GREEN, borderRadius: 18, padding: '10px 30px', boxShadow: glow(GREEN, 0.8), opacity: interpolate(t - a5, [44, 50], [0, 1], cl), transform: `scale(${interpolate(t - a5, [44, 48, 52], [1.4, 0.95, 1], cl)})`}}>
+              El corte sale mañana a región 📦
+            </div>
+          </div>
+        </>
+      )}
     </AbsoluteFill>
   );
 };
@@ -394,14 +469,19 @@ export const NeonMotores: React.FC = () => {
       <Sequence from={T.master[0] + 54}><Audio src={S('audio/sfx_sparkle.wav')} volume={0.3} /></Sequence>
       {/* vitara */}
       <Sequence from={T.vitara[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
-      <Sequence from={T.vitara[0] + 6}><Audio src={S('audio/sfx_ding.wav')} volume={0.55} /></Sequence>
-      <Sequence from={T.vitara[0] + 26}><Audio src={S('audio/sfx_pop.wav')} volume={0.4} /></Sequence>
-      {[V_CHAT, V_CHAT + V_LOCAL, V_CHAT + V_LOCAL + V_PORT].map((x) => (
-        <React.Fragment key={'v' + x}>
-          <Sequence from={T.vitara[0] + x - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
-          <Sequence from={T.vitara[0] + x + 6}><Audio src={S('audio/sfx_correct.wav')} volume={0.3} /></Sequence>
-        </React.Fragment>
+      <Sequence from={T.vitara[0] + 10}><Audio src={S('audio/sfx_pop.wav')} volume={0.4} /></Sequence>
+      <Sequence from={T.vitara[0] + V_WEB}><Audio src={S('audio/sfx_ding.wav')} volume={0.55} /></Sequence>
+      <Sequence from={T.vitara[0] + V_WEB + V_CHAT - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={T.vitara[0] + V_WEB + V_CHAT + V_LOCAL - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      {[8, 20, 32].map((x) => (
+        <Sequence key={'vi' + x} from={T.vitara[0] + V_WEB + V_CHAT + V_LOCAL + x}><Audio src={S('audio/sfx_coin.wav')} volume={0.4} /></Sequence>
       ))}
+      <Sequence from={T.vitara[0] + V_WEB + V_CHAT + V_LOCAL + 48}><Audio src={S('audio/sfx_pop.wav')} volume={0.45} /></Sequence>
+      <Sequence from={T.vitara[0] + V_WEB + V_CHAT + V_LOCAL + 54}><Audio src={S('audio/sfx_kaching_real.wav')} volume={0.6} /></Sequence>
+      <Sequence from={T.vitara[0] + V_WEB + V_CHAT + V_LOCAL + V_PORT - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={T.vitara[0] + VITARA_LEN - V_RUTA + 6}><Audio src={S('audio/sfx_rev.wav')} volume={0.35} /></Sequence>
+      <Sequence from={T.vitara[0] + VITARA_LEN - V_RUTA + 40}><Audio src={S('audio/sfx_map.wav')} volume={0.45} /></Sequence>
+      <Sequence from={T.vitara[0] + VITARA_LEN - V_RUTA + 44}><Audio src={S('audio/sfx_correct.wav')} volume={0.4} /></Sequence>
       {/* stock */}
       <Sequence from={T.stock[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
       {Array.from({length: 12}, (_, i) => (
