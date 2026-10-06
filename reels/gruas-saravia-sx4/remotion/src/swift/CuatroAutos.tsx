@@ -33,7 +33,7 @@ const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t
 /* ───────────── línea de tiempo (frames @30) ───────────── */
 const T = {
   hook: 0, ctx: 72, swift: 150, master: 270, vitara: 375, vitPieces: 442, vitPrice: 478,
-  airbag: 540, airPrice: 624, black: 641, reveal: 651, cta: 750, end: 838, total: 838 + STING_LEN,
+  airbag: 540, airPrice: 624, black: 641, reveal: 651, desp: 750, cta: 870, end: 958, total: 958 + STING_LEN,
 };
 export const CUATRO_TOTAL = T.total;
 
@@ -440,6 +440,106 @@ const AirbagText: React.FC<{f: number}> = ({f}) => {
 };
 
 
+
+/* despachos del día: paquete embalado → boletas Starken reales (datos
+   personales pixelados) → mapa esquemático de Chile → mensaje post-venta real */
+const CHILE: [string, number, number, number][] = [ // nombre, latitud, x, frame de llegada
+  ['VALLENAR', 28.6, 600, 832], ['VIÑA DEL MAR', 33.0, 470, 836], ['YUNGAY', 37.1, 590, 840],
+];
+const latY = (lat: number) => 420 + (lat - 27) * 105;
+const Despachos: React.FC<{f: number}> = ({f}) => {
+  if (f < T.desp || f >= T.cta) return null;
+  const t = f - T.desp;
+  const card = (at: number, src: string, x: number, y: number, rot: number, city: string) => {
+    if (f < at) return null;
+    const k = spring({frame: f - at, fps: 30, config: {damping: 13, stiffness: 200, mass: 0.6}});
+    return (
+      <div style={{position: 'absolute', left: x, top: y, width: 470, transform: `translateY(${(1 - k) * 1400}px) rotate(${rot * k + (1 - k) * rot * 4}deg)`, boxShadow: '0 40px 80px rgba(0,0,0,0.75)'}}>
+        <Img src={S(src)} style={{width: 470, display: 'block'}} />
+        <div style={{position: 'absolute', left: 16, bottom: -34}}><Chip red size={56}>→ {city}</Chip></div>
+      </div>
+    );
+  };
+  if (t < 24) {
+    // paquete embalado con tarjeta de la desarmaduría
+    return (
+      <AbsoluteFill>
+        <Img src={S('swift/paquete.jpg')} style={{width: '100%', height: '100%', objectFit: 'cover', filter: GRADE, transform: `scale(${interpolate(t, [0, 24], [1.18, 1.05], cl)})`}} />
+        <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(10,10,10,0.75) 0%, rgba(10,10,10,0) 40%)'}} />
+        <div style={{position: 'absolute', top: 230, left: 70, right: 70}}>
+          <Rise f={f} at={T.desp + 1} style={{fontFamily: DISP, fontSize: 74, color: '#fff'}}>Y HOY TAMBIÉN</Rise>
+          <Rise f={f} at={T.desp + 4} style={{fontFamily: DISP, fontSize: 150, lineHeight: 1, color: '#fff', textShadow: '0 8px 30px rgba(0,0,0,0.8)'}}>DESPACHAMOS</Rise>
+        </div>
+      </AbsoluteFill>
+    );
+  }
+  if (t < 72) {
+    const st = f - (T.desp + 46);
+    return (
+      <AbsoluteFill>
+        <PremiumBg f={f} />
+        <div style={{position: 'absolute', top: 220, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 96, color: '#fff'}}>BOLETAS DE <span style={{color: RED2}}>HOY</span></div>
+        {card(T.desp + 26, 'swift/voucher_vallenar.jpg', 50, 400, -5, 'VALLENAR')}
+        {card(T.desp + 33, 'swift/voucher_yungay.jpg', 560, 470, 4, 'YUNGAY')}
+        {st >= 0 && (
+          <div style={{position: 'absolute', top: 1180, left: 0, right: 0, textAlign: 'center', transform: `rotate(-6deg) scale(${interpolate(st, [0, 3, 7], [2.3, 0.92, 1], cl)})`, opacity: interpolate(st, [0, 2], [0, 1], cl)}}>
+            <span style={{display: 'inline-block', border: `8px solid ${RED2}`, padding: '0 26px 6px', fontFamily: DISP, fontSize: 92, color: RED2, background: 'rgba(10,10,10,0.7)', letterSpacing: 3, textShadow: `0 0 18px ${RED}`}}>DESPACHADO 06/10</span>
+          </div>
+        )}
+      </AbsoluteFill>
+    );
+  }
+  if (t < 96) {
+    const sY = latY(33.45);
+    const draw = (at: number) => interpolate(f, [at, at + 9], [0, 1], {...cl, easing: OUT});
+    return (
+      <AbsoluteFill>
+        <PremiumBg f={f} />
+        <div style={{position: 'absolute', top: 220, left: 0, right: 0, textAlign: 'center'}}>
+          <Rise f={f} at={T.desp + 72} style={{fontFamily: DISP, fontSize: 100, color: '#fff'}}>ENVÍOS A <span style={{color: RED2}}>TODO CHILE</span></Rise>
+        </div>
+        <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0}}>
+          {/* Chile esquemático: eje norte-sur */}
+          <line x1={540} y1={latY(27)} x2={540} y2={latY(38.5)} stroke="rgba(255,255,255,0.25)" strokeWidth={6} strokeLinecap="round" />
+          {CHILE.map(([n, lat, x, at]) => {
+            const y = latY(lat);
+            const d = draw(at);
+            const cx = 540 + (y < sY ? 260 : 220);
+            const len = 900;
+            return (
+              <g key={n}>
+                <path d={`M 560 ${sY} Q ${cx} ${(sY + y) / 2} ${x} ${y}`} fill="none" stroke={RED2} strokeWidth={7} strokeDasharray={len} strokeDashoffset={len * (1 - d)} style={{filter: `drop-shadow(0 0 8px ${RED})`}} />
+                <circle cx={x} cy={y} r={16 * d} fill={RED2} />
+              </g>
+            );
+          })}
+          <circle cx={560} cy={sY} r={20} fill="#fff" />
+        </svg>
+        <div style={{position: 'absolute', left: 600, top: latY(33.45) - 24, fontFamily: DISP, fontSize: 52, color: '#fff'}}>SANTIAGO</div>
+        {CHILE.map(([n, lat, x, at]) => f >= at + 6 && (
+          <div key={n} style={{position: 'absolute', top: latY(lat) - 30, ...(x < 540 ? {right: 1080 - x + 34} : {left: x + 34}), fontFamily: DISP, fontSize: 52, color: '#fff', opacity: interpolate(f, [at + 6, at + 10], [0, 1], cl)}}>{n}</div>
+        ))}
+      </AbsoluteFill>
+    );
+  }
+  // mensaje post-venta real con número de seguimiento (nombre y número pixelados)
+  const k = spring({frame: f - (T.desp + 96), fps: 30, config: {damping: 14, stiffness: 220, mass: 0.6}});
+  const hl = interpolate(f, [T.desp + 104, T.desp + 111], [0, 1], {...cl, easing: OUT});
+  const sc = 760 / 1180;
+  return (
+    <AbsoluteFill>
+      <PremiumBg f={f} />
+      <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center'}}>
+        <Chip red size={58}>Y TE AVISAMOS CON TU SEGUIMIENTO</Chip>
+      </div>
+      <div style={{position: 'absolute', left: 160, top: 330, width: 760, height: 1150, overflow: 'hidden', borderRadius: 40, border: '10px solid #1b1b1b', transform: `translateY(${(1 - k) * 1300}px)`, boxShadow: '0 50px 90px rgba(0,0,0,0.8)'}}>
+        <Img src={S('swift/postventa.jpg')} style={{width: 760, display: 'block'}} />
+        <div style={{position: 'absolute', left: 290 * sc, top: 740 * sc, width: 740 * sc * hl, height: 130 * sc, background: 'rgba(209,11,12,0.2)', borderBottom: `6px solid ${RED2}`}} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 /* sello VENDIDO + número de cliente (variante "1 día") */
 const STAMPS: [number, number, number, number][] = [[228, T.master, 1040, 1], [340, T.vitara, 1040, 2], [498, T.airbag, 940, 3], [629, T.black, 1040, 4]];
 const Sold: React.FC<{f: number}> = ({f}) => (
@@ -455,7 +555,7 @@ const Sold: React.FC<{f: number}> = ({f}) => (
 
 /* reveal: negro + silencio → 4 AUTOS → 4 CLIENTES → cifra que crece */
 const Reveal: React.FC<{f: number}> = ({f}) => {
-  if (f < T.black || f >= T.cta) return null;
+  if (f < T.black || f >= T.desp) return null;
   const land = 697;
   const shrink = interpolate(f, [land, land + 9], [0, 1], {...cl, easing: OUT});
   const v = interpolate(f, [679, land], [0, 2704990], {...cl, easing: Easing.in(Easing.quad)});
@@ -571,9 +671,13 @@ const SFX: Sfx[] = [
   [651, 'sfx_impact', 0.8, 14], [651, 'sfx_sub', 0.6, 14], [655, 'sfx_riser', 0.3, 10], [665, 'sfx_impact', 0.8, 14], [665, 'sfx_sub', 0.6, 14],
   [670, 'sfx_riser', 0.55], [679, 'sfx_billcount', 0.6], [697, 'sfx_sub', 1], [697, 'sfx_impact', 0.95], [698, 'sfx_kaching_real', 0.8],
   [712, 'sfx_pop', 0.5], [715, 'sfx_pop', 0.5], [718, 'sfx_pop', 0.5], [721, 'sfx_pop', 0.5],
+  // despachos
+  [T.desp - 2, 'sfx_whip', 0.6], [T.desp + 1, 'sfx_shutter', 0.6], [T.desp + 26, 'sfx_crinkle', 0.6], [T.desp + 33, 'sfx_crinkle', 0.5],
+  [T.desp + 46, 'sfx_metal', 0.85], [T.desp + 46, 'sfx_impact', 0.6, 16], [T.desp + 70, 'sfx_whoosh', 0.5],
+  [T.desp + 82, 'sfx_pop', 0.5], [T.desp + 86, 'sfx_pop', 0.5], [T.desp + 90, 'sfx_pop', 0.5], [T.desp + 96, 'sfx_notif', 0.8],
   // CTA
-  [748, 'sfx_whip', 0.75], [776, 'sfx_click', 0.6], [782, 'sfx_click', 0.6], [788, 'sfx_click', 0.6], [804, 'sfx_pop', 0.6],
-  [816, 'sfx_notif', 0.7],
+  [868, 'sfx_whip', 0.75], [896, 'sfx_click', 0.6], [902, 'sfx_click', 0.6], [908, 'sfx_click', 0.6], [924, 'sfx_pop', 0.6],
+  [936, 'sfx_notif', 0.7],
 ];
 
 export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) => {
@@ -621,9 +725,10 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) =
         <VitaraText f={f} />
         <AirbagText f={f} />
         <Reveal f={f} />
+        <Despachos f={f} />
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
-        <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697]} />
+        <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697, T.desp, T.desp + 24]} />
         <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
         <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
         <Brackets f={f} at={616} until={T.black} x={70} y={390} w={940} h={590} />
