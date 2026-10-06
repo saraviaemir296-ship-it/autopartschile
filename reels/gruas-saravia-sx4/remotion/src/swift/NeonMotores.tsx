@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
 
 /* Reel estilo "motion graphics neón" (referencia: reel de pantalla con
@@ -9,6 +9,9 @@ import {cl} from '../v2/look';
      en la web, vino a verlo y se le despachó a su automotora.
    - Motor Suzuki Mastervan G13B 1.3 vendido (precio NO confirmado: no se
      muestra).
+   - Cliente #3 escribió desde la web por el portalón del Suzuki Vitara
+     azul en desarme (chat real, nombre tapado); se ve el Vitara en el
+     local (patente pixelada), el portalón desmontado y cargado.
    - 242 repuestos con stock en autopartschile.cl (tabla products,
      2026-10-06). Marcas con stock: Suzuki, Kia, Chevrolet, Jeep. */
 
@@ -30,6 +33,7 @@ const ORDER = [
   ['intro', 72],
   ['swift', 126],
   ['master', 96],
+  ['vitara', 186],
   ['stock', 108],
   ['flujo', 84],
   ['fin', 96],
@@ -102,6 +106,19 @@ const HoloCard: React.FC<{t: number; src: string; top: number; h: number; color?
       <AbsoluteFill style={{background: `linear-gradient(180deg, transparent 55%, ${BG}cc 100%)`}} />
       <div style={{position: 'absolute', left: 0, right: 0, top: `${scan}%`, height: 6, background: `linear-gradient(90deg, transparent, ${CYAN}, transparent)`, boxShadow: glow(CYAN, 0.6), opacity: 0.7}} />
       {/* esquinas tipo HUD */}
+      {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([x, y]) => (
+        <div key={`${x}${y}`} style={{position: 'absolute', [x ? 'right' : 'left']: 14, [y ? 'bottom' : 'top']: 14, width: 40, height: 40, borderColor: CYAN, borderStyle: 'solid', borderWidth: `${y ? 0 : 4}px ${x ? 4 : 0}px ${y ? 4 : 0}px ${x ? 0 : 4}px`}} />
+      ))}
+    </div>
+  );
+};
+
+/* tarjeta holográfica con video real */
+const HoloVideo: React.FC<{t: number; src: string; from: number; top: number; h: number; color?: string}> = ({t, src, from, top, h, color = BLUE}) => {
+  const p = sp(t, 0, 14, 180);
+  return (
+    <div style={{position: 'absolute', left: 90, right: 90, top, height: h, borderRadius: 28, overflow: 'hidden', border: `3px solid ${color}`, boxShadow: `${glow(color, 1)}, inset 0 0 40px ${color}55`, transform: `perspective(1200px) rotateY(${(1 - p) * -30}deg) scale(${0.85 + 0.15 * p})`, opacity: Math.min(1, p * 2)}}>
+      <OffthreadVideo src={S(src)} startFrom={Math.round(from * 30)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
       {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([x, y]) => (
         <div key={`${x}${y}`} style={{position: 'absolute', [x ? 'right' : 'left']: 14, [y ? 'bottom' : 'top']: 14, width: 40, height: 40, borderColor: CYAN, borderStyle: 'solid', borderWidth: `${y ? 0 : 4}px ${x ? 4 : 0}px ${y ? 4 : 0}px ${x ? 0 : 4}px`}} />
       ))}
@@ -204,6 +221,40 @@ const Master: React.FC<{t: number}> = ({t}) => {
   );
 };
 
+
+const V_CHAT = 64;
+const V_LOCAL = 40;
+const V_PORT = 44;
+const Vitara: React.FC<{t: number}> = ({t}) => {
+  const a1 = V_CHAT, a2 = V_CHAT + V_LOCAL, a3 = V_CHAT + V_LOCAL + V_PORT;
+  const chatP = sp(t, 4, 14, 170);
+  const scroll = interpolate(t, [18, 56], [0, -40], {...cl, easing: (x) => x * x * (3 - 2 * x)});
+  return (
+    <AbsoluteFill>
+      <Kicker t={t} top={150} color={GREEN}>CLIENTE #3 · DESDE LA WEB</Kicker>
+      <div style={{position: 'absolute', top: 210, left: 0, right: 0, textAlign: 'center', fontFamily: SORA, fontWeight: 800, fontSize: 80, color: '#fff', textShadow: glow(GREEN, 0.5)}}>
+        <Decode text="SUZUKI VITARA AZUL" t={t} speed={1.4} />
+      </div>
+      {t < a1 && (
+        <div style={{position: 'absolute', left: 130, right: 130, top: 380, height: 780, borderRadius: 40, overflow: 'hidden', border: `4px solid ${GREEN}`, boxShadow: `${glow(GREEN, 0.9)}`, background: '#efe7de', transform: `translateY(${(1 - chatP) * 400}px) rotate(${(1 - chatP) * 6}deg)`, opacity: Math.min(1, chatP * 2)}}>
+          <Img src={S('swift/chat_vitara.png')} style={{width: '100%', transform: `translateY(${scroll}px)`}} />
+        </div>
+      )}
+      {t >= 26 && t < a1 && (
+        <div style={{position: 'absolute', top: 1300, left: 0, right: 0, textAlign: 'center', fontFamily: SCRIPT, fontSize: 84, color: '#fff', textShadow: glow(GREEN, 0.8), opacity: interpolate(t, [26, 34], [0, 1], cl)}}>
+          "¿el portalón está disponible?"
+        </div>
+      )}
+      <Sequence from={a1} durationInFrames={V_LOCAL}><HoloVideo t={t - a1} src="swift/vitara_local_anon.mp4" from={0} top={360} h={980} color={GREEN} /></Sequence>
+      {t >= a1 && t < a2 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a1} a={6}>En desarme en nuestro local</Chip></div>}
+      <Sequence from={a2} durationInFrames={V_PORT}><HoloVideo t={t - a2} src="swift/vitara_portalon.mp4" from={0.8} top={360} h={980} color={GREEN} /></Sequence>
+      {t >= a2 && t < a3 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a2} a={6}>Portalón desmontado</Chip></div>}
+      <Sequence from={a3}><HoloVideo t={t - a3} src="swift/vitara_carga.mp4" from={1.0} top={360} h={980} color={GREEN} /></Sequence>
+      {t >= a3 && <div style={{position: 'absolute', top: 1380, left: 90, right: 90}}><Chip t={t - a3} a={4}>Cargado y listo para el cliente</Chip></div>}
+    </AbsoluteFill>
+  );
+};
+
 const STOCK_N = 242;
 const BRANDS = ['Suzuki', 'Kia', 'Chevrolet', 'Jeep'];
 const Stock: React.FC<{t: number}> = ({t}) => {
@@ -300,7 +351,7 @@ const Fin: React.FC<{t: number}> = ({t}) => {
 export const NeonMotores: React.FC = () => {
   const f = useCurrentFrame();
   const l = (k: Key) => f - T[k][0];
-  const tint = f >= T.master[0] && f < T.master[1] ? RED : BLUE;
+  const tint = f >= T.master[0] && f < T.master[1] ? RED : f >= T.vitara[0] && f < T.vitara[1] ? GREEN : BLUE;
   // destello entre escenas
   const cut = Math.min(...ORDER.map(([k]) => Math.abs(f - T[k][0])));
   return (
@@ -309,6 +360,7 @@ export const NeonMotores: React.FC = () => {
       <Sequence {...at(T.intro)}><Intro t={l('intro')} /></Sequence>
       <Sequence {...at(T.swift)}><Swift t={l('swift')} /></Sequence>
       <Sequence {...at(T.master)}><Master t={l('master')} /></Sequence>
+      <Sequence {...at(T.vitara)}><Vitara t={l('vitara')} /></Sequence>
       <Sequence {...at(T.stock)}><Stock t={l('stock')} /></Sequence>
       <Sequence {...at(T.flujo)}><Flujo t={l('flujo')} /></Sequence>
       <Sequence {...at(T.fin)}><Fin t={l('fin')} /></Sequence>
@@ -340,6 +392,16 @@ export const NeonMotores: React.FC = () => {
       <Sequence from={T.master[0] + 40}><Audio src={S('audio/sfx_pa.wav')} volume={0.6} /></Sequence>
       <Sequence from={T.master[0] + 41}><Audio src={S('audio/sfx_impact.wav')} volume={0.45} /></Sequence>
       <Sequence from={T.master[0] + 54}><Audio src={S('audio/sfx_sparkle.wav')} volume={0.3} /></Sequence>
+      {/* vitara */}
+      <Sequence from={T.vitara[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
+      <Sequence from={T.vitara[0] + 6}><Audio src={S('audio/sfx_ding.wav')} volume={0.55} /></Sequence>
+      <Sequence from={T.vitara[0] + 26}><Audio src={S('audio/sfx_pop.wav')} volume={0.4} /></Sequence>
+      {[V_CHAT, V_CHAT + V_LOCAL, V_CHAT + V_LOCAL + V_PORT].map((x) => (
+        <React.Fragment key={'v' + x}>
+          <Sequence from={T.vitara[0] + x - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+          <Sequence from={T.vitara[0] + x + 6}><Audio src={S('audio/sfx_correct.wav')} volume={0.3} /></Sequence>
+        </React.Fragment>
+      ))}
       {/* stock */}
       <Sequence from={T.stock[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
       {Array.from({length: 12}, (_, i) => (
