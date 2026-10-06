@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
+import {Bug, LogoSting, STING_LEN} from './LogoSting';
 import {Chip, Rise, Shot} from './CuatroAutos';
 
 /* Reel de CAPTACIÓN para dueños de Suzuki y mecánicos.
@@ -22,7 +23,7 @@ const TXT = "'Montserrat', sans-serif";
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
 const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t - d, fps: 30, config: {damping, stiffness, mass: 0.5}});
 
-const T = {hook: 0, prob: 60, sol: 180, demo: 216, ayuda: 312, prueba: 360, airChat: 455, exp: 540, conf: 690, cta: 780, end: 852, total: 900};
+const T = {hook: 0, prob: 60, sol: 180, demo: 216, ayuda: 312, prueba: 360, airChat: 455, exp: 540, conf: 690, cta: 780, end: 852, total: 852 + STING_LEN};
 export const SUZUKI_CONF_TOTAL = T.total;
 
 const HITS: [number, number][] = [[6, 14], [30, 12], [160, 10], [552, 16], [732, 12], [800, 10]];
@@ -340,21 +341,7 @@ const Cta: React.FC<{f: number}> = ({f}) => {
       </AbsoluteFill>
     );
   }
-  const e = f - T.end;
-  const wipe = interpolate(e, [0, 8], [0, 100], {...cl, easing: OUT});
-  const sw = interpolate(e, [8, 24], [-30, 130], cl);
-  return (
-    <AbsoluteFill style={{background: '#fff'}}>
-      <div style={{position: 'absolute', top: 380, left: 0, right: 0, display: 'flex', justifyContent: 'center', clipPath: `inset(0 ${100 - wipe}% 0 0)`}}>
-        <Img src={S('marca/logo-saravia-sinfondo.png')} style={{width: 840}} />
-      </div>
-      <div style={{position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${sw - 10}%, rgba(255,255,255,0.85) ${sw}%, transparent ${sw + 10}%)`}} />
-      <div style={{position: 'absolute', top: 1000, left: 0, right: 0, textAlign: 'center', opacity: interpolate(e, [6, 12], [0, 1], cl)}}>
-        <Img src={S('marca/pastilla-whatsapp.png')} style={{width: 760}} />
-        <div style={{fontFamily: DISP, fontSize: 60, color: RED, marginTop: 24, letterSpacing: 2}}>AUTOPARTSCHILE.CL</div>
-      </div>
-    </AbsoluteFill>
-  );
+  return null;
 };
 
 const Grain: React.FC<{f: number}> = ({f}) => (
@@ -391,7 +378,7 @@ const SFX: Sfx[] = [
   // CTA
   [T.cta - 2, 'sfx_whip', 0.6], [T.cta + 18, 'sfx_notif', 0.8], [T.cta + 20, 'sfx_impact', 0.5, 18],
   [T.cta + 30, 'sfx_click', 0.5], [T.cta + 36, 'sfx_click', 0.5], [T.cta + 42, 'sfx_click', 0.5], [T.cta + 58, 'sfx_pop', 0.6],
-  [T.end, 'sfx_whoosh', 0.5], [T.end + 8, 'sfx_ding', 0.45],
+  
 ];
 
 export const SuzukiConfianza: React.FC<{vo?: string}> = ({vo}) => {
@@ -426,6 +413,8 @@ export const SuzukiConfianza: React.FC<{vo?: string}> = ({vo}) => {
         <SolText f={f} />
         <ConfText f={f} />
         <Cta f={f} />
+        <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
+        <Bug show={f >= T.prob && f < T.cta} />
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       <Grain f={f} />

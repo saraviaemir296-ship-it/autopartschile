@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
+import {Bug, LogoSting, STING_LEN} from './LogoSting';
 
 /* "4 AUTOS / 4 CLIENTES" — reedición completa (no es StoryVentas con más efectos).
    Decisiones de edición:
@@ -31,7 +32,7 @@ const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t
 /* ───────────── línea de tiempo (frames @30) ───────────── */
 const T = {
   hook: 0, ctx: 72, swift: 150, master: 270, vitara: 375, vitPieces: 442, vitPrice: 478,
-  airbag: 540, airPrice: 624, black: 641, reveal: 651, cta: 750, end: 838, total: 870,
+  airbag: 540, airPrice: 624, black: 641, reveal: 651, cta: 750, end: 838, total: 838 + STING_LEN,
 };
 export const CUATRO_TOTAL = T.total;
 
@@ -525,23 +526,7 @@ const Cta: React.FC<{f: number}> = ({f}) => {
       </AbsoluteFill>
     );
   }
-  const e = f - T.end;
-  const wipe = interpolate(e, [0, 8], [0, 100], {...cl, easing: OUT});
-  const sw = interpolate(e, [8, 24], [-30, 130], cl);
-  return (
-    <AbsoluteFill style={{background: '#fff'}}>
-      <div style={{position: 'absolute', top: 360, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', clipPath: `inset(0 ${100 - wipe}% 0 0)`}}>
-        <Img src={S('marca/logo-saravia-sinfondo.png')} style={{width: 640}} />
-        <div style={{fontFamily: DISP, fontSize: 90, color: RED, margin: '10px 0'}}>×</div>
-        <Img src={S('marca/logo-autopartschile-sinfondo.png')} style={{width: 520}} />
-      </div>
-      <div style={{position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${sw - 10}%, rgba(255,255,255,0.85) ${sw}%, transparent ${sw + 10}%)`}} />
-      <div style={{position: 'absolute', top: 1380, left: 0, right: 0, textAlign: 'center', opacity: interpolate(e, [6, 12], [0, 1], cl)}}>
-        <div style={{fontFamily: MONO, fontWeight: 800, fontSize: 48, color: BG}}>WhatsApp +56 9 5381 7335</div>
-        <div style={{fontFamily: DISP, fontSize: 56, color: RED, marginTop: 8, letterSpacing: 2}}>AUTOPARTSCHILE.CL</div>
-      </div>
-    </AbsoluteFill>
-  );
+  return null;
 };
 
 /* grano de película + viñeta (textura que saca el look "plantilla") */
@@ -584,7 +569,7 @@ const SFX: Sfx[] = [
   [712, 'sfx_pop', 0.5], [715, 'sfx_pop', 0.5], [718, 'sfx_pop', 0.5], [721, 'sfx_pop', 0.5],
   // CTA
   [748, 'sfx_whip', 0.75], [776, 'sfx_click', 0.6], [782, 'sfx_click', 0.6], [788, 'sfx_click', 0.6], [804, 'sfx_pop', 0.6],
-  [816, 'sfx_notif', 0.7], [838, 'sfx_whoosh', 0.6], [846, 'sfx_ding', 0.5],
+  [816, 'sfx_notif', 0.7],
 ];
 
 export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) => {
@@ -633,6 +618,8 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean}> = ({vo, dia}) =
         <AirbagText f={f} />
         <Reveal f={f} />
         <Cta f={f} />
+        <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
+        <Bug show={f >= T.ctx && f < T.cta && (f < T.black || f >= T.reveal)} />
       </AbsoluteFill>
       {fade > 0 && <AbsoluteFill style={{background: `rgba(0,0,0,${fade})`}} />}
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
