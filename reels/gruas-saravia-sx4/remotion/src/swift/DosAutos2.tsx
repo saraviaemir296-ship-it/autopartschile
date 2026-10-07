@@ -2,13 +2,14 @@ import React from 'react';
 import {AbsoluteFill, Audio, Easing, Freeze, Img, OffthreadVideo, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
 import {Chip} from './CuatroAutos';
-import {Brackets, GRADE, LightLeaks} from './Fx';
+import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {IOSNotif, RayBurst, ServiceCard, StripeWipe} from './Promo';
 import {SX4Compra, SX4_T, SX4_TOTAL} from './SX4Compra';
 
 /* "2 autos comprados en 2 horas" — v2, contado como carrera contra el reloj con
    las horas REALES de las grabaciones:
-   MAR 14:13 Messenger del SX4 (hora del chat) → MAR 16:19 Jeep en la grúa
+   MAR 14:13 Messenger del SX4 (hora del chat) → MAR 14:33 WhatsApp del Jeep
+   (hora del chat) → MAR 16:19 Jeep en la grúa
    (hora del video) → "2 tratos en 2 horas" → MIÉ 15:03–15:15 retiro del SX4
    (horas de los videos) → cagada del día → CTA → loop.
    Un reloj tipo cámara arriba a la derecha marca la hora de cada escena. */
@@ -26,7 +27,9 @@ const HOOK = 84;
 const CH1 = HOOK;                         // MAR 14:13 · Messenger (SX4 interno 40–150)
 const CH1_LEN = 76;                       // Messenger comprimido: 110 frames internos → 2,5 s
 const M1 = (x: number) => CH1 + Math.round((x * CH1_LEN) / (SX4_T.ver - SX4_T.msg)); // frame interno del Messenger (relativo) → este video
-const CH2 = CH1 + CH1_LEN;                // MAR 16:19 · Jeep
+const WA = CH1 + CH1_LEN;                 // MAR 14:33 · WhatsApp del Jeep
+const WA_LEN = 96;
+const CH2 = WA + WA_LEN;                  // MAR 16:19 · Jeep
 const CH2_LEN = 96;
 const PAY = CH2 + CH2_LEN;                // 2 tratos en 2 horas
 const PAY_LEN = 54;
@@ -39,6 +42,7 @@ const X3 = (inner: number) => CH3 + (inner - SX4_T.ver);   // frame del SX4 (par
 
 /* reloj tipo cámara (minutos del día) */
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
+const M1433 = 14 * 60 + 33;
 const M1413 = 14 * 60 + 13, M1619 = 16 * 60 + 19, M1503 = 15 * 60 + 3, M1515 = 15 * 60 + 15;
 type Hook = 'mensaje' | 'foco';
 // [día, minutos, etiqueta de velocidad]
@@ -55,7 +59,8 @@ const clockAt = (f: number, hook: Hook): [string, number, string | null] | null 
     if (f < 48) return ['MAR', interpolate(f, [14, 46], [M1413, M1619], {...cl, easing: Easing.in(Easing.quad)}), '▶▶ x4'];
     if (f < HOOK) return null;
   }
-  if (f < CH2) return ['MAR', M1413, null];
+  if (f < WA) return ['MAR', M1413, null];
+  if (f < CH2) return ['MAR', M1433, null];
   if (f < PAY) return ['MAR', M1619, null];
   if (f < CH3) return null;
   if (f < X3(SX4_T.cta)) return ['MIÉ', interpolate(f, [CH3, X3(SX4_T.oops)], [M1503, M1515], cl), null];
@@ -177,6 +182,48 @@ const HookFoco: React.FC<{f: number}> = ({f}) => {
 };
 const HookLocal: React.FC<{hook: Hook}> = ({hook}) => (hook === 'foco' ? <HookFoco f={useCurrentFrame()} /> : <Hook f={useCurrentFrame()} />);
 
+/* ---- MAR 14:33 · el cliente del Jeep escribe por WhatsApp (captura real,
+   nombre, número y patente pixelados). Imagen 1179×2870, mismo recorrido de
+   cámara que el Messenger del SX4. */
+const KW = 600 / 1179;
+const WhatsApp: React.FC<{f: number}> = ({f}) => {
+  const t = f - WA;
+  const enter = interpolate(t, [0, 8], [1, 0], {...cl, easing: OUT});
+  // [t, x, y, zoom] en coordenadas de la captura: en t la cámara sale de ese punto hacia el siguiente (10 frames)
+  const keys: [number, number, number, number][] = [[0, 590, 1100, 0.95], [34, 440, 540, 1.6], [52, 590, 1880, 1.2], [999, 420, 2760, 1.6]];
+  let ki = 0; while (ki < keys.length - 2 && t >= keys[ki + 1][0]) ki++;
+  const [t0, x0, y0, z0] = keys[ki], [, x1, y1, z1] = keys[ki + 1];
+  const m = interpolate(t, [t0, t0 + 10], [0, 1], {...cl, easing: Easing.inOut(Easing.cubic)});
+  const cx = x0 + (x1 - x0) * m, cy = y0 + (y1 - y0) * m, z = z0 + (z1 - z0) * m;
+  const L = 240, TOP = 170, HEAD = 96;
+  const px = L + cx * KW, py = TOP + HEAD + cy * KW;
+  const hl = (a: number, x0: number, y0: number, x1: number, y1: number) => {
+    const w = interpolate(t, [a, a + 7], [0, 1], {...cl, easing: OUT});
+    return t >= a && <div style={{position: 'absolute', left: x0 * KW - 4, top: HEAD + y0 * KW, width: (x1 - x0) * KW * w + 8, height: (y1 - y0) * KW, background: 'rgba(209,11,12,0.2)', borderBottom: `5px solid ${RED2}`}} />;
+  };
+  return (
+    <AbsoluteFill>
+      <PremiumBg f={f} />
+      <AbsoluteFill style={{transform: `translateY(${enter * 1500}px) translate(${540 - px}px, ${1000 - py}px) scale(${z})`, transformOrigin: `${px}px ${py}px`}}>
+        <div style={{position: 'absolute', left: L, top: TOP, width: 600, height: HEAD + 2870 * KW, borderRadius: 50, overflow: 'hidden', border: '12px solid #161616', boxShadow: '0 50px 100px rgba(0,0,0,0.85)', background: '#efe7de'}}>
+          <div style={{height: HEAD, background: '#f6f6f6', display: 'flex', alignItems: 'center', gap: 14, padding: '18px 26px 0', boxSizing: 'border-box', borderBottom: '1px solid #ddd'}}>
+            <div style={{width: 50, height: 50, borderRadius: 25, background: '#f3d4c6'}} />
+            <div style={{fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: 26, color: '#111'}}>Cliente · WhatsApp</div>
+          </div>
+          <Img src={S('swift/jeep_whatsapp.png')} style={{width: 600, display: 'block'}} />
+          {hl(14, 40, 450, 830, 560)}
+          {hl(64, 40, 2680, 790, 2790)}
+        </div>
+      </AbsoluteFill>
+      <div style={{position: 'absolute', top: 205, left: 60, transform: `translateX(${(1 - sp(f, WA + 2, 11, 280)) * -700}px)`}}><Chip red size={54}>20 MINUTOS DESPUÉS</Chip></div>
+      <div style={{position: 'absolute', top: 1520, left: 50, right: 50, textAlign: 'center'}}>
+        {t >= 18 && t < 50 && <div style={{fontFamily: DISP, fontSize: 70, lineHeight: 1.05, color: '#fff', textShadow: '0 6px 20px rgba(0,0,0,0.9)', transform: `scale(${interpolate(t - 18, [0, 3, 8], [1.5, 0.96, 1], cl)})`}}><span style={{background: '#0A0A0A', padding: '4px 22px 10px'}}>OTRO CLIENTE: <span style={{color: RED2}}>UN JEEP</span></span></div>}
+        {t >= 68 && <div style={{fontFamily: DISP, fontSize: 70, lineHeight: 1.05, color: '#fff', textShadow: '0 6px 20px rgba(0,0,0,0.9)', transform: `scale(${interpolate(t - 68, [0, 3, 8], [1.5, 0.96, 1], cl)})`}}><span style={{background: '#0A0A0A', padding: '4px 22px 10px'}}>NECESITA SACARLO…</span><br /><span style={{display: 'inline-block', marginTop: 8, background: RED, padding: '4px 22px 10px'}}>VAMOS CON LA GRÚA</span></div>}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 /* ---- MAR 16:19 · Jeep en formato cine */
 const Jeep: React.FC<{f: number}> = ({f}) => {
   const t = f - CH2;
@@ -191,7 +238,7 @@ const Jeep: React.FC<{f: number}> = ({f}) => {
           <OffthreadVideo src={S('swift/sx4b_jeep.mp4')} muted startFrom={0} playbackRate={0.37} style={{width: '100%', height: '100%', objectFit: 'cover', filter: GRADE, transform: `scale(${interpolate(t, [0, CH2_LEN], [1.02, 1.16], cl)})`, transformOrigin: '40% 55%'}} />
         </div>
       </Sequence>
-      <div style={{position: 'absolute', top: 205, left: 60, transform: `translateX(${(1 - sp(f, CH2 + 2, 11, 280)) * -700}px)`}}><Chip red size={54}>2 HORAS DESPUÉS</Chip></div>
+      <div style={{position: 'absolute', top: 205, left: 60, transform: `translateX(${(1 - sp(f, CH2 + 2, 11, 280)) * -700}px)`}}><Chip red size={54}>ESA MISMA TARDE</Chip></div>
       <div style={{position: 'absolute', top: 300, left: 60, right: 60}}>
         {t >= 6 && <div style={{fontFamily: DISP, fontSize: 64, color: '#fff', opacity: interpolate(t, [6, 10], [0, 1], cl), letterSpacing: interpolate(t, [6, 18], [20, 2], cl)}}>JEEP</div>}
         {t >= 9 && <div style={{fontFamily: DISP, fontSize: 118, lineHeight: 1, color: '#fff', transform: `translateY(${interpolate(t, [9, 15], [40, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(t, [9, 13], [0, 1], cl)}}>GRAND CHEROKEE</div>}
@@ -239,6 +286,7 @@ const HOOK_SFX: Record<Hook, Sfx[]> = {
 const MSG_SFX: Sfx[] = [[M1(6), 'sfx_notif', 0.8], [M1(14), 'sfx_click', 0.5], [M1(34), 'sfx_whoosh', 0.4], [M1(44), 'sfx_shutter', 0.6], [M1(62), 'sfx_whoosh', 0.4], [M1(66), 'sfx_click', 0.6], [M1(70), 'sfx_pop', 0.5]];
 const SFX: Sfx[] = [
   [CH1 - 2, 'sfx_whoosh', 0.5], ...MSG_SFX,
+  [WA - 2, 'sfx_whip', 0.6], [WA + 4, 'sfx_notif', 0.8], [WA + 14, 'sfx_click', 0.5], [WA + 18, 'sfx_pop', 0.5], [WA + 36, 'sfx_whoosh', 0.4], [WA + 44, 'sfx_shutter', 0.5], [WA + 58, 'sfx_whoosh', 0.4], [WA + 64, 'sfx_click', 0.6], [WA + 68, 'sfx_impact', 0.5, 14],
   [CH2 - 2, 'sfx_whip', 0.7], [CH2 + 4, 'sfx_click', 0.5], [CH2 + 38, 'sfx_kaching_real', 0.85], [CH2 + 38, 'sfx_impact', 0.6, 18], [CH2 + 58, 'sfx_pop', 0.5], [CH2 + 50, 'sfx_notif', 0.7],
   [PAY - 2, 'sfx_whoosh', 0.6], [PAY + 4, 'sfx_riser', 0.5, 26], ...Array.from({length: 8}, (_, i) => [PAY + 4 + i * 3, 'sfx_tick', 0.4] as Sfx),
   [PAY + 30, 'sfx_sub', 0.8, 24], [PAY + 30, 'sfx_kaching_real', 0.9], [PAY + 31, 'sfx_coins', 0.5],
@@ -256,12 +304,13 @@ export const DosAutos2: React.FC<{hook?: Hook}> = ({hook = 'mensaje'}) => {
   return (
     <AbsoluteFill style={{background: '#0A0A0A'}}>
       {f < HOOK && <Sequence from={0} durationInFrames={HOOK}><HookLocal hook={hook} /></Sequence>}
-      {f >= CH1 && f < CH2 && <Freeze frame={SX4_T.msg + ((f - CH1) * (SX4_T.ver - SX4_T.msg)) / CH1_LEN}><SX4Compra intro={false} win={[0, 0]} /></Freeze>}
+      {f >= WA && f < CH2 && <WhatsApp f={f} />}
+      {f >= CH1 && f < WA && <Freeze frame={SX4_T.msg + ((f - CH1) * (SX4_T.ver - SX4_T.msg)) / CH1_LEN}><SX4Compra intro={false} win={[0, 0]} /></Freeze>}
       {f >= CH2 && f < PAY && <Jeep f={f} />}
       {f >= PAY && f < CH3 && <Payoff f={f} />}
       {f >= CH3 && f < LOOP && <Sequence from={CH3 - SX4_T.ver}><SX4Compra intro={false} win={[SX4_T.ver, SX4_END]} logoOff={(i) => notifOn(i + CH3 - SX4_T.ver)} /></Sequence>}
       {f >= LOOP && <Sequence from={LOOP}><HookLocal hook={hook} /></Sequence>}
-      {!notifOn(f) && ((f < CH1 && (hook === 'foco' ? f < 48 : f >= 48)) || (f >= CH2 && f < CH3)) && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
+      {!notifOn(f) && ((f < CH1 && (hook === 'foco' ? f < 48 : f >= 48)) || (f >= WA && f < CH3)) && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
       {!notifOn(f) && <CamClock f={f} hook={hook} />}
       <Chapter f={f} at={CH1 + 2} day="MARTES" time="14:13" txt="NOS OFRECEN UN SX4" />
       <Chapter f={f} at={CH3 + 2} day="MIÉRCOLES" time="15:03" txt="VAMOS A BUSCAR EL SX4" />
@@ -269,6 +318,7 @@ export const DosAutos2: React.FC<{hook?: Hook}> = ({hook = 'mensaje'}) => {
       <IOSNotif f={f} at={CH2 + 50} dur={44} icon="marca/gruas/icon.png" iconBg="#fff" app="Grúas Saravia" title="¿Necesitas mover un auto?" body="Asistencia en ruta 24/7 · gruasaravia.cl" />
       <IOSNotif f={f} at={X3(SX4_T.papeles) + 6} icon="marca/logo-autopartschile-sinfondo.png" iconBg="#fff" app="AutopartsChile" title="¿Buscas repuestos?" body="Repuestos multimarca · autopartschile.cl" />
       <ServiceCard f={f} at={X3(SX4_T.grua) + 22} dur={72} img="marca/gruas/logo-truck-full.png" line1="¿NECESITAS GRÚA?" line2="GRÚAS SARAVIA · 24/7" />
+      <StripeWipe f={f} at={WA} />
       <StripeWipe f={f} at={CH2} />
       <StripeWipe f={f} at={CH3} />
       <StripeWipe f={f} at={X3(SX4_T.cta)} />
