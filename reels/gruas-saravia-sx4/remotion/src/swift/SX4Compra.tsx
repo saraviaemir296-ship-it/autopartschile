@@ -21,7 +21,8 @@ const TXT = "'Montserrat', sans-serif";
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
 const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t - d, fps: 30, config: {damping, stiffness, mass: 0.5}});
 
-const T = {cold: 0, rew: 28, msg: 40, ver: 150, trato: 200, pago: 260, papeles: 300, patentes: 360, grua: 420, arriba: 540, oops: 600, cta: 700, end: 790};
+export const SX4_T = {cold: 0, rew: 28, msg: 40, ver: 150, trato: 200, pago: 260, papeles: 300, patentes: 360, grua: 420, arriba: 540, oops: 600, cta: 700, end: 790};
+const T = SX4_T;
 export const SX4_TOTAL = T.end + STING_LEN + 10;
 const LOOP = T.end + STING_LEN;
 
@@ -171,7 +172,7 @@ const SFX: Sfx[] = [
   [LOOP - 2, 'sfx_whip', 0.6],
 ];
 
-export const SX4Compra: React.FC = () => {
+export const SX4Compra: React.FC<{intro?: boolean}> = ({intro = true}) => {
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) { const k = f - at; if (k >= 0 && k < 10) { const d = a * (1 - k / 10); sx += Math.sin(k * 2.9) * d; sy += Math.cos(k * 3.7) * d; } }
@@ -214,7 +215,7 @@ export const SX4Compra: React.FC = () => {
             <OffthreadVideo src={S('swift/sx4b_foco.mp4')} muted startFrom={0} style={{width: '100%', height: '100%', objectFit: 'cover', filter: f - T.oops < 16 ? 'grayscale(1) contrast(1.2)' : GRADE}} />
           </AbsoluteFill>
         </Sequence>
-        <Shot src="swift/sx4b_foco.mp4" from={LOOP} dur={10} start={0.47} z={[1.6, 1.36]} inT="whipL" dim={0.15} />
+        {intro && <Shot src="swift/sx4b_foco.mp4" from={LOOP} dur={10} start={0.47} z={[1.6, 1.36]} inT="whipL" dim={0.15} />}
 
         {/* textos */}
         <Step f={f} at={T.msg + 4} until={T.ver} n={1} txt="NOS OFRECIÓ SU SX4 POR MESSENGER" />
@@ -242,7 +243,7 @@ export const SX4Compra: React.FC = () => {
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       <Grain f={f} />
-      {SFX.map(([at, n, v, d], i) => (
+      {SFX.filter(([at]) => intro || (at >= T.msg - 2 && at < LOOP - 2)).map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
       ))}
     </AbsoluteFill>
