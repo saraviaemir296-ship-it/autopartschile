@@ -21,11 +21,13 @@ import {VendimosTodo, VENDIMOS_TOTAL} from './swift/VendimosTodo';
 import {StoryVentas, STORY_TOTAL} from './swift/StoryVentas';
 import {CuatroAutos, CUATRO_TOTAL, UnDiaClientes} from './swift/CuatroAutos';
 import {UnDiaVoz, UNDIA_VOZ_TOTAL} from './swift/UnDiaVoz';
+import {SX4Compra, SX4_TOTAL} from './swift/SX4Compra';
 import {SuzukiConfianza, SUZUKI_CONF_TOTAL} from './swift/SuzukiConfianza';
 
 export const Root: React.FC = () => (
   <>
     <Composition id="SuzukiConfianza" component={SuzukiConfianza} durationInFrames={SUZUKI_CONF_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
+    <Composition id="SX4Compra" component={SX4Compra} durationInFrames={SX4_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="UnDiaVoz" component={UnDiaVoz} durationInFrames={UNDIA_VOZ_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="UnDiaClientes" component={UnDiaClientes} durationInFrames={CUATRO_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="CuatroAutos" component={CuatroAutos} durationInFrames={CUATRO_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
