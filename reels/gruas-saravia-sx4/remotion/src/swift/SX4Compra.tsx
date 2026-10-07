@@ -179,7 +179,7 @@ const SFX: Sfx[] = [
   [LOOP - 2, 'sfx_whip', 0.6],
 ];
 
-export const SX4Compra: React.FC<{intro?: boolean}> = ({intro = true}) => {
+export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]}> = ({intro = true, win}) => {
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) { const k = f - at; if (k >= 0 && k < 10) { const d = a * (1 - k / 10); sx += Math.sin(k * 2.9) * d; sy += Math.cos(k * 3.7) * d; } }
@@ -250,7 +250,7 @@ export const SX4Compra: React.FC<{intro?: boolean}> = ({intro = true}) => {
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       <Grain f={f} />
-      {SFX.filter(([at]) => intro || (at >= T.msg - 2 && at < LOOP - 2)).map(([at, n, v, d], i) => (
+      {SFX.filter(([at]) => (intro || (at >= T.msg - 2 && at < LOOP - 2)) && (!win || (at >= win[0] - 2 && at < win[1] - 2))).map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
       ))}
     </AbsoluteFill>

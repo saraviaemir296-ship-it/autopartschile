@@ -10,7 +10,7 @@ import {cl} from '../v2/look';
 const OUT = Easing.bezier(0.16, 1, 0.3, 1);
 
 // gradación para video/fotos: más saturación y contraste, sin quemar blancos
-export const GRADE = 'saturate(1.4) contrast(1.12) brightness(1.04)';
+export const GRADE = 'saturate(1.12) contrast(1.07) brightness(1.02)';
 
 /* fondo oscuro vivo: dos brillos rojos que respiran, piso en perspectiva tipo
    showroom que avanza hacia cámara y bokeh flotando */
@@ -52,7 +52,7 @@ export const LightLeaks: React.FC<{f: number; at: number[]; dur?: number}> = ({f
   const p = (f - (a - 4)) / (dur + 4);
   const x = -500 + p * 2100;
   return (
-    <AbsoluteFill style={{pointerEvents: 'none', mixBlendMode: 'screen', opacity: Math.sin(Math.PI * p) * 0.8}}>
+    <AbsoluteFill style={{pointerEvents: 'none', mixBlendMode: 'screen', opacity: Math.sin(Math.PI * p) * 0.5}}>
       <div style={{position: 'absolute', left: x - 500, top: 100, width: 1000, height: 1720, transform: 'rotate(18deg)', background: 'radial-gradient(ellipse at center, rgba(255,246,236,0.95) 0%, rgba(255,60,40,0.75) 28%, rgba(255,130,50,0.35) 52%, rgba(0,0,0,0) 70%)'}} />
     </AbsoluteFill>
   );
