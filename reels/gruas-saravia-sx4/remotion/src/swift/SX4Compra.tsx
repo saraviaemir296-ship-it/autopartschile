@@ -46,12 +46,12 @@ const Step: React.FC<{f: number; at: number; until: number; n: number; txt: stri
 };
 
 /* sello grande (TRATO CERRADO / PAGADO / LISTO) */
-const Stamp: React.FC<{f: number; at: number; until: number; txt: string; top?: number}> = ({f, at, until, txt, top = 1080}) => {
+const Stamp: React.FC<{f: number; at: number; until: number; txt: string; top?: number; size?: number}> = ({f, at, until, txt, top = 1080, size = 132}) => {
   if (f < at || f >= until) return null;
   const k = f - at;
   return (
     <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center', transform: `rotate(-7deg) scale(${interpolate(k, [0, 3, 8], [2.4, 0.92, 1], cl)})`, opacity: interpolate(k, [0, 2], [0, 1], cl)}}>
-      <span style={{display: 'inline-block', border: `9px solid ${RED2}`, padding: '0 30px 8px', fontFamily: DISP, fontSize: 132, color: '#fff', background: 'rgba(209,11,12,0.88)', letterSpacing: 3, boxShadow: `0 0 40px ${RED}, 0 20px 40px rgba(0,0,0,0.7)`}}>{txt}</span>
+      <span style={{display: 'inline-block', border: `9px solid ${RED2}`, padding: '0 30px 8px', fontFamily: DISP, fontSize: size, color: '#fff', background: 'rgba(209,11,12,0.88)', letterSpacing: 3, boxShadow: `0 0 40px ${RED}, 0 20px 40px rgba(0,0,0,0.7)`}}>{txt}</span>
     </div>
   );
 };
@@ -239,7 +239,7 @@ export const SX4Compra: React.FC<{intro?: boolean}> = ({intro = true}) => {
             {big(T.oops + 6, '…Y DE PASO', 300, 96)}
             {big(T.oops + 16, 'ME PITIÉ UN FOCO', 420, 120, RED2)}
             {big(T.oops + 24, 'DE MI PROPIA GRÚA', 550, 96)}
-            <Stamp f={f} at={T.oops + 40} until={T.cta} txt="¡CHASCARRO!" top={1200} />
+            <Stamp f={f} at={T.oops + 40} until={T.cta} txt="¡CAGADA DEL DÍA!" top={1210} size={104} />
             <Brackets f={f} at={T.oops + 4} until={T.oops + 40} x={160} y={980} w={760} h={340} />
           </>
         )}
