@@ -133,7 +133,7 @@ const Cta: React.FC<{f: number}> = ({f}) => {
       </div>
       {f >= T.cta + 48 && (
         <div style={{position: 'absolute', top: 1160, left: 0, right: 0, textAlign: 'center', transform: `scale(${sp(f, T.cta + 48, 12, 260)})`}}>
-          <div style={{fontFamily: DISP, fontSize: 56, color: BG, marginBottom: 14}}>ESCRÍBENOS CON FOTOS DEL AUTO</div>
+          <div style={{fontFamily: DISP, fontSize: 56, color: BG, marginBottom: 14}}>MÁNDANOS 3 FOTOS + LA PATENTE</div>
           <Img src={S('marca/pastilla-whatsapp.png')} style={{width: 820}} />
         </div>
       )}
@@ -147,8 +147,8 @@ const Cta: React.FC<{f: number}> = ({f}) => {
   );
 };
 
-const TopLogo: React.FC<{f: number}> = ({f}) => {
-  if (f >= T.end || (f >= T.rew && f < T.msg)) return null;
+const TopLogo: React.FC<{f: number; off?: (f: number) => boolean}> = ({f, off}) => {
+  if (f >= T.end || (f >= T.rew && f < T.msg) || off?.(f)) return null;
   const white = f >= T.cta;
   return <Img src={S(`marca/anim/${white ? 'logo_color' : 'logo_blanco'}.png`)} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: white ? undefined : 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />;
 };
@@ -179,7 +179,8 @@ const SFX: Sfx[] = [
   [LOOP - 2, 'sfx_whip', 0.6],
 ];
 
-export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]}> = ({intro = true, win}) => {
+// logoOff: frames (internos) en que se oculta el logo, p. ej. mientras baja una notificación
+export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]; logoOff?: (f: number) => boolean}> = ({intro = true, win, logoOff}) => {
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) { const k = f - at; if (k >= 0 && k < 10) { const d = a * (1 - k / 10); sx += Math.sin(k * 2.9) * d; sy += Math.cos(k * 3.7) * d; } }
@@ -245,7 +246,7 @@ export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]}> = ({
         )}
         <Cta f={f} />
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
-        <TopLogo f={f} />
+        <TopLogo f={f} off={logoOff} />
         <LightLeaks f={f} at={[T.msg, T.trato, T.papeles, T.grua, T.arriba, T.cta - 30]} />
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}

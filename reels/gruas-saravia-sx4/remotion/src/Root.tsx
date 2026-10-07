@@ -29,7 +29,8 @@ import {SuzukiConfianza, SUZUKI_CONF_TOTAL} from './swift/SuzukiConfianza';
 export const Root: React.FC = () => (
   <>
     <Composition id="SuzukiConfianza" component={SuzukiConfianza} durationInFrames={SUZUKI_CONF_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
-    <Composition id="DosAutos2" component={DosAutos2} durationInFrames={DOS2_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="DosAutos2A" component={DosAutos2} defaultProps={{hook: "mensaje" as const}} durationInFrames={DOS2_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="DosAutos2B" component={DosAutos2} defaultProps={{hook: "foco" as const}} durationInFrames={DOS2_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="DosAutos" component={DosAutos} durationInFrames={DOS_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="SX4Compra" component={SX4Compra} durationInFrames={SX4_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="UnDiaVoz" component={UnDiaVoz} durationInFrames={UNDIA_VOZ_TOTAL} fps={FPS} width={W} height={H} />

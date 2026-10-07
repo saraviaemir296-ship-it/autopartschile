@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Easing, Freeze, Img, OffthreadVideo, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
 import {Chip} from './CuatroAutos';
 import {Brackets, GRADE, LightLeaks} from './Fx';
@@ -24,7 +24,8 @@ const sp = (t: number, d = 0, damping = 12, stiffness = 260) => spring({frame: t
 // ---- línea de tiempo
 const HOOK = 84;
 const CH1 = HOOK;                         // MAR 14:13 · Messenger (SX4 interno 40–150)
-const CH1_LEN = SX4_T.ver - SX4_T.msg;    // 110
+const CH1_LEN = 76;                       // Messenger comprimido: 110 frames internos → 2,5 s
+const M1 = (x: number) => CH1 + Math.round((x * CH1_LEN) / (SX4_T.ver - SX4_T.msg)); // frame interno del Messenger (relativo) → este video
 const CH2 = CH1 + CH1_LEN;                // MAR 16:19 · Jeep
 const CH2_LEN = 96;
 const PAY = CH2 + CH2_LEN;                // 2 tratos en 2 horas
@@ -39,25 +40,36 @@ const X3 = (inner: number) => CH3 + (inner - SX4_T.ver);   // frame del SX4 (par
 /* reloj tipo cámara (minutos del día) */
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
 const M1413 = 14 * 60 + 13, M1619 = 16 * 60 + 19, M1503 = 15 * 60 + 3, M1515 = 15 * 60 + 15;
-const clockAt = (f: number): [string, number, boolean] | null => {
-  if (f < 14) return null;
-  if (f < 48) return ['MAR', interpolate(f, [14, 46], [M1413, M1619], {...cl, easing: Easing.in(Easing.quad)}), true];
-  if (f < HOOK) return null;
-  if (f < CH2) return ['MAR', M1413, false];
-  if (f < PAY) return ['MAR', M1619, false];
+type Hook = 'mensaje' | 'foco';
+// [día, minutos, etiqueta de velocidad]
+const clockAt = (f: number, hook: Hook): [string, number, string | null] | null => {
+  if (hook === 'foco') {
+    if (f < 48) return ['MIÉ', M1515, null];
+    if (f < HOOK) {
+      // rebobinado: MIÉ 15:15 → MAR 14:13 (minutos desde el martes 00:00)
+      const m = interpolate(f, [50, 80], [1440 + M1515, M1413], {...cl, easing: Easing.inOut(Easing.quad)});
+      return [m >= 1440 ? 'MIÉ' : 'MAR', m % 1440, '◀◀ REW'];
+    }
+  } else {
+    if (f < 14) return null;
+    if (f < 48) return ['MAR', interpolate(f, [14, 46], [M1413, M1619], {...cl, easing: Easing.in(Easing.quad)}), '▶▶ x4'];
+    if (f < HOOK) return null;
+  }
+  if (f < CH2) return ['MAR', M1413, null];
+  if (f < PAY) return ['MAR', M1619, null];
   if (f < CH3) return null;
-  if (f < X3(SX4_T.cta)) return ['MIÉ', interpolate(f, [CH3, X3(SX4_T.oops)], [M1503, M1515], cl), false];
+  if (f < X3(SX4_T.cta)) return ['MIÉ', interpolate(f, [CH3, X3(SX4_T.oops)], [M1503, M1515], cl), null];
   return null;
 };
-const CamClock: React.FC<{f: number}> = ({f}) => {
-  const c = clockAt(f);
+const CamClock: React.FC<{f: number; hook: Hook}> = ({f, hook}) => {
+  const c = clockAt(f, hook);
   if (!c) return null;
   const [day, m, ff] = c;
   return (
     <div style={{position: 'absolute', top: 64, left: 28, display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(10,10,10,0.72)', border: '2px solid rgba(255,255,255,0.2)', borderRadius: 14, padding: '6px 14px'}}>
       <span style={{width: 16, height: 16, borderRadius: 8, background: RED2, opacity: Math.floor(f / 10) % 2 ? 1 : 0.35}} />
       <span style={{fontFamily: MONO, fontWeight: 800, fontSize: 30, color: '#fff', letterSpacing: 1}}>{day} {hhmm(m)}</span>
-      {ff && <span style={{fontFamily: DISP, fontSize: 32, color: RED2}}>▶▶ x4</span>}
+      {ff && <span style={{fontFamily: DISP, fontSize: 32, color: RED2}}>{ff}</span>}
     </div>
   );
 };
@@ -128,7 +140,42 @@ const Hook: React.FC<{f: number}> = ({f}) => {
     </AbsoluteFill>
   );
 };
-const HookLocal: React.FC = () => <Hook f={useCurrentFrame()} />;
+
+/* ---- GANCHO B: el foco roto primero → rebobinado al mensaje del martes */
+const HookFoco: React.FC<{f: number}> = ({f}) => {
+  const big = (at: number, txt: React.ReactNode, top: number, size: number, bg?: string) => f >= at && (
+    <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - at, [0, 3, 8], [1.7, 0.95, 1], cl)})`}}>
+      <span style={{display: 'inline-block', background: bg ?? '#0A0A0A', padding: '6px 26px 12px', fontFamily: DISP, fontSize: size, lineHeight: 1, color: '#fff'}}>{txt}</span>
+    </div>
+  );
+  const rew = f >= 48;
+  const t = f - 48;
+  return (
+    <AbsoluteFill style={{background: '#0A0A0A'}}>
+      <Sequence from={0} durationInFrames={HOOK}>
+        <AbsoluteFill style={{transform: `scale(${interpolate(f, [0, 6, 48], [1.7, 1.35, 1.2], cl)})`, transformOrigin: '50% 58%'}}>
+          {/* en el rebobinado el clip corre hacia atrás: se congela el cuadro según el avance */}
+          {!rew
+            ? <OffthreadVideo src={S('swift/sx4b_foco.mp4')} muted startFrom={24} style={{width: '100%', height: '100%', objectFit: 'cover', filter: GRADE}} />
+            : <Freeze frame={Math.max(0, 48 - t * 3)}><OffthreadVideo src={S('swift/sx4b_foco.mp4')} muted startFrom={24} style={{width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(0.6) contrast(1.2) brightness(0.6)'}} /></Freeze>}
+        </AbsoluteFill>
+      </Sequence>
+      {!rew && big(2, 'COMPRÉ 2 AUTOS EN 2 HORAS…', 1480, 78)}
+      {!rew && big(20, '…Y TERMINÉ ASÍ', 1600, 96, RED)}
+      {rew && (
+        <AbsoluteFill style={{pointerEvents: 'none'}}>
+          {Array.from({length: 9}).map((_, i) => {
+            const y = (random(`ry${i}-${f}`) * 1920) | 0;
+            return <div key={i} style={{position: 'absolute', left: 0, right: 0, top: y, height: 6 + random(`rh${i}-${f}`) * 26, background: 'rgba(255,255,255,0.18)', transform: `translateX(${(random(`rx${i}-${f}`) - 0.5) * 120}px)`}} />;
+          })}
+          <div style={{position: 'absolute', top: 760, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 120, color: '#fff', textShadow: `-5px 0 ${RED2}, 5px 0 #29f`, transform: `translateX(${Math.sin(t * 3) * 8}px)`}}>◀◀ REW</div>
+          {t >= 6 && <div style={{position: 'absolute', top: 930, left: 0, right: 0, textAlign: 'center', transform: `scale(${sp(t, 6, 11, 280)})`}}><Chip size={60}>PARTAMOS DEL INICIO</Chip></div>}
+        </AbsoluteFill>
+      )}
+    </AbsoluteFill>
+  );
+};
+const HookLocal: React.FC<{hook: Hook}> = ({hook}) => (hook === 'foco' ? <HookFoco f={useCurrentFrame()} /> : <Hook f={useCurrentFrame()} />);
 
 /* ---- MAR 16:19 · Jeep en formato cine */
 const Jeep: React.FC<{f: number}> = ({f}) => {
@@ -177,11 +224,21 @@ const Payoff: React.FC<{f: number}> = ({f}) => {
 };
 
 type Sfx = [number, string, number, number?];
+const HOOK_SFX: Record<Hook, Sfx[]> = {
+  mensaje: [
+    [0, 'sfx_notif', 0.9], [2, 'sfx_impact', 0.5, 14],
+    [13, 'sfx_whip', 0.7], [14, 'sfx_rev', 0.5], ...Array.from({length: 10}, (_, i) => [16 + i * 3, 'sfx_tick', 0.4] as Sfx),
+    [46, 'sfx_whip', 0.6], [48, 'sfx_sub', 0.6, 20], [50, 'sfx_impact', 0.7, 16], [56, 'sfx_impact', 0.7, 16], [56, 'sfx_kaching_real', 0.6], [70, 'sfx_pop', 0.5],
+  ],
+  foco: [
+    [0, 'sfx_scratch', 1], [2, 'sfx_impact', 0.6, 14], [20, 'sfx_trombon', 0.8], [20, 'sfx_impact', 0.5, 14],
+    [47, 'sfx_whip', 0.6], [48, 'sfx_scratch', 0.7], ...Array.from({length: 10}, (_, i) => [52 + i * 3, 'sfx_tick', 0.4] as Sfx), [54, 'sfx_pop', 0.5],
+  ],
+};
+// Messenger comprimido: mismos efectos que en SX4Compra, en su nuevo tiempo
+const MSG_SFX: Sfx[] = [[M1(6), 'sfx_notif', 0.8], [M1(14), 'sfx_click', 0.5], [M1(34), 'sfx_whoosh', 0.4], [M1(44), 'sfx_shutter', 0.6], [M1(62), 'sfx_whoosh', 0.4], [M1(66), 'sfx_click', 0.6], [M1(70), 'sfx_pop', 0.5]];
 const SFX: Sfx[] = [
-  [0, 'sfx_notif', 0.9], [2, 'sfx_impact', 0.5, 14],
-  [13, 'sfx_whip', 0.7], [14, 'sfx_rev', 0.5], ...Array.from({length: 10}, (_, i) => [16 + i * 3, 'sfx_tick', 0.4] as Sfx),
-  [46, 'sfx_whip', 0.6], [48, 'sfx_sub', 0.6, 20], [50, 'sfx_impact', 0.7, 16], [56, 'sfx_impact', 0.7, 16], [56, 'sfx_kaching_real', 0.6], [70, 'sfx_pop', 0.5],
-  [CH1 - 2, 'sfx_whoosh', 0.5],
+  [CH1 - 2, 'sfx_whoosh', 0.5], ...MSG_SFX,
   [CH2 - 2, 'sfx_whip', 0.7], [CH2 + 4, 'sfx_click', 0.5], [CH2 + 38, 'sfx_kaching_real', 0.85], [CH2 + 38, 'sfx_impact', 0.6, 18], [CH2 + 58, 'sfx_pop', 0.5], [CH2 + 50, 'sfx_notif', 0.7],
   [PAY - 2, 'sfx_whoosh', 0.6], [PAY + 4, 'sfx_riser', 0.5, 26], ...Array.from({length: 8}, (_, i) => [PAY + 4 + i * 3, 'sfx_tick', 0.4] as Sfx),
   [PAY + 30, 'sfx_sub', 0.8, 24], [PAY + 30, 'sfx_kaching_real', 0.9], [PAY + 31, 'sfx_coins', 0.5],
@@ -189,19 +246,23 @@ const SFX: Sfx[] = [
   [LOOP - 2, 'sfx_whip', 0.6],
 ];
 
-export const DosAutos2: React.FC = () => {
+// notificaciones (inicio, duración): mientras están en pantalla se ocultan logo y reloj
+const NOTIFS = (hook: Hook): [number, number][] => [...(hook === 'mensaje' ? [[0, 20] as [number, number]] : []), [CH2 + 50, 44], [X3(SX4_T.papeles) + 6, 72]];
+
+export const DosAutos2: React.FC<{hook?: Hook}> = ({hook = 'mensaje'}) => {
   const f = useCurrentFrame();
-  const flash = [[0, 0.5], [14, 0.6], [48, 0.5], [CH2, 0.35], [PAY + 30, 0.4], [CH3, 0.35]].reduce((m, [at, a]) => (f === at ? Math.max(m, a) : f === at + 1 ? Math.max(m, a * 0.4) : m), 0);
+  const notifOn = (x: number) => NOTIFS(hook).some(([a, d]) => x >= a - 2 && x < a + d);
+  const flash = [[0, 0.5], [hook === 'foco' ? 20 : 14, 0.6], [48, 0.5], [CH2, 0.35], [PAY + 30, 0.4], [CH3, 0.35]].reduce((m, [at, a]) => (f === at ? Math.max(m, a) : f === at + 1 ? Math.max(m, a * 0.4) : m), 0);
   return (
     <AbsoluteFill style={{background: '#0A0A0A'}}>
-      {f < HOOK && <Sequence from={0} durationInFrames={HOOK}><HookLocal /></Sequence>}
-      {f >= CH1 && f < CH2 && <Sequence from={CH1 - SX4_T.msg}><SX4Compra intro={false} win={[SX4_T.msg, SX4_T.ver]} /></Sequence>}
+      {f < HOOK && <Sequence from={0} durationInFrames={HOOK}><HookLocal hook={hook} /></Sequence>}
+      {f >= CH1 && f < CH2 && <Freeze frame={SX4_T.msg + ((f - CH1) * (SX4_T.ver - SX4_T.msg)) / CH1_LEN}><SX4Compra intro={false} win={[0, 0]} /></Freeze>}
       {f >= CH2 && f < PAY && <Jeep f={f} />}
       {f >= PAY && f < CH3 && <Payoff f={f} />}
-      {f >= CH3 && f < LOOP && <Sequence from={CH3 - SX4_T.ver}><SX4Compra intro={false} win={[SX4_T.ver, SX4_END]} /></Sequence>}
-      {f >= LOOP && <Sequence from={LOOP}><HookLocal /></Sequence>}
-      {((f < CH1 && f >= 48) || (f >= CH2 && f < CH3)) && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
-      <CamClock f={f} />
+      {f >= CH3 && f < LOOP && <Sequence from={CH3 - SX4_T.ver}><SX4Compra intro={false} win={[SX4_T.ver, SX4_END]} logoOff={(i) => notifOn(i + CH3 - SX4_T.ver)} /></Sequence>}
+      {f >= LOOP && <Sequence from={LOOP}><HookLocal hook={hook} /></Sequence>}
+      {!notifOn(f) && ((f < CH1 && (hook === 'foco' ? f < 48 : f >= 48)) || (f >= CH2 && f < CH3)) && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
+      {!notifOn(f) && <CamClock f={f} hook={hook} />}
       <Chapter f={f} at={CH1 + 2} day="MARTES" time="14:13" txt="NOS OFRECEN UN SX4" />
       <Chapter f={f} at={CH3 + 2} day="MIÉRCOLES" time="15:03" txt="VAMOS A BUSCAR EL SX4" />
       {/* invitaciones a los otros servicios */}
@@ -213,7 +274,7 @@ export const DosAutos2: React.FC = () => {
       <StripeWipe f={f} at={X3(SX4_T.cta)} />
       <LightLeaks f={f} at={[48, CH1, PAY]} />
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
-      {SFX.map(([at, n, v, d], i) => (
+      {[...HOOK_SFX[hook], ...SFX].map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
       ))}
     </AbsoluteFill>
