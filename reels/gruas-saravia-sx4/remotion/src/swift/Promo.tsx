@@ -36,15 +36,17 @@ export const IOSNotif: React.FC<{f: number; at: number; dur?: number; icon: stri
 };
 
 /* ráfaga de emojis que salta desde un punto, con gravedad y giro */
-export const EmojiBurst: React.FC<{f: number; at: number; x: number; y: number; emojis: string[]; n?: number; spread?: number}> = ({f, at, x, y, emojis, n = 9, spread = 1}) => {
+export const EmojiBurst: React.FC<{f: number; at: number; x: number; y: number; emojis: string[]; n?: number; spread?: number; sides?: number}> = ({f, at, x, y, emojis, n = 9, spread = 1, sides = 0}) => {
   const t = f - at;
   if (t < 0 || t > 38) return null;
   return (
     <AbsoluteFill style={{pointerEvents: 'none'}}>
       {Array.from({length: n}).map((_, i) => {
-        const a = (-Math.PI / 2) + (random(`ea${at}${i}`) - 0.5) * Math.PI * 1.4;
+        // sides > 0: nacen en los bordes (x ± sides) y salen hacia afuera, sin cruzar el centro
+        const side = sides ? (i % 2 ? 1 : -1) : 0;
+        const a = sides ? (side > 0 ? -0.25 : Math.PI + 0.25) + (random(`ea${at}${i}`) - 0.5) * 1.0 : (-Math.PI / 2) + (random(`ea${at}${i}`) - 0.5) * Math.PI * 1.4;
         const v = (16 + random(`ev${at}${i}`) * 18) * spread;
-        const px = x + Math.cos(a) * v * t;
+        const px = x + side * sides + Math.cos(a) * v * t;
         const py = y + Math.sin(a) * v * t + 0.9 * t * t;
         const s = 0.7 + random(`es${at}${i}`) * 0.8;
         const rot = (random(`er${at}${i}`) - 0.5) * 40 * t;

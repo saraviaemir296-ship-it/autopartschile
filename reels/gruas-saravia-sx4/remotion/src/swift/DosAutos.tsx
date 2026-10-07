@@ -173,11 +173,11 @@ export const DosAutos: React.FC = () => {
       <IOSNotif f={f} at={X(SX4_T.papeles) + 6} icon="marca/logo-autopartschile-sinfondo.png" iconBg="#fff" app="AutopartsChile" title="¿Buscas repuestos? 🔧" body="Repuestos multimarca · autopartschile.cl" />
       <ServiceCard f={f} at={X(SX4_T.grua) + 22} dur={72} img="marca/gruas/logo-truck-full.png" line1="¿NECESITAS GRÚA? 🚛" line2="GRÚAS SARAVIA · 24/7" />
       {/* ráfagas de emojis en cada logro */}
-      <EmojiBurst f={f} at={59} x={540} y={600} emojis={['✅', '💰', '🤝']} />
-      <EmojiBurst f={f} at={71} x={540} y={1540} emojis={['✅', '💰', '🤝']} />
-      <EmojiBurst f={f} at={HOOK + 45} x={540} y={1580} emojis={['🤝', '💰', '✅']} />
-      <EmojiBurst f={f} at={X(SX4_T.trato) + 9} x={540} y={1330} emojis={['🤝', '✨', '🔥']} />
-      <EmojiBurst f={f} at={X(SX4_T.pago) + 9} x={540} y={1330} emojis={['💰', '💵', '🤑']} n={12} />
+      <EmojiBurst f={f} at={56} x={540} y={470} sides={330} n={8} emojis={['✅', '💰', '🤝']} />
+      <EmojiBurst f={f} at={68} x={540} y={1410} sides={330} n={8} emojis={['✅', '💰', '🤝']} />
+      <EmojiBurst f={f} at={HOOK + 42} x={540} y={1450} sides={330} n={8} emojis={['🤝', '💰', '✅']} />
+      <EmojiBurst f={f} at={X(SX4_T.trato) + 6} x={540} y={1150} sides={420} n={8} emojis={['🤝', '✨', '🔥']} />
+      <EmojiBurst f={f} at={X(SX4_T.pago) + 6} x={540} y={1150} sides={340} emojis={['💰', '💵', '🤑']} n={12} />
       <EmojiBurst f={f} at={X(SX4_T.papeles) + 4} x={540} y={980} emojis={['✍️', '📄']} n={6} />
       <EmojiBurst f={f} at={X(SX4_T.patentes) + 4} x={540} y={980} emojis={['🏛️', '📋']} n={6} />
       <EmojiBurst f={f} at={X(SX4_T.grua) + 4} x={540} y={1050} emojis={['🚛', '💨']} n={7} />
