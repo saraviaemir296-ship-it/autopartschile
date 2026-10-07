@@ -136,6 +136,12 @@ const Cta: React.FC<{f: number}> = ({f}) => {
           <Img src={S('marca/pastilla-whatsapp.png')} style={{width: 820}} />
         </div>
       )}
+      {f >= T.cta + 58 && (
+        <div style={{position: 'absolute', top: 1430, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 16, transform: `translateY(${interpolate(f - (T.cta + 58), [0, 6], [80, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(f - (T.cta + 58), [0, 4], [0, 1], cl)}}>
+          <span style={{background: BG, color: '#fff', fontFamily: DISP, fontSize: 46, padding: '6px 20px 10px'}}>🔧 REPUESTOS MULTIMARCA</span>
+          <span style={{background: RED, color: '#fff', fontFamily: DISP, fontSize: 46, padding: '6px 20px 10px'}}>🚛 GRÚAS 24/7</span>
+        </div>
+      )}
     </AbsoluteFill>
   );
 };

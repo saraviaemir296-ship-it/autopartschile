@@ -5,6 +5,7 @@ import {cl} from '../v2/look';
 import {Chip} from './CuatroAutos';
 import {Brackets, GRADE, LightLeaks} from './Fx';
 import {SX4Compra, SX4_T, SX4_TOTAL} from './SX4Compra';
+import {EmojiBurst, IOSNotif, ServiceCard, StripeWipe} from './Promo';
 
 /* "Compré 2 vehículos en 2 horas — tratos hechos": Jeep Grand Cherokee + Suzuki
    SX4 2015. Los tratos se cerraron el mismo martes con ~2 h de diferencia (Messenger
@@ -23,7 +24,8 @@ const HOOK = 96;
 const JEEP = 96;
 const SX4_FROM = HOOK + JEEP;                 // donde empieza la historia del SX4
 const SX4_OFFSET = SX4_FROM - SX4_T.msg;      // la historia arranca en su escena de Messenger
-const SX4_LOOP = SX4_TOTAL - 10;              // SX4Compra sin su loop propio
+const SX4_LOOP = SX4_TOTAL - 10;
+const X = (innerFrame: number) => SX4_OFFSET + innerFrame;       // frame del SX4 → frame de este video              // SX4Compra sin su loop propio
 export const DOS_TOTAL = SX4_OFFSET + SX4_LOOP + 10;
 
 /* sello "TRATO HECHO" */
@@ -145,6 +147,9 @@ const SFX: Sfx[] = [
   [HOOK + 40, 'sfx_kaching_real', 0.85], [HOOK + 40, 'sfx_impact', 0.6, 18], [HOOK + 58, 'sfx_pop', 0.5],
   [SX4_FROM - 2, 'sfx_whip', 0.7], [SX4_FROM, 'sfx_impact_soft', 0.5, 20],
   [DOS_TOTAL - 12, 'sfx_whip', 0.6],
+  [HOOK + 56, 'sfx_notif', 0.8], [X(SX4_T.papeles) + 6, 'sfx_notif', 0.8], [X(SX4_T.grua) + 22, 'sfx_whoosh', 0.5], [X(SX4_T.grua) + 26, 'sfx_pop', 0.5],
+  ...[59, 71, HOOK + 45, X(SX4_T.trato) + 9, X(SX4_T.pago) + 9, X(SX4_T.papeles) + 4, X(SX4_T.patentes) + 4, X(SX4_T.grua) + 4, X(SX4_T.arriba) + 6, X(SX4_T.oops) + 40].map((a) => [a + 1, 'sfx_pop', 0.35] as Sfx),
+  [X(SX4_T.cta) - 7, 'sfx_whip', 0.5],
 ];
 
 export const DosAutos: React.FC = () => {
@@ -163,6 +168,25 @@ export const DosAutos: React.FC = () => {
       {f >= loopStart && <Sequence from={loopStart}><HookLocal /></Sequence>}
       {f < SX4_FROM && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
       <Counter f={f} />
+      {/* invitaciones a los otros servicios, sin cortar la historia */}
+      <IOSNotif f={f} at={HOOK + 56} icon="marca/gruas/icon.png" iconBg="#fff" app="Grúas Saravia" title="¿Necesitas mover un auto? 🚛" body="Asistencia en ruta 24/7 · gruasaravia.cl" />
+      <IOSNotif f={f} at={X(SX4_T.papeles) + 6} icon="marca/logo-autopartschile-sinfondo.png" iconBg="#fff" app="AutopartsChile" title="¿Buscas repuestos? 🔧" body="Repuestos multimarca · autopartschile.cl" />
+      <ServiceCard f={f} at={X(SX4_T.grua) + 22} dur={72} img="marca/gruas/logo-truck-full.png" line1="¿NECESITAS GRÚA? 🚛" line2="GRÚAS SARAVIA · 24/7" />
+      {/* ráfagas de emojis en cada logro */}
+      <EmojiBurst f={f} at={59} x={540} y={600} emojis={['✅', '💰', '🤝']} />
+      <EmojiBurst f={f} at={71} x={540} y={1540} emojis={['✅', '💰', '🤝']} />
+      <EmojiBurst f={f} at={HOOK + 45} x={540} y={1580} emojis={['🤝', '💰', '✅']} />
+      <EmojiBurst f={f} at={X(SX4_T.trato) + 9} x={540} y={1330} emojis={['🤝', '✨', '🔥']} />
+      <EmojiBurst f={f} at={X(SX4_T.pago) + 9} x={540} y={1330} emojis={['💰', '💵', '🤑']} n={12} />
+      <EmojiBurst f={f} at={X(SX4_T.papeles) + 4} x={540} y={980} emojis={['✍️', '📄']} n={6} />
+      <EmojiBurst f={f} at={X(SX4_T.patentes) + 4} x={540} y={980} emojis={['🏛️', '📋']} n={6} />
+      <EmojiBurst f={f} at={X(SX4_T.grua) + 4} x={540} y={1050} emojis={['🚛', '💨']} n={7} />
+      <EmojiBurst f={f} at={X(SX4_T.arriba) + 6} x={540} y={1240} emojis={['✅', '🔥', '💪']} />
+      <EmojiBurst f={f} at={X(SX4_T.oops) + 40} x={540} y={1260} emojis={['😂', '🤦‍♂️', '💀']} n={13} spread={1.2} />
+      {/* transiciones con las franjas de la marca */}
+      <StripeWipe f={f} at={HOOK} />
+      <StripeWipe f={f} at={SX4_FROM} />
+      <StripeWipe f={f} at={X(SX4_T.cta)} />
       <LightLeaks f={f} at={[HOOK, SX4_FROM]} />
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       {SFX.map(([at, n, v, d], i) => (
