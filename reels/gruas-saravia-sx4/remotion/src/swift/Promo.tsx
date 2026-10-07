@@ -91,3 +91,26 @@ export const ServiceCard: React.FC<{f: number; at: number; dur?: number; img: st
     </div>
   );
 };
+
+/* destello de rayos rojo/blanco al aparecer un sello (vectorial, sin emojis) */
+export const RayBurst: React.FC<{f: number; at: number; x: number; y: number; r0?: number; n?: number}> = ({f, at, x, y, r0 = 260, n = 14}) => {
+  const t = f - at;
+  if (t < 0 || t > 16) return null;
+  const p = interpolate(t, [0, 16], [0, 1], {...cl, easing: OUT});
+  return (
+    <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none', opacity: interpolate(t, [8, 16], [1, 0], cl)}}>
+      {Array.from({length: n}).map((_, i) => {
+        const a = (i / n) * Math.PI * 2 + random(`ra${at}${i}`) * 0.3;
+        const r1 = r0 + p * 160, r2 = r1 + 40 + random(`rl${at}${i}`) * 70 * (1 - p);
+        return <line key={i} x1={x + Math.cos(a) * r1} y1={y + Math.sin(a) * r1 * 0.55} x2={x + Math.cos(a) * r2} y2={y + Math.sin(a) * r2 * 0.55} stroke={i % 3 ? '#FF2A2A' : '#fff'} strokeWidth={9 - p * 6} strokeLinecap="round" />;
+      })}
+    </svg>
+  );
+};
+
+/* check blanco en cuadro rojo (bullet de marca) */
+export const CheckIcon: React.FC<{size?: number; bg?: string}> = ({size = 58, bg = '#D10B0C'}) => (
+  <span style={{width: size, height: size, background: bg, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
+    <svg width={size * 0.62} height={size * 0.62} viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="#fff" strokeWidth={3.6} strokeLinecap="round" strokeLinejoin="round" /></svg>
+  </span>
+);

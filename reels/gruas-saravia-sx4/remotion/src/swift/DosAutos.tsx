@@ -5,7 +5,7 @@ import {cl} from '../v2/look';
 import {Chip} from './CuatroAutos';
 import {Brackets, GRADE, LightLeaks} from './Fx';
 import {SX4Compra, SX4_T, SX4_TOTAL} from './SX4Compra';
-import {EmojiBurst, IOSNotif, ServiceCard, StripeWipe} from './Promo';
+import {IOSNotif, RayBurst, ServiceCard, StripeWipe} from './Promo';
 
 /* "Compré 2 vehículos en 2 horas — tratos hechos": Jeep Grand Cherokee + Suzuki
    SX4 2015. Los tratos se cerraron el mismo martes con ~2 h de diferencia (Messenger
@@ -34,7 +34,7 @@ const Deal: React.FC<{f: number; at: number; top: number; left?: number}> = ({f,
   const k = f - at;
   return (
     <div style={{position: 'absolute', top, left, right: 0, textAlign: 'center', transform: `rotate(-8deg) scale(${interpolate(k, [0, 3, 8], [2.4, 0.92, 1], cl)})`, opacity: interpolate(k, [0, 2], [0, 1], cl)}}>
-      <span style={{display: 'inline-block', border: `7px solid ${RED2}`, padding: '0 22px 6px', fontFamily: DISP, fontSize: 86, color: '#fff', background: 'rgba(209,11,12,0.88)', letterSpacing: 2, boxShadow: `0 0 34px ${RED}, 0 16px 34px rgba(0,0,0,0.7)`}}>TRATO HECHO ✅</span>
+      <span style={{display: 'inline-block', border: `7px solid ${RED2}`, padding: '0 22px 6px', fontFamily: DISP, fontSize: 86, color: '#fff', background: 'rgba(209,11,12,0.88)', letterSpacing: 2, boxShadow: `0 0 34px ${RED}, 0 16px 34px rgba(0,0,0,0.7)`}}>TRATO HECHO</span>
     </div>
   );
 };
@@ -74,8 +74,8 @@ const Hook: React.FC<{f: number}> = ({f}) => {
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 952, height: 16, background: RED, boxShadow: `0 0 24px ${RED}`}} />
       {/* nombres de cada vehículo */}
-      {f >= 10 && <div style={{position: 'absolute', top: 200, left: 40, transform: `translateX(${interpolate(f, [10, 17], [-700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>🚙 JEEP GRAND CHEROKEE</Chip></div>}
-      {f >= 14 && <div style={{position: 'absolute', top: 1660, right: 40, transform: `translateX(${interpolate(f, [14, 21], [700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>🚗 SUZUKI SX4 2015</Chip></div>}
+      {f >= 10 && <div style={{position: 'absolute', top: 200, left: 40, transform: `translateX(${interpolate(f, [10, 17], [-700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>JEEP GRAND CHEROKEE</Chip></div>}
+      {f >= 14 && <div style={{position: 'absolute', top: 1660, right: 40, transform: `translateX(${interpolate(f, [14, 21], [700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>SUZUKI SX4 2015</Chip></div>}
       {/* titular sobre la costura */}
       {f >= 4 && (
         <div style={{position: 'absolute', top: 690, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 4, [0, 3, 8], [1.7, 0.95, 1], cl)})`}}>
@@ -84,7 +84,7 @@ const Hook: React.FC<{f: number}> = ({f}) => {
       )}
       {f >= 12 && (
         <div style={{position: 'absolute', top: 1048, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 12, [0, 3, 8], [1.7, 0.95, 1], cl)})`}}>
-          <span style={{display: 'inline-block', background: RED, padding: '6px 28px 12px', fontFamily: DISP, fontSize: 96, lineHeight: 1, color: '#fff', boxShadow: '0 20px 50px rgba(0,0,0,0.8)'}}>EN 2 HORAS ⏱️</span>
+          <span style={{display: 'inline-block', background: RED, padding: '6px 28px 12px', fontFamily: DISP, fontSize: 96, lineHeight: 1, color: '#fff', boxShadow: '0 20px 50px rgba(0,0,0,0.8)'}}>EN 2 HORAS</span>
         </div>
       )}
       <Clock f={f} at={14} cx={150} cy={440} r={92} />
@@ -122,7 +122,7 @@ const Jeep: React.FC<{f: number}> = ({f}) => {
       </div>
       <Brackets f={f} at={HOOK + 16} until={HOOK + JEEP - 4} x={70} y={640} w={940} h={560} />
       <Deal f={f} at={HOOK + 40} top={1400} />
-      {t >= 58 && <div style={{position: 'absolute', top: 1570, left: 0, right: 0, textAlign: 'center', transform: `scale(${sp(f, HOOK + 58, 11, 280)})`}}><Chip red size={54}>DIRECTO A LA GRÚA 🚛</Chip></div>}
+      {t >= 58 && <div style={{position: 'absolute', top: 1570, left: 0, right: 0, textAlign: 'center', transform: `scale(${sp(f, HOOK + 58, 11, 280)})`}}><Chip red size={54}>DIRECTO A LA GRÚA</Chip></div>}
     </AbsoluteFill>
   );
 };
@@ -148,7 +148,6 @@ const SFX: Sfx[] = [
   [SX4_FROM - 2, 'sfx_whip', 0.7], [SX4_FROM, 'sfx_impact_soft', 0.5, 20],
   [DOS_TOTAL - 12, 'sfx_whip', 0.6],
   [HOOK + 56, 'sfx_notif', 0.8], [X(SX4_T.papeles) + 6, 'sfx_notif', 0.8], [X(SX4_T.grua) + 22, 'sfx_whoosh', 0.5], [X(SX4_T.grua) + 26, 'sfx_pop', 0.5],
-  ...[59, 71, HOOK + 45, X(SX4_T.trato) + 9, X(SX4_T.pago) + 9, X(SX4_T.papeles) + 4, X(SX4_T.patentes) + 4, X(SX4_T.grua) + 4, X(SX4_T.arriba) + 6, X(SX4_T.oops) + 40].map((a) => [a + 1, 'sfx_pop', 0.35] as Sfx),
   [X(SX4_T.cta) - 7, 'sfx_whip', 0.5],
 ];
 
@@ -169,20 +168,15 @@ export const DosAutos: React.FC = () => {
       {f < SX4_FROM && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
       <Counter f={f} />
       {/* invitaciones a los otros servicios, sin cortar la historia */}
-      <IOSNotif f={f} at={HOOK + 56} icon="marca/gruas/icon.png" iconBg="#fff" app="Grúas Saravia" title="¿Necesitas mover un auto? 🚛" body="Asistencia en ruta 24/7 · gruasaravia.cl" />
-      <IOSNotif f={f} at={X(SX4_T.papeles) + 6} icon="marca/logo-autopartschile-sinfondo.png" iconBg="#fff" app="AutopartsChile" title="¿Buscas repuestos? 🔧" body="Repuestos multimarca · autopartschile.cl" />
-      <ServiceCard f={f} at={X(SX4_T.grua) + 22} dur={72} img="marca/gruas/logo-truck-full.png" line1="¿NECESITAS GRÚA? 🚛" line2="GRÚAS SARAVIA · 24/7" />
-      {/* ráfagas de emojis en cada logro */}
-      <EmojiBurst f={f} at={56} x={540} y={470} sides={330} n={8} emojis={['✅', '💰', '🤝']} />
-      <EmojiBurst f={f} at={68} x={540} y={1410} sides={330} n={8} emojis={['✅', '💰', '🤝']} />
-      <EmojiBurst f={f} at={HOOK + 42} x={540} y={1450} sides={330} n={8} emojis={['🤝', '💰', '✅']} />
-      <EmojiBurst f={f} at={X(SX4_T.trato) + 6} x={540} y={1150} sides={420} n={8} emojis={['🤝', '✨', '🔥']} />
-      <EmojiBurst f={f} at={X(SX4_T.pago) + 6} x={540} y={1150} sides={340} emojis={['💰', '💵', '🤑']} n={12} />
-      <EmojiBurst f={f} at={X(SX4_T.papeles) + 4} x={540} y={980} emojis={['✍️', '📄']} n={6} />
-      <EmojiBurst f={f} at={X(SX4_T.patentes) + 4} x={540} y={980} emojis={['🏛️', '📋']} n={6} />
-      <EmojiBurst f={f} at={X(SX4_T.grua) + 4} x={540} y={1050} emojis={['🚛', '💨']} n={7} />
-      <EmojiBurst f={f} at={X(SX4_T.arriba) + 6} x={540} y={1240} emojis={['✅', '🔥', '💪']} />
-      <EmojiBurst f={f} at={X(SX4_T.oops) + 40} x={540} y={1260} emojis={['😂', '🤦‍♂️', '💀']} n={13} spread={1.2} />
+      <IOSNotif f={f} at={HOOK + 56} icon="marca/gruas/icon.png" iconBg="#fff" app="Grúas Saravia" title="¿Necesitas mover un auto?" body="Asistencia en ruta 24/7 · gruasaravia.cl" />
+      <IOSNotif f={f} at={X(SX4_T.papeles) + 6} icon="marca/logo-autopartschile-sinfondo.png" iconBg="#fff" app="AutopartsChile" title="¿Buscas repuestos?" body="Repuestos multimarca · autopartschile.cl" />
+      <ServiceCard f={f} at={X(SX4_T.grua) + 22} dur={72} img="marca/gruas/logo-truck-full.png" line1="¿NECESITAS GRÚA?" line2="GRÚAS SARAVIA · 24/7" />
+      {/* destellos al aparecer cada sello */}
+      <RayBurst f={f} at={56} x={540} y={470} />
+      <RayBurst f={f} at={68} x={540} y={1410} />
+      <RayBurst f={f} at={HOOK + 42} x={540} y={1450} />
+      <RayBurst f={f} at={X(SX4_T.trato) + 6} x={540} y={1150} />
+      <RayBurst f={f} at={X(SX4_T.pago) + 6} x={540} y={1150} />
       {/* transiciones con las franjas de la marca */}
       <StripeWipe f={f} at={HOOK} />
       <StripeWipe f={f} at={SX4_FROM} />

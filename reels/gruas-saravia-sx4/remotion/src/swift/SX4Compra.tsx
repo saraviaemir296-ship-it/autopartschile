@@ -4,6 +4,7 @@ import {cl} from '../v2/look';
 import {Chip, Rise, Shot} from './CuatroAutos';
 import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {LogoSting, STING_LEN} from './LogoSting';
+import {CheckIcon} from './Promo';
 
 /* "Compramos un SX4 2015 para desarme" (la publicación de Marketplace del vendedor dice 2007; no se resalta el año) — captación de vendedores de autos.
    Arco: cold open con el chascarro (foco de la grúa roto) → rebobinado →
@@ -87,7 +88,7 @@ const Messenger: React.FC<{f: number}> = ({f}) => {
       </AbsoluteFill>
       <Brackets f={f} at={T.msg + 44} until={T.msg + 62} x={330} y={760} w={420} h={600} />
       <div style={{position: 'absolute', top: 1500, left: 0, right: 0, textAlign: 'center'}}>
-        {t >= 70 && <Rise f={f} at={T.msg + 70} style={{fontFamily: DISP, fontSize: 64, color: '#fff', textShadow: '0 6px 20px rgba(0,0,0,0.9)'}}>PEDIMOS LA PATENTE PARA <span style={{color: RED2}}>REVISARLO</span> ✓</Rise>}
+        {t >= 70 && <Rise f={f} at={T.msg + 70} style={{fontFamily: DISP, fontSize: 64, color: '#fff', textShadow: '0 6px 20px rgba(0,0,0,0.9)'}}>PEDIMOS LA PATENTE PARA <span style={{color: RED2}}>REVISARLO</span></Rise>}
       </div>
     </AbsoluteFill>
   );
@@ -112,9 +113,9 @@ const Rewind: React.FC<{f: number}> = ({f}) => {
 
 const Cta: React.FC<{f: number}> = ({f}) => {
   if (f < T.cta || f >= T.end) return null;
-  const row = (at: number, icon: string, txt: string) => f >= at && (
+  const row = (at: number, txt: string) => f >= at && (
     <div style={{display: 'flex', alignItems: 'center', gap: 18, transform: `translateX(${interpolate(f - at, [0, 6], [-760, 0], {...cl, easing: OUT})}px)`}}>
-      <span style={{fontSize: 62}}>{icon}</span>
+      <CheckIcon size={62} />
       <span style={{fontFamily: DISP, fontSize: 70, color: BG}}>{txt}</span>
     </div>
   );
@@ -126,20 +127,20 @@ const Cta: React.FC<{f: number}> = ({f}) => {
         <Rise f={f} at={T.cta + 10} style={{fontFamily: DISP, fontSize: 150, lineHeight: 1.05, color: RED}}>TE LO COMPRAMOS</Rise>
       </div>
       <div style={{position: 'absolute', top: 760, left: 70, display: 'flex', flexDirection: 'column', gap: 18}}>
-        {row(T.cta + 24, '🤝', 'TRATO DIRECTO CONTIGO')}
-        {row(T.cta + 30, '📄', 'PAPELES Y BAJA EN REGLA')}
-        {row(T.cta + 36, '🚛', 'LO RETIRAMOS CON GRÚA')}
+        {row(T.cta + 24, 'TRATO DIRECTO CONTIGO')}
+        {row(T.cta + 30, 'PAPELES Y BAJA EN REGLA')}
+        {row(T.cta + 36, 'LO RETIRAMOS CON GRÚA')}
       </div>
       {f >= T.cta + 48 && (
         <div style={{position: 'absolute', top: 1160, left: 0, right: 0, textAlign: 'center', transform: `scale(${sp(f, T.cta + 48, 12, 260)})`}}>
-          <div style={{fontFamily: DISP, fontSize: 56, color: BG, marginBottom: 14}}>ESCRÍBENOS CON FOTOS DEL AUTO 👇</div>
+          <div style={{fontFamily: DISP, fontSize: 56, color: BG, marginBottom: 14}}>ESCRÍBENOS CON FOTOS DEL AUTO</div>
           <Img src={S('marca/pastilla-whatsapp.png')} style={{width: 820}} />
         </div>
       )}
       {f >= T.cta + 58 && (
         <div style={{position: 'absolute', top: 1430, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 16, transform: `translateY(${interpolate(f - (T.cta + 58), [0, 6], [80, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(f - (T.cta + 58), [0, 4], [0, 1], cl)}}>
-          <span style={{background: BG, color: '#fff', fontFamily: DISP, fontSize: 46, padding: '6px 20px 10px'}}>🔧 REPUESTOS MULTIMARCA</span>
-          <span style={{background: RED, color: '#fff', fontFamily: DISP, fontSize: 46, padding: '6px 20px 10px'}}>🚛 GRÚAS 24/7</span>
+          <span style={{background: BG, color: '#fff', fontFamily: DISP, fontSize: 46, padding: '6px 20px 10px'}}>REPUESTOS MULTIMARCA</span>
+          <span style={{background: RED, color: '#fff', fontFamily: DISP, fontSize: 46, padding: '6px 20px 10px'}}>GRÚAS 24/7</span>
         </div>
       )}
     </AbsoluteFill>
@@ -192,7 +193,7 @@ export const SX4Compra: React.FC<{intro?: boolean}> = ({intro = true}) => {
         {/* cold open: el chascarro */}
         <Shot src="swift/sx4b_foco.mp4" from={0} dur={T.msg} start={0.8} z={[1.35, 1.12]} dim={0.15} />
         {f < T.rew && big(4, 'ASÍ TERMINÓ LA COMPRA', 700, 100)}
-        {f < T.rew && big(10, 'DE ESTE AUTO… 🤦‍♂️', 820, 100, RED2)}
+        {f < T.rew && big(10, 'DE ESTE AUTO…', 820, 100, RED2)}
         <Rewind f={f} />
         <Messenger f={f} />
         <Shot src="swift/sx4b_patentes.mp4" from={T.ver} dur={T.trato - T.ver} start={1.7} z={[1.25, 1.1]} inT="whipL" dim={0.15} />
@@ -227,18 +228,18 @@ export const SX4Compra: React.FC<{intro?: boolean}> = ({intro = true}) => {
         <Step f={f} at={T.msg + 4} until={T.ver} n={1} txt="NOS OFRECIÓ SU SX4 POR MESSENGER" />
         <Step f={f} at={T.ver + 4} until={T.trato} n={2} txt="FUIMOS A VERLO" />
         <Step f={f} at={T.trato + 2} until={T.papeles} n={3} txt="TRATO CERRADO" />
-        <Stamp f={f} at={T.trato + 4} until={T.pago} txt="🤝 TRATO HECHO" />
-        <Stamp f={f} at={T.pago + 4} until={T.papeles} txt="PAGADO ✅" />
-        <Step f={f} at={T.papeles + 4} until={T.patentes} n={4} txt="PAPELES FIRMADOS ✍️" />
+        <Stamp f={f} at={T.trato + 4} until={T.pago} txt="TRATO HECHO" />
+        <Stamp f={f} at={T.pago + 4} until={T.papeles} txt="PAGADO" />
+        <Step f={f} at={T.papeles + 4} until={T.patentes} n={4} txt="PAPELES FIRMADOS" />
         <Step f={f} at={T.patentes + 4} until={T.grua} n={5} txt="PATENTES DEVUELTAS" sub="PARA LA BAJA EN EL REGISTRO CIVIL" />
-        <Step f={f} at={T.grua + 4} until={T.arriba} n={6} txt="ARRIBA DE LA GRÚA 🚛" />
+        <Step f={f} at={T.grua + 4} until={T.arriba} n={6} txt="ARRIBA DE LA GRÚA" />
         <Stamp f={f} at={T.arriba + 6} until={T.oops} txt="LISTO PA'L DESARME" top={1180} />
         {f >= T.oops && f < T.cta && (
           <>
             {big(T.oops + 6, '…Y DE PASO', 300, 96)}
             {big(T.oops + 16, 'ME PITIÉ UN FOCO', 420, 120, RED2)}
             {big(T.oops + 24, 'DE MI PROPIA GRÚA', 550, 96)}
-            {f >= T.oops + 40 && <div style={{position: 'absolute', top: 1180, left: 0, right: 0, textAlign: 'center', fontSize: 190, transform: `scale(${sp(f, T.oops + 40, 8, 300)}) rotate(${Math.sin((f - T.oops) * 0.4) * 6}deg)`}}>🤦‍♂️😂</div>}
+            <Stamp f={f} at={T.oops + 40} until={T.cta} txt="¡CHASCARRO!" top={1200} />
             <Brackets f={f} at={T.oops + 4} until={T.oops + 40} x={160} y={980} w={760} h={340} />
           </>
         )}
