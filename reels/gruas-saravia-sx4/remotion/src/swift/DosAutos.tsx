@@ -7,7 +7,7 @@ import {Brackets, GRADE, LightLeaks} from './Fx';
 import {SX4Compra, SX4_T, SX4_TOTAL} from './SX4Compra';
 
 /* "Compré 2 vehículos en 2 horas — tratos hechos": Jeep Grand Cherokee + Suzuki
-   SX4. Los tratos se cerraron el mismo martes con ~2 h de diferencia (Messenger
+   SX4 2015. Los tratos se cerraron el mismo martes con ~2 h de diferencia (Messenger
    del SX4 14:13, Jeep en la grúa 16:19); el SX4 se retiró al día siguiente.
    Gancho en pantalla dividida con cronómetro → Jeep → historia completa del SX4
    (reutiliza SX4Compra sin su cold open) → CTA y cierre → loop al gancho. */
@@ -73,7 +73,7 @@ const Hook: React.FC<{f: number}> = ({f}) => {
       <div style={{position: 'absolute', left: 0, right: 0, top: 952, height: 16, background: RED, boxShadow: `0 0 24px ${RED}`}} />
       {/* nombres de cada vehículo */}
       {f >= 10 && <div style={{position: 'absolute', top: 200, left: 40, transform: `translateX(${interpolate(f, [10, 17], [-700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>🚙 JEEP GRAND CHEROKEE</Chip></div>}
-      {f >= 14 && <div style={{position: 'absolute', top: 1660, right: 40, transform: `translateX(${interpolate(f, [14, 21], [700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>🚗 SUZUKI SX4 2007</Chip></div>}
+      {f >= 14 && <div style={{position: 'absolute', top: 1660, right: 40, transform: `translateX(${interpolate(f, [14, 21], [700, 0], {...cl, easing: OUT})}px)`}}><Chip size={60}>🚗 SUZUKI SX4 2015</Chip></div>}
       {/* titular sobre la costura */}
       {f >= 4 && (
         <div style={{position: 'absolute', top: 690, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 4, [0, 3, 8], [1.7, 0.95, 1], cl)})`}}>

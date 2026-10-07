@@ -5,7 +5,7 @@ import {Chip, Rise, Shot} from './CuatroAutos';
 import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {LogoSting, STING_LEN} from './LogoSting';
 
-/* "Compramos un SX4 2007 para desarme" — captación de vendedores de autos.
+/* "Compramos un SX4 2015 para desarme" (la publicación de Marketplace del vendedor dice 2007; no se resalta el año) — captación de vendedores de autos.
    Arco: cold open con el chascarro (foco de la grúa roto) → rebobinado →
    Messenger → lo vimos → trato → pagado → papeles → patentes devueltas (baja
    en Registro Civil) → arriba de la grúa → remate del chascarro → CTA "te lo
@@ -81,7 +81,7 @@ const Messenger: React.FC<{f: number}> = ({f}) => {
       <AbsoluteFill style={{transform: `translateY(${enter * 1400}px) translate(${540 - px}px, ${1000 - py}px) scale(${z})`, transformOrigin: `${px}px ${py}px`}}>
         <div style={{position: 'absolute', left: L, top: TOP, width: 600, height: 1300, borderRadius: 50, overflow: 'hidden', border: '12px solid #161616', boxShadow: '0 50px 100px rgba(0,0,0,0.85)', background: '#fff'}}>
           <Img src={S('swift/sx4b_messenger.png')} style={{width: 600, display: 'block'}} />
-          {hl(14, 150, 375, 760, 436)}
+          {hl(14, 150, 335, 660, 374)}
           {hl(66, 360, 1020, 1010, 1088)}
         </div>
       </AbsoluteFill>
