@@ -41,7 +41,7 @@ const PLAN: Seg[] = [
   ['A', X3(SX4_T.arriba), X3(SX4_T.oops), 50, [[12, 2]]], // "El SX4 arriba de la grúa. Impeque."
   ['A', X3(SX4_T.grua), X3(SX4_T.grua) + 70, 74, [[13, 2]]], // "Pero al subirlo, quedó chueca la rueda…"
   ['A', X3(SX4_T.oops), X3(SX4_T.oops) + 50, 68, [[14, 2]]], // "…y por andar grabando el video, me piteé un foco"
-  ['A', X3(SX4_T.oops) + 50, X3(SX4_T.oops) + 80, 30, []],  // "¡CAGADA DEL DÍA!" respira (sin la frase de los 2 minutos)
+  ['A', X3(SX4_T.oops) + 50, X3(SX4_T.cta), 62, [[15, 3]]],  // "Dos minutos me duró el orgullo" (solo voz, sin rótulo)
   ['C', 0, CTA_LEN, CTA_LEN, [[16, 2], [17, 103], [18, 217], [19, 358]]],
   ['A', X3(SX4_T.end), LOOP, 96, [[20, 4]]],         // "Desarmaduría Saravia"
   ['A', LOOP, LOOP + 10, 10, []],
