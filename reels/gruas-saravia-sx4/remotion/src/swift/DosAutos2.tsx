@@ -4,7 +4,8 @@ import {cl} from '../v2/look';
 import {Chip} from './CuatroAutos';
 import {Brackets, GRADE, LightLeaks, PremiumBg} from './Fx';
 import {IOSNotif, RayBurst, ServiceCard, StripeWipe} from './Promo';
-import {SX4Compra, SX4_T, SX4_TOTAL} from './SX4Compra';
+import {SX4Compra, SX4_SFX, SX4_T, SX4_TOTAL} from './SX4Compra';
+import {STING_SFX} from './LogoSting';
 
 /* "2 autos comprados en 2 horas" — v2, contado como carrera contra el reloj con
    las horas REALES de las grabaciones:
@@ -44,7 +45,7 @@ const X3 = (inner: number) => CH3 + (inner - SX4_T.ver);   // frame del SX4 (par
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
 const M1433 = 14 * 60 + 33;
 const M1413 = 14 * 60 + 13, M1619 = 16 * 60 + 19, M1503 = 15 * 60 + 3, M1515 = 15 * 60 + 15;
-type Hook = 'mensaje' | 'foco';
+export type Hook = 'mensaje' | 'foco';
 // [día, minutos, etiqueta de velocidad]
 const clockAt = (f: number, hook: Hook): [string, number, string | null] | null => {
   if (hook === 'foco') {
@@ -297,7 +298,17 @@ const SFX: Sfx[] = [
 // notificaciones (inicio, duración): mientras están en pantalla se ocultan logo y reloj
 const NOTIFS = (hook: Hook): [number, number][] => [...(hook === 'mensaje' ? [[0, 20] as [number, number]] : []), [CH2 + 50, 44], [X3(SX4_T.papeles) + 6, 72]];
 
-export const DosAutos2: React.FC<{hook?: Hook}> = ({hook = 'mensaje'}) => {
+/* todos los SFX en frames de este video (los propios + los del SX4 de la parte 2 + el cierre),
+   para quien re-mapea el tiempo y monta el audio por fuera (DosAutosVoz) */
+export const DOS2_MARKS = {HOOK, CH1, WA, CH2, PAY, CH3, LOOP, X3};
+export const dosSfx = (hook: Hook): Sfx[] => [
+  ...HOOK_SFX[hook], ...SFX,
+  ...SX4_SFX.filter(([at]) => at >= SX4_T.ver - 2 && at < SX4_END - 2).map(([at, n, v, d]) => [X3(at), n, v, d] as Sfx),
+  ...STING_SFX.map(([at, n, v, d]) => [X3(SX4_T.end) + at, n, v, d] as Sfx),
+  ...[47, 51, 55].map((at) => [X3(SX4_T.end) + at, 'sfx_pop', 0.5, 8] as Sfx),
+];
+
+export const DosAutos2: React.FC<{hook?: Hook; mute?: boolean}> = ({hook = 'mensaje', mute}) => {
   const f = useCurrentFrame();
   const notifOn = (x: number) => NOTIFS(hook).some(([a, d]) => x >= a - 2 && x < a + d);
   const flash = [[0, 0.5], [hook === 'foco' ? 20 : 14, 0.6], [48, 0.5], [CH2, 0.35], [PAY + 30, 0.4], [CH3, 0.35]].reduce((m, [at, a]) => (f === at ? Math.max(m, a) : f === at + 1 ? Math.max(m, a * 0.4) : m), 0);
@@ -305,10 +316,10 @@ export const DosAutos2: React.FC<{hook?: Hook}> = ({hook = 'mensaje'}) => {
     <AbsoluteFill style={{background: '#0A0A0A'}}>
       {f < HOOK && <Sequence from={0} durationInFrames={HOOK}><HookLocal hook={hook} /></Sequence>}
       {f >= WA && f < CH2 && <WhatsApp f={f} />}
-      {f >= CH1 && f < WA && <Freeze frame={SX4_T.msg + ((f - CH1) * (SX4_T.ver - SX4_T.msg)) / CH1_LEN}><SX4Compra intro={false} win={[0, 0]} /></Freeze>}
+      {f >= CH1 && f < WA && <Freeze frame={SX4_T.msg + ((f - CH1) * (SX4_T.ver - SX4_T.msg)) / CH1_LEN}><SX4Compra intro={false} win={[0, 0]} mute /></Freeze>}
       {f >= CH2 && f < PAY && <Jeep f={f} />}
       {f >= PAY && f < CH3 && <Payoff f={f} />}
-      {f >= CH3 && f < LOOP && <Sequence from={CH3 - SX4_T.ver}><SX4Compra intro={false} win={[SX4_T.ver, SX4_END]} logoOff={(i) => notifOn(i + CH3 - SX4_T.ver)} /></Sequence>}
+      {f >= CH3 && f < LOOP && <Sequence from={CH3 - SX4_T.ver}><SX4Compra intro={false} win={[SX4_T.ver, SX4_END]} mute={mute} logoOff={(i) => notifOn(i + CH3 - SX4_T.ver)} /></Sequence>}
       {f >= LOOP && <Sequence from={LOOP}><HookLocal hook={hook} /></Sequence>}
       {!notifOn(f) && ((f < CH1 && (hook === 'foco' ? f < 48 : f >= 48)) || (f >= WA && f < CH3)) && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 320, top: 46, width: 440, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.7))'}} />}
       {!notifOn(f) && <CamClock f={f} hook={hook} />}
@@ -324,7 +335,7 @@ export const DosAutos2: React.FC<{hook?: Hook}> = ({hook = 'mensaje'}) => {
       <StripeWipe f={f} at={X3(SX4_T.cta)} />
       <LightLeaks f={f} at={[48, CH1, PAY]} />
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
-      {[...HOOK_SFX[hook], ...SFX].map(([at, n, v, d], i) => (
+      {!mute && [...HOOK_SFX[hook], ...SFX].map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
       ))}
     </AbsoluteFill>

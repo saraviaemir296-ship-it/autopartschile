@@ -164,7 +164,7 @@ const Grain: React.FC<{f: number}> = ({f}) => (
 );
 
 type Sfx = [number, string, number, number?];
-const SFX: Sfx[] = [
+export const SX4_SFX: Sfx[] = [
   [0, 'sfx_whip', 0.7], [0, 'sfx_sub', 0.6, 20], [16, 'sfx_slap', 0.7], [T.rew, 'sfx_scratch', 0.8],
   [T.msg, 'sfx_whoosh', 0.6], [T.msg + 6, 'sfx_notif', 0.8], [T.msg + 14, 'sfx_click', 0.5], [T.msg + 34, 'sfx_whoosh', 0.4], [T.msg + 44, 'sfx_shutter', 0.6], [T.msg + 62, 'sfx_whoosh', 0.4], [T.msg + 66, 'sfx_click', 0.6], [T.msg + 70, 'sfx_pop', 0.5],
   [T.ver - 2, 'sfx_whip', 0.6], [T.ver + 4, 'sfx_click', 0.5],
@@ -180,7 +180,7 @@ const SFX: Sfx[] = [
 ];
 
 // logoOff: frames (internos) en que se oculta el logo, p. ej. mientras baja una notificación
-export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]; logoOff?: (f: number) => boolean}> = ({intro = true, win, logoOff}) => {
+export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]; logoOff?: (f: number) => boolean; mute?: boolean}> = ({intro = true, win, logoOff, mute}) => {
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) { const k = f - at; if (k >= 0 && k < 10) { const d = a * (1 - k / 10); sx += Math.sin(k * 2.9) * d; sy += Math.cos(k * 3.7) * d; } }
@@ -245,13 +245,13 @@ export const SX4Compra: React.FC<{intro?: boolean; win?: [number, number]; logoO
           </>
         )}
         <Cta f={f} />
-        <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting /></Sequence>
+        <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting mute={mute} /></Sequence>
         <TopLogo f={f} off={logoOff} />
         <LightLeaks f={f} at={[T.msg, T.trato, T.papeles, T.grua, T.arriba, T.cta - 30]} />
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
       <Grain f={f} />
-      {SFX.filter(([at]) => (intro || (at >= T.msg - 2 && at < LOOP - 2)) && (!win || (at >= win[0] - 2 && at < win[1] - 2))).map(([at, n, v, d], i) => (
+      {!mute && SX4_SFX.filter(([at]) => (intro || (at >= T.msg - 2 && at < LOOP - 2)) && (!win || (at >= win[0] - 2 && at < win[1] - 2))).map(([at, n, v, d], i) => (
         <Sequence key={i} from={at} durationInFrames={d ?? 90}><Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v)} /></Sequence>
       ))}
     </AbsoluteFill>

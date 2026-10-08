@@ -25,6 +25,7 @@ import {SX4Compra, SX4_TOTAL} from './swift/SX4Compra';
 import {DosAutos, DOS_TOTAL} from './swift/DosAutos';
 import {DosAutos2, DOS2_TOTAL} from './swift/DosAutos2';
 import {Portada} from './swift/Portada';
+import {DosAutosVoz, DOS_VOZ_TOTAL} from './swift/DosAutosVoz';
 import {SuzukiConfianza, SUZUKI_CONF_TOTAL} from './swift/SuzukiConfianza';
 
 export const Root: React.FC = () => (
@@ -32,6 +33,7 @@ export const Root: React.FC = () => (
     <Composition id="SuzukiConfianza" component={SuzukiConfianza} durationInFrames={SUZUKI_CONF_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Still id="PortadaA" component={Portada} defaultProps={{v: "A" as const}} width={W} height={H} />
     <Still id="PortadaB" component={Portada} defaultProps={{v: "B" as const}} width={W} height={H} />
+    <Composition id="DosAutosVoz" component={DosAutosVoz} durationInFrames={DOS_VOZ_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="DosAutos2A" component={DosAutos2} defaultProps={{hook: "mensaje" as const}} durationInFrames={DOS2_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="DosAutos2B" component={DosAutos2} defaultProps={{hook: "foco" as const}} durationInFrames={DOS2_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="DosAutos" component={DosAutos} durationInFrames={DOS_TOTAL} fps={FPS} width={W} height={H} />
