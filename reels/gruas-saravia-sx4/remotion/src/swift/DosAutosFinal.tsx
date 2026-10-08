@@ -5,6 +5,7 @@ import {Chip, Rise} from './CuatroAutos';
 import {DOS2_MARKS, DosAutos2, dosSfx} from './DosAutos2';
 import {CheckIcon} from './Promo';
 import {SX4Compra, SX4_SFX, SX4_T} from './SX4Compra';
+import {TRAILER_LEN, TRAILER_SFX, Trailer} from './Trailer';
 
 /* "2 autos en 2 horas" — versión final con el guion escrito por el dueño y su
    voz (2ª grabación, DeepFilterNet). El corte sigue a la voz: cada frase toma
@@ -20,13 +21,12 @@ const {CH2, PAY, CH3, LOOP, X3} = DOS2_MARKS;
 const WA = DOS2_MARKS.WA;
 const VO_LEN = [117, 42, 208, 72, 88, 83, 84, 104, 54, 106, 122, 75, 47, 70, 64, 49, 98, 109, 141, 82, 52];
 
-type Src = 'A' | 'B' | 'S' | 'C';
+type Src = 'A' | 'B' | 'S' | 'C' | 'T';
 // [fuente, frame interno inicio, fin, largo en este video, [frase, desfase]]
 type Seg = [Src, number, number, number, [number, number][]];
 const CTA_LEN = 444;
 const PLAN: Seg[] = [
-  ['A', 14, 48, 40, [[0, 3]]],                       // "Mi gente: en dos horas compré dos autos pa' la desarmaduría…"
-  ['A', 48, 84, 82, []],
+  ['T', 0, TRAILER_LEN, TRAILER_LEN, [[0, 2]]],      // resumen · "Mi gente: en dos horas compré dos autos pa' la desarmaduría…"
   ['B', 18, 48, 46, [[1, 2]]],                       // "…y de pasada me mandé una cagada"
   ['B', 48, 84, 40, [[2, 2]]],                       // rebobinado → "Martes, dos de la tarde…"
   ['S', SX4_T.msg, SX4_T.ver, 248, [[3, 172]]],      // Messenger · "Le pedimos la patente y lo revisamos"
@@ -120,6 +120,7 @@ type Sfx = [number, string, number, number?];
 const SFX_A = dosSfx('mensaje'), SFX_B = dosSfx('foco');
 const CTA_OWN: Sfx[] = [[0, 'sfx_whip', 0.6], [2, 'sfx_impact', 0.5, 16]];
 const ALL_SFX: Sfx[] = PLAN.flatMap(([src, a, b, L], i) => {
+  if (src === 'T') return TRAILER_SFX.map(([at, n, vol, d]) => [STARTS[i] + at, n, vol, d] as Sfx);
   if (src === 'C') {
     const s0 = STARTS[i], v = (k: number) => voStart(k) - s0;
     const own: Sfx[] = [...CTA_OWN, [v(17) + 2, 'sfx_click', 0.6], [v(17) + 36, 'sfx_click', 0.6], [v(17) + 70, 'sfx_click', 0.6], [v(18) + 40, 'sfx_kaching_real', 0.8], [v(18) + 41, 'sfx_coins', 0.5], [v(19), 'sfx_notif', 0.7]];
@@ -140,6 +141,7 @@ export const DosAutosFinal: React.FC = () => {
       {src === 'B' && <Freeze frame={inner}><DosAutos2 hook="foco" mute /></Freeze>}
       {src === 'S' && <Freeze frame={inner}><SX4Compra intro={false} win={[0, 0]} mute /></Freeze>}
       {src === 'C' && <CtaDato t={f - STARTS[i]} />}
+      {src === 'T' && <Trailer t={f - STARTS[i]} />}
       <DosMinutos f={f} />
       {ALL_SFX.map(([at, n, v, d], k) => (
         <Sequence key={k} from={at} durationInFrames={d ?? 90}>
