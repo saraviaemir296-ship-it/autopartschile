@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Freeze, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
-import {Chip, Rise} from './CuatroAutos';
+import {Rise} from './CuatroAutos';
 import {DOS2_MARKS, DosAutos2, dosSfx} from './DosAutos2';
 import {CheckIcon} from './Promo';
 import {SX4Compra, SX4_SFX, SX4_T} from './SX4Compra';
@@ -41,7 +41,7 @@ const PLAN: Seg[] = [
   ['A', X3(SX4_T.arriba), X3(SX4_T.oops), 50, [[12, 2]]], // "El SX4 arriba de la grúa. Impeque."
   ['A', X3(SX4_T.grua), X3(SX4_T.grua) + 70, 74, [[13, 2]]], // "Pero al subirlo, quedó chueca la rueda…"
   ['A', X3(SX4_T.oops), X3(SX4_T.oops) + 50, 68, [[14, 2]]], // "…y por andar grabando el video, me piteé un foco"
-  ['A', X3(SX4_T.oops) + 50, X3(SX4_T.cta), 62, [[15, 3]]],  // "Dos minutos me duró el orgullo"
+  ['A', X3(SX4_T.oops) + 50, X3(SX4_T.oops) + 80, 30, []],  // "¡CAGADA DEL DÍA!" respira (sin la frase de los 2 minutos)
   ['C', 0, CTA_LEN, CTA_LEN, [[16, 2], [17, 103], [18, 217], [19, 358]]],
   ['A', X3(SX4_T.end), LOOP, 96, [[20, 4]]],         // "Desarmaduría Saravia"
   ['A', LOOP, LOOP + 10, 10, []],
@@ -99,23 +99,6 @@ const CtaDato: React.FC<{t: number}> = ({t}) => {
     </AbsoluteFill>
   );
 };
-/* remate con las horas reales */
-const DosMinutos: React.FC<{f: number}> = ({f}) => {
-  const st = voStart(15);
-  const end = STARTS[PLAN.findIndex(([s]) => s === 'C')];
-  if (f < st || f >= end) return null;
-  const k = (d: number) => interpolate(f - st - d, [0, 4, 9], [1.4, 0.96, 1], cl);
-  return (
-    <>
-      <div style={{position: 'absolute', top: 1400, left: 40, right: 40, textAlign: 'center', fontFamily: DISP, fontSize: 92, lineHeight: 1.05, color: '#fff', WebkitTextStroke: '3px #000', textShadow: '0 6px 0 #000, 0 0 26px rgba(0,0,0,0.85)'}}>
-        {f >= st + 1 && <span style={{display: 'inline-block', transform: `scale(${k(1)})`, color: '#FF2A2A'}}>2 MINUTOS</span>}{' '}
-        {f >= st + 16 && <span style={{display: 'inline-block', transform: `scale(${k(16)})`}}>ME DURÓ EL ORGULLO</span>}
-      </div>
-      {f >= st + 20 && <div style={{position: 'absolute', top: 1620, left: 0, right: 0, textAlign: 'center', opacity: interpolate(f - st - 20, [0, 5], [0, 1], cl)}}><Chip red size={46}>15:13 ARRIBA · 15:15 FOCO ROTO</Chip></div>}
-    </>
-  );
-};
-
 type Sfx = [number, string, number, number?];
 const SFX_A = dosSfx('mensaje'), SFX_B = dosSfx('foco');
 const CTA_OWN: Sfx[] = [[0, 'sfx_whip', 0.6], [2, 'sfx_impact', 0.5, 16]];
@@ -142,7 +125,6 @@ export const DosAutosFinal: React.FC = () => {
       {src === 'S' && <Freeze frame={inner}><SX4Compra intro={false} win={[0, 0]} mute /></Freeze>}
       {src === 'C' && <CtaDato t={f - STARTS[i]} />}
       {src === 'T' && <Trailer t={f - STARTS[i]} />}
-      <DosMinutos f={f} />
       {ALL_SFX.map(([at, n, v, d], k) => (
         <Sequence key={k} from={at} durationInFrames={d ?? 90}>
           <Audio src={S(`audio/${n}.wav`)} volume={(x) => (d ? v * interpolate(x, [d - 4, d], [1, 0], cl) : v) * (voOn(at + x) ? 0.35 : 1)} />
