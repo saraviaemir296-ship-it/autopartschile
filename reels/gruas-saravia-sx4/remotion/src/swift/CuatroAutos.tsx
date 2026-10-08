@@ -110,6 +110,9 @@ export const Rise: React.FC<{f: number; at: number; style?: React.CSSProperties;
   );
 };
 
+/* variante "atención": sin precios ni montos (ver UnDiaVoz atencion) */
+export const NoPrice = React.createContext(false);
+
 /* etiqueta de precio de marca: caja roja inclinada (como en la web y los
    afiches) con letra Anton blanca; entra con barrido, aterriza con golpe y la
    cruza un brillo */
@@ -127,8 +130,18 @@ const Tag: React.FC<{txt: string; size: number; wipe: number; k: number}> = ({tx
 };
 
 /* precio con conteo por pasos dentro de la etiqueta roja */
-const Price: React.FC<{f: number; at: number; seq: number[]; step?: number; size?: number; top: number}> = ({f, at, seq, step = 3, size = 150, top}) => {
+const Price: React.FC<{f: number; at: number; seq: number[]; step?: number; size?: number; top: number; alt?: string}> = ({f, at, seq, step = 3, size = 150, top, alt}) => {
+  const noPrice = React.useContext(NoPrice);
   if (f < at) return null;
+  if (noPrice) {
+    if (!alt) return null;
+    const k = f - at;
+    return (
+      <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(k, [0, 3, 9], [1.4, 0.95, 1], cl)})`}}>
+        <Tag txt={alt} size={72} wipe={interpolate(k, [0, 6], [0, 1], {...cl, easing: OUT})} k={k} />
+      </div>
+    );
+  }
   const land = at + (seq.length - 1) * step;
   const v = seq[Math.min(seq.length - 1, Math.floor((f - at) / step))];
   const k = f - land;
@@ -309,7 +322,7 @@ const SwiftText: React.FC<{f: number}> = ({f}) => {
       <Title f={f} at={T.swift + 4} small="MOTOR SUZUKI" big="SWIFT" />
       {f >= T.swift + 12 && <div style={{position: 'absolute', top: 470, left: 70, letterSpacing: interpolate(f - T.swift - 12, [0, 12], [30, 4], {...cl, easing: OUT})}}><Chip red size={60}>1.2 K12</Chip></div>}
       <Steps f={f} top={1060} until={T.swift + 52} items={[[T.swift + 18, 'COTIZÓ EN LA WEB'], [T.swift + 28, 'VINO A VERLO'], [T.swift + 38, 'SE LO LLEVÓ']]} />
-      <Price f={f} at={214} seq={[0, 300000, 600000, 900000]} top={1130} />
+      <Price f={f} at={214} seq={[0, 300000, 600000, 900000]} top={1130} alt="LO VIO EN LA WEB, VINO Y LISTO" />
     </>
   );
 };
@@ -324,7 +337,7 @@ const MasterText: React.FC<{f: number}> = ({f}) => {
       <div style={{position: 'absolute', top: 480, left: 70, transform: `translateY(${interpolate(f - ta, [0, 5], [30, 0], {...cl, easing: OUT})}px)`, opacity: interpolate(f - ta, [0, 4], [0, 1], cl)}}>
         <Chip red size={52}>{tag}</Chip>
       </div>
-      <Price f={f} at={330} seq={[0, 260000, 520000]} step={2} top={1130} />
+      <Price f={f} at={330} seq={[0, 260000, 520000]} step={2} top={1130} alt="LO SACAMOS Y SE LO CARGAMOS" />
     </>
   );
 };
@@ -402,7 +415,7 @@ const VitaraText: React.FC<{f: number}> = ({f}) => {
               </div>
             ))}
           </div>
-          <Price f={f} at={484} seq={[0, 300000, 600000, 900000]} top={1150} />
+          <Price f={f} at={484} seq={[0, 300000, 600000, 900000]} top={1150} alt="TODO CONFIRMADO POR WHATSAPP" />
           {f >= 506 && (
             <div style={{position: 'absolute', top: 1380, left: 110, right: 110, opacity: interpolate(f, [506, 510], [0, 1], cl)}}>
               <svg width={860} height={110}>
@@ -424,6 +437,7 @@ const VitaraText: React.FC<{f: number}> = ({f}) => {
 
 /* burbuja real del cliente del airbag, flotando sobre el producto */
 const AirbagText: React.FC<{f: number}> = ({f}) => {
+  const noPrice = React.useContext(NoPrice);
   if (f < T.airbag || f >= T.black) return null;
   const p = sp(f, T.airbag + 2, 11, 280);
   const sx4 = f >= 614;
@@ -438,7 +452,9 @@ const AirbagText: React.FC<{f: number}> = ({f}) => {
       )}
       {f >= 624 && (
         <div style={{position: 'absolute', top: 1130, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 624, [0, 3, 8], [2.1, 0.94, 1], cl)})`}}>
-          <Tag txt={clp(384990)} size={150} wipe={interpolate(f - 624, [0, 3], [0.2, 1], cl)} k={f - 624} />
+          {noPrice
+            ? <Tag txt="LA PIEZA EXACTA PARA SU VERSIÓN" size={64} wipe={interpolate(f - 624, [0, 3], [0.2, 1], cl)} k={f - 624} />
+            : <Tag txt={clp(384990)} size={150} wipe={interpolate(f - 624, [0, 3], [0.2, 1], cl)} k={f - 624} />}
         </div>
       )}
     </>
@@ -553,6 +569,7 @@ const WEB_SEGS: [number, number, number, number, string][] = [ // desde, largo, 
   [44, 18, 0.4, 2, 'TE BUSCAS EN GOOGLE'], [62, 20, 2.3, 1.5, 'ENTRAS AL SITIO'], [82, 26, 4.6, 2, 'BUSCAS TU REPUESTO'], [108, 42, -1, 1, 'PRECIO Y STOCK AL TIRO'],
 ];
 const WebScene: React.FC<{f: number}> = ({f}) => {
+  const noPrice = React.useContext(NoPrice);
   if (f < T.web || f >= T.end) return null;
   const t = f - T.web;
   const PX = 721, PY = 971; // centro del celular dentro del mockup
@@ -607,7 +624,7 @@ const WebScene: React.FC<{f: number}> = ({f}) => {
           </Sequence>
         ))}
       </div>
-      <PriceOrbit f={f} at={T.web + 112} until={T.end} cx={625} cy={881} rx={330} ry={95} text=" $149.990 • DISPONIBLE • AIRBAG SWIFT •" size={56} />
+      <PriceOrbit f={f} at={T.web + 112} until={T.end} cx={625} cy={881} rx={330} ry={95} text={noPrice ? ' DISPONIBLE • AIRBAG SWIFT • STOCK AL DÍA •' : ' $149.990 • DISPONIBLE • AIRBAG SWIFT •'} size={56} />
       {t >= 60 && (
         <div style={{position: 'absolute', top: 1520, left: 0, right: 0, textAlign: 'center', transform: `scale(${spring({frame: t - 60, fps: 30, config: {damping: 12, stiffness: 260, mass: 0.5}})})`}}>
           <Img src={S('marca/pastilla-url.png')} style={{width: 780}} />
@@ -628,6 +645,7 @@ const TopLogo: React.FC<{f: number}> = ({f}) => {
 
 /* barra "VENTAS DE HOY": se llena con cada venta (1/4 → 4/4) */
 const SalesBar: React.FC<{f: number}> = ({f}) => {
+  const noPrice = React.useContext(NoPrice);
   if (f < T.swift || f >= T.black) return null;
   const done = STAMPS.filter(([at]) => f >= at).length;
   const last = [...STAMPS].reverse().find(([at]) => f >= at);
@@ -635,7 +653,7 @@ const SalesBar: React.FC<{f: number}> = ({f}) => {
   return (
     <div style={{position: 'absolute', top: 182, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: interpolate(f, [T.swift, T.swift + 6], [0, 1], cl)}}>
       <div style={{display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(10,10,10,0.78)', border: '2px solid rgba(255,255,255,0.18)', borderRadius: 30, padding: '6px 18px', transform: `scale(${pop})`}}>
-        <span style={{fontFamily: DISP, fontSize: 30, color: '#fff', letterSpacing: 2}}>VENTAS DE HOY</span>
+        <span style={{fontFamily: DISP, fontSize: 30, color: '#fff', letterSpacing: 2}}>{noPrice ? 'CLIENTES DE HOY' : 'VENTAS DE HOY'}</span>
         {[0, 1, 2, 3].map((i) => {
           const fill = i < done ? 1 : 0;
           const just = last && i === done - 1 ? interpolate(f - last[0], [0, 6], [0, 1], cl) : 1;
@@ -710,6 +728,7 @@ const Sold: React.FC<{f: number}> = ({f}) => (
 
 /* reveal: negro + silencio → 4 AUTOS → 4 CLIENTES → cifra que crece */
 const Reveal: React.FC<{f: number}> = ({f}) => {
+  const noPrice = React.useContext(NoPrice);
   if (f < T.black || f >= T.desp) return null;
   const land = 697;
   const shrink = interpolate(f, [land, land + 9], [0, 1], {...cl, easing: OUT});
@@ -735,7 +754,7 @@ const Reveal: React.FC<{f: number}> = ({f}) => {
       {word(665, 'CLIENTES', 830)}
       {f >= 679 && (
         <div style={{position: 'absolute', top: interpolate(shrink, [0, 1], [1100, 880]), left: 0, right: 0, textAlign: 'center', transform: `scale(${ps})`}}>
-          <Tag txt={clp(v)} size={136} wipe={interpolate(f, [679, 686], [0, 1], {...cl, easing: OUT})} k={f - land} />
+          <Tag txt={noPrice ? 'ATENDIDOS EN 1 DÍA' : clp(v)} size={noPrice ? 104 : 136} wipe={interpolate(f, [679, 686], [0, 1], {...cl, easing: OUT})} k={f - land} />
         </div>
       )}
       {f >= 712 && (
@@ -746,7 +765,7 @@ const Reveal: React.FC<{f: number}> = ({f}) => {
           })}
         </div>
       )}
-      {f >= 722 && <div style={{position: 'absolute', top: 1440, left: 0, right: 0, textAlign: 'center'}}><Rise f={f} at={722} style={{fontFamily: DISP, fontSize: 60, color: 'rgba(255,255,255,0.85)', letterSpacing: 3}}>EN REPUESTOS VENDIDOS</Rise></div>}
+      {f >= 722 && <div style={{position: 'absolute', top: 1440, left: 0, right: 0, textAlign: 'center'}}><Rise f={f} at={722} style={{fontFamily: DISP, fontSize: 60, color: 'rgba(255,255,255,0.85)', letterSpacing: 3}}>{noPrice ? 'CADA UNO CON LO QUE BUSCABA' : 'EN REPUESTOS VENDIDOS'}</Rise></div>}
     </AbsoluteFill>
   );
 };
@@ -845,6 +864,7 @@ export const SFX: Sfx[] = [
 
 export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}> = ({vo, dia, mute}) => {
   const voLines = dia ? VO_DIA : null;
+  const noPrice = React.useContext(NoPrice);
   const f = useCurrentFrame();
   let sx = 0, sy = 0;
   for (const [at, a] of HITS) {
@@ -895,9 +915,9 @@ export const CuatroAutos: React.FC<{vo?: string; dia?: boolean; mute?: boolean}>
         <Sequence from={T.end} durationInFrames={STING_LEN}><LogoSting mute={mute} /></Sequence>
         <Shot src="swift/mv_carga.mp4" from={T.loop} dur={10} start={1.17} z={[1.55, 1.34]} inT="whipL" />
         <LightLeaks f={f} at={[T.ctx, T.swift, T.master, T.vitara, T.vitPieces, T.vitPrice, T.airbag, 697, T.desp, T.desp + 24]} />
-        <PriceOrbit f={f} at={206} until={T.master - 4} cx={540} cy={900} rx={390} ry={105} text=" $900.000 • MOTOR SWIFT • VENDIDO •" />
-        <PriceOrbit f={f} at={324} until={T.vitara - 4} cx={540} cy={975} rx={370} ry={100} text=" $520.000 • MOTOR MASTERVAN • VENDIDO •" />
-        <PriceOrbit f={f} at={566} until={612} cx={540} cy={960} rx={400} ry={108} text=" $384.990 • KIT AIRBAG SWIFT • VENDIDO •" />
+        <PriceOrbit f={f} at={206} until={T.master - 4} cx={540} cy={900} rx={390} ry={105} text={noPrice ? ' MOTOR SWIFT • ENTREGADO • CLIENTE 1 •' : ' $900.000 • MOTOR SWIFT • VENDIDO •'} />
+        <PriceOrbit f={f} at={324} until={T.vitara - 4} cx={540} cy={975} rx={370} ry={100} text={noPrice ? ' MOTOR MASTERVAN • CARGADO • CLIENTE 2 •' : ' $520.000 • MOTOR MASTERVAN • VENDIDO •'} />
+        <PriceOrbit f={f} at={566} until={612} cx={540} cy={960} rx={400} ry={108} text={noPrice ? ' KIT AIRBAG SWIFT • ENTREGADO • CLIENTE 4 •' : ' $384.990 • KIT AIRBAG SWIFT • VENDIDO •'} />
         <Brackets f={f} at={322} until={T.vitara} x={240} y={760} w={600} h={420} />
         <Brackets f={f} at={564} until={598} x={190} y={640} w={700} h={640} />
         <Brackets f={f} at={616} until={T.black} x={70} y={390} w={940} h={590} />

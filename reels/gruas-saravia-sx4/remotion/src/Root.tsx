@@ -20,7 +20,7 @@ import {SemanaDesarme, SEMANA_TOTAL, Carrusel} from './swift/SemanaDesarme';
 import {VendimosTodo, VENDIMOS_TOTAL} from './swift/VendimosTodo';
 import {StoryVentas, STORY_TOTAL} from './swift/StoryVentas';
 import {CuatroAutos, CUATRO_TOTAL, UnDiaClientes} from './swift/CuatroAutos';
-import {UnDiaVoz, UNDIA_VOZ_TOTAL} from './swift/UnDiaVoz';
+import {UnDiaVoz, UNDIA_ATENCION_TOTAL, UNDIA_VOZ_TOTAL} from './swift/UnDiaVoz';
 import {SX4Compra, SX4_TOTAL} from './swift/SX4Compra';
 import {DosAutos, DOS_TOTAL} from './swift/DosAutos';
 import {DosAutos2, DOS2_TOTAL} from './swift/DosAutos2';
@@ -41,6 +41,7 @@ export const Root: React.FC = () => (
     <Composition id="DosAutos" component={DosAutos} durationInFrames={DOS_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="SX4Compra" component={SX4Compra} durationInFrames={SX4_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="UnDiaVoz" component={UnDiaVoz} durationInFrames={UNDIA_VOZ_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="UnDiaAtencion" component={UnDiaVoz} defaultProps={{atencion: true}} durationInFrames={UNDIA_ATENCION_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="UnDiaClientes" component={UnDiaClientes} durationInFrames={CUATRO_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="CuatroAutos" component={CuatroAutos} durationInFrames={CUATRO_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
     <Composition id="StoryVentas" component={StoryVentas} durationInFrames={STORY_TOTAL} fps={FPS} width={W} height={H} defaultProps={{vo: undefined as string | undefined}} />
