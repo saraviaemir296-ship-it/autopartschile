@@ -27,14 +27,30 @@ def ficha(foto, anios, lineas, salida, foco=0.5):
     # foto: recorte "cover" en la zona central, con un toque de contraste y color
     im = ImageOps.exif_transpose(Image.open(P(foto))).convert('RGB')
     zw, zh = W, FOTO_Y1 - FOTO_Y0
-    s = max(zw / im.width, zh / im.height)
-    im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
-    x0 = (im.width - zw) // 2
-    y0 = round((im.height - zh) * foco)
-    im = im.crop((x0, y0, x0 + zw, y0 + zh))
-    im = ImageEnhance.Contrast(im).enhance(1.06)
-    im = ImageEnhance.Color(im).enhance(1.08)
-    lienzo.paste(im, (0, FOTO_Y0))
+    if im.width > im.height:
+        # foto horizontal: fondo desenfocado + foto completa a lo ancho, bajo el título
+        from PIL import ImageFilter
+        s = max(zw / im.width, zh / im.height)
+        bg = im.resize((round(im.width * s), round(im.height * s)))
+        bx = (bg.width - zw) // 2
+        bg = bg.crop((bx, 0, bx + zw, zh)).filter(ImageFilter.GaussianBlur(28))
+        bg = ImageEnhance.Brightness(bg).enhance(0.55)
+        lienzo.paste(bg, (0, FOTO_Y0))
+        fw = W
+        fh = round(im.height * fw / im.width)
+        im = im.resize((fw, fh), Image.LANCZOS)
+        im = ImageEnhance.Color(ImageEnhance.Contrast(im).enhance(1.06)).enhance(1.08)
+        lienzo.paste(im, (0, min(FOTO_Y1 - fh, 878)))
+        im = None
+    if im is not None:
+        s = max(zw / im.width, zh / im.height)
+        im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
+        x0 = (im.width - zw) // 2
+        y0 = round((im.height - zh) * foco)
+        im = im.crop((x0, y0, x0 + zw, y0 + zh))
+        im = ImageEnhance.Contrast(im).enhance(1.06)
+        im = ImageEnhance.Color(im).enhance(1.08)
+        lienzo.paste(im, (0, FOTO_Y0))
     lienzo.paste(Image.open(P('plantilla', 'encabezado.png')).convert('RGB'), (0, 0))
     lienzo.paste(Image.open(P('plantilla', 'pie.png')).convert('RGB'), (0, FOTO_Y1))
     d = ImageDraw.Draw(lienzo)
