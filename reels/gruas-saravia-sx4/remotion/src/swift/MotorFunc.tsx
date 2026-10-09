@@ -22,7 +22,7 @@ const Band: React.FC<{f: number; anios: string; lineas: string[]}> = ({f, anios,
       </div>
       <div style={{position: 'absolute', left: 386, top: 0}}>
         {lineas.map((l, i) => (
-          <div key={i} style={{display: 'table', background: '#000', padding: '4px 26px 8px', fontFamily: DISP, fontSize: 58, lineHeight: 1.1, color: '#fff', whiteSpace: 'nowrap'}}>{l}</div>
+          <div key={i} style={{display: 'table', background: '#000', padding: '4px 26px 8px', fontFamily: DISP, fontSize: 52, lineHeight: 1.1, color: '#fff', whiteSpace: 'nowrap'}}>{l}</div>
         ))}
       </div>
     </div>
@@ -43,8 +43,13 @@ export const MotorFunc: React.FC = () => {
       {!end && (
         <>
           <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 330, top: 50, width: 420, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />
-          <Band f={f} anios="2006-2015" lineas={['MOTOR SUZUKI 1.6 M16A', 'SIN VVT · CULATA BUENA', 'CON VIELAZO ABAJO']} />
-          {/* indicador "en funcionamiento" */}
+          <Band f={f} anios="2006-2015" lineas={['MOTOR SUZUKI 1.6 M16A', 'SIN VVT · VIELAZO EN BLOCK', 'CULATA RESCATABLE', '+ MUCHOS REPUESTOS MÁS']} />
+          {f >= 200 && (
+            <div style={{position: 'absolute', top: 1420, left: 0, right: 0, textAlign: 'center', transform: `scale(${spring({frame: f - 200, fps: 30, config: {damping: 12, stiffness: 240, mass: 0.5}})})`}}>
+              <span style={{display: 'inline-block', background: RED, padding: '8px 28px 12px', fontFamily: DISP, fontSize: 56, color: '#fff', boxShadow: '0 12px 30px rgba(0,0,0,0.5)'}}>CULATA Y REPUESTOS DEL MISMO MOTOR</span>
+            </div>
+          )}
+          {/* indicador de audio real */}
           <div style={{position: 'absolute', top: 1530, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(10,10,10,0.8)', borderRadius: 40, padding: '14px 30px', border: '2px solid rgba(255,255,255,0.2)'}}>
               <span style={{width: 26, height: 26, borderRadius: 13, background: RED, opacity: Math.floor(f / 12) % 2 ? 1 : 0.3, boxShadow: `0 0 16px ${RED}`}} />
@@ -56,9 +61,9 @@ export const MotorFunc: React.FC = () => {
       {end && (
         <AbsoluteFill style={{background: `rgba(8,8,8,${interpolate(f, [MOTOR_CLIP - 6, MOTOR_CLIP + 4], [0, 0.7], cl)})`, backdropFilter: `blur(${interpolate(f, [MOTOR_CLIP - 6, MOTOR_CLIP + 4], [0, 16], cl)}px)`}}>
           <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 190, top: 420, width: 700, transform: `scale(${spring({frame: f - MOTOR_CLIP, fps: 30, config: {damping: 14, stiffness: 180, mass: 0.6}})})`}} />
-          <div style={{position: 'absolute', top: 820, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 86, color: '#fff', opacity: interpolate(f, [MOTOR_CLIP + 6, MOTOR_CLIP + 12], [0, 1], cl)}}>PREGUNTA POR ESTE MOTOR</div>
-          <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 170, top: 960, width: 740, transform: `scale(${spring({frame: f - MOTOR_CLIP - 12, fps: 30, config: {damping: 13, stiffness: 220, mass: 0.6}})})`}} />
-          <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 150, top: 1080, width: 780, transform: `scale(${spring({frame: f - MOTOR_CLIP - 18, fps: 30, config: {damping: 13, stiffness: 220, mass: 0.6}})})`}} />
+          <div style={{position: 'absolute', top: 780, left: 0, right: 0, textAlign: 'center', fontFamily: DISP, fontSize: 80, lineHeight: 1.05, color: '#fff', opacity: interpolate(f, [MOTOR_CLIP + 6, MOTOR_CLIP + 12], [0, 1], cl)}}>PREGUNTA POR ESTE MOTOR<br /><span style={{fontSize: 56}}>Y SUS REPUESTOS</span></div>
+          <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 170, top: 990, width: 740, transform: `scale(${spring({frame: f - MOTOR_CLIP - 12, fps: 30, config: {damping: 13, stiffness: 220, mass: 0.6}})})`}} />
+          <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 150, top: 1110, width: 780, transform: `scale(${spring({frame: f - MOTOR_CLIP - 18, fps: 30, config: {damping: 13, stiffness: 220, mass: 0.6}})})`}} />
         </AbsoluteFill>
       )}
     </AbsoluteFill>
