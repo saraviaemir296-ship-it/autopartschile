@@ -43,7 +43,7 @@ export const MotorFunc: React.FC = () => {
       {!end && (
         <>
           <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 330, top: 50, width: 420, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />
-          <Band f={f} anios="2006-2015" lineas={['MOTOR SUZUKI 1.6 M16A VVT', 'SX4 CROSSOVER 4x4 AUTOMÁTICO']} />
+          <Band f={f} anios="2006-2015" lineas={['MOTOR SUZUKI 1.6 M16A VVT', 'SX4 4x4 AUTOMÁTICO']} />
           {/* indicador "en funcionamiento" */}
           <div style={{position: 'absolute', top: 1530, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(10,10,10,0.8)', borderRadius: 40, padding: '14px 30px', border: '2px solid rgba(255,255,255,0.2)'}}>
