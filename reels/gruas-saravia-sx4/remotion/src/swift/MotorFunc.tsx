@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cl} from '../v2/look';
 
-/* Video de venta de un motor funcionando: clip real con su audio (motor + voz
+/* Video de venta de un motor (audio real): clip real con su audio (motor + voz
    del dueño), franja igual a las fichas de desarme y cierre con contacto. */
 
 const S = (f: string) => staticFile(f);
@@ -43,12 +43,12 @@ export const MotorFunc: React.FC = () => {
       {!end && (
         <>
           <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 330, top: 50, width: 420, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />
-          <Band f={f} anios="2006-2015" lineas={['MOTOR SUZUKI 1.6 M16A VVT', 'SX4 4x4 AUTOMÁTICO']} />
+          <Band f={f} anios="2006-2015" lineas={['MOTOR SUZUKI 1.6 M16A', 'SIN VVT · CULATA BUENA', 'CON VIELAZO ABAJO']} />
           {/* indicador "en funcionamiento" */}
           <div style={{position: 'absolute', top: 1530, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(10,10,10,0.8)', borderRadius: 40, padding: '14px 30px', border: '2px solid rgba(255,255,255,0.2)'}}>
               <span style={{width: 26, height: 26, borderRadius: 13, background: RED, opacity: Math.floor(f / 12) % 2 ? 1 : 0.3, boxShadow: `0 0 16px ${RED}`}} />
-              <span style={{fontFamily: TXT, fontWeight: 900, fontSize: 38, color: '#fff', letterSpacing: 2, whiteSpace: 'nowrap'}}>MOTOR FUNCIONANDO · AUDIO REAL</span>
+              <span style={{fontFamily: TXT, fontWeight: 900, fontSize: 38, color: '#fff', letterSpacing: 2, whiteSpace: 'nowrap'}}>AUDIO REAL DEL MOTOR</span>
             </div>
           </div>
         </>
