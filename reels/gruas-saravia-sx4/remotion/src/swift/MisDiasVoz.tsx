@@ -141,22 +141,74 @@ const MONEY: [number, number][] = [[101, 1080], [227, 1080], [356, 1120]];
 const MONEY_OUT = MONEY.map(([x, y]) => [toOuter(x), y] as [number, number]);
 const COMPRADO_OUT = toOuter(634);
 
-/* lluvia de billetes y monedas (vectorial) que salta desde el precio */
-const Bill: React.FC<{i: number; t: number; y0: number}> = ({i, t, y0}) => {
-  const coin = i % 4 === 3;
-  const a = -Math.PI / 2 + (random(`ba${y0}${i}`) - 0.5) * Math.PI * 1.25;
-  const v = 26 + random(`bv${y0}${i}`) * 22;
-  const x = 540 + Math.cos(a) * v * t;
-  const y = y0 + Math.sin(a) * v * t + 1.15 * t * t;
-  const rot = (random(`br${y0}${i}`) - 0.5) * 30 * t;
-  const flip = Math.cos(t * (0.3 + random(`bf${y0}${i}`) * 0.4));
-  const o = interpolate(t, [0, 3, 30, 40], [0, 1, 1, 0], cl);
-  if (coin) {
-    return <div style={{position: 'absolute', left: x - 30, top: y - 30, width: 60, height: 60, borderRadius: 30, background: 'radial-gradient(circle at 35% 35%, #FFE680 0%, #E8B10E 60%, #A87800 100%)', border: '4px solid #C99400', transform: `scaleX(${flip})`, opacity: o, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Anton', sans-serif", fontSize: 34, color: '#8A6100'}}>$</div>;
-  }
+/* billete realista (vectorial): papel verde con guilloché, marco, roseta,
+   retrato en óvalo y cifras; el dorso es más claro para que se note el giro */
+const BillArt: React.FC<{w: number; back?: boolean}> = ({w, back}) => {
+  const h = w * 0.45;
   return (
-    <div style={{position: 'absolute', left: x - 75, top: y - 36, width: 150, height: 72, borderRadius: 8, background: 'linear-gradient(135deg, #3FA34D 0%, #2E7D32 100%)', border: '4px solid #1B5E20', transform: `rotate(${rot}deg) scaleY(${flip})`, opacity: o, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 14px rgba(0,0,0,0.35)'}}>
-      <div style={{width: 46, height: 46, borderRadius: 23, border: '3px solid #C8E6C9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Anton', sans-serif", fontSize: 32, color: '#E8F5E9'}}>$</div>
+    <svg width={w} height={h} viewBox="0 0 200 90" style={{display: 'block', filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.35))'}}>
+      <defs>
+        <linearGradient id="bp" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={back ? '#DCEBD6' : '#D3E6CB'} /><stop offset="0.5" stopColor={back ? '#C4DABB' : '#B5D1A8'} /><stop offset="1" stopColor={back ? '#D7E8CF' : '#C9DFBE'} />
+        </linearGradient>
+        <radialGradient id="bo" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stopColor="#E9F3E4" /><stop offset="1" stopColor="#9FC193" /></radialGradient>
+      </defs>
+      <rect x="0" y="0" width="200" height="90" rx="3" fill="url(#bp)" />
+      <rect x="4" y="4" width="192" height="82" rx="2" fill="none" stroke="#3E6B48" strokeWidth="2.2" />
+      <rect x="8" y="8" width="184" height="74" rx="2" fill="none" stroke="#5E8C66" strokeWidth="0.8" strokeDasharray="2 1.5" />
+      {Array.from({length: 9}).map((_, i) => (
+        <path key={i} d={`M8 ${18 + i * 7} C 50 ${10 + i * 7}, 70 ${28 + i * 7}, 100 ${18 + i * 7} S 160 ${10 + i * 7}, 192 ${18 + i * 7}`} fill="none" stroke="#7FA676" strokeWidth="0.5" opacity="0.7" />
+      ))}
+      {back ? (
+        <>
+          <ellipse cx="100" cy="45" rx="40" ry="26" fill="none" stroke="#3E6B48" strokeWidth="2" />
+          <text x="100" y="56" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="700" fontSize="30" fill="#3E6B48">$</text>
+        </>
+      ) : (
+        <>
+          <ellipse cx="100" cy="45" rx="26" ry="31" fill="url(#bo)" stroke="#3E6B48" strokeWidth="2" />
+          <ellipse cx="100" cy="36" rx="7.5" ry="9" fill="#5B8A62" />
+          <path d="M100 27 Q91 27 92.5 36 Q94 31 100 31 Q106 31 107.5 36 Q109 27 100 27 Z" fill="#3E6B48" />
+          <path d="M83 72 Q84 52 100 49 Q116 52 117 72 Z" fill="#5B8A62" />
+          <path d="M96 49 L100 58 L104 49" fill="none" stroke="#E9F3E4" strokeWidth="1.4" />
+          <circle cx="40" cy="45" r="15" fill="none" stroke="#3E6B48" strokeWidth="1.6" />
+          {Array.from({length: 8}).map((_, i) => <ellipse key={i} cx="40" cy="45" rx="15" ry="5" fill="none" stroke="#5E8C66" strokeWidth="0.6" transform={`rotate(${i * 22.5} 40 45)`} />)}
+          <text x="160" y="52" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="700" fontSize="22" fill="#2F5637">$</text>
+        </>
+      )}
+      <text x="16" y="22" fontFamily="Georgia, serif" fontWeight="700" fontSize="13" fill="#2F5637">$</text>
+      <text x="184" y="80" textAnchor="end" fontFamily="Georgia, serif" fontWeight="700" fontSize="13" fill="#2F5637">$</text>
+    </svg>
+  );
+};
+
+/* lluvia de billetes con giro 3D: unos saltan desde el precio y otros caen
+   desde arriba por toda la pantalla; los del fondo más chicos y desenfocados */
+const Bill: React.FC<{i: number; t: number; y0: number; burst: boolean}> = ({i, t, y0, burst}) => {
+  const r = (k: string) => random(`${k}${y0}${i}${burst ? 'b' : 'r'}`);
+  const depth = 0.45 + r('d') * 0.9;                 // 0.45 (lejos) … 1.35 (cerca)
+  let x: number, y: number;
+  if (burst) {
+    const a = -Math.PI / 2 + (r('a') - 0.5) * Math.PI * 1.3;
+    const v = (22 + r('v') * 20) * depth;
+    x = 540 + Math.cos(a) * v * t + Math.sin(t * 0.25 + r('s') * 6) * 30;
+    y = y0 + Math.sin(a) * v * t + 0.9 * t * t;
+  } else {
+    const delay = r('t') * 14;
+    const tt = t - delay;
+    if (tt < 0) return null;
+    x = r('x') * 1080 + Math.sin(tt * (0.12 + r('w') * 0.1) + r('p') * 6) * 90 * depth;
+    y = -160 + tt * (26 + r('f') * 18) * depth;
+  }
+  const rx = Math.sin(t * (0.22 + r('rx') * 0.25) + r('o1') * 6) * 70;
+  const ry = Math.cos(t * (0.18 + r('ry') * 0.2) + r('o2') * 6) * 60;
+  const rz = (r('rz') - 0.5) * 80 + t * (r('sp') - 0.5) * 9;
+  const back = Math.cos((rx * Math.PI) / 180) * Math.cos((ry * Math.PI) / 180) < 0;
+  const o = interpolate(t, [0, 3, 34, 46], [0, 1, 1, 0], cl);
+  const w = 230 * depth;
+  return (
+    <div style={{position: 'absolute', left: x - w / 2, top: y - w * 0.225, width: w, opacity: o, filter: depth < 0.7 ? `blur(${(0.7 - depth) * 6}px)` : undefined, transform: `perspective(900px) rotateZ(${rz}deg) rotateX(${rx}deg) rotateY(${ry}deg)`, zIndex: Math.round(depth * 10)}}>
+      <BillArt w={w} back={back} />
     </div>
   );
 };
@@ -164,8 +216,11 @@ const MoneyRain: React.FC<{f: number}> = ({f}) => (
   <AbsoluteFill style={{pointerEvents: 'none'}}>
     {[...MONEY_OUT, [COMPRADO_OUT, 1080] as [number, number]].map(([at, y0]) => {
       const t = f - at;
-      if (t < 0 || t > 40) return null;
-      return Array.from({length: 16}).map((_, i) => <Bill key={`${at}-${i}`} i={i} t={t} y0={y0} />);
+      if (t < 0 || t > 48) return null;
+      return [
+        ...Array.from({length: 12}).map((_, i) => <Bill key={`b${at}-${i}`} i={i} t={t} y0={y0} burst />),
+        ...Array.from({length: 22}).map((_, i) => <Bill key={`r${at}-${i}`} i={i} t={t} y0={y0} burst={false} />),
+      ];
     })}
   </AbsoluteFill>
 );
