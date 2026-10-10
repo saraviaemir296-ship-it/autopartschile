@@ -16,7 +16,7 @@ const S = (f: string) => staticFile(f);
 const RED = '#D10B0C';
 const TXT = "'Montserrat', sans-serif";
 const DISP = "'Anton', sans-serif";
-export const MISDIAS_TOTAL = 775;
+export const MISDIAS_TOTAL = 890;
 
 const pop = (f: number, at: number, d = 12) => spring({frame: f - at, fps: 30, config: {damping: d, stiffness: 240, mass: 0.5}});
 
@@ -27,9 +27,9 @@ const CLIPS: Clip[] = [
   ['img:swift/sem_ramal.jpg', 75, 75, 0, '50% 55%'],
   ['swift/sem_mostrador_anon.mp4', 150, 50, 0, '50% 50%'],
   ['img:swift/sem_piolas.jpg', 200, 90, 0, '45% 60%'],
-  ['swift/sem_auto_anon.mp4', 290, 67, 0, '50% 50%'],
-  ['swift/sem_transfer.mp4', 357, 148, 0, '50% 50%'],
-  ['img:swift/sem_ciaz.jpg', 505, 90, 0, '40% 48%'],
+  ['swift/sem_auto_anon.mp4', 405, 67, 0, '50% 50%'],
+  ['swift/sem_transfer.mp4', 472, 148, 0, '50% 50%'],
+  ['img:swift/sem_ciaz.jpg', 620, 90, 0, '40% 48%'],
 ];
 
 /* rótulo estilo TikTok: caja blanca o negra, esquinas redondeadas, entra con resorte */
@@ -104,9 +104,9 @@ const Stamp: React.FC<{f: number; at: number; until: number; top: number; txt: s
 };
 
 /* contador de ventas (arriba a la derecha) */
-const SALES = [165, 275];
+const SALES = [165, 275, 385];
 const Counter: React.FC<{f: number}> = ({f}) => {
-  if (f < 160 || f >= 595) return null;
+  if (f < 160 || f >= 710) return null;
   const n = SALES.filter((s) => f >= s).length;
   const last = [...SALES].reverse().find((s) => f >= s);
   const b = last !== undefined && f - last < 10 ? interpolate(f - last, [0, 3, 10], [1.45, 0.95, 1], cl) : 1;
@@ -138,23 +138,23 @@ export const MisDias: React.FC = () => {
         );
       })}
       {/* Ciaz blanco (desarme) + gris (comprado) */}
-      {f >= 595 && f < 685 && (
+      {f >= 710 && f < 800 && (
         <AbsoluteFill style={{background: '#000'}}>
           {[['swift/sem_ciaz_blanco.jpg', 0, -1, '50% 60%'], ['swift/sem_ciaz.jpg', 960, 1, '35% 50%']].map(([src, y, dir, org], i) => (
-            <div key={i} style={{position: 'absolute', left: 0, top: y as number, width: 1080, height: 960, overflow: 'hidden', transform: `translateX(${(1 - pop(f, 597 + i * 4)) * 1080 * (dir as number)}px)`}}>
-              <Img src={S(src as string)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: org as string, filter: GRADE, transform: `scale(${interpolate(f, [470, 560], [1.05, 1.14], cl)})`}} />
+            <div key={i} style={{position: 'absolute', left: 0, top: y as number, width: 1080, height: 960, overflow: 'hidden', transform: `translateX(${(1 - pop(f, 712 + i * 4)) * 1080 * (dir as number)}px)`}}>
+              <Img src={S(src as string)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: org as string, filter: GRADE, transform: `scale(${interpolate(f, [585, 675], [1.05, 1.14], cl)})`}} />
             </div>
           ))}
           <div style={{position: 'absolute', left: 0, right: 0, top: 952, height: 16, background: RED}} />
         </AbsoluteFill>
       )}
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 62%, rgba(0,0,0,0.5) 100%)'}} />
-      {f < 685 && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 370, top: 50, width: 340, opacity: 0.95, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />}
+      {f < 800 && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 370, top: 50, width: 340, opacity: 0.95, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />}
       <Counter f={f} />
 
       {/* gancho */}
       <Words f={f} at={2} until={75} top={330} txt="OTRO DÍA EN MI EMPRESA" size={104} hot={['EMPRESA']} />
-      <Tag f={f} at={30} until={75} top={1560} dark size={52}>2 ventas y compré un auto</Tag>
+      <Tag f={f} at={30} until={75} top={1560} dark size={52}>3 ventas y compré un auto</Tag>
 
       {/* hoy: ramal */}
       <Tag f={f} at={79} until={200} top={300} size={60}>Ramal de Hyundai Verna</Tag>
@@ -168,33 +168,49 @@ export const MisDias: React.FC = () => {
       <Price f={f} at={227} until={290} top={1420} txt="$210.000" />
       <Stamp f={f} at={275} until={290} top={1080} txt="VENDIDO" />
 
+      {/* otro pedido: repuestos de Mastervan, con la página del sitio */}
+      {f >= 290 && f < 405 && (
+        <AbsoluteFill>
+          <Img src={S('swift/c_mvblock.jpg')} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(26px) brightness(0.45)', transform: 'scale(1.2)'}} />
+          <div style={{position: 'absolute', left: 250, top: 300, width: 580, height: 1256, borderRadius: 56, overflow: 'hidden', border: '12px solid #111', boxShadow: '0 40px 90px rgba(0,0,0,0.7)', transform: `translateY(${(1 - pop(f, 290, 14)) * 1300}px) rotate(${interpolate(f, [290, 405], [-2, 1], cl)}deg)`}}>
+            <Sequence from={290} durationInFrames={115}><OffthreadVideo src={S('swift/sem_web_mv.mp4')} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} /></Sequence>
+          </div>
+        </AbsoluteFill>
+      )}
+      {f >= 290 && f < 405 && <Counter f={f} />}
+      <Tag f={f} at={294} until={405} top={170} red size={56}>Salió otro pedido</Tag>
+      <Tag f={f} at={300} until={405} top={268} size={52}>Repuestos de Mastervan</Tag>
+      <Check f={f} at={316} until={405} top={1100} items={['Diferencial trasero', 'Paquete de resortes', 'Capot']} />
+      <Price f={f} at={356} until={405} top={1430} txt="$420.000" />
+      <Stamp f={f} at={385} until={405} top={820} txt="VENDIDO" />
+
       {/* hoy: compra del Ciaz */}
-      <Tag f={f} at={292} until={505} top={300} red size={56}>Y compré un auto</Tag>
-      <Tag f={f} at={296} until={357} top={1560} dark size={52}>me pasaron a buscar</Tag>
-      <Tag f={f} at={359} until={415} top={1480} dark size={50}>lo fui a ver en persona…</Tag>
-      <Tag f={f} at={369} until={415} top={1590} red size={50}>¡al otro lado del mundo!</Tag>
-      <Tag f={f} at={417} until={505} top={1480} dark size={54}>en la notaría</Tag>
-      <Tag f={f} at={425} until={505} top={1590} red size={50}>transferencia ya hecha ✓</Tag>
-      <Words f={f} at={507} until={595} top={320} txt="SUZUKI CIAZ" size={110} />
-      <Stamp f={f} at={519} until={595} top={1380} txt="COMPRADO ✓" />
-      <Tag f={f} at={599} until={685} top={190} red size={46}>en desarme</Tag>
-      <Tag f={f} at={603} until={685} top={280} size={56}>Ciaz blanco</Tag>
-      <Tag f={f} at={607} until={685} top={1700} size={56}>Ciaz gris</Tag>
-      <Tag f={f} at={611} until={685} top={1610} red size={42}>recién comprado</Tag>
-      {f >= 619 && f < 685 && (
-        <div style={{position: 'absolute', top: 890, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 619, [0, 3, 8], [1.8, 0.95, 1], cl)}) rotate(-3deg)`}}>
+      <Tag f={f} at={407} until={620} top={300} red size={56}>Y compré un auto</Tag>
+      <Tag f={f} at={411} until={472} top={1560} dark size={52}>me pasaron a buscar</Tag>
+      <Tag f={f} at={474} until={530} top={1480} dark size={50}>lo fui a ver en persona…</Tag>
+      <Tag f={f} at={484} until={530} top={1590} red size={50}>¡al otro lado del mundo!</Tag>
+      <Tag f={f} at={532} until={620} top={1480} dark size={54}>en la notaría</Tag>
+      <Tag f={f} at={540} until={620} top={1590} red size={50}>transferencia ya hecha ✓</Tag>
+      <Words f={f} at={622} until={710} top={320} txt="SUZUKI CIAZ" size={110} />
+      <Stamp f={f} at={634} until={710} top={1380} txt="COMPRADO ✓" />
+      <Tag f={f} at={714} until={800} top={190} red size={46}>en desarme</Tag>
+      <Tag f={f} at={718} until={800} top={280} size={56}>Ciaz blanco</Tag>
+      <Tag f={f} at={722} until={800} top={1700} size={56}>Ciaz gris</Tag>
+      <Tag f={f} at={726} until={800} top={1610} red size={42}>recién comprado</Tag>
+      {f >= 734 && f < 800 && (
+        <div style={{position: 'absolute', top: 890, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 734, [0, 3, 8], [1.8, 0.95, 1], cl)}) rotate(-3deg)`}}>
           <span style={{display: 'inline-block', background: '#fff', color: '#111', fontFamily: TXT, fontWeight: 900, fontSize: 58, padding: '10px 30px 14px', borderRadius: 18, border: `6px solid ${RED}`}}>con el blanco <span style={{color: RED}}>armo el gris</span></span>
         </div>
       )}
 
       {/* cierre personal */}
-      {f >= 679 && (
-        <AbsoluteFill style={{background: `rgba(8,8,8,${interpolate(f, [554, 564], [0, 0.68], cl)})`, backdropFilter: `blur(${interpolate(f, [554, 564], [0, 16], cl)}px)`}}>
-          <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 190, top: 300, width: 700, transform: `scale(${pop(f, 687)})`}} />
-          <Words f={f} at={693} until={775} top={640} size={76} txt="¿BUSCAS REPUESTOS O TIENES UN AUTO PARADO?" hot={['REPUESTOS', 'PARADO?']} />
-          <Tag f={f} at={709} until={775} top={880} red size={52}>escríbeme</Tag>
-          <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 170, top: 1000, width: 740, transform: `scale(${pop(f, 715)})`}} />
-          <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 150, top: 1120, width: 780, transform: `scale(${pop(f, 721)})`}} />
+      {f >= 794 && (
+        <AbsoluteFill style={{background: `rgba(8,8,8,${interpolate(f, [669, 679], [0, 0.68], cl)})`, backdropFilter: `blur(${interpolate(f, [669, 679], [0, 16], cl)}px)`}}>
+          <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 190, top: 300, width: 700, transform: `scale(${pop(f, 802)})`}} />
+          <Words f={f} at={808} until={890} top={640} size={76} txt="¿BUSCAS REPUESTOS O TIENES UN AUTO PARADO?" hot={['REPUESTOS', 'PARADO?']} />
+          <Tag f={f} at={824} until={890} top={880} red size={52}>escríbeme</Tag>
+          <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 170, top: 1000, width: 740, transform: `scale(${pop(f, 830)})`}} />
+          <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 150, top: 1120, width: 780, transform: `scale(${pop(f, 836)})`}} />
         </AbsoluteFill>
       )}
       {cut && flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
