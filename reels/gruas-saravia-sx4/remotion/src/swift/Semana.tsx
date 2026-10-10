@@ -103,8 +103,8 @@ export const SemanaVentas: React.FC = () => {
       <Chip f={f} at={311} until={372} top={1500} size={60}>NOS PASARON A BUSCAR</Chip>
       <Chip f={f} at={374} until={430} top={1430} size={58}>LO FUIMOS A VER EN PERSONA…</Chip>
       <Chip f={f} at={384} until={430} top={1540} size={58} red>¡AL OTRO LADO DEL MUNDO!</Chip>
-      <Chip f={f} at={432} until={520} top={1430} size={62}>TRATO HECHO</Chip>
-      <Chip f={f} at={440} until={520} top={1540} size={52} red>TRANSFERENCIA EN REGLA</Chip>
+      <Chip f={f} at={432} until={520} top={1430} size={62}>EN LA NOTARÍA</Chip>
+      <Chip f={f} at={440} until={520} top={1540} size={56} red>TRANSFERENCIA YA HECHA ✓</Chip>
       <Chip f={f} at={522} until={610} top={250} size={86}>SUZUKI CIAZ</Chip>
       <Stamp f={f} at={534} until={610} top={1350} txt="COMPRADO ✓" />
       <Chip f={f} at={546} until={610} top={1560} size={54}>YA ARRIBA DE LA GRÚA</Chip>
