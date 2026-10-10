@@ -13,7 +13,7 @@ const RED = '#D10B0C';
 const RED2 = '#FF2A2A';
 const DISP = "'Anton', sans-serif";
 const TXT = "'Montserrat', sans-serif";
-export const SEMANA2_TOTAL = 700;
+export const SEMANA2_TOTAL = 790;
 
 type Clip = [string, number, number, string?];
 const CLIPS: Clip[] = [
@@ -77,7 +77,7 @@ export const SemanaVentas: React.FC = () => {
         );
       })}
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 28%, rgba(0,0,0,0) 62%, rgba(0,0,0,0.55) 100%)'}} />
-      {f < 610 && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 340, top: 50, width: 400, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />}
+      {f < 700 && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 340, top: 50, width: 400, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />}
 
       {/* gancho */}
       <Chip f={f} at={4} until={90} top={250} size={78}>ESTA SEMANA EN LA</Chip>
@@ -109,14 +109,35 @@ export const SemanaVentas: React.FC = () => {
       <Stamp f={f} at={534} until={610} top={1350} txt="COMPRADO ✓" />
       <Chip f={f} at={546} until={610} top={1560} size={54}>YA ARRIBA DE LA GRÚA</Chip>
 
+      {/* el Ciaz blanco en desarme: con sus piezas se arma el gris */}
+      {f >= 610 && f < 700 && (
+        <AbsoluteFill style={{background: '#000'}}>
+          {[['swift/sem_ciaz_blanco.jpg', 0, -1, '50% 60%'], ['swift/sem_ciaz.jpg', 960, 1, '35% 50%']].map(([src, y, dir, org], i) => (
+            <div key={i} style={{position: 'absolute', left: 0, top: y as number, width: 1080, height: 960, overflow: 'hidden', transform: `translateX(${(1 - pop(f, 612 + i * 4)) * 1080 * (dir as number)}px)`}}>
+              <Img src={S(src as string)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: org as string, filter: GRADE, transform: `scale(${interpolate(f, [610, 700], [1.05, 1.14], cl)})`}} />
+            </div>
+          ))}
+          <div style={{position: 'absolute', left: 0, right: 0, top: 952, height: 16, background: RED, boxShadow: `0 0 24px ${RED}`}} />
+        </AbsoluteFill>
+      )}
+      <Chip f={f} at={614} until={700} top={180} size={56} red>EN DESARME</Chip>
+      <Chip f={f} at={618} until={700} top={270} size={64}>CIAZ BLANCO</Chip>
+      <Chip f={f} at={622} until={700} top={1700} size={64}>CIAZ GRIS</Chip>
+      <Chip f={f} at={626} until={700} top={1610} size={46} red>RECIÉN COMPRADO</Chip>
+      {f >= 634 && f < 700 && (
+        <div style={{position: 'absolute', top: 880, left: 0, right: 0, textAlign: 'center', transform: `scale(${interpolate(f - 634, [0, 3, 8], [1.8, 0.95, 1], cl)}) rotate(-3deg)`}}>
+          <span style={{display: 'inline-block', background: '#fff', color: '#0A0A0A', fontFamily: DISP, fontSize: 64, lineHeight: 1.05, padding: '10px 30px 14px', border: `6px solid ${RED}`, boxShadow: '0 18px 40px rgba(0,0,0,0.6)'}}>CON EL BLANCO <span style={{color: RED}}>ARMAMOS EL GRIS</span></span>
+        </div>
+      )}
+
       {/* cierre */}
-      {f >= 604 && (
-        <AbsoluteFill style={{background: `rgba(8,8,8,${interpolate(f, [604, 614], [0, 0.66], cl)})`, backdropFilter: `blur(${interpolate(f, [604, 614], [0, 16], cl)}px)`}}>
-          <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 190, top: 300, width: 700, transform: `scale(${pop(f, 612)})`}} />
-          <div style={{position: 'absolute', top: 650, left: 50, right: 50, textAlign: 'center', fontFamily: DISP, fontSize: 70, lineHeight: 1.1, color: '#fff', opacity: interpolate(f, [618, 624], [0, 1], cl)}}>¿BUSCAS REPUESTOS<br />O TIENES UN <span style={{color: RED2}}>AUTO PARADO?</span></div>
-          <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 170, top: 880, width: 740, transform: `scale(${pop(f, 626)})`}} />
-          <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 150, top: 1000, width: 780, transform: `scale(${pop(f, 632)})`}} />
-          <div style={{position: 'absolute', top: 1170, left: 0, right: 0, textAlign: 'center', fontFamily: TXT, fontWeight: 800, fontSize: 36, color: '#fff', opacity: interpolate(f, [638, 644], [0, 1], cl)}}>AV. LO BLANCO 1072 · LA PINTANA</div>
+      {f >= 694 && (
+        <AbsoluteFill style={{background: `rgba(8,8,8,${interpolate(f, [694, 704], [0, 0.66], cl)})`, backdropFilter: `blur(${interpolate(f, [694, 704], [0, 16], cl)}px)`}}>
+          <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 190, top: 300, width: 700, transform: `scale(${pop(f, 702)})`}} />
+          <div style={{position: 'absolute', top: 650, left: 50, right: 50, textAlign: 'center', fontFamily: DISP, fontSize: 70, lineHeight: 1.1, color: '#fff', opacity: interpolate(f, [708, 714], [0, 1], cl)}}>¿BUSCAS REPUESTOS<br />O TIENES UN <span style={{color: RED2}}>AUTO PARADO?</span></div>
+          <Img src={S('marca/pastilla-whatsapp.png')} style={{position: 'absolute', left: 170, top: 880, width: 740, transform: `scale(${pop(f, 716)})`}} />
+          <Img src={S('marca/pastilla-url.png')} style={{position: 'absolute', left: 150, top: 1000, width: 780, transform: `scale(${pop(f, 722)})`}} />
+          <div style={{position: 'absolute', top: 1170, left: 0, right: 0, textAlign: 'center', fontFamily: TXT, fontWeight: 800, fontSize: 36, color: '#fff', opacity: interpolate(f, [728, 734], [0, 1], cl)}}>AV. LO BLANCO 1072 · LA PINTANA</div>
         </AbsoluteFill>
       )}
       {flash > 0 && <AbsoluteFill style={{background: `rgba(255,255,255,${flash})`}} />}
