@@ -85,7 +85,7 @@ const Section: React.FC<{f: number}> = ({f}) => {
 const LINES = [
   'Buenos días mi gente, otro día más en mi empresa.',
   'Partimos tempranito, vino un cliente de Valdivia, se llevó un ramal completo de Hyundai Verna, 240 lucas al bolsillo.',
-  'Después hicieron un pedido por el sitio web: piolas de cambio, varilla de aceite y lips delanteros del SX4.',
+  'Después hicieron un pedido por el sitio web: piolas de cambio, varilla de aceite y lips delanteros del SX4, se vendió en 210 mil pesos.',
   'Después vino un cliente presencialmente a retirar, pero no grabamos. Nos vio en TikTok y compró por el sitio web diferencial trasero, paquete de resortes y el capot para su Mastervan.',
   'Ya en la tarde pasaron unos cabros a mi local, me dijeron: hermano, tenemos un Ciaz pa’ vender.',
   'Me subí a su auto, fui a verlo al otro lado del mundo, prácticamente.',
