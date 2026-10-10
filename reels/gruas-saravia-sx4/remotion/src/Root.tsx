@@ -25,6 +25,7 @@ import {SX4Compra, SX4_TOTAL} from './swift/SX4Compra';
 import {DosAutos, DOS_TOTAL} from './swift/DosAutos';
 import {DosAutos2, DOS2_TOTAL} from './swift/DosAutos2';
 import {Portada} from './swift/Portada';
+import {MisDias, MISDIAS_TOTAL} from './swift/MisDias';
 import {SemanaVentas, SEMANA2_TOTAL} from './swift/Semana';
 import {MotorFunc, MOTOR_TOTAL} from './swift/MotorFunc';
 import {Organico, ORGANICO_TOTAL} from './swift/Organico';
@@ -38,6 +39,7 @@ export const Root: React.FC = () => (
     <Still id="PortadaA" component={Portada} defaultProps={{v: "A" as const}} width={W} height={H} />
     <Still id="PortadaB" component={Portada} defaultProps={{v: "B" as const}} width={W} height={H} />
     <Composition id="MotorFunc" component={MotorFunc} durationInFrames={MOTOR_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="MisDias" component={MisDias} durationInFrames={MISDIAS_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="SemanaVentas" component={SemanaVentas} durationInFrames={SEMANA2_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Organico" component={Organico} durationInFrames={ORGANICO_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="DosAutosFinal" component={DosAutosFinal} durationInFrames={DOS_FINAL_TOTAL} fps={FPS} width={W} height={H} />
