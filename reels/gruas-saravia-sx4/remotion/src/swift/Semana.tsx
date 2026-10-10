@@ -80,7 +80,7 @@ export const SemanaVentas: React.FC = () => {
       {f < 700 && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 340, top: 50, width: 400, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />}
 
       {/* gancho */}
-      <Chip f={f} at={4} until={90} top={250} size={78}>ESTA SEMANA EN LA</Chip>
+      <Chip f={f} at={4} until={90} top={250} size={84}>HOY EN LA</Chip>
       <Chip f={f} at={10} until={90} top={360} size={92} red>DESARMADURÍA</Chip>
       <Chip f={f} at={24} until={90} top={1500} size={70}>2 VENTAS · 1 COMPRA</Chip>
 
