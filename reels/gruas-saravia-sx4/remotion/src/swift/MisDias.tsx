@@ -158,11 +158,13 @@ export const MisDias: React.FC = () => {
 
       {/* hoy: ramal */}
       <Tag f={f} at={79} until={200} top={300} size={60}>Ramal de Hyundai Verna</Tag>
+      <Tag f={f} at={88} until={200} top={405} dark size={42}>cliente de Valdivia</Tag>
       <Price f={f} at={101} until={200} top={1420} txt="$240.000" />
       <Stamp f={f} at={165} until={200} top={1000} txt="VENDIDO" />
       <Tag f={f} at={167} until={200} top={1650} dark size={44}>atendido en el mostrador</Tag>
 
       {/* hoy: piolas */}
+      <Tag f={f} at={214} until={290} top={505} dark size={40}>me hicieron un pedido</Tag>
       <Tag f={f} at={202} until={290} top={300} size={52}>Piolas + varilla de aceite</Tag>
       <Tag f={f} at={208} until={290} top={400} size={52}>+ lips frontales Suzuki SX4</Tag>
       <Price f={f} at={227} until={290} top={1420} txt="$210.000" />
@@ -177,15 +179,16 @@ export const MisDias: React.FC = () => {
           </div>
         </AbsoluteFill>
       )}
-      <Tag f={f} at={294} until={405} top={170} red size={56}>Salió otro pedido</Tag>
-      <Tag f={f} at={300} until={405} top={268} size={52}>Repuestos de Mastervan</Tag>
+      <Tag f={f} at={294} until={405} top={170} red size={56}>Nos vio en TikTok</Tag>
+      <Tag f={f} at={300} until={405} top={268} size={52}>y compró por la web</Tag>
+      <Tag f={f} at={330} until={405} top={1640} dark size={38}>vino a retirar · este no lo grabamos</Tag>
       <Check f={f} at={316} until={405} top={1100} items={['Diferencial trasero', 'Paquete de resortes', 'Capot']} />
       <Price f={f} at={356} until={405} top={1430} txt="$420.000" />
       <Stamp f={f} at={385} until={405} top={820} txt="VENDIDO" />
 
       {/* hoy: compra del Ciaz */}
       <Tag f={f} at={407} until={620} top={300} red size={56}>Y compré un auto</Tag>
-      <Tag f={f} at={411} until={472} top={1560} dark size={52}>me pasaron a buscar</Tag>
+      <Tag f={f} at={411} until={472} top={1560} dark size={52}>me subí a su auto</Tag>
       <Tag f={f} at={474} until={530} top={1480} dark size={50}>lo fui a ver en persona…</Tag>
       <Tag f={f} at={484} until={530} top={1590} red size={50}>¡al otro lado del mundo!</Tag>
       <Tag f={f} at={532} until={620} top={1480} dark size={54}>en la notaría</Tag>
