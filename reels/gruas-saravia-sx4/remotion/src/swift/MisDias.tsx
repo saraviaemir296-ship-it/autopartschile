@@ -118,7 +118,7 @@ const Counter: React.FC<{f: number}> = ({f}) => {
   );
 };
 
-export const MisDias: React.FC = () => {
+export const MisDias: React.FC<{voz?: boolean}> = ({voz}) => {
   const f = useCurrentFrame();
   const cut = CLIPS.find(([, at]) => f >= at && f < at + 6 && at > 0);
   const flash = CLIPS.some(([, at]) => f === at && at > 0) ? 0.3 : 0;
@@ -150,25 +150,25 @@ export const MisDias: React.FC = () => {
       )}
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 62%, rgba(0,0,0,0.5) 100%)'}} />
       {f < 800 && <Img src={S('marca/anim/logo_blanco.png')} style={{position: 'absolute', left: 370, top: 50, width: 340, opacity: 0.95, filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.6))'}} />}
-      <Counter f={f} />
+      {!voz && <Counter f={f} />}
 
       {/* gancho */}
       <Words f={f} at={2} until={75} top={330} txt="OTRO DÍA EN MI EMPRESA" size={104} hot={['EMPRESA']} />
-      <Tag f={f} at={30} until={75} top={1560} dark size={52}>3 ventas y compré un auto</Tag>
+      {!voz && <Tag f={f} at={30} until={75} top={1560} dark size={52}>3 ventas y compré un auto</Tag>}
 
       {/* hoy: ramal */}
       <Tag f={f} at={79} until={200} top={300} size={60}>Ramal de Hyundai Verna</Tag>
-      <Tag f={f} at={88} until={200} top={405} dark size={42}>cliente de Valdivia</Tag>
-      <Price f={f} at={101} until={200} top={1420} txt="$240.000" />
-      <Stamp f={f} at={165} until={200} top={1000} txt="VENDIDO" />
-      <Tag f={f} at={167} until={200} top={1650} dark size={44}>atendido en el mostrador</Tag>
+      {!voz && <Tag f={f} at={88} until={200} top={405} dark size={42}>cliente de Valdivia</Tag>}
+      <Price f={f} at={101} until={200} top={voz ? 1000 : 1420} txt="$240.000" />
+      <Stamp f={f} at={165} until={200} top={voz ? 700 : 1000} txt="VENDIDO" />
+      {!voz && <Tag f={f} at={167} until={200} top={1650} dark size={44}>atendido en el mostrador</Tag>}
 
       {/* hoy: piolas */}
-      <Tag f={f} at={214} until={290} top={505} dark size={40}>me hicieron un pedido</Tag>
+      {!voz && <Tag f={f} at={214} until={290} top={505} dark size={40}>me hicieron un pedido</Tag>}
       <Tag f={f} at={202} until={290} top={300} size={52}>Piolas + varilla de aceite</Tag>
       <Tag f={f} at={208} until={290} top={400} size={52}>+ lips frontales Suzuki SX4</Tag>
-      <Price f={f} at={227} until={290} top={1420} txt="$210.000" />
-      <Stamp f={f} at={275} until={290} top={1080} txt="VENDIDO" />
+      <Price f={f} at={227} until={290} top={voz ? 1000 : 1420} txt="$210.000" />
+      <Stamp f={f} at={275} until={290} top={voz ? 700 : 1080} txt="VENDIDO" />
 
       {/* otro pedido: repuestos de Mastervan, con la página del sitio */}
       {f >= 290 && f < 405 && (
@@ -179,24 +179,24 @@ export const MisDias: React.FC = () => {
           </div>
         </AbsoluteFill>
       )}
-      <Tag f={f} at={294} until={405} top={170} red size={56}>Nos vio en TikTok</Tag>
-      <Tag f={f} at={300} until={405} top={268} size={52}>y compró por la web</Tag>
-      <Tag f={f} at={330} until={405} top={1640} dark size={38}>vino a retirar · este no lo grabamos</Tag>
-      <Check f={f} at={316} until={405} top={1100} items={['Diferencial trasero', 'Paquete de resortes', 'Capot']} />
-      <Price f={f} at={356} until={405} top={1430} txt="$420.000" />
-      <Stamp f={f} at={385} until={405} top={820} txt="VENDIDO" />
+      <Tag f={f} at={294} until={405} top={voz ? 290 : 170} red size={56}>Nos vio en TikTok</Tag>
+      <Tag f={f} at={300} until={405} top={voz ? 388 : 268} size={52}>y compró por la web</Tag>
+      {!voz && <Tag f={f} at={330} until={405} top={1640} dark size={38}>vino a retirar · este no lo grabamos</Tag>}
+      <Check f={f} at={316} until={405} top={voz ? 760 : 1100} items={['Diferencial trasero', 'Paquete de resortes', 'Capot']} />
+      <Price f={f} at={356} until={405} top={voz ? 1040 : 1430} txt="$420.000" />
+      <Stamp f={f} at={385} until={405} top={voz ? 560 : 820} txt="VENDIDO" />
 
       {/* hoy: compra del Ciaz */}
-      <Tag f={f} at={407} until={620} top={300} red size={56}>Y compré un auto</Tag>
-      <Tag f={f} at={411} until={472} top={1560} dark size={52}>me subí a su auto</Tag>
-      <Tag f={f} at={474} until={530} top={1480} dark size={50}>lo fui a ver en persona…</Tag>
-      <Tag f={f} at={484} until={530} top={1590} red size={50}>¡al otro lado del mundo!</Tag>
-      <Tag f={f} at={532} until={620} top={1480} dark size={54}>en la notaría</Tag>
-      <Tag f={f} at={540} until={620} top={1590} red size={50}>transferencia ya hecha ✓</Tag>
+      {!voz && <Tag f={f} at={407} until={620} top={300} red size={56}>Y compré un auto</Tag>}
+      {!voz && <Tag f={f} at={411} until={472} top={1560} dark size={52}>me subí a su auto</Tag>}
+      {!voz && <Tag f={f} at={474} until={530} top={1480} dark size={50}>lo fui a ver en persona…</Tag>}
+      {!voz && <Tag f={f} at={484} until={530} top={1590} red size={50}>¡al otro lado del mundo!</Tag>}
+      {!voz && <Tag f={f} at={532} until={620} top={1480} dark size={54}>en la notaría</Tag>}
+      {!voz && <Tag f={f} at={540} until={620} top={1590} red size={50}>transferencia ya hecha ✓</Tag>}
       <Words f={f} at={622} until={710} top={320} txt="SUZUKI CIAZ" size={110} />
-      <Stamp f={f} at={634} until={710} top={1380} txt="COMPRADO ✓" />
-      <Tag f={f} at={714} until={800} top={190} red size={46}>en desarme</Tag>
-      <Tag f={f} at={718} until={800} top={280} size={56}>Ciaz blanco</Tag>
+      <Stamp f={f} at={634} until={710} top={voz ? 1000 : 1380} txt="COMPRADO ✓" />
+      <Tag f={f} at={714} until={800} top={voz ? 290 : 190} red size={46}>en desarme</Tag>
+      <Tag f={f} at={718} until={800} top={voz ? 380 : 280} size={56}>Ciaz blanco</Tag>
       <Tag f={f} at={722} until={800} top={1700} size={56}>Ciaz gris</Tag>
       <Tag f={f} at={726} until={800} top={1610} red size={42}>recién comprado</Tag>
       {f >= 734 && f < 800 && (
