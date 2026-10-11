@@ -29,7 +29,11 @@ const PLAN: Seg[] = [
   ['M', 800, 890, 311, [[8, 4], [9, 229]]], // cierre + "Desarmaduría Saravia"
 ];
 const STARTS = PLAN.reduce<number[]>((acc, [, , , L], i) => [...acc, acc[i] + L], [0]);
-export const MISDIAS_VOZ_TOTAL = STARTS[PLAN.length];
+/* gancho inicial: audio "Euclides" sobre un resumen rápido del día */
+const INTRO = 135;
+const SHOT = 27;
+const INTRO_SHOTS = [104, 230, 359, 636, 748]; // frames internos de MisDias
+export const MISDIAS_VOZ_TOTAL = INTRO + STARTS[PLAN.length];
 const VO = PLAN.flatMap(([, , , , vo], i) => vo.map(([k, off]) => [STARTS[i] + off, VO_LEN[k], k] as [number, number, number]));
 
 const pop = (f: number, at: number) => spring({frame: f - at, fps: 30, config: {damping: 12, stiffness: 240, mass: 0.5}});
@@ -254,7 +258,41 @@ const SFX: Sfx[] = [
 ];
 const voOn = (fr: number) => VO.some(([a, d]) => fr >= a && fr < a + d);
 
-export const MisDiasVoz: React.FC = () => {
+const Intro: React.FC = () => {
+  const f = useCurrentFrame();
+  const n = Math.min(INTRO_SHOTS.length - 1, Math.floor(f / SHOT));
+  const t = f - n * SHOT;
+  const z = interpolate(t, [0, 3, SHOT], [1.18, 1.06, 1.1], cl);
+  const flash = interpolate(t, [0, 3], [0.55, 0], cl);
+  const k1 = pop(f, 4), k2 = pop(f, 12);
+  return (
+    <AbsoluteFill style={{background: '#000'}}>
+      <AbsoluteFill style={{transform: `scale(${z})`}}>
+        <Freeze frame={INTRO_SHOTS[n] + t}><MisDias voz /></Freeze>
+      </AbsoluteFill>
+      <AbsoluteFill style={{background: '#fff', opacity: n > 0 ? flash : 0}} />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 32%)'}} />
+      <div style={{position: 'absolute', top: 150, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+        <div style={{width: 900, textAlign: 'center', background: RED, color: '#fff', fontFamily: "'Anton', sans-serif", fontSize: 96, letterSpacing: 2, padding: '6px 0 14px', borderRadius: '16px 16px 0 0', border: '5px solid #fff', borderBottom: 'none', transform: `scale(${k1})`}}>3 VENTAS Y 1 AUTO</div>
+        <div style={{width: 900, textAlign: 'center', background: '#0A0A0A', color: '#fff', fontFamily: "'Anton', sans-serif", fontSize: 80, letterSpacing: 3, padding: '4px 0 12px', borderRadius: '0 0 16px 16px', border: '5px solid #fff', borderTop: 'none', boxShadow: '0 16px 36px rgba(0,0,0,0.5)', transform: `scale(${k2})`}}>EN UN SOLO DÍA</div>
+      </div>
+      {INTRO_SHOTS.slice(1).map((_, k) => (
+        <Sequence key={k} from={(k + 1) * SHOT - 2} durationInFrames={20}><Audio src={S('audio/sfx_whip.wav')} volume={0.28} /></Sequence>
+      ))}
+      <Sequence from={0} durationInFrames={22}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.5} /></Sequence>
+      <Audio src={S('audio/vo/euclides.wav')} volume={1.1} />
+    </AbsoluteFill>
+  );
+};
+
+export const MisDiasVoz: React.FC = () => (
+  <AbsoluteFill style={{background: '#000'}}>
+    <Sequence durationInFrames={INTRO}><Intro /></Sequence>
+    <Sequence from={INTRO}><Main /></Sequence>
+  </AbsoluteFill>
+);
+
+const Main: React.FC = () => {
   const f = useCurrentFrame();
   const i = Math.max(0, STARTS.findIndex((s, k) => f >= s && f < STARTS[k + 1]));
   const [src, a, b, L] = PLAN[i];
