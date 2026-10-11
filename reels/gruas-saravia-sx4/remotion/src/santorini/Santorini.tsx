@@ -1,6 +1,9 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Img, Sequence, interpolate, random, spring, staticFile, useCurrentFrame} from 'remotion';
 import {loadFont} from '@remotion/fonts';
+import {geoGraticule10, geoInterpolate, geoOrthographic, geoPath} from 'd3-geo';
+import {feature} from 'topojson-client';
+import countries from 'world-atlas/countries-110m.json';
 
 /* Santorini Ventas — anuncio de lujo con fotos reales del inventario
    (grilla de @santorini.ventas, escaladas x4). Negro + dorado como su logo.
@@ -22,6 +25,7 @@ const gold: React.CSSProperties = {backgroundImage: GOLD, WebkitBackgroundClip: 
 /* ---- tiempos */
 const HOOK = 100;
 const ITEM = 38;
+const HOOK_SLAM = 54;
 const ITEMS: [number, string, string][] = [
   [1, 'DOLCE & GABBANA', 'Zapatillas'],
   [12, 'GUCCI', 'Zapatillas'],
@@ -32,11 +36,13 @@ const ITEMS: [number, string, string][] = [
   [9, 'GIUSEPPE ZANOTTI', 'Cinturón'],
   [11, 'KARL LAGERFELD', 'Zapatillas'],
 ];
-const SHOW = HOOK;
-const RING = SHOW + ITEMS.length * ITEM;   // 404
-const TRUST = RING + 96;                   // 500
-const END = TRUST + 76;                    // 576
-export const SANTORINI_TOTAL = END + 120;  // 696 ≈ 23 s
+const GLOBE = HOOK;                        // 100: ruta EE.UU. → Chile
+const BOX = GLOBE + 120;                   // 220: la caja llega y se abre
+const SHOW = BOX + 120;                    // 340
+const RING = SHOW + ITEMS.length * ITEM;   // 644
+const TRUST = RING + 96;                   // 740
+const END = TRUST + 76;                    // 816
+export const SANTORINI_TOTAL = END + 120;  // 936 ≈ 31 s
 
 /* ---- polvo dorado */
 const Dust: React.FC<{f: number; n?: number}> = ({f, n = 70}) => (
@@ -105,8 +111,8 @@ const Hook: React.FC<{f: number}> = ({f}) => {
         <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
           <div style={{...gold, fontFamily: CINZEL, fontWeight: 900, fontSize: 250, lineHeight: 1, letterSpacing: 18, transform: `scale(${interpolate(k, [0, 1], [2.4, 1])})`, opacity: Math.min(1, k * 2)}}>LUJO</div>
           <div style={{width: interpolate(f, [slam + 6, slam + 20], [0, 760], cl), height: 3, background: GOLD_LINE, margin: '26px 0'}} />
-          <div style={{fontFamily: CINZEL, fontWeight: 700, fontSize: 74, letterSpacing: 10, color: '#fff', opacity: interpolate(f, [slam + 8, slam + 16], [0, 1], cl), transform: `translateY(${interpolate(f, [slam + 8, slam + 18], [30, 0], cl)}px)`}}>100% ORIGINAL</div>
-          <div style={{fontFamily: PLAY, fontStyle: 'italic', fontSize: 64, color: '#E9C766', marginTop: 18, opacity: interpolate(f, [slam + 16, slam + 26], [0, 1], cl)}}>ahora en Chile</div>
+          <div style={{fontFamily: CINZEL, fontWeight: 700, fontSize: 74, letterSpacing: 10, color: '#fff', opacity: interpolate(f, [slam + 8, slam + 16], [0, 1], cl), transform: `translateY(${interpolate(f, [slam + 8, slam + 18], [30, 0], cl)}px)`}}>ORIGINAL</div>
+          <div style={{fontFamily: PLAY, fontStyle: 'italic', fontSize: 64, color: '#E9C766', marginTop: 18, opacity: interpolate(f, [slam + 16, slam + 26], [0, 1], cl)}}>desde Estados Unidos</div>
         </AbsoluteFill>
       )}
       <AbsoluteFill style={{background: '#FFF3C4', opacity: flash}} />
@@ -114,7 +120,121 @@ const Hook: React.FC<{f: number}> = ({f}) => {
   );
 };
 
-/* ---- 2. vitrina: cada pieza gira en 3D con su marca */
+
+/* ---- 2. ruta: globo 3D, avión de Estados Unidos a Chile */
+const LAND = feature(countries as any, (countries as any).objects.countries) as any;
+const MIAMI: [number, number] = [-80.2, 25.8];
+const SANTIAGO: [number, number] = [-70.6, -33.4];
+const ROUTE = geoInterpolate(MIAMI, SANTIAGO);
+const Globe: React.FC<{f: number}> = ({f}) => {
+  const k = spring({frame: f, fps: 30, config: {damping: 18, stiffness: 60}});
+  const lon = interpolate(k, [0, 1], [-20, -78]);
+  const lat = interpolate(k, [0, 1], [30, -2]);
+  const R = interpolate(k, [0, 1], [300, 470]);
+  const proj = geoOrthographic().scale(R).translate([540, 940]).rotate([-lon, -lat]).clipAngle(90);
+  const path = geoPath(proj);
+  const prog = interpolate(f, [34, 88], [0, 1], cl);
+  const pts = Array.from({length: 41}).map((_, i) => ROUTE((i / 40) * prog));
+  const arc = path({type: 'LineString', coordinates: pts} as any) ?? '';
+  const pl = proj(ROUTE(prog)) ?? [0, 0];
+  const pn = proj(ROUTE(Math.min(1, prog + 0.02))) ?? [0, 0];
+  const ang = (Math.atan2(pn[1] - pl[1], pn[0] - pl[0]) * 180) / Math.PI;
+  const us = proj(MIAMI) ?? [0, 0];
+  const cl2 = proj(SANTIAGO) ?? [0, 0];
+  const pulse = (at: number) => (f < at ? 0 : 1 + ((f - at) % 30) / 12);
+  const isFoc = (d: any) => d.properties.name === 'United States of America' || d.properties.name === 'Chile';
+  return (
+    <AbsoluteFill style={{background: '#050505'}}>
+      <AbsoluteFill style={{background: 'radial-gradient(circle at 50% 49%, rgba(212,175,55,0.22) 0%, rgba(0,0,0,0) 38%)'}} />
+      <Dust f={f + 100} />
+      <svg width={1080} height={1920} style={{position: 'absolute'}}>
+        <defs>
+          <radialGradient id="sea" cx="0.4" cy="0.35" r="0.75"><stop offset="0" stopColor="#1d1709" /><stop offset="0.7" stopColor="#0a0804" /><stop offset="1" stopColor="#030302" /></radialGradient>
+          <linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#FFF0B5" /><stop offset="0.5" stopColor="#D4AF37" /><stop offset="1" stopColor="#8E6B1A" /></linearGradient>
+        </defs>
+        <circle cx={540} cy={940} r={R} fill="url(#sea)" stroke="url(#gl)" strokeWidth={3} />
+        <path d={path(geoGraticule10()) ?? ''} fill="none" stroke="rgba(212,175,55,0.12)" strokeWidth={1} />
+        {LAND.features.map((d: any, i: number) => (
+          <path key={i} d={path(d) ?? ''} fill={isFoc(d) ? 'url(#gl)' : 'rgba(212,175,55,0.22)'} stroke="rgba(233,199,102,0.45)" strokeWidth={0.6} opacity={isFoc(d) ? interpolate(f, [10, 26], [0.35, 0.95], cl) : 1} />
+        ))}
+        <circle cx={540} cy={940} r={R} fill="none" stroke="rgba(255,240,181,0.25)" strokeWidth={14} style={{filter: 'blur(8px)'}} />
+        <path d={arc} fill="none" stroke="#FFF0B5" strokeWidth={5} strokeDasharray="14 10" strokeLinecap="round" style={{filter: 'drop-shadow(0 0 8px rgba(255,214,90,0.9))'}} />
+        {[[us, 34], [cl2, 88]].map(([p, at], i) => (
+          <g key={i} opacity={f >= (at as number) - 4 ? 1 : 0}>
+            <circle cx={(p as number[])[0]} cy={(p as number[])[1]} r={14 * pulse(at as number)} fill="none" stroke="#F3D77A" strokeWidth={3} opacity={Math.max(0, 1 - (pulse(at as number) - 1) * 0.6)} />
+            <circle cx={(p as number[])[0]} cy={(p as number[])[1]} r={9} fill="#FFF0B5" />
+          </g>
+        ))}
+        {prog > 0 && prog < 1 && (
+          <g transform={`translate(${pl[0]} ${pl[1]}) rotate(${ang + 90}) scale(1.6)`} style={{filter: 'drop-shadow(0 0 10px rgba(255,214,90,0.9))'}}>
+            <path d="M0 -16 L3 -6 L14 1 L14 4 L3 1 L2 10 L6 13 L6 15 L0 13.5 L-6 15 L-6 13 L-2 10 L-3 1 L-14 4 L-14 1 L-3 -6 Z" fill="#FFF3C4" />
+          </g>
+        )}
+      </svg>
+      {f >= 30 && <div style={{position: 'absolute', left: us[0] + 26, top: us[1] - 36, fontFamily: CINZEL, fontWeight: 700, fontSize: 34, letterSpacing: 3, color: '#FFF3C4', textShadow: '0 2px 10px #000', opacity: interpolate(f, [30, 38], [0, 1], cl)}}>ESTADOS UNIDOS</div>}
+      {f >= 86 && <div style={{position: 'absolute', left: cl2[0] + 26, top: cl2[1] - 20, fontFamily: CINZEL, fontWeight: 700, fontSize: 40, letterSpacing: 3, color: '#FFF3C4', textShadow: '0 2px 10px #000', transform: `scale(${pop(f, 86)})`, transformOrigin: 'left center'}}>CHILE</div>}
+      <div style={{position: 'absolute', top: 170, left: 0, right: 0, textAlign: 'center'}}>
+        <div style={{...gold, fontFamily: CINZEL, fontWeight: 900, fontSize: 96, letterSpacing: 8, opacity: interpolate(f, [4, 12], [0, 1], cl)}}>IMPORTADO</div>
+        <div style={{fontFamily: PLAY, fontStyle: 'italic', fontSize: 58, color: '#fff', marginTop: 6, opacity: interpolate(f, [12, 20], [0, 1], cl)}}>de Estados Unidos a Chile</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+const pop = (f: number, at: number) => spring({frame: f - at, fps: 30, config: {damping: 12, stiffness: 220, mass: 0.5}});
+
+/* ---- 3. la caja llega, se abre y salen las piezas */
+const BOX_OUT = [1, 12, 4, 9, 3];
+const Box: React.FC<{f: number}> = ({f}) => {
+  const drop = spring({frame: f, fps: 30, config: {damping: 9, stiffness: 120, mass: 0.9}});
+  const open = spring({frame: f - 22, fps: 30, config: {damping: 14, stiffness: 90}});
+  const B = 460;
+  const face = (extra: React.CSSProperties): React.CSSProperties => ({position: 'absolute', width: B, height: B, background: 'linear-gradient(160deg, #1b1610 0%, #0b0907 100%)', border: '3px solid #A8842A', boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8)', ...extra});
+  const light = interpolate(open, [0, 1], [0, 1]);
+  return (
+    <AbsoluteFill style={{background: '#050505'}}>
+      <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 58%, rgba(212,175,55,${0.12 + light * 0.25}) 0%, rgba(0,0,0,0) 45%)`}} />
+      <Dust f={f + 300} />
+      <AbsoluteFill style={{perspective: 1600, perspectiveOrigin: '50% 30%'}}>
+        <div style={{position: 'absolute', left: 540, top: interpolate(drop, [0, 1], [-700, 1180]), transformStyle: 'preserve-3d', transform: `rotateX(-22deg) rotateY(${interpolate(f, [0, 120], [-38, -26])}deg)`}}>
+          {/* piso, lados y frente */}
+          <div style={face({left: -B / 2, top: -B / 2, transform: `rotateX(90deg) translateZ(${-B / 2}px)`})} />
+          <div style={face({left: -B / 2, top: -B / 2, transform: `translateZ(${-B / 2}px)`})} />
+          <div style={face({left: -B / 2, top: -B / 2, transform: `rotateY(-90deg) translateZ(${B / 2}px)`})} />
+          <div style={face({left: -B / 2, top: -B / 2, transform: `rotateY(90deg) translateZ(${B / 2}px)`})}>
+            <div style={{position: 'absolute', left: 60, right: 60, top: 150, padding: '18px 0', border: '2px solid #C9A13B', textAlign: 'center', fontFamily: CINZEL, fontWeight: 700, fontSize: 30, letterSpacing: 4, color: '#E9C766'}}>USA ✈ CHILE</div>
+          </div>
+          <div style={face({left: -B / 2, top: -B / 2, transform: `translateZ(${B / 2}px)`, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'})}>
+            <div style={{width: 170, height: 170, borderRadius: '50%', border: '4px solid #C9A13B', display: 'flex', justifyContent: 'center', alignItems: 'center'}}><div style={{...gold, fontFamily: CINZEL, fontWeight: 900, fontSize: 120, marginTop: -8}}>S</div></div>
+            <div style={{...gold, fontFamily: CINZEL, fontWeight: 700, fontSize: 52, letterSpacing: 8, marginTop: 18}}>SANTORINI</div>
+          </div>
+          {/* tapas que se abren: plano de la boca de la caja, con dos solapas con bisagra en los bordes */}
+          <div style={{position: 'absolute', left: -B / 2, top: -B / 2, width: B, height: B, transformStyle: 'preserve-3d', transform: `rotateX(90deg) translateZ(${B / 2}px)`}}>
+            <div style={face({left: 0, top: 0, height: B / 2, border: '2px solid #A8842A', transformOrigin: '50% 0%', transform: `rotateX(${-open * 215}deg)`, background: 'linear-gradient(160deg, #241c10, #0e0b07)'})} />
+            <div style={face({left: 0, top: B / 2, height: B / 2, border: '2px solid #A8842A', transformOrigin: '50% 100%', transform: `rotateX(${open * 215}deg)`, background: 'linear-gradient(160deg, #241c10, #0e0b07)'})} />
+          </div>
+          {/* luz dorada que sale de adentro */}
+          <div style={{position: 'absolute', left: -B / 2, top: -B / 2, width: B, height: B, transform: `rotateX(90deg) translateZ(${B / 2 - 6}px)`, background: 'radial-gradient(circle, rgba(255,226,140,0.9) 0%, rgba(255,200,80,0) 70%)', opacity: light}} />
+        </div>
+      </AbsoluteFill>
+      {/* piezas que salen volando de la caja */}
+      <AbsoluteFill style={{perspective: 1400}}>
+        {BOX_OUT.map((n, i) => {
+          const t = f - 34 - i * 6;
+          if (t < 0) return null;
+          const q = spring({frame: t, fps: 30, config: {damping: 13, stiffness: 90}});
+          const spread = (i - 2) * 200;
+          return <Card key={i} n={n} w={300} reflect={false} style={{left: 390, top: 900, opacity: Math.min(1, t / 4), zIndex: 10 - Math.abs(i - 2), transform: `translate(${spread * q}px, ${-470 * q + Math.abs(i - 2) * 80 * q}px) rotateZ(${(i - 2) * 9 * q}deg) rotateY(${(1 - q) * 180}deg) scale(${0.3 + q * 0.7})`}} />;
+        })}
+      </AbsoluteFill>
+      <div style={{position: 'absolute', top: 170, left: 0, right: 0, textAlign: 'center'}}>
+        <div style={{...gold, fontFamily: CINZEL, fontWeight: 900, fontSize: 88, letterSpacing: 6, opacity: interpolate(f, [30, 40], [0, 1], cl)}}>MARCAS DE LUJO</div>
+        <div style={{fontFamily: PLAY, fontStyle: 'italic', fontSize: 56, color: '#fff', marginTop: 6, opacity: interpolate(f, [40, 50], [0, 1], cl)}}>que llegan a Chile</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/* ---- 4. vitrina: cada pieza gira en 3D con su marca */
 const Show: React.FC<{f: number}> = ({f}) => {
   const i = Math.min(ITEMS.length - 1, Math.floor(f / ITEM));
   const t = f - i * ITEM;
@@ -172,7 +292,7 @@ const Ring: React.FC<{f: number}> = ({f}) => {
         <div style={{...gold, fontFamily: CINZEL, fontWeight: 700, fontSize: 60, letterSpacing: 8}}>CINTURONES</div>
         <div style={{...gold, fontFamily: CINZEL, fontWeight: 700, fontSize: 60, letterSpacing: 8}}>ACCESORIOS</div>
       </div>
-      <div style={{position: 'absolute', top: 1560, left: 0, right: 0, textAlign: 'center', fontFamily: PLAY, fontStyle: 'italic', fontSize: 62, color: '#fff', opacity: interpolate(f, [24, 34], [0, 1], cl)}}>Venta y compra</div>
+      <div style={{position: 'absolute', top: 1560, left: 0, right: 0, textAlign: 'center', fontFamily: PLAY, fontStyle: 'italic', fontSize: 62, color: '#fff', opacity: interpolate(f, [24, 34], [0, 1], cl)}}>…y viene más en camino</div>
     </AbsoluteFill>
   );
 };
@@ -185,7 +305,7 @@ const TRUCK = 'M1 6h13v10H1z|M14 10h4l3 3v3h-7z|M5.5 19a1.8 1.8 0 1 0 0-.01|M17.
 const HAND = 'M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z';
 const SEAL = 'M12 2l2.4 2.2 3.2-.4.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.4L12 22l-2.4-2.2-3.2.4-.9-3.1-2.8-1.6 1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.4z|M8.5 12l2.5 2.5 4.5-5';
 const Trust: React.FC<{f: number}> = ({f}) => {
-  const rows: [string, string][] = [[SEAL, 'Calidad · Estilo · Exclusividad'], [HAND, 'Entregas presenciales'], [TRUCK, 'Envíos a todo Chile']];
+  const rows: [string, string][] = [[SEAL, 'Venta y compra'], [HAND, 'Entregas presenciales'], [TRUCK, 'Envíos a todo Chile']];
   return (
     <AbsoluteFill style={{background: '#050505'}}>
       <AbsoluteFill style={{transformOrigin: '82% 30%', transform: `scale(${interpolate(f, [0, 76], [1.05, 1.5])})`}}>
@@ -193,9 +313,9 @@ const Trust: React.FC<{f: number}> = ({f}) => {
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.55) 45%, rgba(5,5,5,0.95) 75%)'}} />
       <Dust f={f + 600} n={40} />
-      <div style={{position: 'absolute', top: 960, left: 0, right: 0, textAlign: 'center'}}>
-        <div style={{...gold, fontFamily: CINZEL, fontWeight: 900, fontSize: 110, letterSpacing: 8, transform: `scale(${interpolate(spring({frame: f, fps: 30, config: {damping: 12}}), [0, 1], [1.4, 1])})`}}>ORIGINALES</div>
-        <div style={{fontFamily: CINZEL, fontWeight: 600, fontSize: 44, letterSpacing: 10, color: '#fff', marginTop: 6, opacity: interpolate(f, [6, 14], [0, 1], cl)}}>EE.UU. · EUROPA</div>
+      <div style={{position: 'absolute', top: 900, left: 0, right: 0, textAlign: 'center'}}>
+        <div style={{...gold, fontFamily: CINZEL, fontWeight: 900, fontSize: 90, lineHeight: 1.08, letterSpacing: 4, transform: `scale(${interpolate(spring({frame: f, fps: 30, config: {damping: 12}}), [0, 1], [1.4, 1])})`}}>LUJO DE<br />SEGUNDA MANO</div>
+        <div style={{fontFamily: CINZEL, fontWeight: 600, fontSize: 42, letterSpacing: 8, color: '#fff', marginTop: 14, opacity: interpolate(f, [6, 14], [0, 1], cl)}}>ORIGINAL · IMPORTADO</div>
       </div>
       <div style={{position: 'absolute', top: 1300, left: 150, right: 100}}>
         {rows.map(([d, txt], i) => {
@@ -252,6 +372,9 @@ const SFX: Sfx[] = [
   [0, 'sfx_whoosh', 0.7], [0, 'sfx_riser', 0.35, 54],
   ...BRANDS.map((_, i) => [4 + i * 8, 'sfx_tick', 0.55] as Sfx),
   [54, 'sfx_impact', 0.9], [54, 'sfx_sub', 0.8, 40], [62, 'sfx_sparkle', 0.4],
+  [GLOBE, 'sfx_whoosh', 0.6], [GLOBE + 34, 'sfx_riser', 0.3, 54], [GLOBE + 88, 'sfx_ding', 0.5], [GLOBE + 88, 'sfx_impact_soft', 0.6],
+  [BOX - 2, 'sfx_whoosh', 0.6], [BOX + 10, 'sfx_impact', 0.8], [BOX + 22, 'sfx_crinkle', 0.5, 20], [BOX + 26, 'sfx_sparkle', 0.5],
+  ...[0, 1, 2, 3, 4].map((i) => [BOX + 34 + i * 6, 'sfx_pop', 0.35] as Sfx),
   ...ITEMS.map((_, i) => [SHOW + i * ITEM - 2, 'sfx_whip', 0.5] as Sfx),
   ...ITEMS.map((_, i) => [SHOW + i * ITEM + 10, 'sfx_sparkle', 0.22] as Sfx),
   [RING - 26, 'sfx_riser', 0.35, 26], [RING, 'sfx_whoosh', 0.7], [RING + 2, 'sfx_sub', 0.5, 30],
@@ -263,7 +386,9 @@ export const Santorini: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <AbsoluteFill style={{background: '#050505'}}>
-      {f < SHOW && <Hook f={f} />}
+      {f < GLOBE && <Hook f={f} />}
+      {f >= GLOBE && f < BOX && <Globe f={f - GLOBE} />}
+      {f >= BOX && f < SHOW && <Box f={f - BOX} />}
       {f >= SHOW && f < RING && <Show f={f - SHOW} />}
       {f >= RING && f < TRUST && <Ring f={f - RING} />}
       {f >= TRUST && f < END && <Trust f={f - TRUST} />}
