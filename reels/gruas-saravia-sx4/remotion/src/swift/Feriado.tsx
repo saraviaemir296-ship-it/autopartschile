@@ -138,3 +138,26 @@ export const Feriado: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/* ---- versión orgánica: solo el video, textos estilo TikTok, sin tarjetas ni cierre animado */
+const Cap: React.FC<{f: number; at: number; until: number; top: number; children: React.ReactNode}> = ({f, at, until, top, children}) => {
+  if (f < at || f >= until) return null;
+  const k = interpolate(f, [at, at + 4], [0.92, 1], cl);
+  return (
+    <div style={{position: 'absolute', top, left: 70, right: 70, textAlign: 'center', transform: `scale(${k})`}}>
+      <span style={{background: '#fff', color: '#000', fontFamily: TXT, fontWeight: 700, fontSize: 54, lineHeight: 1.45, padding: '6px 18px', borderRadius: 12, boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{children}</span>
+    </div>
+  );
+};
+export const FERIADO_ORG_TOTAL = VIDEO;
+export const FeriadoOrganico: React.FC = () => {
+  const f = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{background: '#000'}}>
+      <OffthreadVideo src={S('swift/feriado_anon.mp4')} volume={0.8} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+      <Cap f={f} at={0} until={96} top={420}>Trabajando en pleno feriado</Cap>
+      <Cap f={f} at={96} until={228} top={420}>Ojo: los días feriados el servicio tiene un 20% de recargo</Cap>
+      <Cap f={f} at={228} until={VIDEO} top={420}>Grúas Saravia · 24/7</Cap>
+    </AbsoluteFill>
+  );
+};
