@@ -5,6 +5,7 @@ import {AnimatedMap} from '../v2/MapOverlay';
 import {LogoReveal} from '../v2/LogoReveal';
 import {Caption4, Headline4, MONT, W} from '../v2/Type4';
 import {TruckWipe} from '../v2/TruckAccel';
+import {WebDemo} from '../v2/WebDemo';
 import {E, K, cl} from '../v2/look';
 
 /* Grúas Saravia — feriado 12 de octubre, mismo lenguaje visual que el
@@ -12,8 +13,8 @@ import {E, K, cl} from '../v2/look';
    Video real de la grúa en la autopista con la patente del auto pixelada. */
 
 const SRC = 'swift/feriado_anon.mp4';
-const T = {hook: [0, 90], geo: [90, 200], tarifa: [200, 340], rescue: [340, 400], cta: [400, 490]} as const;
-export const FERIADO_V4_TOTAL = 490;
+const T = {hook: [0, 90], geo: [90, 200], web: [200, 330], tarifa: [330, 470], rescue: [470, 530], cta: [530, 620]} as const;
+export const FERIADO_V4_TOTAL = 620;
 const at = (r: readonly [number, number]) => ({from: r[0], durationInFrames: r[1] - r[0]});
 const w = (s: string, start: number, gap = 5, hi: number[] = []): W[] => s.split(' ').map((t, i) => ({t, at: start + i * gap, hi: hi.includes(i)}));
 const pop = (f: number, d: number) => spring({frame: f - d, fps: 30, config: {damping: 16, stiffness: 200, mass: 0.6}});
@@ -88,7 +89,20 @@ export const FeriadoV4: React.FC = () => {
         <Sequence from={55} durationInFrames={55}><Caption4 dur={55} y={960} size={54} words={w('también en días feriados.', 0, 5, [2, 3])} /></Sequence>
       </Sequence>
 
-      {/* 6,7–11,3 s · tarifa en feriados (entra con el camión acelerando) */}
+      {/* 6,7–11 s · sitio web: cotiza y programa tu viaje */}
+      <Sequence {...at(T.web)}>
+        <AbsoluteFill style={{filter: 'blur(8px) brightness(0.45)'}}>
+          <PhotoShot src="equipo/grua-rotulada.jpg" dur={130} zoom={[1.15, 1.22]} origin="45% 55%" />
+        </AbsoluteFill>
+        <AbsoluteFill style={{transform: 'translateY(-10px) scale(0.84)', transformOrigin: '50% 0%'}}>
+          <WebDemo dur={130} label={false} />
+        </AbsoluteFill>
+        <Headline4 text={''} kicker="COTIZA Y PROGRAMA EN LA WEB" dur={130} y={200} size={10} />
+        <Sequence durationInFrames={62}><Caption4 dur={62} y={1330} size={52} words={w('Cotiza en gruasaravia.cl', 0, 6, [2])} /></Sequence>
+        <Sequence from={62} durationInFrames={68}><Caption4 dur={68} y={1330} size={52} words={w('y programa tu viaje.', 0, 6, [1, 2, 3])} /></Sequence>
+      </Sequence>
+
+      {/* 11–15,7 s · tarifa en feriados (entra con el camión acelerando) */}
       <Sequence from={T.tarifa[0] - 22} durationInFrames={T.tarifa[1] - T.tarifa[0] + 22}>
         <TruckWipe dur={22}>
           <Shot src={SRC} segs={[{from: 5.6, take: 2.7, rate: 0.5}]} look="warm" zoom={[1.08, 1.16]} origin="50% 45%" darken={0.55} blur={3} />
@@ -123,6 +137,9 @@ export const FeriadoV4: React.FC = () => {
       {[54, 58, 62, 66, 70].map((d) => <Sequence key={d} from={T.tarifa[0] + d}><Audio src={S('audio/sfx_tick.wav')} volume={0.35} /></Sequence>)}
       <Sequence from={T.tarifa[0] + 74}><Audio src={S('audio/sfx_impact.wav')} volume={0.75} /></Sequence>
       <Sequence from={T.tarifa[0] + 84}><Audio src={S('audio/sfx_pop.wav')} volume={0.45} /></Sequence>
+      <Sequence from={T.web[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.35} /></Sequence>
+      {[14, 32, 52, 66].map((d) => <Sequence key={d} from={T.web[0] + d}><Audio src={S('audio/sfx_tick.wav')} volume={0.4} /></Sequence>)}
+      <Sequence from={T.web[0] + 76}><Audio src={S('audio/sfx_blip.wav')} volume={0.35} /></Sequence>
       <Sequence from={T.rescue[0] - 2}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
       <Sequence from={T.rescue[0] + 2}><Audio src={S('audio/sfx_impact.wav')} volume={0.5} /></Sequence>
       <Sequence from={T.cta[0]}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.4} /></Sequence>
