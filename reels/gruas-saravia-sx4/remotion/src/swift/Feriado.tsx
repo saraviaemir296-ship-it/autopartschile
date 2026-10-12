@@ -155,8 +155,8 @@ export const FeriadoOrganico: React.FC = () => {
   return (
     <AbsoluteFill style={{background: '#000'}}>
       <OffthreadVideo src={S('swift/feriado_anon.mp4')} volume={0.8} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-      <Cap f={f} at={0} until={96} top={420}>Lunes 12 de octubre, trabajando en feriado</Cap>
-      <Cap f={f} at={96} until={228} top={420}>Los días feriados se cobra 20% más</Cap>
+      <Cap f={f} at={0} until={96} top={420}>Lunes 12 de octubre<br />trabajando en feriado</Cap>
+      <Cap f={f} at={96} until={228} top={420}>Los días feriados<br />se cobra 20% más</Cap>
       <Cap f={f} at={228} until={VIDEO} top={420}>Grúas Saravia · 24/7</Cap>
     </AbsoluteFill>
   );
