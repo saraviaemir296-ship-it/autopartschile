@@ -11,13 +11,14 @@ loadFont({family: 'Playfair', url: staticFile('fonts/PlayfairItalic.ttf'), weigh
 const S = (f: string) => staticFile(f);
 const cl = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
-type Seg = {src: string; from: number; len: number; rate?: number; photo?: boolean};
+type Seg = {src: string; from: number; len: number; rate?: number; photo?: boolean; amb?: number};
 const SEGS: Seg[] = [
-  {src: 'personal/c3930.mp4', from: 24, len: 72},              // selfie caminando, atardecer
-  {src: 'personal/c3918.mp4', from: 0, len: 120},             // sendero → vista de Santiago
-  {src: 'personal/c3906.mp4', from: 30, len: 120, rate: 1.3}, // bajada entre árboles
-  {src: 'personal/kiwi.jpg', from: 0, len: 54, photo: true},  // el kiwi
-  {src: 'personal/c3930.mp4', from: 96, len: 114},            // vuelta al selfie
+  // el selfie va en cámara lenta suave (0,8x interpolado) para que la cara dure más
+  {src: 'personal/c3930_slow.mp4', from: 30, len: 96, amb: 24},  // selfie caminando, atardecer
+  {src: 'personal/c3918.mp4', from: 36, len: 84},                // sendero → vista de Santiago
+  {src: 'personal/c3906.mp4', from: 30, len: 72, rate: 1.5},     // bajada entre árboles
+  {src: 'personal/kiwi.jpg', from: 0, len: 54, photo: true},     // el kiwi
+  {src: 'personal/c3930_slow.mp4', from: 126, len: 124, amb: 101}, // vuelta al selfie
 ];
 const STARTS = SEGS.reduce<number[]>((a, s, i) => [...a, a[i] + s.len], [0]);
 export const CERRO_TOTAL = STARTS[SEGS.length];
@@ -66,7 +67,11 @@ export const Cerro: React.FC = () => {
             {s.photo ? (
               <Img src={S(s.src)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${interpolate(t, [0, s.len], [1.04, 1.14], cl)})`, transformOrigin: '50% 45%'}} />
             ) : (
-              <OffthreadVideo src={S(s.src)} startFrom={s.from} playbackRate={s.rate ?? 1} volume={0.7} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+              <>
+                <OffthreadVideo src={S(s.src)} startFrom={s.from} playbackRate={s.rate ?? 1} volume={0.7} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                {/* el clip lento no trae audio: ambiente del original */}
+                {s.amb !== undefined && <Audio src={S('personal/c3930.mp4')} startFrom={s.amb} volume={0.7} />}
+              </>
             )}
           </AbsoluteFill>
         </Sequence>
@@ -77,7 +82,7 @@ export const Cerro: React.FC = () => {
       <AbsoluteFill style={{background: '#fff8ec', opacity: flash}} />
       <Grain f={f} />
       <Txt t={f} at={8} until={STARTS[1] - 2} top={300}>domingo de cerro</Txt>
-      {i === 1 && <Pin t={t} at={62} />}
+      {i === 1 && <Pin t={t} at={50} />}
       <Txt t={f} at={STARTS[3] + 4} until={STARTS[4] - 2} top={1150} size={64}><div style={{marginRight: 520}}>snack<br />oficial</div></Txt>
       <Txt t={f} at={STARTS[4] + 20} until={CERRO_TOTAL} top={300}>a veces hay que parar un rato</Txt>
       {STARTS.slice(1, SEGS.length).map((s, k) => (
