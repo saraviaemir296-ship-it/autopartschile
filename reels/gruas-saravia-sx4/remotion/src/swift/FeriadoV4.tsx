@@ -85,7 +85,7 @@ export const FeriadoV4: React.FC = () => {
         <Shot src={SRC} segs={[{from: 3.0, take: 2.2, rate: 0.6}]} zoom={[1.1, 1.16]} origin="50% 45%" darken={0.45} blur={1.5} />
         <AnimatedMap dur={110} dimAt={60} />
         <Headline4 text={''} kicker="GEOLOCALIZACIÓN EN TIEMPO REAL" dur={110} y={290} size={10} />
-        <Sequence durationInFrames={55}><Caption4 dur={55} y={960} size={54} words={w('Pides tu grúa desde el celular,', 0, 5, [2])} /></Sequence>
+        <Sequence durationInFrames={55}><Caption4 dur={55} y={960} size={54} words={w('Pide la grúa directo desde tu celular,', 0, 5, [2, 3])} /></Sequence>
         <Sequence from={55} durationInFrames={55}><Caption4 dur={55} y={960} size={54} words={w('también en días feriados.', 0, 5, [2, 3])} /></Sequence>
       </Sequence>
 
