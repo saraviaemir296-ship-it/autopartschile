@@ -29,6 +29,7 @@ import {MisDias, MISDIAS_TOTAL} from './swift/MisDias';
 import {MisDiasVoz, MISDIAS_VOZ_TOTAL} from './swift/MisDiasVoz';
 import {Santorini, SANTORINI_TOTAL} from './santorini/Santorini';
 import {Cerro, CERRO_TOTAL} from './personal/Cerro';
+import {Feriado, FERIADO_TOTAL} from './swift/Feriado';
 import {SemanaVentas, SEMANA2_TOTAL} from './swift/Semana';
 import {MotorFunc, MOTOR_TOTAL} from './swift/MotorFunc';
 import {Organico, ORGANICO_TOTAL} from './swift/Organico';
@@ -42,6 +43,7 @@ export const Root: React.FC = () => (
     <Still id="PortadaA" component={Portada} defaultProps={{v: "A" as const}} width={W} height={H} />
     <Still id="PortadaB" component={Portada} defaultProps={{v: "B" as const}} width={W} height={H} />
     <Composition id="MotorFunc" component={MotorFunc} durationInFrames={MOTOR_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="Feriado" component={Feriado} durationInFrames={FERIADO_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Cerro" component={Cerro} durationInFrames={CERRO_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Santorini" component={Santorini} durationInFrames={SANTORINI_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="MisDiasVoz" component={MisDiasVoz} durationInFrames={MISDIAS_VOZ_TOTAL} fps={FPS} width={W} height={H} />
