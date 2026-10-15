@@ -24,7 +24,8 @@ def mat_paint(name, rgb, metallic, rough, coat=1.0, coat_rough=0.03):
 RED = mat_paint('rojo_cereza', (0.62, 0.0, 0.002), 0.35, 0.32, coat=0.8)          # pintura de auto roja con laca
 WHITE = mat_paint('blanco_perla', (0.7, 0.7, 0.72), 0.0, 0.25)          # blanco lacado
 SIDE = mat_paint('aluminio', (0.6, 0.6, 0.62), 1.0, 0.18, coat=0.0)       # cantos metálicos pulidos
-FLOOR = mat_paint('piso_negro', (0.002, 0.002, 0.002), 0.0, 0.5, coat=0.35, coat_rough=0.08)
+FLOOR = mat_paint('piso_negro', (0.002, 0.002, 0.002), 0.0, 0.5, coat=0.2, coat_rough=0.16)
+WALL = mat_paint('pared', (0.0025, 0.002, 0.002), 0.0, 0.8, coat=0.0)
 
 # ---------- logo extruido desde los contornos del logo original
 def logo_obj(name, polys, mat, depth, bevel):
@@ -76,7 +77,8 @@ sb = area('softbox', (0, -9, 7.5), (50, 0, 0), 9.0, 1200, sy=3.0)
 fl = area('front_izq', (-7, -7, 1.6), (90, 0, -45), 5.0, 1000, sy=3.0)
 fr = area('front_der', (7, -7, 1.6), (90, 0, 45), 5.0, 1000, sy=3.0)
 # el estudio parte en penumbra y las luces frontales se encienden en el revelado
-for L, hi in ((kl, 700), (sb, 1200), (ri, 900), (rd, 900)):
+wr = area('halo_rojo', (0, 1.6, 0.25), (-60, 0, 0), 3.5, 140, (1, 0.03, 0.04))
+for L, hi in ((kl, 700), (sb, 1200), (ri, 900), (rd, 900), (wr, 700)):
     L.data.energy = hi * 0.12; L.data.keyframe_insert('energy', frame=1)
     L.data.energy = hi * 0.12; L.data.keyframe_insert('energy', frame=70)
     L.data.energy = hi; L.data.keyframe_insert('energy', frame=132)
@@ -119,9 +121,9 @@ def key(f, cpos, tpos, lens, fstop):
 A = (0.12, 0, 0.88)
 key(1,   (1.1, -0.95, 1.0), (0.39, -0.07, 0.77), 85, 5.6)     # macro muy cerca, rasante
 key(60,  (-0.15, -0.85, 0.62), (0.3, -0.07, 0.8), 85, 5.6)       # se desliza por la superficie
-key(128, (0.8, -10.5, 1.9), (0, 0, 1.15), 34, 4.0)          # se aleja: aparece el logo
-key(150, (0, -11.5, 1.3), (0, 0, 1.15), 34, 8.0)           # plano frontal centrado
-key(192, (0, -10.4, 1.24), (0, 0, 1.15), 34, 8.0)           # push-in final
+key(128, (0.8, -10.5, 1.9), (0, 0, 1.15), 37, 4.0)          # se aleja: aparece el logo
+key(150, (0, -11.5, 1.3), (0, 0, 1.15), 37, 8.0)           # plano frontal centrado
+key(192, (0, -10.4, 1.24), (0, 0, 1.15), 37, 8.0)           # push-in final
 for fc in list(cam.animation_data.action.fcurves) if cam.animation_data and hasattr(cam.animation_data.action, 'fcurves') else []:
     for k in fc.keyframe_points: k.interpolation = 'BEZIER'
 
@@ -133,8 +135,9 @@ sc.cycles.max_bounces = 4; sc.cycles.glossy_bounces = 3; sc.cycles.diffuse_bounc
 sc.cycles.use_adaptive_sampling = True; sc.cycles.adaptive_threshold = 0.03
 sc.render.use_persistent_data = True
 r.resolution_x, r.resolution_y, r.resolution_percentage = 1080, 1920, res
-sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'Medium High Contrast'; sc.view_settings.exposure = -0.35
+sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'Medium High Contrast'; sc.view_settings.exposure = -0.5
 r.film_transparent = False
+r.use_motion_blur = True; r.motion_blur_shutter = 0.5
 r.image_settings.file_format = 'PNG'
 r.filepath = out_dir + '/f_'
 if which == 'all' or which.startswith('range'):
