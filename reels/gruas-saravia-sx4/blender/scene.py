@@ -21,29 +21,50 @@ def mat_paint(name, rgb, metallic, rough, coat=1.0, coat_rough=0.03):
     b.inputs['Coat Weight'].default_value = coat
     b.inputs['Coat Roughness'].default_value = coat_rough
     return m
-RED = mat_paint('rojo_cereza', (0.62, 0.0, 0.002), 0.35, 0.32, coat=0.8)          # pintura de auto roja con laca
+RED = mat_paint('rojo_cereza', (0.85, 0.0, 0.004), 0.3, 0.3, coat=0.8)          # pintura de auto roja con laca
 WHITE = mat_paint('blanco_perla', (0.7, 0.7, 0.72), 0.0, 0.25)          # blanco lacado
 SIDE = mat_paint('aluminio', (0.6, 0.6, 0.62), 1.0, 0.18, coat=0.0)       # cantos metálicos pulidos
-FLOOR = mat_paint('piso_negro', (0.002, 0.002, 0.002), 0.0, 0.5, coat=0.2, coat_rough=0.16)
+FLOOR = mat_paint('piso_negro', (0.001, 0.001, 0.001), 0.0, 0.55, coat=0.12, coat_rough=0.12)
 WALL = mat_paint('pared', (0.0025, 0.002, 0.002), 0.0, 0.8, coat=0.0)
 
 # ---------- logo extruido desde los contornos del logo original
-def logo_obj(name, polys, mat, depth, bevel):
+GREY = mat_paint('grafito', (0.05, 0.05, 0.055), 0.6, 0.25, coat=0.6)
+def W(p): return ((p[0] - 887) / 1774 * 4.0, -(p[1] - 443.5) / 1774 * 4.0)
+def logo_obj(name, curves, mat, depth, bevel):
+    """Curvas Bézier del logo vectorizado (potrace) → curva 3D extruida con bisel."""
     cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '2D'; cu.fill_mode = 'BOTH'
-    cu.extrude = depth; cu.bevel_depth = bevel; cu.bevel_resolution = 3
-    for poly in polys:
-        sp = cu.splines.new('POLY'); sp.points.add(len(poly) - 1)
-        for i, (x, y) in enumerate(poly): sp.points[i].co = (x, y, 0, 1)
+    cu.extrude = depth; cu.bevel_depth = bevel; cu.bevel_resolution = 3; cu.resolution_u = 10
+    for c in curves:
+        pts = []   # [co, hl, hr]
+        cur = W(c['start'])
+        pts.append([cur, cur, cur])
+        for sg in c['segs']:
+            if sg[0] == 'C':
+                c1, c2, e = W(sg[1]), W(sg[2]), W(sg[3])
+                pts[-1][2] = c1
+                pts.append([e, c2, e])
+            else:
+                k, e = W(sg[1]), W(sg[2])
+                pts.append([k, k, k]); pts.append([e, e, e])
+        # el último punto coincide con el inicio: se fusionan
+        first, last = pts[0], pts.pop()
+        first[1] = last[1]
+        sp = cu.splines.new('BEZIER'); sp.bezier_points.add(len(pts) - 1)
+        for bp, (co, hl, hr) in zip(sp.bezier_points, pts):
+            bp.handle_left_type = bp.handle_right_type = 'FREE'
+            bp.co = (*co, 0); bp.handle_left = (*hl, 0); bp.handle_right = (*hr, 0)
         sp.use_cyclic_u = True
     ob = bpy.data.objects.new(name, cu); bpy.context.collection.objects.link(ob)
     cu.materials.append(mat); cu.materials.append(SIDE)
-    ob.rotation_euler = (math.radians(90), 0, 0)   # de pie
+    ob.rotation_euler = (math.radians(90), 0, 0)
     ob.location = (0, 0, 1.15)
     return ob
-red = logo_obj('logo_rojo', P['red'], RED, 0.07, 0.012)
-white = logo_obj('logo_blanco', P['white'], WHITE, 0.07, 0.012)
+L = P['layers']
+grey = logo_obj('logo_gris', L['grey'], GREY, 0.06, 0.01)
+red = logo_obj('logo_rojo', L['red'], RED, 0.07, 0.012)
+white = logo_obj('logo_blanco', L['white'], WHITE, 0.07, 0.012)
 # los cantos (bevel) usan el aluminio: material index 1 en las caras laterales
-for ob in (red, white):
+for ob in (grey, red, white):
     bpy.context.view_layer.objects.active = ob
     ob.select_set(True)
     bpy.ops.object.convert(target='MESH')
@@ -68,17 +89,21 @@ def area(name, loc, rot, size, energy, color=(1, 1, 1), shape='RECTANGLE', sy=No
     o.location = loc; o.rotation_euler = [math.radians(a) for a in rot]
     return o
 kl = area('key', (0, -3.5, 5.5), (35, 0, 0), 3.0, 700, sy=1.2)                     # luz principal suave desde arriba
-ri = area('rim_izq', (-4.5, 3, 2.2), (75, 0, -125), 2.0, 900, (1, 0.05, 0.06))       # contraluz rojo
-rd = area('rim_der', (4.5, 3, 2.2), (75, 0, 125), 2.0, 900, (1, 0.05, 0.06))
+ri = area('rim_izq', (-3.8, 2.4, 3.6), (0, 0, 0), 1.6, 650, (1, 0.05, 0.06))       # contraluz rojo
+rd = area('rim_der', (3.8, 2.4, 3.6), (0, 0, 0), 1.6, 650, (1, 0.05, 0.06))
 area('top_rojo', (0, 2, 6), (0, 0, 0), 4.0, 200, (1, 0.12, 0.1))
 # softbox grande frontal (detrás de cámara): da el reflejo blanco en la laca
 sb = area('softbox', (0, -9, 7.5), (50, 0, 0), 9.0, 1200, sy=3.0)
 # softboxes frontales en ángulo: iluminan la cara del logo sin reflejarse directo en cámara
-fl = area('front_izq', (-7, -7, 1.6), (90, 0, -45), 5.0, 1000, sy=3.0)
-fr = area('front_der', (7, -7, 1.6), (90, 0, 45), 5.0, 1000, sy=3.0)
+fl = area('front_izq', (-7, -7, 3.4), (0, 0, 0), 5.0, 1000, sy=3.0)
+fr = area('front_der', (7, -7, 3.4), (0, 0, 0), 5.0, 1000, sy=3.0)
 # el estudio parte en penumbra y las luces frontales se encienden en el revelado
-wr = area('halo_rojo', (0, 1.6, 0.25), (-60, 0, 0), 3.5, 140, (1, 0.03, 0.04))
-for L, hi in ((kl, 700), (sb, 1200), (ri, 900), (rd, 900), (wr, 700)):
+# todas apuntan al centro del logo
+aim = bpy.data.objects.new('aim', None); bpy.context.collection.objects.link(aim); aim.location = (0, 0, 1.15)
+for L in (ri, rd, fl, fr):
+    c = L.constraints.new('TRACK_TO'); c.target = aim; c.track_axis = 'TRACK_NEGATIVE_Z'; c.up_axis = 'UP_Y'
+wr = area('halo_rojo', (0, 1.6, 0.25), (-60, 0, 0), 3.5, 30, (1, 0.03, 0.04))
+for L, hi in ((kl, 700), (sb, 1200), (ri, 650), (rd, 650), (wr, 30)):
     L.data.energy = hi * 0.12; L.data.keyframe_insert('energy', frame=1)
     L.data.energy = hi * 0.12; L.data.keyframe_insert('energy', frame=70)
     L.data.energy = hi; L.data.keyframe_insert('energy', frame=132)
@@ -135,7 +160,7 @@ sc.cycles.max_bounces = 4; sc.cycles.glossy_bounces = 3; sc.cycles.diffuse_bounc
 sc.cycles.use_adaptive_sampling = True; sc.cycles.adaptive_threshold = 0.03
 sc.render.use_persistent_data = True
 r.resolution_x, r.resolution_y, r.resolution_percentage = 1080, 1920, res
-sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'Medium High Contrast'; sc.view_settings.exposure = -0.5
+sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'Medium High Contrast'; sc.view_settings.exposure = -0.75
 r.film_transparent = False
 r.use_motion_blur = True; r.motion_blur_shutter = 0.5
 r.image_settings.file_format = 'PNG'
