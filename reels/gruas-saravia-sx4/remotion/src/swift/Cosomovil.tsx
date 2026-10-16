@@ -13,7 +13,9 @@ import {K, cl} from '../v2/look';
 
 const SRC = 'swift/coso_anon.mp4';
 const T = {hook: [0, 90], zoom: [90, 140], freeze: [140, 200], vuelta: [200, 275], remate: [275, 345], cta: [345, 435]} as const;
-export const COSO_TOTAL = 435;
+const BODY = 435;
+const CHAT = 150;   // 5 s de chat de WhatsApp al inicio
+export const COSO_TOTAL = CHAT + BODY;
 const at = (r: readonly [number, number]) => ({from: r[0], durationInFrames: r[1] - r[0]});
 const w = (s: string, start: number, gap = 5, hi: number[] = []): W[] => s.split(' ').map((t, i) => ({t, at: start + i * gap, hi: hi.includes(i)}));
 
@@ -57,7 +59,7 @@ const Remate: React.FC = () => {
   );
 };
 
-export const Cosomovil: React.FC<{literal?: boolean}> = ({literal = false}) => {
+const Cuerpo: React.FC<{literal?: boolean}> = ({literal = false}) => {
   const S = (f: string) => staticFile(f);
   return (
     <AbsoluteFill style={{backgroundColor: '#080808'}}>
@@ -116,3 +118,78 @@ export const Cosomovil: React.FC<{literal?: boolean}> = ({literal = false}) => {
     </AbsoluteFill>
   );
 };
+
+/* ---- chat de WhatsApp (modo oscuro) del amigo dueño del auto */
+const WA = {bg: '#0B141A', head: '#202C33', inn: '#202C33', out: '#005C4B', txt: '#E9EDEF', sub: '#8696A0', green: '#25D366'};
+type Msg = {at: number; out: boolean; text: string; time: string};
+const MSGS: Msg[] = [
+  {at: 8, out: false, text: 'Hermano quedé en pana', time: '16:21'},
+  {at: 40, out: false, text: 'Esforcé el motor porque estaba muy cargado el auto', time: '16:21'},
+  {at: 62, out: true, text: '¿Cargado con qué?', time: '16:22'},
+  {at: 96, out: false, text: 'No preguntí y ven no má', time: '16:22'},
+  {at: 116, out: true, text: 'Voy altiro con la grúa', time: '16:22'},
+];
+const TYPING = [[24, 40], [80, 96]];
+const Bubble: React.FC<{m: Msg; f: number}> = ({m, f}) => {
+  const k = spring({frame: f - m.at, fps: 30, config: {damping: 14, stiffness: 260, mass: 0.5}});
+  return (
+    <div style={{display: 'flex', justifyContent: m.out ? 'flex-end' : 'flex-start', margin: '10px 26px', transform: `scale(${0.85 + 0.15 * k}) translateY(${(1 - k) * 20}px)`, transformOrigin: m.out ? '100% 100%' : '0% 100%', opacity: Math.min(1, k * 1.5)}}>
+      <div style={{maxWidth: 760, background: m.out ? WA.out : WA.inn, color: WA.txt, borderRadius: 22, borderTopLeftRadius: m.out ? 22 : 6, borderTopRightRadius: m.out ? 6 : 22, padding: '18px 24px 12px', fontFamily: "'Inter', sans-serif", fontSize: 46, lineHeight: 1.25}}>
+        {m.text}
+        <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 4, fontSize: 26, color: m.out ? 'rgba(233,237,239,0.7)' : WA.sub}}>
+          {m.time}
+          {m.out && <svg width="34" height="20" viewBox="0 0 34 20"><path d="M2 11l5 5L18 4M14 14l2 2L28 4" fill="none" stroke="#53BDEB" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+        </div>
+      </div>
+    </div>
+  );
+};
+const Chat: React.FC = () => {
+  const f = useCurrentFrame();
+  const shown = MSGS.filter((m) => f >= m.at);
+  const typing = TYPING.some(([a, b]) => f >= a && f < b);
+  const push = interpolate(f, [0, CHAT], [1, 1.06], cl);
+  const out = interpolate(f, [CHAT - 10, CHAT], [0, 1], cl);
+  return (
+    <AbsoluteFill style={{background: WA.bg, transform: `scale(${push + out * 0.4})`, opacity: 1 - out * 0.6}}>
+      {/* encabezado */}
+      <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 250, background: WA.head, display: 'flex', alignItems: 'flex-end', padding: '0 30px 30px', gap: 24}}>
+        <svg width="40" height="60" viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke={WA.txt} strokeWidth="2.4" strokeLinecap="round" /></svg>
+        <div style={{width: 110, height: 110, borderRadius: '50%', background: '#6B7C85', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <svg width="70" height="70" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="#CFD8DC" /><path d="M3.5 21c1.2-4.4 4.6-6.6 8.5-6.6s7.3 2.2 8.5 6.6z" fill="#CFD8DC" /></svg>
+        </div>
+        <div style={{flex: 1, fontFamily: "'Inter', sans-serif"}}>
+          <div style={{fontSize: 52, fontWeight: 600, color: WA.txt}}>Hermano</div>
+          <div style={{fontSize: 32, color: typing ? WA.green : WA.sub}}>{typing ? 'escribiendo…' : 'en línea'}</div>
+        </div>
+      </div>
+      {/* mensajes, anclados abajo como en la app */}
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 230, display: 'flex', flexDirection: 'column'}}>
+        {shown.map((m, i) => <Bubble key={i} m={m} f={f} />)}
+        {typing && (
+          <div style={{margin: '10px 26px', alignSelf: 'flex-start', background: WA.inn, borderRadius: 22, padding: '24px 30px', display: 'flex', gap: 12}}>
+            {[0, 1, 2].map((d) => <div key={d} style={{width: 16, height: 16, borderRadius: 8, background: WA.sub, opacity: 0.4 + 0.6 * Math.abs(Math.sin((f + d * 4) / 5))}} />)}
+          </div>
+        )}
+      </div>
+      {/* barra de escribir */}
+      <div style={{position: 'absolute', left: 20, right: 20, bottom: 70, height: 120, display: 'flex', gap: 18, alignItems: 'center'}}>
+        <div style={{flex: 1, height: 110, borderRadius: 60, background: WA.head, display: 'flex', alignItems: 'center', padding: '0 40px', fontFamily: "'Inter', sans-serif", fontSize: 40, color: WA.sub}}>Mensaje</div>
+        <div style={{width: 110, height: 110, borderRadius: '50%', background: WA.green, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <svg width="50" height="50" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#0B141A" /><path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="#0B141A" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
+        </div>
+      </div>
+      {MSGS.map((m, i) => (
+        <Sequence key={i} from={m.at}><Audio src={staticFile(m.out ? 'audio/sfx_blip.wav' : 'audio/sfx_notif.wav')} volume={m.out ? 0.35 : 0.5} /></Sequence>
+      ))}
+      <Sequence from={CHAT - 8}><Audio src={staticFile('audio/sfx_whoosh.wav')} volume={0.45} /></Sequence>
+    </AbsoluteFill>
+  );
+};
+
+export const Cosomovil: React.FC<{literal?: boolean}> = ({literal = false}) => (
+  <AbsoluteFill style={{backgroundColor: '#080808'}}>
+    <Sequence durationInFrames={CHAT}><Chat /></Sequence>
+    <Sequence from={CHAT}><Cuerpo literal={literal} /></Sequence>
+  </AbsoluteFill>
+);
