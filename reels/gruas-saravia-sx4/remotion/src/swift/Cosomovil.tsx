@@ -278,11 +278,25 @@ const Hook: React.FC = () => {
       <AbsoluteFill style={{background: '#fff', opacity: flash}} />
       {/* viñeta que se cierra durante el suspenso */}
       <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0) ${interpolate(f, [39, 99], [60, 35], cl)}%, rgba(0,0,0,0.7) 100%)`}} />
-      <TT f={f} at={3} until={99} top={300}>POV: vas a remolcar el auto de tu amigo</TT>
-      <TT f={f} at={45} until={99} top={560}>y abres el maletero…</TT>
-      <TT f={f} at={121} until={HOOK + 1} top={330} red size={76}>HERMANO???</TT>
+      <TT f={f} at={3} until={39} top={300}>me mandaron a buscar este auto en la grúa</TT>
+      <TT f={f} at={39} until={99} top={300}>me pararon los pacos y abrieron el maletero…</TT>
+      <TT f={f} at={121} until={HOOK + 1} top={330} red size={70}>casi me voy en cana</TT>
+      {f >= 126 && (
+        <div style={{position: 'absolute', top: 450, left: 0, right: 0, display: 'flex', justifyContent: 'center', transform: `scale(${spring({frame: f - 126, fps: 30, config: {damping: 9, stiffness: 240, mass: 0.5}})})`}}>
+          {/* calavera vectorial (sin emoji) */}
+          <svg width="130" height="130" viewBox="0 0 64 64">
+            <path d="M32 4C17 4 7 14 7 28c0 8 4 14 10 17v9a3 3 0 0 0 3 3h24a3 3 0 0 0 3-3v-9c6-3 10-9 10-17C57 14 47 4 32 4z" fill="#fff" stroke="#000" strokeWidth="2.5" />
+            <circle cx="22" cy="29" r="7" fill="#000" /><circle cx="42" cy="29" r="7" fill="#000" />
+            <path d="M32 36l-4 7h8z" fill="#000" />
+            <path d="M24 50v6M30 50v6M36 50v6M42 50v6" stroke="#000" strokeWidth="2.5" />
+          </svg>
+        </div>
+      )}
+      {/* balizas de carabineros: rojo / azul intermitente mientras abren el maletero */}
+      {f >= 39 && f < 120 && <AbsoluteFill style={{background: Math.floor(f / 5) % 2 ? 'rgba(30,60,255,0.16)' : 'rgba(255,20,20,0.16)', mixBlendMode: 'screen'}} />}
       <Sequence from={0}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
       <Sequence from={39} durationInFrames={60}><Audio src={S('audio/sfx_heartbeat.wav')} volume={0.9} /></Sequence>
+      <Sequence from={30} durationInFrames={66}><Audio src={S('audio/sfx_sirena.wav')} volume={0.35} /></Sequence>
       <Sequence from={45} durationInFrames={54}><Audio src={S('audio/sfx_riser.wav')} volume={(x) => 0.4 * interpolate(x, [44, 54], [1, 0], cl)} /></Sequence>
       <Sequence from={99}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.85} /></Sequence>
       <Sequence from={120}><Audio src={S('audio/sfx_scratch.wav')} volume={0.7} /></Sequence>
