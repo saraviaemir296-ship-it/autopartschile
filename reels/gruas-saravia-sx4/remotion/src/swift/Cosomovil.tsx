@@ -250,3 +250,65 @@ export const CosomovilOrg: React.FC<{literal?: boolean}> = ({literal = false}) =
     <Sequence from={CHAT}><CuerpoOrg literal={literal} /></Sequence>
   </AbsoluteFill>
 );
+
+/* ---- versión POV: el clip de IA (Higgsfield, estilo Ray-Ban Meta) como gancho de suspenso */
+const HF = 'swift/hf_anon.mp4';
+const HOOK = 150;
+const B2 = {d: [0, 72], e: [72, 140], f: [140, 185]} as const;
+export const COSO_POV_TOTAL = HOOK + CHAT + 185;
+const Hook: React.FC = () => {
+  const f = useCurrentFrame();
+  const S = (x: string) => staticFile(x);
+  const punch = f >= 99 && f < 120 ? interpolate(f, [99, 104], [1.28, 1.12], cl) : 1;
+  const flash = f >= 99 ? interpolate(f, [99, 103], [0.7, 0], cl) : 0;
+  const fz = f >= 120;
+  const shake = fz && f < 128 ? Math.sin(f * 9) * (128 - f) * 3 : 0;
+  return (
+    <AbsoluteFill style={{background: '#000'}}>
+      <Sequence durationInFrames={39}><Shot src={HF} segs={[{from: 0, take: 1.3, rate: 1}]} audio={0.5} /></Sequence>
+      <Sequence from={39} durationInFrames={60}><Shot src={HF} segs={[{from: 1.3, take: 1.3, rate: 0.65}]} zoom={[1.0, 1.06]} audio={0.3} /></Sequence>
+      <Sequence from={99} durationInFrames={21}>
+        <AbsoluteFill style={{transform: `scale(${punch})`}}><Shot src={HF} segs={[{from: 2.6, take: 0.7, rate: 1}]} audio={0.4} /></AbsoluteFill>
+      </Sequence>
+      {fz && (
+        <AbsoluteFill style={{transform: `translate(${shake}px,${shake * 0.4}px) scale(${interpolate(f, [120, 150], [1.15, 1.25], cl)})`, transformOrigin: '50% 72%'}}>
+          <Img src={S('swift/hf_freeze.jpg')} style={{width: '100%', height: '100%', objectFit: 'cover', filter: 'contrast(1.1) saturate(1.1)'}} />
+        </AbsoluteFill>
+      )}
+      <AbsoluteFill style={{background: '#fff', opacity: flash}} />
+      {/* viñeta que se cierra durante el suspenso */}
+      <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0) ${interpolate(f, [39, 99], [60, 35], cl)}%, rgba(0,0,0,0.7) 100%)`}} />
+      <TT f={f} at={3} until={99} top={300}>POV: vas a remolcar el auto de tu amigo</TT>
+      <TT f={f} at={45} until={99} top={560}>y abres el maletero…</TT>
+      <TT f={f} at={121} until={HOOK + 1} top={330} red size={76}>HERMANO???</TT>
+      <Sequence from={0}><Audio src={S('audio/sfx_whoosh.wav')} volume={0.3} /></Sequence>
+      <Sequence from={39} durationInFrames={60}><Audio src={S('audio/sfx_heartbeat.wav')} volume={0.9} /></Sequence>
+      <Sequence from={45} durationInFrames={54}><Audio src={S('audio/sfx_riser.wav')} volume={(x) => 0.4 * interpolate(x, [44, 54], [1, 0], cl)} /></Sequence>
+      <Sequence from={99}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.85} /></Sequence>
+      <Sequence from={120}><Audio src={S('audio/sfx_scratch.wav')} volume={0.7} /></Sequence>
+    </AbsoluteFill>
+  );
+};
+const CierrePOV: React.FC = () => {
+  const f = useCurrentFrame();
+  const S = (x: string) => staticFile(x);
+  return (
+    <AbsoluteFill style={{background: '#000'}}>
+      <Sequence {...at(B2.d)}><Shot src={SRC} segs={[{from: 5.2, take: 1.4, rate: 0.58}]} audio={0.4} /></Sequence>
+      <Sequence from={B2.e[0]} durationInFrames={B2.f[1] - B2.e[0]}><Shot src={SRC} segs={[{from: 6.7, take: 1.4, rate: 0.62}, {from: 8.05, take: 0.02, rate: 0.01}]} audio={0.4} /></Sequence>
+      <TT f={f} at={4} until={B2.d[1]} top={430}>tranquilos, nosotros solo llevamos el auto</TT>
+      <TT f={f} at={B2.e[0] + 4} until={B2.f[0]} top={430}>cualquier auto,<br />cualquier carga*</TT>
+      <TT f={f} at={B2.e[0] + 36} until={B2.f[0]} top={615} size={38}>*legal, obvio. Video del maletero hecho con IA</TT>
+      <TT f={f} at={B2.f[0]} until={B2.f[1] + 1} top={430}>Grúas Saravia · 24/7</TT>
+      <TT f={f} at={B2.f[0] + 6} until={B2.f[1] + 1} top={530} size={42}>+56 9 5381 7335</TT>
+      <Sequence from={B2.e[0] + 36}><Audio src={S('audio/sfx_ding.wav')} volume={0.4} /></Sequence>
+    </AbsoluteFill>
+  );
+};
+export const CosomovilPOV: React.FC = () => (
+  <AbsoluteFill style={{backgroundColor: '#000'}}>
+    <Sequence durationInFrames={HOOK}><Hook /></Sequence>
+    <Sequence from={HOOK} durationInFrames={CHAT}><Chat /></Sequence>
+    <Sequence from={HOOK + CHAT}><CierrePOV /></Sequence>
+  </AbsoluteFill>
+);

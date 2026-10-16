@@ -29,7 +29,7 @@ import {MisDias, MISDIAS_TOTAL} from './swift/MisDias';
 import {MisDiasVoz, MISDIAS_VOZ_TOTAL} from './swift/MisDiasVoz';
 import {Santorini, SANTORINI_TOTAL} from './santorini/Santorini';
 import {Cerro, CERRO_TOTAL} from './personal/Cerro';
-import {Cosomovil, COSO_TOTAL, CosomovilOrg, COSO_ORG_TOTAL} from './swift/Cosomovil';
+import {Cosomovil, COSO_TOTAL, CosomovilOrg, COSO_ORG_TOTAL, CosomovilPOV, COSO_POV_TOTAL} from './swift/Cosomovil';
 import {LogoCine, LOGOCINE_TOTAL} from './swift/LogoCine';
 import {MalDia, MALDIA_TOTAL} from './personal/MalDia';
 import {FeriadoV4, FERIADO_V4_TOTAL} from './swift/FeriadoV4';
@@ -56,6 +56,7 @@ export const Root: React.FC = () => (
     <Composition id="CosomovilLiteral" component={Cosomovil} durationInFrames={COSO_TOTAL} fps={FPS} width={W} height={H} defaultProps={{literal: true}} />
     <Composition id="CosomovilOrg" component={CosomovilOrg} durationInFrames={COSO_ORG_TOTAL} fps={FPS} width={W} height={H} defaultProps={{literal: false}} />
     <Composition id="CosomovilOrgLiteral" component={CosomovilOrg} durationInFrames={COSO_ORG_TOTAL} fps={FPS} width={W} height={H} defaultProps={{literal: true}} />
+    <Composition id="CosomovilPOV" component={CosomovilPOV} durationInFrames={COSO_POV_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Cerro" component={Cerro} durationInFrames={CERRO_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Santorini" component={Santorini} durationInFrames={SANTORINI_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="MisDiasVoz" component={MisDiasVoz} durationInFrames={MISDIAS_VOZ_TOTAL} fps={FPS} width={W} height={H} />
