@@ -193,3 +193,60 @@ export const Cosomovil: React.FC<{literal?: boolean}> = ({literal = false}) => (
     <Sequence from={CHAT}><Cuerpo literal={literal} /></Sequence>
   </AbsoluteFill>
 );
+
+/* ---- versión orgánica: texto estilo TikTok (cajita blanca), cortes simples, sin titulares ni cierre animado */
+const TT: React.FC<{f: number; at: number; until: number; top: number; red?: boolean; size?: number; children: React.ReactNode}> = ({f, at, until, top, red, size = 56, children}) => {
+  if (f < at || f >= until) return null;
+  const k = interpolate(f, [at, at + 4], [0.9, 1], cl);
+  return (
+    <div style={{position: 'absolute', top, left: 60, right: 60, textAlign: 'center', transform: `scale(${k})`}}>
+      <span style={{background: red ? K.red : '#fff', color: red ? '#fff' : '#000', fontFamily: MONT, fontWeight: 700, fontSize: size, lineHeight: 1.45, padding: '6px 18px', borderRadius: 12, boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{children}</span>
+    </div>
+  );
+};
+const O = {a: [0, 75], b: [75, 125], c: [125, 190], d: [190, 262], e: [262, 330], f: [330, 375]} as const;
+const BODY_ORG = 375;
+export const COSO_ORG_TOTAL = CHAT + BODY_ORG;
+const CuerpoOrg: React.FC<{literal: boolean}> = ({literal}) => {
+  const f = useCurrentFrame();
+  const S = (x: string) => staticFile(x);
+  const draw = interpolate(f, [O.c[0] + 3, O.c[0] + 13], [0, 1], cl);
+  const shake = f >= O.c[0] && f < O.c[0] + 8 ? Math.sin(f * 9) * (O.c[0] + 8 - f) * 2.5 : 0;
+  return (
+    <AbsoluteFill style={{background: '#000'}}>
+      <Sequence {...at(O.a)}><Shot src={SRC} segs={[{from: 0.1, take: 2.5, rate: 1}]} audio={0.5} /></Sequence>
+      <Sequence {...at(O.b)}><Shot src={SRC} segs={[{from: 0.25, take: 1.0, rate: 0.6}]} zoom={[1.0, 1.35]} origin="18% 60%" audio={0.4} /></Sequence>
+      <Sequence {...at(O.c)}>
+        <AbsoluteFill style={{transform: `translate(${shake}px,${shake * 0.5}px) scale(${interpolate(f - O.c[0], [0, 65], [1.35, 1.42])})`, transformOrigin: '18% 60%'}}>
+          <Img src={S('swift/coso_freeze.jpg')} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
+            <ellipse cx={225} cy={1155} rx={240} ry={145} fill="none" stroke={K.red} strokeWidth={11} strokeLinecap="round" strokeDasharray={1500} strokeDashoffset={1500 * (1 - draw)} transform="rotate(-8 225 1155)" />
+          </svg>
+        </AbsoluteFill>
+      </Sequence>
+      <Sequence {...at(O.d)}><Shot src={SRC} segs={[{from: 5.2, take: 1.4, rate: 0.58}]} audio={0.4} /></Sequence>
+      <Sequence from={O.e[0]} durationInFrames={O.f[1] - O.e[0]}><Shot src={SRC} segs={[{from: 6.7, take: 1.4, rate: 0.62}, {from: 8.05, take: 0.02, rate: 0.01}]} audio={0.4} /></Sequence>
+
+      <TT f={f} at={4} until={O.a[1]} top={430}>rescate del día: el cosomóvil de mi amigo</TT>
+      <TT f={f} at={O.b[0] + 4} until={O.b[1]} top={430}>¿y qué traía tan pesado?</TT>
+      <TT f={f} at={O.c[0] + 6} until={O.c[1]} top={430}>kilos de…</TT>
+      <TT f={f} at={O.c[0] + 28} until={O.c[1]} top={530} red size={70}>{literal ? 'COCAÍNA' : 'HARINA'}</TT>
+      <TT f={f} at={O.d[0] + 4} until={O.d[1]} top={430}>tranquilos, nosotros solo llevamos el auto</TT>
+      <TT f={f} at={O.e[0] + 4} until={O.f[0]} top={430}>cualquier auto,<br />cualquier carga*</TT>
+      <TT f={f} at={O.e[0] + 36} until={O.f[0]} top={615} size={38}>*legal, obvio</TT>
+      <TT f={f} at={O.f[0]} until={O.f[1] + 1} top={430}>Grúas Saravia · 24/7</TT>
+      <TT f={f} at={O.f[0] + 6} until={O.f[1] + 1} top={530} size={42}>+56 9 5381 7335</TT>
+
+      <Sequence from={O.b[0] + 4}><Audio src={S('audio/sfx_trombon.wav')} volume={0.4} /></Sequence>
+      <Sequence from={O.c[0]}><Audio src={S('audio/sfx_scratch.wav')} volume={0.65} /></Sequence>
+      <Sequence from={O.c[0] + 28}><Audio src={S('audio/sfx_vineboom.wav')} volume={0.75} /></Sequence>
+      <Sequence from={O.e[0] + 36}><Audio src={S('audio/sfx_ding.wav')} volume={0.4} /></Sequence>
+    </AbsoluteFill>
+  );
+};
+export const CosomovilOrg: React.FC<{literal?: boolean}> = ({literal = false}) => (
+  <AbsoluteFill style={{backgroundColor: '#000'}}>
+    <Sequence durationInFrames={CHAT}><Chat /></Sequence>
+    <Sequence from={CHAT}><CuerpoOrg literal={literal} /></Sequence>
+  </AbsoluteFill>
+);
