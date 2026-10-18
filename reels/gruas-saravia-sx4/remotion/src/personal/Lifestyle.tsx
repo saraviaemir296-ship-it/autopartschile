@@ -1,9 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame, Easing} from 'remotion';
 
-/* Short lifestyle sin sonido ni texto. Cada toma entra como una Live Photo de iPhone:
-   un pequeño "pop" (zoom 1.07→1 con desenfoque que se limpia) y luego movimiento.
-   Las fotos no traen video, así que llevan un empuje lento con pulso de cámara en mano. */
+/* Short lifestyle sin sonido, sin texto y sin animaciones: solo cortes secos entre clips. */
 
 const cl = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const out = Easing.bezier(0.16, 1, 0.3, 1);
@@ -12,10 +10,10 @@ type Item = {src: string; dur: number; video?: boolean; origin?: string; from?: 
 const H = (from: number, dur: number, pan: [number, number], rate = 1): Item => ({src: 'personal/web_desarme.mp4', dur, video: true, from, rate, pan});
 const ITEMS: Item[] = [
   {src: 'personal/collage.jpg', dur: 48, origin: '50% 45%'},
-  H(0.1, 46, [560, 700]),
-  H(2.6, 52, [560, 1100]),
-  H(5.5, 52, [960, 900], 1.15),
-  H(10.1, 66, [780, 960], 1.25),
+  H(0.1, 46, [630, 630]),
+  H(2.6, 52, [800, 800]),
+  H(5.5, 52, [930, 930], 1.15),
+  H(10.1, 66, [870, 870], 1.25),
   {src: 'personal/gruas_v3.mp4', dur: 50, video: true, from: 3.4},
   {src: 'personal/gruas_v3.mp4', dur: 80, video: true, from: 7.1, rate: 1.35},
   {src: 'personal/life_laptop.jpg', dur: 70, origin: '62% 58%'},
@@ -40,17 +38,10 @@ const Wide: React.FC<{it: Item}> = ({it}) => {
 };
 
 const Live: React.FC<{it: Item}> = ({it}) => {
-  const f = useCurrentFrame();
-  const pop = interpolate(f, [0, 14], [1.07, 1], {...cl, easing: out});
-  const blur = interpolate(f, [0, 8], [7, 0], cl);
-  const bright = interpolate(f, [0, 8], [1.12, 1], cl);
-  const push = it.video ? 1 : interpolate(f, [0, it.dur], [1, 1.07], cl);
-  const hx = it.video ? 0 : Math.sin(f * 0.13) * 3 + Math.sin(f * 0.31) * 1.5;
-  const hy = it.video ? 0 : Math.cos(f * 0.11) * 3;
   const st: React.CSSProperties = {width: '100%', height: '100%', objectFit: 'cover'};
   return (
     <AbsoluteFill style={{background: '#000', overflow: 'hidden'}}>
-      <AbsoluteFill style={{transform: `translate(${hx}px,${hy}px) scale(${pop * push})`, transformOrigin: it.origin ?? '50% 50%', filter: `blur(${blur}px) brightness(${bright})`}}>
+      <AbsoluteFill>
         {it.pan ? <Wide it={it} /> : it.video ? <OffthreadVideo src={staticFile(it.src)} startFrom={Math.round((it.from ?? 0) * 30)} playbackRate={it.rate ?? 1} muted style={st} /> : <Img src={staticFile(it.src)} style={st} />}
       </AbsoluteFill>
     </AbsoluteFill>
