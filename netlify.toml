@@ -131,7 +131,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Robots-Tag = "noindex, nofollow"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://esm.sh; img-src 'self' data: https://zlyforhywunqhitrdreo.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://esm.sh; img-src 'self' data: https://zlyforhywunqhitrdreo.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
 
 # Cache agresivo para assets estáticos
 [[headers]]
