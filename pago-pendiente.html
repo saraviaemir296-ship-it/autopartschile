@@ -6,6 +6,7 @@
 <title>Pago Pendiente | AutopartsChile – Desarmaduría Saravia</title>
 <link rel="icon" href="/img/favicon.png">
 <meta name="description" content="Tu pago está siendo procesado. Te avisaremos apenas se confirme.">
+<meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="https://autopartschile.cl/pago-pendiente.html">
 <link rel="stylesheet" href="/styles.css?v=20260902cart">
@@ -22,7 +23,7 @@
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', 'G-TXKXWQCTZ1');
+gtag('config', 'G-TXKXWQCTZ1', { page_location: location.origin + location.pathname });
 </script>
 </head>
 <body data-result="pending">
@@ -32,7 +33,7 @@ gtag('config', 'G-TXKXWQCTZ1');
 <div class="resultado-box">
 <span class="resultado-icon">&#8987;</span>
 <h1>Tu pago está en proceso</h1>
-<p>Mercado Pago está validando tu pago (esto puede pasar con transferencias o pagos en efectivo). Apenas se confirme, actualizaremos tu pedido y te contactaremos por WhatsApp.</p>
+<p>Tu pago está siendo validado. No vuelvas a pagar: apenas se confirme, actualizaremos tu pedido y te contactaremos por WhatsApp.</p>
 <span class="resultado-order" id="orderBadge"></span>
 <div style="display:flex;flex-direction:column;gap:.6rem;max-width:320px;margin:0 auto">
 <a href="https://wa.me/56953817335?text=Hola%2C%20mi%20pago%20qued%C3%B3%20pendiente%20al%20comprar%20un%20repuesto%20por%20la%20web" id="waLink" class="btn-primary" target="_blank" rel="noopener">&#128172; Consultar por WhatsApp</a>
@@ -55,7 +56,7 @@ gtag('config', 'G-TXKXWQCTZ1');
   }
 })();
 </script>
-<script src="/receipt.js?v=20261018" defer></script>
+<script src="/receipt.js?v=20261018b" defer></script>
 <script src="/cart.js" defer></script>
 <script>(function(){var header=document.querySelector(".header");if(!header)return;var ticking=false;function onScroll(){if(!ticking){window.requestAnimationFrame(function(){header.classList.toggle("is-scrolled",window.scrollY>30);ticking=false;});ticking=true;}}window.addEventListener("scroll",onScroll,{passive:true});onScroll();})();</script>
 </body>

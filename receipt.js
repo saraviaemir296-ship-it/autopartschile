@@ -36,10 +36,33 @@
     if (el) el.textContent = text;
   }
 
-  fetch(ENDPOINT + "?order=" + encodeURIComponent(order) + "&k=" + encodeURIComponent(key), { cache: "no-store" })
+  var url = ENDPOINT + "?order=" + encodeURIComponent(order) + "&k=" + encodeURIComponent(key);
+  var qs = "?order=" + encodeURIComponent(order) + "&k=" + encodeURIComponent(key);
+
+  // En la página de pendiente, seguir consultando hasta que el pago se resuelva (máx. ~3 min).
+  function poll(attempt) {
+    if (attempt > 36) return;
+    setTimeout(function () {
+      fetch(url, { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.status === "completed") window.location.replace("/pago-exitoso.html" + qs);
+          else if (d && (d.status === "cancelled" || d.status === "refunded")) window.location.replace("/pago-fallido.html" + qs);
+          else poll(attempt + 1);
+        })
+        .catch(function () { poll(attempt + 1); });
+    }, 5000);
+  }
+
+  fetch(url, { cache: "no-store" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
       if (!d) return;
+      if (page === "pending") {
+        if (d.status === "completed") { window.location.replace("/pago-exitoso.html" + qs); return; }
+        if (d.status === "cancelled" || d.status === "refunded") { window.location.replace("/pago-fallido.html" + qs); return; }
+        if (d.status === "pending") poll(0);
+      }
 
       if (page === "pending") {
         setText(".resultado-box h1", "Estamos confirmando tu pago");
