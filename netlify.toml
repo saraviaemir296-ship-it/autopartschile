@@ -4,6 +4,62 @@
   publish = "."
   functions = "netlify/functions"
 
+# Documentos internos (auditorías, conciliaciones, logs): no se publican.
+# Netlify publica la raíz del repo, así que se bloquean explícitamente con 404.
+[[redirects]]
+  from = "/DZ13_CHECKOUT_RECONCILIATION.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/INVENTORY_RECONCILIATION.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/MASTER_SITE_AUDIT.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/PAYMENT_SECURITY_AUDIT.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/PRICE_STOCK_RECONCILIATION.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/SEO_AGENT_LOG.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/SEO_AUDIT_REPORT.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/SEO_BACKLOG.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/SITE_IMPROVEMENT_ROADMAP.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # Redirige /api/google-reviews → /.netlify/functions/google-reviews (URL limpia)
 [[redirects]]
   from = "/api/google-reviews"

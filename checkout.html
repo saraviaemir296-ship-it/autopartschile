@@ -384,6 +384,7 @@ gtag('config', 'G-TXKXWQCTZ1');
           if (!res.ok || !res.data.url || !res.data.token) {
             throw new Error((res.data && res.data.error) || "No se pudo generar el pago");
           }
+          if (window.apcTrack) window.apcTrack.rememberPurchase(cart);
           if (window.apcCart) window.apcCart.clear();
           redirectPost(res.data.url, { token_ws: res.data.token });
           return;
@@ -391,6 +392,7 @@ gtag('config', 'G-TXKXWQCTZ1');
         if (!res.ok || !res.data.init_point) {
           throw new Error((res.data && res.data.error) || "No se pudo generar el pago");
         }
+        if (window.apcTrack) window.apcTrack.rememberPurchase(cart);
         if (window.apcCart) window.apcCart.clear();
         window.location.href = res.data.init_point;
       })

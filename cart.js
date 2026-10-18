@@ -285,10 +285,69 @@
     });
   }
 
+  // ---------- medición (GA4 → importable como conversión en Google Ads) ----------
+  // generate_lead: clic a WhatsApp o teléfono. purchase: al volver de un pago
+  // aprobado, con el monto guardado justo antes de ir a la pasarela.
+  var PENDING_KEY = "apc_pending_purchase";
+
+  function track(eventName, params) {
+    try {
+      if (typeof window.gtag === "function") window.gtag("event", eventName, params || {});
+    } catch (e) {}
+  }
+
+  function rememberPurchase(items) {
+    try {
+      var list = (items || []).map(function (it) {
+        return {
+          item_id: String(it.sku || ""),
+          item_name: String(it.name || ""),
+          price: Number(it.price) || 0,
+          quantity: Number(it.qty) || 1,
+        };
+      });
+      var value = list.reduce(function (n, it) { return n + it.price * it.quantity; }, 0);
+      localStorage.setItem(PENDING_KEY, JSON.stringify({ items: list, value: value, ts: Date.now() }));
+    } catch (e) {}
+  }
+
+  function sendPurchaseIfReturning() {
+    var path = window.location.pathname;
+    if (!/\/pago-(exitoso|confirmado)/.test(path)) return;
+    var params = new URLSearchParams(window.location.search);
+    if (params.get("pendiente")) return; // pago aún no acreditado
+    var pending;
+    try { pending = JSON.parse(localStorage.getItem(PENDING_KEY) || "null"); } catch (e) { pending = null; }
+    // Sin datos guardados o de hace más de 2 días: no se inventa un monto.
+    if (!pending || !pending.ts || Date.now() - pending.ts > 2 * 24 * 3600 * 1000) return;
+    var txId = params.get("order") || params.get("payment_id") || params.get("sku") + "-" + pending.ts;
+    track("purchase", {
+      transaction_id: String(txId),
+      value: pending.value,
+      currency: "CLP",
+      items: pending.items,
+    });
+    try { localStorage.removeItem(PENDING_KEY); } catch (e) {}
+  }
+
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (/wa\.me|api\.whatsapp\.com/.test(href)) {
+      track("generate_lead", { method: "whatsapp", page: window.location.pathname });
+    } else if (/^tel:/.test(href)) {
+      track("generate_lead", { method: "telefono", page: window.location.pathname });
+    }
+  }, true);
+
+  window.apcTrack = { rememberPurchase: rememberPurchase, track: track };
+
   function init() {
     injectCartIcon();
     injectAddButtons();
     updateBadge();
+    sendPurchaseIfReturning();
   }
 
   if (document.readyState === "loading") {

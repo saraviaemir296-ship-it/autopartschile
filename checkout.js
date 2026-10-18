@@ -167,6 +167,10 @@
           if (!res.ok || !res.data.init_point) {
             throw new Error((res.data && res.data.error) || "No se pudo generar el pago");
           }
+          if (window.apcTrack) {
+            var num = parseInt(String(priceText || "").replace(/[^\d]/g, ""), 10) || 0;
+            window.apcTrack.rememberPurchase([{ sku: sku, name: productName, price: num, qty: 1 }]);
+          }
           window.location.href = res.data.init_point;
         })
         .catch(function (err) {
