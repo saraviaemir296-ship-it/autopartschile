@@ -6,6 +6,13 @@
 
 # Documentos internos (auditorías, conciliaciones, logs): no se publican.
 # Netlify publica la raíz del repo, así que se bloquean explícitamente con 404.
+# Código de funciones de Supabase: vive en el repo como respaldo, no debe servirse.
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/DZ13_CHECKOUT_RECONCILIATION.md"
   to = "/404.html"
