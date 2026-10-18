@@ -32,6 +32,7 @@ import {Cerro, CERRO_TOTAL} from './personal/Cerro';
 import {Cosomovil, COSO_TOTAL, CosomovilOrg, COSO_ORG_TOTAL, CosomovilPOV, COSO_POV_TOTAL} from './swift/Cosomovil';
 import {LogoCine, LOGOCINE_TOTAL} from './swift/LogoCine';
 import {Contrapeso, CONTRAPESO_TOTAL} from './swift/Contrapeso';
+import {Lifestyle, LIFESTYLE_TOTAL} from './personal/Lifestyle';
 import {MalDia, MALDIA_TOTAL} from './personal/MalDia';
 import {FeriadoV4, FERIADO_V4_TOTAL} from './swift/FeriadoV4';
 import {Feriado, FERIADO_TOTAL, FeriadoOrganico, FERIADO_ORG_TOTAL} from './swift/Feriado';
@@ -59,6 +60,7 @@ export const Root: React.FC = () => (
     <Composition id="CosomovilOrgLiteral" component={CosomovilOrg} durationInFrames={COSO_ORG_TOTAL} fps={FPS} width={W} height={H} defaultProps={{literal: true}} />
     <Composition id="CosomovilPOV" component={CosomovilPOV} durationInFrames={COSO_POV_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Contrapeso" component={Contrapeso} durationInFrames={CONTRAPESO_TOTAL} fps={FPS} width={W} height={H} />
+    <Composition id="Lifestyle" component={Lifestyle} durationInFrames={LIFESTYLE_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Cerro" component={Cerro} durationInFrames={CERRO_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="Santorini" component={Santorini} durationInFrames={SANTORINI_TOTAL} fps={FPS} width={W} height={H} />
     <Composition id="MisDiasVoz" component={MisDiasVoz} durationInFrames={MISDIAS_VOZ_TOTAL} fps={FPS} width={W} height={H} />
