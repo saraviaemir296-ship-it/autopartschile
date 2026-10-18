@@ -22,7 +22,7 @@ button:disabled{opacity:.5}
 <p class="warn">Esta página NO es para clientes. Sirve solo para que Emir complete manualmente las pruebas de tarjeta que Transbank exige para la validación (evidencia). Ambiente: INTEGRACIÓN (ninguna tarjeta real puede ser cobrada aquí).</p>
 
 <div class="box">
-<p><strong>Paso 1.</strong> Presiona el botón. Se creará una transacción de prueba real ($29.990, mismo SKU usado en pruebas anteriores) y te llevará a la pantalla real de Transbank.</p>
+<p><strong>Paso 1.</strong> Presiona el botón. Se creará una transacción de prueba real ($1.000, producto ficticio QA-WEBPAY-001 que no descuenta stock real) y te llevará a la pantalla real de Transbank.</p>
 <p><strong>Paso 2.</strong> En la pantalla de Transbank, elige "Tarjetas" e ingresa UNA de estas tarjetas de prueba oficiales (nunca una tarjeta real):</p>
 <ul>
 <li><strong>Aprobada (crédito/débito):</strong> 4051 8856 0044 6623 — CVV 123 — cualquier fecha de vencimiento futura.</li>
@@ -56,7 +56,7 @@ document.getElementById("go").addEventListener("click", function () {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      items: [{ sku: "GRANOM-001", quantity: 1 }],
+      items: [{ sku: "QA-WEBPAY-001", quantity: 1 }],
       customer: { email: "qa-webpay@autopartschile.cl", first_name: "QA", last_name: "Interno" }
     })
   })
