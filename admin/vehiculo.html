@@ -70,13 +70,41 @@ button:disabled{opacity:.6;}
 <div><label for="color">Color</label><input type="text" id="color" placeholder="Celeste"></div>
 <div><label for="transmision">Transmisión</label><input type="text" id="transmision" placeholder="Mecánica"></div>
 </div>
-<label for="codigo">Código interno</label>
-<input type="text" id="codigo" placeholder="Ej: CEL-CELESTE-2024">
-<p class="hint">Identificador corto para uso interno (para relacionar piezas sueltas con este vehículo más adelante). No es obligatorio.</p>
+<label for="codigo">Código interno *</label>
+<input type="text" id="codigo" required maxlength="12" placeholder="Ej: CEL0814" style="text-transform:uppercase">
+<p class="hint">Corto y único: 3 letras del modelo + años (CEL0814 = Celerio 2008-2014). Con él se arman los SKU de todas sus piezas.</p>
 <label for="descripcion">Descripción</label>
 <textarea id="descripcion" placeholder="Estado del vehículo, kilometraje si se conoce, piezas disponibles, observaciones..."></textarea>
 <label for="notas_internas">Notas internas (no se publican)</label>
 <textarea id="notas_internas" placeholder="Recordatorios solo para el equipo"></textarea>
+</div>
+
+<div class="card">
+<h2>Mecánica (define qué piezas lleva el despiece)</h2>
+<p class="hint" style="margin-top:0">Con estos datos el sistema arma solo la lista de piezas: sin turbo en un atmosférico, sin cardán en tracción delantera, sin embrague en un automático, con inyectora e intercooler en un diésel.</p>
+<div class="grid3">
+<div><label for="traccion">Tracción *</label><select id="traccion" required><option value="">—</option><option value="fwd">Delantera</option><option value="rwd">Trasera</option><option value="4x4">4x4 / AWD</option></select></div>
+<div><label for="combustible">Combustible *</label><select id="combustible" required><option value="">—</option><option value="bencina">Bencina</option><option value="diesel">Diésel</option></select></div>
+<div><label for="direccion">Dirección *</label><select id="direccion" required><option value="">—</option><option value="eps">Eléctrica (EPS)</option><option value="hidraulica">Hidráulica</option></select></div>
+</div>
+<div class="grid3">
+<div><label for="frenos_traseros">Frenos traseros *</label><select id="frenos_traseros" required><option value="">—</option><option value="tambor">Tambor</option><option value="disco">Disco</option></select></div>
+<div><label for="puertas">Puertas</label><select id="puertas"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option></select></div>
+<div><label for="carroceria">Carrocería</label><select id="carroceria"><option value="">Auto / SUV</option><option value="pickup">Camioneta pick-up</option><option value="van">Furgón</option></select></div>
+</div>
+<label>Caja de cambios de ESTE auto *</label>
+<div style="display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:.3rem">
+<label style="display:flex;gap:.4rem;align-items:center;margin:0;font-weight:600"><input type="checkbox" class="tx" value="mt" style="width:auto"> Mecánica</label>
+<label style="display:flex;gap:.4rem;align-items:center;margin:0;font-weight:600"><input type="checkbox" class="tx" value="at" style="width:auto"> Automática</label>
+<label style="display:flex;gap:.4rem;align-items:center;margin:0;font-weight:600"><input type="checkbox" class="tx" value="amt" style="width:auto"> AMT / robotizada</label>
+</div>
+<div style="display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:1rem">
+<label style="display:flex;gap:.4rem;align-items:center;margin:0;font-weight:600"><input type="checkbox" id="turbo" style="width:auto"> Turbo</label>
+<label style="display:flex;gap:.4rem;align-items:center;margin:0;font-weight:600"><input type="checkbox" id="hibrido" style="width:auto"> Híbrido</label>
+</div>
+<div id="despieceBox" style="display:none;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #eee">
+<a id="despieceLink" class="primary" style="display:inline-block;text-decoration:none;background:var(--red);color:#fff;padding:.8rem 1.4rem;border-radius:9px;font-weight:800">🧩 Abrir despiece (piezas, precios y fotos)</a>
+</div>
 </div>
 
 <div class="card">
@@ -182,6 +210,13 @@ async function loadExisting() {
   document.getElementById('seo_title').value = v.seo_title || '';
   document.getElementById('meta_description').value = v.meta_description || '';
   document.getElementById('is_active').checked = !!v.is_active;
+  ['traccion','combustible','direccion','frenos_traseros','carroceria'].forEach(function(k){ document.getElementById(k).value = v[k] || ''; });
+  document.getElementById('puertas').value = String(v.puertas || 5);
+  document.getElementById('turbo').checked = !!v.turbo;
+  document.getElementById('hibrido').checked = !!v.hibrido;
+  document.querySelectorAll('.tx').forEach(function(c){ c.checked = (v.transmisiones || []).indexOf(c.value) >= 0; });
+  document.getElementById('despieceBox').style.display = 'block';
+  document.getElementById('despieceLink').href = '/admin/despiece.html?id=' + v.id;
   images = Array.isArray(v.images) ? v.images.slice() : [];
   renderImages();
 }
@@ -205,7 +240,16 @@ document.getElementById('vehForm').addEventListener('submit', async function(e){
     anio_hasta: document.getElementById('anio_hasta').value ? Number(document.getElementById('anio_hasta').value) : null,
     color: document.getElementById('color').value.trim() || null,
     transmision: document.getElementById('transmision').value.trim() || null,
-    codigo: document.getElementById('codigo').value.trim() || null,
+    codigo: document.getElementById('codigo').value.trim().toUpperCase() || null,
+    traccion: document.getElementById('traccion').value || null,
+    combustible: document.getElementById('combustible').value || null,
+    direccion: document.getElementById('direccion').value || null,
+    frenos_traseros: document.getElementById('frenos_traseros').value || null,
+    carroceria: document.getElementById('carroceria').value || null,
+    puertas: Number(document.getElementById('puertas').value) || 5,
+    turbo: document.getElementById('turbo').checked,
+    hibrido: document.getElementById('hibrido').checked,
+    transmisiones: Array.prototype.slice.call(document.querySelectorAll('.tx:checked')).map(function(c){ return c.value; }),
     descripcion: document.getElementById('descripcion').value.trim() || null,
     notas_internas: document.getElementById('notas_internas').value.trim() || null,
     slug: slug,
@@ -230,9 +274,9 @@ document.getElementById('vehForm').addEventListener('submit', async function(e){
     return;
   }
 
-  msg.textContent = '¡Guardado! Redirigiendo...';
+  msg.textContent = '¡Guardado! Abriendo el despiece...';
   msg.className = 'msg ok';
-  setTimeout(function(){ location.href = '/admin/vehiculos.html'; }, 900);
+  setTimeout(function(){ location.href = '/admin/despiece.html?id=' + result.data.id; }, 700);
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async function(){

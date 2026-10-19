@@ -73,7 +73,8 @@ function render(list) {
       '<td>' + statusBadge + '</td>' +
       '<td class="row-actions">' +
         '<button data-save="' + v.id + '">Guardar</button>' +
-        '<a href="/admin/vehiculo.html?id=' + v.id + '">Fotos/SEO</a>' +
+        '<a href="/admin/despiece.html?id=' + v.id + '">🧩 Despiece</a> ' +
+        '<a href="/admin/vehiculo.html?id=' + v.id + '">Datos/Fotos/SEO</a>' +
         '<button data-toggle="' + v.id + '" data-active="' + v.is_active + '">' + (v.is_active ? 'Marcar borrador' : 'Marcar listo') + '</button>' +
       '</td>' +
     '</tr>';

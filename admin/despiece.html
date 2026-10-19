@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Despiece | Admin Desarmaduría Saravia</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/img/favicon.png">
+<link rel="stylesheet" href="/styles.css?v=20260902cart">
+<style>
+body{background:#f4f6f8;}
+.admin-topbar{background:#111;color:#fff;padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;}
+.admin-topbar a{color:#fff;text-decoration:none;font-weight:700;}
+.admin-topbar button{background:transparent;border:1px solid #555;color:#ccc;padding:.4rem .9rem;border-radius:8px;cursor:pointer;}
+.admin-wrap{max-width:1100px;margin:1.5rem auto;padding:0 1rem 5rem;}
+.admin-nav{display:flex;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.admin-nav a{background:#fff;border:1.5px solid #ddd;border-radius:9px;padding:.6rem 1.1rem;text-decoration:none;color:#111;font-weight:700;font-size:.9rem;}
+.card{background:#fff;border-radius:14px;padding:1.3rem;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:1.2rem;}
+.card h2{font-size:1rem;margin:0 0 .8rem;}
+h1{font-size:1.3rem;margin:0 0 .3rem;}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0;}
+.chip{background:#f0f2f5;border-radius:20px;padding:.25rem .7rem;font-size:.78rem;font-weight:700;color:#333;}
+.chip.warn{background:#fff4d6;color:#8a5a00;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-top:.8rem;}
+.stat{background:#f7f8fa;border-radius:10px;padding:.7rem;text-align:center;}
+.stat b{display:block;font-size:1.3rem;}
+.stat span{font-size:.75rem;color:#666;}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr);}}
+button.primary{background:var(--red);color:#fff;border:none;padding:.75rem 1.2rem;border-radius:9px;font-weight:800;cursor:pointer;}
+button.secondary{background:#eee;color:#333;border:none;padding:.75rem 1.2rem;border-radius:9px;font-weight:700;cursor:pointer;}
+button:disabled{opacity:.55;cursor:default;}
+.bar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
+.filters{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem;}
+.filters input,.filters select{padding:.55rem .7rem;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;}
+.filters input{flex:1;min-width:180px;}
+.sys{margin-top:1.2rem;}
+.sys h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;color:#666;margin:0 0 .4rem;border-bottom:2px solid #eee;padding-bottom:.3rem;}
+.row{display:grid;grid-template-columns:64px 1fr 120px 150px 90px;gap:.6rem;align-items:center;padding:.5rem 0;border-bottom:1px solid #f0f0f0;}
+.row .ph{width:64px;height:64px;border-radius:8px;background:#f0f2f5;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;font-size:1.4rem;color:#999;}
+.row .ph img{width:100%;height:100%;object-fit:cover;}
+.row .ph .n{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;font-size:.6rem;padding:0 .3rem;border-radius:4px;}
+.row .nm{font-size:.86rem;font-weight:700;line-height:1.25;}
+.row .nm small{display:block;font-weight:400;color:#888;font-size:.72rem;}
+.row input.price{width:100%;padding:.5rem;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;}
+.row input.price.sug{border-style:dashed;}
+.row select{width:100%;padding:.5rem;border:1.5px solid #ddd;border-radius:8px;font-size:.82rem;}
+.row .pub{display:flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;}
+.row .pub input{width:18px;height:18px;}
+.row.saving{opacity:.6;}
+.row.saved{background:#f0fbf3;}
+.row.err{background:#fdeaea;}
+@media(max-width:700px){
+  .row{grid-template-columns:56px 1fr 1fr;grid-template-areas:"ph nm nm" "ph price status" ". pub pub";}
+  .row .ph{grid-area:ph;width:56px;height:56px;}
+  .row .nm{grid-area:nm;}
+  .row .pc{grid-area:price;}
+  .row .st{grid-area:status;}
+  .row .pub{grid-area:pub;}
+}
+.hint{font-size:.8rem;color:#888;margin-top:.4rem;}
+.preview-list{max-height:320px;overflow:auto;font-size:.82rem;border:1px solid #eee;border-radius:8px;padding:.5rem;margin-top:.6rem;display:none;}
+.preview-list div{padding:.15rem 0;}
+.preview-list .ex{color:#16a34a;}
+</style>
+</head>
+<body>
+<div class="admin-topbar">
+<a href="/admin/index.html">Panel Desarmaduría Saravia</a>
+<button id="logoutBtn">Cerrar sesión</button>
+</div>
+<div class="admin-wrap">
+<div class="admin-nav">
+<a href="/admin/index.html">Dashboard</a>
+<a href="/admin/productos.html">Productos</a>
+<a href="/admin/vehiculos.html">Vehículos</a>
+<a id="editLink" href="/admin/vehiculos.html">✏️ Datos del auto</a>
+</div>
+
+<div class="card" id="head">
+<h1 id="vehTitle">Cargando…</h1>
+<div class="chips" id="vehChips"></div>
+<div class="stats">
+<div class="stat"><b id="sTotal">–</b><span>piezas</span></div>
+<div class="stat"><b id="sPrecio">–</b><span>con precio</span></div>
+<div class="stat"><b id="sFoto">–</b><span>con foto real</span></div>
+<div class="stat"><b id="sPub">–</b><span>publicadas</span></div>
+</div>
+</div>
+
+<div class="card">
+<h2>1 · Generar la lista de piezas</h2>
+<p class="hint" style="margin-top:0">El sistema arma la lista según la mecánica del auto. Las piezas que ya existen en la tienda se vinculan (no se duplican). Las nuevas quedan como borrador: no se ven en la web hasta que las publiques.</p>
+<div class="bar">
+<button class="secondary" id="btnPreview">👁️ Vista previa</button>
+<button class="primary" id="btnApply">🧩 Generar piezas</button>
+<span id="genMsg" class="hint" style="margin:0"></span>
+</div>
+<div class="preview-list" id="previewList"></div>
+</div>
+
+<div class="card">
+<h2>2 · Precios, estado y fotos</h2>
+<p class="hint" style="margin-top:0">Toca el cuadro de la foto para sacar una con el celular. El precio con borde punteado es el <b>sugerido</b> (mediana de tus precios anteriores): confírmalo o cámbialo. Se guarda solo al salir del campo.</p>
+<div class="filters">
+<input type="search" id="q" placeholder="Buscar pieza…">
+<select id="fShow">
+<option value="">Todas</option>
+<option value="noprice">Sin precio</option>
+<option value="nophoto">Sin foto</option>
+<option value="ready">Listas para publicar (precio, no publicadas)</option>
+<option value="pub">Publicadas</option>
+</select>
+</div>
+<div class="bar" style="margin-bottom:.4rem">
+<button class="primary" id="btnPublish">🚀 Publicar todas las que tienen precio</button>
+<button class="secondary" id="btnSug">🔁 Recalcular precios sugeridos</button>
+</div>
+<p class="hint">Sin foto real la pieza se publica como "En el vehículo" en tu web, pero <b>no</b> va a Google Shopping ni al catálogo de Facebook/WhatsApp hasta que le subas foto.</p>
+<div id="list"></div>
+</div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" capture="environment" multiple hidden>
+
+<script type="module">
+import { supabase, requireAdmin, money, toast } from '/admin/admin-common.js';
+
+const session = await requireAdmin();
+if (!session) throw new Error('no admin');
+document.getElementById('logoutBtn').onclick = async () => { await supabase.auth.signOut(); location.href = '/admin/login'; };
+
+const vehId = Number(new URLSearchParams(location.search).get('id'));
+if (!vehId) { document.getElementById('vehTitle').textContent = 'Falta ?id= del vehículo'; throw new Error('no id'); }
+document.getElementById('editLink').href = '/admin/vehiculo.html?id=' + vehId;
+
+const STATUS = { en_vehiculo: 'En el vehículo', desmontada: 'Desmontada', vendida: 'Vendida', no_disponible: 'No disponible' };
+let veh = null, parts = [], sugByCat = {};
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function realImages(p) { return (Array.isArray(p.images) ? p.images : []).filter(u => typeof u === 'string' && u && !/favicon|placeholder|logo/i.test(u)); }
+
+async function loadVehicle() {
+  const { data, error } = await supabase.from('vehiculos').select('*').eq('id', vehId).single();
+  if (error) { document.getElementById('vehTitle').textContent = 'Error: ' + error.message; throw error; }
+  veh = data;
+  const años = veh.anio_desde ? (veh.anio_desde + (veh.anio_hasta && veh.anio_hasta !== veh.anio_desde ? '–' + veh.anio_hasta : '')) : '';
+  document.getElementById('vehTitle').textContent = [veh.marca, veh.modelo, veh.motor, años].filter(Boolean).join(' ') + (veh.codigo ? ' · ' + veh.codigo : '');
+  const chips = [];
+  const lbl = { fwd: 'Tracción delantera', rwd: 'Tracción trasera', '4x4': '4x4', bencina: 'Bencina', diesel: 'Diésel', eps: 'Dirección eléctrica', hidraulica: 'Dirección hidráulica', tambor: 'Tambor trasero', disco: 'Disco trasero' };
+  ['traccion', 'combustible', 'direccion', 'frenos_traseros'].forEach(k => chips.push(veh[k] ? [lbl[veh[k]] || veh[k], ''] : ['Falta ' + k.replace('_', ' '), 'warn']));
+  chips.push((veh.transmisiones || []).length ? ['Caja: ' + veh.transmisiones.join(' / ').toUpperCase(), ''] : ['Falta caja de cambios', 'warn']);
+  if (veh.turbo) chips.push(['Turbo', '']);
+  if (veh.hibrido) chips.push(['Híbrido', '']);
+  if (veh.carroceria) chips.push([veh.carroceria, '']);
+  chips.push([(veh.puertas || 5) + ' puertas', '']);
+  document.getElementById('vehChips').innerHTML = chips.map(([t, c]) => `<span class="chip ${c}">${esc(t)}</span>`).join('');
+  const missing = !veh.codigo || !veh.traccion || !veh.combustible || !veh.direccion || !veh.frenos_traseros || !(veh.transmisiones || []).length;
+  document.getElementById('btnApply').disabled = missing;
+  document.getElementById('btnPreview').disabled = missing;
+  if (missing) document.getElementById('genMsg').textContent = 'Completa código y mecánica en "Datos del auto" antes de generar.';
+}
+
+async function loadSuggested() {
+  const { data } = await supabase.from('part_catalog').select('id, precio_sugerido');
+  sugByCat = {};
+  (data || []).forEach(r => { if (r.precio_sugerido) sugByCat[r.id] = r.precio_sugerido; });
+}
+
+async function loadParts() {
+  const { data, error } = await supabase.from('products')
+    .select('id, sku, name, price_sale, stock, is_active, images, part_status, lado, catalog_id, part_catalog(sistema, pieza, orden)')
+    .eq('vehiculo_id', vehId).is('deleted_at', null).order('sku');
+  if (error) { toast('Error cargando piezas: ' + error.message, 'err'); return; }
+  parts = data || [];
+  render();
+}
+
+function stats() {
+  document.getElementById('sTotal').textContent = parts.length;
+  document.getElementById('sPrecio').textContent = parts.filter(p => Number(p.price_sale) > 0).length;
+  document.getElementById('sFoto').textContent = parts.filter(p => realImages(p).length).length;
+  document.getElementById('sPub').textContent = parts.filter(p => p.is_active).length;
+}
+
+function render() {
+  stats();
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const f = document.getElementById('fShow').value;
+  const groups = {};
+  parts.forEach(p => {
+    if (q && !(p.name || '').toLowerCase().includes(q) && !(p.sku || '').toLowerCase().includes(q)) return;
+    const hasPrice = Number(p.price_sale) > 0, hasPhoto = realImages(p).length > 0;
+    if (f === 'noprice' && hasPrice) return;
+    if (f === 'nophoto' && hasPhoto) return;
+    if (f === 'ready' && (!hasPrice || p.is_active)) return;
+    if (f === 'pub' && !p.is_active) return;
+    const s = p.part_catalog?.sistema || 'Otras piezas (ya existían)';
+    (groups[s] = groups[s] || []).push(p);
+  });
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  const keys = Object.keys(groups).sort((a, b) => a.startsWith('Otras') - b.startsWith('Otras') || a.localeCompare(b, 'es'));
+  if (!keys.length) { list.innerHTML = '<p class="hint">' + (parts.length ? 'Nada coincide con el filtro.' : 'Aún no hay piezas. Usa "Generar piezas" arriba.') + '</p>'; return; }
+  keys.forEach(k => {
+    const sec = document.createElement('div');
+    sec.className = 'sys';
+    sec.innerHTML = `<h3>${esc(k)} · ${groups[k].length}</h3>`;
+    groups[k].forEach(p => sec.appendChild(rowEl(p)));
+    list.appendChild(sec);
+  });
+}
+
+function rowEl(p) {
+  const imgs = realImages(p);
+  const sug = !(Number(p.price_sale) > 0) && sugByCat[p.catalog_id];
+  const el = document.createElement('div');
+  el.className = 'row';
+  el.dataset.id = p.id;
+  el.innerHTML = `
+    <div class="ph" title="Subir foto">${imgs.length ? `<img src="${esc(imgs[0])}" alt="" loading="lazy"><span class="n">${imgs.length}</span>` : '📷'}</div>
+    <div class="nm">${esc(p.name)}<small>${esc(p.sku || '')}</small></div>
+    <div class="pc"><input class="price ${sug ? 'sug' : ''}" type="number" inputmode="numeric" min="0" step="10" placeholder="${sug ? sug : 'Precio'}" value="${Number(p.price_sale) > 0 ? Math.round(p.price_sale) : ''}"></div>
+    <div class="st"><select>${Object.entries(STATUS).map(([v, t]) => `<option value="${v}" ${p.part_status === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    <label class="pub"><input type="checkbox" ${p.is_active ? 'checked' : ''}> Publicada</label>`;
+  el.querySelector('.ph').onclick = () => pickPhotos(p);
+  const price = el.querySelector('input.price');
+  if (sug) price.addEventListener('focus', () => { if (!price.value) { price.value = sug; price.select(); } }, { once: true });
+  price.addEventListener('change', () => {
+    const v = price.value === '' ? null : Math.max(0, Math.round(Number(price.value)));
+    const upd = { price_sale: v };
+    if (!v && p.is_active) upd.is_active = false; // sin precio no se publica
+    save(p, upd, el);
+  });
+  el.querySelector('select').addEventListener('change', e => {
+    const st = e.target.value;
+    const upd = { part_status: st, stock: (st === 'vendida' || st === 'no_disponible') ? 0 : 1 };
+    if (st === 'vendida' || st === 'no_disponible') upd.is_active = false;
+    save(p, upd, el);
+  });
+  el.querySelector('.pub input').addEventListener('change', e => {
+    if (e.target.checked && !(Number(p.price_sale) > 0)) { e.target.checked = false; toast('Ponle precio antes de publicar.', 'err'); return; }
+    if (e.target.checked && (p.part_status === 'vendida' || p.part_status === 'no_disponible')) { e.target.checked = false; toast('Está marcada como ' + STATUS[p.part_status] + '.', 'err'); return; }
+    save(p, { is_active: e.target.checked }, el);
+  });
+  return el;
+}
+
+async function save(p, upd, el) {
+  el.classList.remove('saved', 'err'); el.classList.add('saving');
+  const { data, error } = await supabase.from('products').update(upd).eq('id', p.id).select('id, price_sale, stock, is_active, part_status, images').single();
+  el.classList.remove('saving');
+  if (error) { el.classList.add('err'); toast('No se guardó: ' + error.message, 'err'); return; }
+  Object.assign(p, data);
+  el.classList.add('saved');
+  stats();
+  const nuevo = rowEl(p); nuevo.classList.add('saved'); el.replaceWith(nuevo);
+}
+
+let photoTarget = null;
+const fileInput = document.getElementById('fileInput');
+function pickPhotos(p) { photoTarget = p; fileInput.value = ''; fileInput.click(); }
+
+// Reduce a máx. 1600px y JPEG 0.85 antes de subir (fotos de celular pesan 4–8 MB).
+async function shrink(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise(r => c.toBlob(b => r(b || file), 'image/jpeg', 0.85));
+  } catch (_) { return file; }
+}
+
+fileInput.addEventListener('change', async () => {
+  const p = photoTarget; if (!p || !fileInput.files.length) return;
+  const el = document.querySelector(`.row[data-id="${p.id}"]`);
+  el && el.classList.add('saving');
+  const urls = [];
+  for (const f of fileInput.files) {
+    if (!f.type.startsWith('image/')) continue;
+    const blob = await shrink(f);
+    const path = `despiece/${veh.codigo || vehId}/${(p.sku || p.id)}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
+    const { error } = await supabase.storage.from('product-images').upload(path, blob, { cacheControl: '31536000', upsert: false, contentType: 'image/jpeg' });
+    if (error) { toast('Error subiendo foto: ' + error.message, 'err'); continue; }
+    urls.push(supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl);
+  }
+  if (!urls.length) { el && el.classList.remove('saving'); return; }
+  const imgs = realImages(p).concat(urls);
+  const upd = { images: imgs };
+  if (p.part_status === 'en_vehiculo') upd.part_status = 'desmontada';
+  await save(p, upd, el);
+  toast(urls.length + ' foto(s) subida(s).', 'ok');
+});
+
+document.getElementById('btnPreview').onclick = async () => {
+  const b = document.getElementById('btnPreview'); b.disabled = true;
+  const { data, error } = await supabase.rpc('generar_despiece', { p_vehiculo_id: vehId, p_preview: true });
+  b.disabled = false;
+  const box = document.getElementById('previewList');
+  if (error) { toast(error.message, 'err'); return; }
+  const ex = data.filter(r => r.existente_id).length;
+  document.getElementById('genMsg').textContent = `${data.length} piezas: ${ex} ya existen (se vinculan), ${data.length - ex} nuevas.`;
+  box.innerHTML = data.map(r => `<div class="${r.existente_id ? 'ex' : ''}">${esc(r.sistema)} · ${esc(r.nombre)} ${r.precio_sugerido ? '· ' + money(r.precio_sugerido) : ''}${r.existente_id ? ' ✓ existente' : ''}</div>`).join('');
+  box.style.display = 'block';
+};
+
+document.getElementById('btnApply').onclick = async () => {
+  const b = document.getElementById('btnApply'); b.disabled = true;
+  document.getElementById('genMsg').textContent = 'Generando…';
+  const { data, error } = await supabase.rpc('aplicar_despiece', { p_vehiculo_id: vehId });
+  b.disabled = false;
+  if (error) { document.getElementById('genMsg').textContent = ''; toast(error.message, 'err'); return; }
+  const r = Array.isArray(data) ? data[0] : data;
+  document.getElementById('genMsg').textContent = `Listo: ${r?.creadas ?? 0} creadas como borrador, ${r?.vinculadas ?? 0} existentes vinculadas.`;
+  document.getElementById('previewList').style.display = 'none';
+  await loadParts();
+};
+
+document.getElementById('btnPublish').onclick = async () => {
+  const ids = parts.filter(p => Number(p.price_sale) > 0 && !p.is_active && p.part_status !== 'vendida' && p.part_status !== 'no_disponible').map(p => p.id);
+  if (!ids.length) { toast('No hay piezas con precio pendientes de publicar.', 'err'); return; }
+  if (!confirm(`¿Publicar ${ids.length} piezas en la web?`)) return;
+  const { error } = await supabase.from('products').update({ is_active: true }).in('id', ids);
+  if (error) { toast(error.message, 'err'); return; }
+  toast(ids.length + ' piezas publicadas.', 'ok');
+  await supabase.rpc('recalcular_precios_sugeridos');
+  await loadSuggested(); await loadParts();
+};
+
+document.getElementById('btnSug').onclick = async () => {
+  const { error } = await supabase.rpc('recalcular_precios_sugeridos');
+  if (error) { toast(error.message, 'err'); return; }
+  await loadSuggested(); render(); toast('Precios sugeridos actualizados.', 'ok');
+};
+
+document.getElementById('q').addEventListener('input', render);
+document.getElementById('fShow').addEventListener('change', render);
+
+await loadVehicle();
+await loadSuggested();
+await loadParts();
+</script>
+</body>
+</html>

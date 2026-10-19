@@ -22,7 +22,7 @@ exports.handler = async function (event) {
   try {
     const res = await fetch(
       SUPABASE_URL +
-        '/rest/v1/products?select=sku,name,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number&is_active=eq.true&order=sku.asc',
+        '/rest/v1/products?select=sku,name,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,part_status&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&order=sku.asc',
       { headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY } },
     );
 
@@ -32,7 +32,12 @@ exports.handler = async function (event) {
     }
 
     const products = await res.json();
-    const items = products.map(toRssItem).join('\n');
+    // Google Merchant y el catálogo de Meta rechazan productos sin foto real del artículo.
+    // Sin foto, la pieza se vende igual en la web ("en el vehículo"), pero no entra al feed.
+    const eligible = products.filter(function (p) {
+      return !/^QA-/i.test(p.sku || '') && realImage(p) && p.part_status !== 'vendida' && p.part_status !== 'no_disponible';
+    });
+    const items = eligible.map(toRssItem).join('\n');
 
     const xml =
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -65,6 +70,15 @@ function xmlEscape(s) {
   });
 }
 
+function realImage(p) {
+  const imgs = Array.isArray(p.images) ? p.images : [];
+  const url = imgs.find(function (u) {
+    return typeof u === 'string' && u && !/favicon|placeholder|logo/i.test(u);
+  });
+  if (!url) return null;
+  return /^https?:\/\//.test(url) ? url : SITE_URL + (url.charAt(0) === '/' ? '' : '/') + url;
+}
+
 function formatCompat(v) {
   if (!v) return '';
   if (typeof v === 'string') return v;
@@ -79,7 +93,10 @@ function toRssItem(p) {
   const title = compat ? p.name + ' - ' + compat + ' (usado)' : p.name + ' (usado)';
   const description = p.description || (p.name + (compat ? ' para ' + compat : '') + '. Repuesto usado con garantía de funcionamiento.');
   const link = SITE_URL + '/producto?sku=' + encodeURIComponent(p.sku);
-  const image = Array.isArray(p.images) && p.images.length ? p.images[0] : SITE_URL + '/img/favicon.png';
+  const image = realImage(p);
+  // Pieza usada original: la marca es la del fabricante del vehículo si no hay otra.
+  const vc = p.vehicle_compatibility && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : null;
+  const brand = p.brand || (vc && vc.make) || '';
   const price = Math.round(Number(p.price_sale) || 0);
   const availability = p.stock > 0 ? 'in stock' : 'out of stock';
   const productType = 'Repuestos de desarme' + (p.brand ? ' > ' + p.brand : '') + (p.category ? ' > ' + p.category : '');
@@ -94,8 +111,10 @@ function toRssItem(p) {
     '<g:availability>' + availability + '</g:availability>\n' +
     '<g:price>' + price + ' CLP</g:price>\n' +
     '<g:condition>used</g:condition>\n' +
-    (p.brand ? '<g:brand>' + xmlEscape(p.brand) + '</g:brand>\n' : '') +
-    '<g:identifier_exists>no</g:identifier_exists>\n' +
+    (brand ? '<g:brand>' + xmlEscape(brand) + '</g:brand>\n' : '') +
+    (p.oem_number && brand
+      ? '<g:mpn>' + xmlEscape(p.oem_number) + '</g:mpn>\n'
+      : '<g:identifier_exists>no</g:identifier_exists>\n') +
     '<g:product_type>' + xmlEscape(productType) + '</g:product_type>\n' +
     '<g:excluded_destination>free_local_listings</g:excluded_destination>\n' +
     '<g:excluded_destination>local_inventory_ads</g:excluded_destination>\n' +
