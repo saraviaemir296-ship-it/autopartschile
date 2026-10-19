@@ -17,17 +17,86 @@ gtag('config', 'G-TXKXWQCTZ1');
 </script>
 <style>
 .veh-detail{display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:start;}
-@media(max-width:800px){.veh-detail{grid-template-columns:1fr;}}
-.veh-gallery-main{width:100%;border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.1);}
-.veh-gallery-main img{width:100%;height:340px;object-fit:cover;display:block;}
+@media(max-width:800px){.veh-detail{grid-template-columns:1fr;gap:1.2rem;}}
+.veh-gallery-main{width:100%;border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.12);background:#eee;}
+.veh-gallery-main img{width:100%;height:360px;object-fit:cover;display:block;transition:opacity .25s;}
+@media(max-width:600px){.veh-gallery-main img{height:240px;}}
 .veh-gallery-thumbs{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap;}
-.veh-gallery-thumbs img{width:70px;height:70px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;}
+.veh-gallery-thumbs img{width:68px;height:68px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;}
+.veh-gallery-thumbs img:hover{transform:translateY(-2px);}
 .veh-gallery-thumbs img.active{border-color:var(--red);}
-.veh-info h1{font-size:1.5rem;margin-bottom:.3rem;}
-.veh-meta{color:#777;font-size:.92rem;margin-bottom:1rem;}
-.veh-desc{white-space:pre-line;line-height:1.6;color:#333;margin-bottom:1.5rem;}
-.veh-badge-new{display:inline-block;background:#c0392b;color:#fff;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:3px 9px;border-radius:5px;margin-bottom:.6rem;}
+.veh-info h1{font-size:1.55rem;line-height:1.2;margin:.3rem 0 .5rem;}
+.veh-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+.veh-chips span{background:#f2f2f2;border-radius:20px;padding:.3rem .75rem;font-size:.8rem;font-weight:700;color:#333;}
+.veh-badge-new{display:inline-flex;align-items:center;gap:.4rem;background:#111;color:#fff;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:4px 10px;border-radius:6px;}
+.veh-badge-new i{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.7);animation:vpulse 1.8s infinite;}
+@keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.veh-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:1rem 0;}
+.veh-kpis div{background:#fff;border:1.5px solid #eee;border-radius:12px;padding:.8rem .5rem;text-align:center;}
+.veh-kpis b{display:block;font-size:1.45rem;color:var(--red);line-height:1.1;}
+.veh-kpis span{font-size:.74rem;color:#666;font-weight:600;}
+.veh-ctas{display:flex;gap:.6rem;flex-wrap:wrap;}
+.veh-ctas a{flex:1;min-width:180px;text-align:center;}
+.btn-dark{display:inline-block;background:#111;color:#fff;padding:.85rem 1.2rem;border-radius:var(--r);font-weight:700;text-decoration:none;}
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1.8rem 0 .5rem;}
+.trust div{display:flex;gap:.55rem;align-items:center;background:#fff;border-radius:12px;padding:.75rem .8rem;box-shadow:0 2px 10px rgba(0,0,0,.05);font-size:.8rem;line-height:1.25;}
+.trust div b{display:block;font-size:.85rem;}
+.trust .ic{font-size:1.4rem;}
+@media(max-width:800px){.trust{grid-template-columns:repeat(2,1fr);}}
+.parts-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin:2rem 0 .8rem;}
+.parts-head h2{font-size:1.35rem;margin:0;}
+.parts-head p{margin:.2rem 0 0;color:#666;font-size:.9rem;}
+.parts-tools{position:sticky;top:0;z-index:20;background:rgba(244,246,248,.96);backdrop-filter:blur(6px);padding:.7rem 0;margin:0 0 .4rem;}
+.parts-search{width:100%;padding:.85rem 1rem .85rem 2.6rem;border:2px solid #e3e3e3;border-radius:12px;font-size:1rem;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%23999' stroke-width='2.4'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E") no-repeat .9rem center;transition:border-color .2s;}
+.parts-search:focus{outline:none;border-color:var(--red);}
+.sys-pills{display:flex;gap:.45rem;overflow-x:auto;padding:.6rem 0 .1rem;scrollbar-width:none;}
+.sys-pills::-webkit-scrollbar{display:none;}
+.sys-pills button{flex:none;border:1.5px solid #ddd;background:#fff;border-radius:20px;padding:.4rem .85rem;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;color:#333;}
+.sys-pills button.on{background:#111;border-color:#111;color:#fff;}
+.sys-block{margin-top:1.4rem;}
+.sys-block h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:#777;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem;}
+.sys-block h3::after{content:"";flex:1;height:1px;background:#e5e5e5;}
+.prow{display:grid;grid-template-columns:72px 1fr auto;gap:.9rem;align-items:center;background:#fff;border-radius:12px;padding:.65rem;margin-bottom:.5rem;box-shadow:0 1px 6px rgba(0,0,0,.05);transition:transform .15s,box-shadow .15s;}
+.prow:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.09);}
+.prow .th{width:72px;height:72px;border-radius:9px;overflow:hidden;background:#f1f1f1;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#bbb;}
+.prow .th img{width:100%;height:100%;object-fit:cover;}
+.prow .nm{font-weight:700;font-size:.95rem;line-height:1.25;color:#111;text-decoration:none;}
+.prow .nm:hover{color:var(--red);}
+.prow .st{display:inline-block;margin-top:.3rem;font-size:.72rem;font-weight:700;padding:.15rem .5rem;border-radius:5px;}
+.st.ok{background:#e8f9ee;color:#15803d;}
+.st.veh{background:#fff4d6;color:#8a5a00;}
+.prow .buy{text-align:right;}
+.prow .pr{font-size:1.15rem;font-weight:800;color:#111;white-space:nowrap;}
+.prow .act{display:flex;gap:.35rem;justify-content:flex-end;margin-top:.35rem;}
+.prow .act button,.prow .act a{border:none;border-radius:8px;padding:.5rem .75rem;font-size:.8rem;font-weight:800;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.btn-add{background:var(--red);color:#fff;transition:transform .12s;}
+.btn-add:active{transform:scale(.94);}
+.btn-add.added{background:#16a34a;}
+.btn-wa-mini{background:#25D366;color:#fff;}
+@media(max-width:600px){
+  .prow{grid-template-columns:60px 1fr;}
+  .prow .th{width:60px;height:60px;}
+  .prow .buy{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;text-align:left;border-top:1px dashed #eee;padding-top:.5rem;}
+  .prow .act{margin-top:0;}
+}
+.no-part{margin:2rem 0 1rem;background:#111;color:#fff;border-radius:16px;padding:1.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;}
+.no-part h3{margin:0 0 .3rem;font-size:1.15rem;}
+.no-part p{margin:0;color:#bbb;font-size:.9rem;}
+@media(max-width:700px){.no-part{grid-template-columns:1fr;}}
+.empty{text-align:center;color:#888;padding:2rem 0;}
+.cart-bar{position:fixed;left:50%;bottom:1rem;transform:translate(-50%,140%);z-index:60;background:#111;color:#fff;border-radius:14px;padding:.7rem .8rem .7rem 1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .35s cubic-bezier(.2,.9,.3,1.2);width:min(520px,calc(100% - 2rem));}
+.cart-bar.show{transform:translate(-50%,0);}
+.cart-bar .t{flex:1;font-size:.88rem;line-height:1.2;}
+.cart-bar .t b{font-size:1rem;}
+.cart-bar a,.cart-bar button{background:var(--red);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-weight:800;font-size:.88rem;text-decoration:none;cursor:pointer;white-space:nowrap;}
+.cart-bar button{background:#333;}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;}
+.reveal.in{opacity:1;transform:none;}
+.skel{height:84px;border-radius:12px;margin-bottom:.5rem;background:linear-gradient(90deg,#eee 25%,#f6f6f6 50%,#eee 75%);background-size:200% 100%;animation:sk 1.2s infinite;}
+@keyframes sk{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.veh-badge-new i,.skel{animation:none}.prow,.cart-bar{transition:none}}
 .veh-notfound{text-align:center;padding:4rem 1rem;}
+body.has-cartbar .wa-float{bottom:5.5rem;}
 </style>
 </head>
 <body>
@@ -44,61 +113,224 @@ gtag('config', 'G-TXKXWQCTZ1');
 (function(){
 var SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+var WA = '56953817335';
+var H = { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
+var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function esc(s) { return (s == null ? '' : String(s)).replace(/</g, '&lt;'); }
+function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function clp(n) { return '$' + Math.round(Number(n) || 0).toLocaleString('es-CL'); }
+function api(path) { return fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: H }).then(function(r){ return r.ok ? r.json() : []; }); }
+function track(ev, p) { try { if (typeof gtag === 'function') gtag('event', ev, p || {}); } catch (e) {} }
+function realImgs(arr) { return (Array.isArray(arr) ? arr : []).filter(function(u){ return typeof u === 'string' && u && !/favicon|placeholder|logo/i.test(u); }); }
+function waLink(text) { return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(text); }
 
-var params = new URLSearchParams(location.search);
-var slug = params.get('slug');
+var slug = new URLSearchParams(location.search).get('slug');
+var veh, parts = [], activeSys = '', title = '', years = '';
 
 function load() {
   if (!slug) { showNotFound(); return; }
-  fetch(SUPABASE_URL + '/rest/v1/vehiculos?select=*&slug=eq.' + encodeURIComponent(slug) + '&is_active=eq.true', {
-    headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }
-  }).then(function(r){ return r.ok ? r.json() : []; }).then(function(rows){
-    var v = rows && rows[0];
-    if (!v) { showNotFound(); return; }
-    renderVehiculo(v);
+  api('vehiculos?select=*&slug=eq.' + encodeURIComponent(slug) + '&is_active=eq.true').then(function(rows){
+    veh = rows && rows[0];
+    if (!veh) { showNotFound(); return; }
+    renderVehiculo();
+    // Las piezas pueden estar cargadas en otra ficha del mismo modelo y años (otro auto igual en desarme).
+    var q = 'vehiculos?select=id,anio_desde,anio_hasta&marca=ilike.' + encodeURIComponent(veh.marca) + '&modelo=ilike.' + encodeURIComponent(veh.modelo);
+    return fetch(SUPABASE_URL + '/rest/v1/' + q, { headers: H }).then(function(r){ return r.ok ? r.json() : []; }).then(function(vs){
+      var ids = (vs || []).filter(function(x){
+        if (x.id === veh.id) return true;
+        if (!veh.anio_desde || !x.anio_desde) return false;
+        var a1 = veh.anio_desde, a2 = veh.anio_hasta || 2100, b1 = x.anio_desde, b2 = x.anio_hasta || 2100;
+        return a1 <= b2 && b1 <= a2;
+      }).map(function(x){ return x.id; });
+      if (ids.indexOf(veh.id) < 0) ids.push(veh.id);
+      return api('products?select=sku,name,slug,price_sale,images,part_status,stock,category,part_catalog(sistema,orden)&is_active=eq.true&price_sale=gt.0&vehiculo_id=in.(' + ids.join(',') + ')&order=name.asc');
+    }).then(function(ps){
+      parts = (ps || []).filter(function(p){ return p.part_status !== 'vendida' && p.part_status !== 'no_disponible' && !/^QA-/i.test(p.sku); });
+      renderParts();
+    });
   }).catch(function(){ showNotFound(); });
 }
 
-function renderVehiculo(v) {
-  var content = document.getElementById('content');
-  var title = v.marca + ' ' + v.modelo + (v.motor ? ' ' + v.motor : '');
-  document.getElementById('pageTitle').textContent = (v.seo_title || (title + ' — Repuestos en Desarme | Desarmaduría Saravia'));
-  document.getElementById('metaDesc').setAttribute('content', v.meta_description || ('Repuestos disponibles de ' + title + ' en desarme. Consulta disponibilidad por WhatsApp.'));
+function renderVehiculo() {
+  var v = veh;
+  title = v.marca + ' ' + v.modelo + (v.motor ? ' ' + v.motor : '');
+  years = v.anio_desde ? (v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '–' + v.anio_hasta : (v.anio_hasta ? '' : '+'))) : '';
+  document.getElementById('pageTitle').textContent = v.seo_title || ('Repuestos ' + title + ' ' + years + ' en desarme, con precio | Desarmaduría Saravia');
+  document.getElementById('metaDesc').setAttribute('content', v.meta_description || ('Repuestos usados de ' + title + ' ' + years + ' con precio publicado. Compra online con Webpay, despacho a todo Chile o retiro en La Pintana.'));
 
-  var images = Array.isArray(v.images) && v.images.length ? v.images : ['/img/favicon.png'];
-  var yearsText = v.anio_desde ? (v.anio_desde + (v.anio_hasta ? '–' + v.anio_hasta : '+')) : '';
-  var waText = encodeURIComponent('Hola, busco repuesto de ' + title + (yearsText ? ' ' + yearsText : ''));
+  var images = realImgs(v.images); if (!images.length) images = ['/img/favicon.png'];
+  var lbl = { fwd: 'Tracción delantera', rwd: 'Tracción trasera', '4x4': '4x4', bencina: 'Bencina', diesel: 'Diésel' };
+  var chips = [years, v.transmision, lbl[v.traccion], lbl[v.combustible], v.color].filter(Boolean);
 
-  content.innerHTML =
+  document.getElementById('content').innerHTML =
     '<div class="breadcrumb"><a href="/">Inicio</a> › <a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a> › ' + esc(title) + '</div>' +
-    '<div class="veh-detail" style="margin-top:1.2rem;">' +
-      '<div>' +
-        '<div class="veh-gallery-main"><img id="mainImg" src="' + images[0] + '" alt="' + esc(title) + '"></div>' +
-        (images.length > 1 ? '<div class="veh-gallery-thumbs" id="thumbs">' + images.map(function(u, i){
-          return '<img src="' + u + '" data-i="' + i + '" class="' + (i===0?'active':'') + '">';
-        }).join('') + '</div>' : '') +
+    '<div class="veh-detail reveal" style="margin-top:1.2rem;">' +
+      '<div><div class="veh-gallery-main"><img id="mainImg" src="' + esc(images[0]) + '" alt="' + esc(title + ' en desarme') + '"></div>' +
+        (images.length > 1 ? '<div class="veh-gallery-thumbs" id="thumbs">' + images.map(function(u, i){ return '<img src="' + esc(u) + '" data-i="' + i + '" class="' + (i===0?'active':'') + '" alt="" loading="lazy">'; }).join('') + '</div>' : '') +
       '</div>' +
       '<div class="veh-info">' +
-        '<span class="veh-badge-new">Nuevo ingreso</span>' +
-        '<h1>' + esc(title) + '</h1>' +
-        '<div class="veh-meta">' + [yearsText, v.color, v.transmision].filter(Boolean).map(esc).join(' · ') + '</div>' +
-        '<p class="veh-desc">' + esc(v.descripcion || 'Vehículo destinado a desarme para comercialización de repuestos y componentes. Consulta disponibilidad de la pieza que necesitas por WhatsApp.') + '</p>' +
-        '<a href="https://wa.me/56953817335?text=' + waText + '" class="btn-primary" target="_blank" rel="noopener">&#128172; Consultar piezas disponibles</a>' +
+        '<span class="veh-badge-new"><i></i> En desarme ahora</span>' +
+        '<h1>Repuestos ' + esc(title) + '</h1>' +
+        '<div class="veh-chips">' + chips.map(function(c){ return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' +
+        '<div class="veh-kpis"><div><b data-count="kpiN">0</b><span>repuestos con precio</span></div><div><b id="kpiMin">–</b><span>desde</span></div><div><b data-count="kpiF">0</b><span>con foto real</span></div></div>' +
+        '<div class="veh-ctas">' +
+          '<a href="#repuestos" class="btn-primary">Ver todos los repuestos ↓</a>' +
+          '<a href="' + waLink('Hola, busco un repuesto de ' + title + ' ' + years + '. Pieza: ') + '" class="btn-dark" target="_blank" rel="noopener" data-lead="vehiculo">💬 Preguntar por una pieza</a>' +
+        '</div>' +
       '</div>' +
-    '</div>';
+    '</div>' +
+    '<div class="trust reveal">' +
+      '<div><span class="ic">🛡️</span><span><b>Garantía</b>de funcionamiento</span></div>' +
+      '<div><span class="ic">🚚</span><span><b>Envíos</b>a todo Chile</span></div>' +
+      '<div><span class="ic">💳</span><span><b>Webpay</b>débito y crédito</span></div>' +
+      '<div><span class="ic">📍</span><span><b>Retiro</b>en La Pintana</span></div>' +
+    '</div>' +
+    '<div id="repuestos" class="parts-head reveal"><div><h2>Repuestos disponibles</h2><p id="partsSub">Cargando repuestos…</p></div></div>' +
+    '<div class="parts-tools"><input id="pq" class="parts-search" type="search" placeholder="Busca tu pieza: alternador, puerta, foco…" autocomplete="off"><div class="sys-pills" id="pills"></div></div>' +
+    '<div id="plist"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>' +
+    '<div class="no-part reveal"><div><h3>¿No ves la pieza que buscas?</h3><p>Puede que aún esté en el auto o recién desarmada. Mándanos el nombre de la pieza y tu patente, y te confirmamos stock y precio.</p></div>' +
+      '<a class="btn-primary" target="_blank" rel="noopener" data-lead="no_esta" href="' + waLink('Hola, busco una pieza que no vi en la web.\nAuto: ' + title + ' ' + years + '\nPieza: \nPatente: ') + '">💬 Consultar por WhatsApp</a></div>';
 
   var thumbs = document.getElementById('thumbs');
-  if (thumbs) {
-    thumbs.querySelectorAll('img').forEach(function(img){
-      img.addEventListener('click', function(){
-        document.getElementById('mainImg').src = images[Number(img.dataset.i)];
-        thumbs.querySelectorAll('img').forEach(function(t){ t.classList.remove('active'); });
-        img.classList.add('active');
-      });
-    });
+  if (thumbs) thumbs.addEventListener('click', function(e){
+    var img = e.target.closest('img'); if (!img) return;
+    var main = document.getElementById('mainImg');
+    main.style.opacity = 0;
+    setTimeout(function(){ main.src = images[Number(img.dataset.i)]; main.style.opacity = 1; }, 150);
+    thumbs.querySelectorAll('img').forEach(function(t){ t.classList.toggle('active', t === img); });
+  });
+  document.getElementById('pq').addEventListener('input', function(){ drawList(); });
+  observe();
+}
+
+function sysOf(p) { return (p.part_catalog && p.part_catalog.sistema) || p.category || 'Otros repuestos'; }
+
+function renderParts() {
+  var n = parts.length, f = parts.filter(function(p){ return realImgs(p.images).length; }).length;
+  var min = parts.reduce(function(m, p){ return Math.min(m, Number(p.price_sale)); }, Infinity);
+  countUp(document.querySelector('[data-count="kpiN"]'), n);
+  countUp(document.querySelector('[data-count="kpiF"]'), f);
+  document.getElementById('kpiMin').textContent = n ? clp(min) : '–';
+  document.getElementById('partsSub').textContent = n ? (n + ' repuestos de ' + title + ' con precio. Agrégalos al carrito y paga con Webpay.') : 'Estamos cargando los precios de este auto. Consúltanos por WhatsApp.';
+  var sys = {};
+  parts.forEach(function(p){ sys[sysOf(p)] = (sys[sysOf(p)] || 0) + 1; });
+  var keys = Object.keys(sys).sort(function(a, b){ return sys[b] - sys[a]; });
+  var pills = document.getElementById('pills');
+  pills.innerHTML = '<button class="on" data-s="">Todo (' + n + ')</button>' + keys.map(function(k){ return '<button data-s="' + esc(k) + '">' + esc(k) + ' (' + sys[k] + ')</button>'; }).join('');
+  pills.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    activeSys = b.dataset.s;
+    pills.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    drawList();
+  });
+  drawList();
+  injectJsonLd();
+  track('view_item_list', { item_list_name: title, items: parts.slice(0, 50).map(function(p){ return { item_id: p.sku, item_name: p.name, price: Number(p.price_sale) }; }) });
+}
+
+function norm(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
+function drawList() {
+  var q = norm(document.getElementById('pq').value.trim());
+  var groups = {};
+  parts.forEach(function(p){
+    if (activeSys && sysOf(p) !== activeSys) return;
+    if (q && q.split(/\s+/).some(function(w){ return norm(p.name).indexOf(w) < 0; })) return;
+    (groups[sysOf(p)] = groups[sysOf(p)] || []).push(p);
+  });
+  var keys = Object.keys(groups).sort(function(a, b){ return groups[b].length - groups[a].length; });
+  var el = document.getElementById('plist');
+  if (!keys.length) {
+    el.innerHTML = '<div class="empty">' + (parts.length ? 'No encontramos "' + esc(document.getElementById('pq').value) + '" en este auto. <a target="_blank" rel="noopener" data-lead="busqueda" href="' + waLink('Hola, busco "' + document.getElementById('pq').value + '" para ' + title + ' ' + years) + '">Pregúntanos por WhatsApp</a>.' : 'Aún no hay precios publicados para este auto.') + '</div>';
+    return;
   }
+  el.innerHTML = keys.map(function(k){
+    return '<div class="sys-block"><h3>' + esc(k) + '</h3>' + groups[k].map(rowHtml).join('') + '</div>';
+  }).join('');
+  el.querySelectorAll('.prow').forEach(function(r, i){
+    if (reduce) return;
+    r.style.opacity = 0; r.style.transform = 'translateY(10px)';
+    setTimeout(function(){ r.style.transition = 'opacity .35s, transform .35s'; r.style.opacity = 1; r.style.transform = ''; }, Math.min(i, 12) * 35);
+  });
+}
+
+function rowHtml(p) {
+  var img = realImgs(p.images)[0];
+  var url = '/producto?sku=' + encodeURIComponent(p.sku);
+  var enVeh = p.part_status === 'en_vehiculo';
+  return '<div class="prow" data-sku="' + esc(p.sku) + '">' +
+    '<a class="th" href="' + url + '">' + (img ? '<img src="' + esc(img) + '" alt="' + esc(p.name) + '" loading="lazy">' : '🔧') + '</a>' +
+    '<div><a class="nm" href="' + url + '">' + esc(p.name) + '</a><br>' +
+      '<span class="st ' + (enVeh ? 'veh' : 'ok') + '">' + (enVeh ? 'En el vehículo · se desmonta al confirmar' : '✓ Desmontada · lista para despacho') + '</span></div>' +
+    '<div class="buy"><div class="pr">' + clp(p.price_sale) + '</div><div class="act">' +
+      '<a class="btn-wa-mini" target="_blank" rel="noopener" data-lead="pieza" href="' + waLink('Hola, me interesa: ' + p.name + ' (' + p.sku + ') a ' + clp(p.price_sale) + '. ¿Está disponible?') + '" aria-label="Consultar por WhatsApp">💬</a>' +
+      '<button class="btn-add" type="button">🛒 Agregar</button></div></div>' +
+  '</div>';
+}
+
+document.addEventListener('click', function(e){
+  var add = e.target.closest('.btn-add');
+  if (add) {
+    var row = add.closest('.prow');
+    var p = parts.filter(function(x){ return x.sku === row.dataset.sku; })[0];
+    if (!p || !window.apcCart) return;
+    window.apcCart.add(p.sku, p.name, Number(p.price_sale), 1);
+    track('add_to_cart', { currency: 'CLP', value: Number(p.price_sale), items: [{ item_id: p.sku, item_name: p.name, price: Number(p.price_sale), quantity: 1 }] });
+    add.textContent = '✓ Agregado'; add.classList.add('added');
+    setTimeout(function(){ add.textContent = '🛒 Agregar'; add.classList.remove('added'); }, 1300);
+    updateCartBar(true);
+    return;
+  }
+  var lead = e.target.closest('[data-lead]');
+  if (lead) track('generate_lead', { method: 'whatsapp', lead_source: 'vehiculo_' + lead.dataset.lead });
+});
+
+var bar;
+function updateCartBar(bump) {
+  if (!window.apcCart) return;
+  var n = window.apcCart.count();
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.className = 'cart-bar';
+    bar.innerHTML = '<div class="t"></div><button type="button">Ver carrito</button><a href="/checkout">Pagar →</a>';
+    bar.querySelector('button').onclick = function(){ var b = document.getElementById('apc-cart-icon'); if (b) b.click(); };
+    document.body.appendChild(bar);
+  }
+  bar.querySelector('.t').innerHTML = '<b>' + n + ' repuesto' + (n === 1 ? '' : 's') + '</b><br>' + clp(window.apcCart.subtotal());
+  bar.classList.toggle('show', n > 0);
+  document.body.classList.toggle('has-cartbar', n > 0);
+  if (bump && !reduce) bar.animate([{ transform: 'translate(-50%,0) scale(1)' }, { transform: 'translate(-50%,0) scale(1.04)' }, { transform: 'translate(-50%,0) scale(1)' }], { duration: 300 });
+}
+
+function countUp(el, to) {
+  if (!el) return;
+  if (reduce || to < 2) { el.textContent = to; return; }
+  var t0 = performance.now(), d = 900;
+  (function step(t){ var k = Math.min(1, (t - t0) / d); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
+}
+
+function observe() {
+  var els = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: .12 });
+  els.forEach(function(e){ io.observe(e); });
+}
+
+function injectJsonLd() {
+  var data = {
+    '@context': 'https://schema.org', '@type': 'ItemList',
+    name: 'Repuestos ' + title + ' ' + years,
+    numberOfItems: parts.length,
+    itemListElement: parts.slice(0, 100).map(function(p, i){
+      var img = realImgs(p.images)[0];
+      var o = { '@type': 'Product', name: p.name, sku: p.sku, url: location.origin + '/producto?sku=' + encodeURIComponent(p.sku),
+        offers: { '@type': 'Offer', price: Math.round(p.price_sale), priceCurrency: 'CLP', itemCondition: 'https://schema.org/UsedCondition', availability: 'https://schema.org/InStock' } };
+      if (img) o.image = /^https?:/.test(img) ? img : location.origin + img;
+      return { '@type': 'ListItem', position: i + 1, item: o };
+    })
+  };
+  var s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(data);
+  document.head.appendChild(s);
 }
 
 function showNotFound() {
@@ -109,6 +341,7 @@ function showNotFound() {
 }
 
 load();
+window.addEventListener('load', function(){ updateCartBar(false); });
 })();
 </script>
 <script>(function(){var header=document.querySelector(".header");if(!header)return;var ticking=false;function onScroll(){if(!ticking){window.requestAnimationFrame(function(){header.classList.toggle("is-scrolled",window.scrollY>30);ticking=false;});ticking=true;}}window.addEventListener("scroll",onScroll,{passive:true});onScroll();})();</script>
