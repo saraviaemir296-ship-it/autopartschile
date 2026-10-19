@@ -41,6 +41,32 @@ code{background:#f1f1f1;padding:.1rem .35rem;border-radius:4px;font-size:.82rem;
 <button class="ml" id="btnConnect">Conectar mi cuenta de Mercado Libre</button>
 <div id="msg"></div>
 </div>
+<div class="card" id="pubCard">
+<h2>Publicar repuestos en Mercado Libre</h2>
+<p style="font-size:.88rem;color:#666;margin-top:0">Solo aparecen repuestos publicados en tu web, con precio y con <b>foto real</b> (Mercado Libre no acepta publicaciones sin foto). Primero aprieta <b>Validar</b>: Mercado Libre revisa todo sin publicar nada.</p>
+<div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end">
+<label style="font-size:.82rem;font-weight:700">Tipo de publicación<br>
+<select id="lt" style="padding:.55rem;border:1.5px solid #ddd;border-radius:8px;margin-top:.3rem">
+<option value="">— Elige —</option>
+<option value="free">Gratuita (sin comisión, poca exposición)</option>
+<option value="gold_special">Clásica (comisión, buena exposición)</option>
+<option value="gold_pro">Premium (más comisión, cuotas sin interés)</option>
+</select></label>
+<label style="font-size:.82rem;font-weight:700">Recargo sobre precio web (%)<br>
+<input id="mk" type="number" min="0" max="100" value="0" style="width:110px;padding:.55rem;border:1.5px solid #ddd;border-radius:8px;margin-top:.3rem"></label>
+</div>
+<div style="margin:.9rem 0 .5rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+<input id="fq" type="search" placeholder="Filtrar…" style="flex:1;min-width:160px;padding:.55rem;border:1.5px solid #ddd;border-radius:8px">
+<label style="font-size:.85rem;font-weight:700"><input type="checkbox" id="all"> Todos</label>
+</div>
+<div id="plist" style="max-height:420px;overflow:auto;border:1px solid #eee;border-radius:10px"></div>
+<div style="display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap">
+<button class="ml" id="btnVal" style="background:#eee;color:#111;margin:0">✔ Validar seleccionados</button>
+<button class="ml" id="btnPub" style="margin:0">🚀 Publicar seleccionados</button>
+</div>
+<div id="res" style="margin-top:1rem;font-size:.85rem"></div>
+</div>
+
 <div class="card">
 <h2>Antes de conectar (una sola vez)</h2>
 <ol>
@@ -71,6 +97,56 @@ async function estado() {
   document.getElementById('btnConnect').textContent = on ? 'Volver a conectar' : 'Conectar mi cuenta de Mercado Libre';
 }
 estado();
+
+const esc = s => { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; };
+const realImgs = a => (Array.isArray(a) ? a : []).filter(u => typeof u === 'string' && u && !/favicon|placeholder|logo/i.test(u));
+let items = [];
+async function loadItems() {
+  const { data } = await supabase.from('products').select('id, sku, name, price_sale, images, meli_item_id, part_status')
+    .eq('is_active', true).is('deleted_at', null).gt('price_sale', 0).order('name');
+  items = (data || []).filter(p => realImgs(p.images).length && !/^QA-/i.test(p.sku) && p.part_status !== 'vendida' && p.part_status !== 'no_disponible');
+  draw();
+}
+function draw() {
+  const q = document.getElementById('fq').value.toLowerCase();
+  document.getElementById('plist').innerHTML = items.filter(p => !q || (p.name + p.sku).toLowerCase().includes(q)).map(p => {
+    const img = realImgs(p.images)[0];
+    const src = /^https?:/.test(img) ? img : img;
+    return `<label style="display:flex;gap:.6rem;align-items:center;padding:.45rem .6rem;border-bottom:1px solid #f2f2f2;font-size:.85rem;${p.meli_item_id ? 'opacity:.55' : ''}">
+      <input type="checkbox" class="pk" value="${p.id}" ${p.meli_item_id ? 'disabled' : ''}>
+      <img src="${esc(src)}" style="width:40px;height:40px;object-fit:cover;border-radius:6px" loading="lazy" alt="">
+      <span style="flex:1"><b>${esc(p.name)}</b><br><small style="color:#888">${esc(p.sku)}${p.meli_item_id ? ' · ya en Mercado Libre ' + esc(p.meli_item_id) : ''}</small></span>
+      <b>$${Math.round(p.price_sale).toLocaleString('es-CL')}</b></label>`;
+  }).join('') || '<p style="padding:1rem;color:#888">No hay repuestos con foto real para publicar.</p>';
+}
+document.getElementById('fq').oninput = draw;
+document.getElementById('all').onchange = e => document.querySelectorAll('.pk:not(:disabled)').forEach(c => c.checked = e.target.checked);
+loadItems();
+
+async function run(dry) {
+  const ids = [...document.querySelectorAll('.pk:checked')].map(c => Number(c.value));
+  const lt = document.getElementById('lt').value;
+  const res = document.getElementById('res');
+  if (!ids.length) { res.innerHTML = '<div class="msg err">Selecciona al menos un repuesto.</div>'; return; }
+  if (!lt) { res.innerHTML = '<div class="msg err">Elige el tipo de publicación.</div>'; return; }
+  if (!dry && !confirm(`¿Publicar ${ids.length} repuesto(s) en Mercado Libre? Quedan a la venta de inmediato.`)) return;
+  res.textContent = dry ? 'Validando con Mercado Libre…' : 'Publicando…';
+  const { data: { session: s } } = await supabase.auth.getSession();
+  const out = [];
+  for (let i = 0; i < ids.length; i += 10) {
+    const r = await fetch(SUPABASE_URL + '/functions/v1/meli-publish', { method: 'POST', headers: { Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_ids: ids.slice(i, i + 10), listing_type_id: lt, markup_pct: Number(document.getElementById('mk').value) || 0, dry_run: dry }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { res.innerHTML = '<div class="msg err">' + esc(j.error || ('Error ' + r.status)) + '</div>'; return; }
+    out.push(...j.results);
+  }
+  const ok = out.filter(x => x.ok).length;
+  res.innerHTML = `<b>${ok} de ${out.length} ${dry ? 'pasaron la validación' : 'publicados'}.</b>` + out.map(x =>
+    `<div style="padding:.4rem 0;border-bottom:1px solid #f2f2f2">${x.ok ? '✅' : '❌'} ${esc(x.name)} ${x.price ? '· $' + x.price.toLocaleString('es-CL') : ''}<br><small style="color:#666">${esc(x.category || '')} ${x.title ? '· «' + esc(x.title) + '»' : ''}</small>${x.error ? '<br><small style="color:#c0392b">' + esc(x.error) + '</small>' : ''}${x.permalink ? '<br><a href="' + esc(x.permalink) + '" target="_blank" rel="noopener">Ver en Mercado Libre</a>' : ''}</div>`).join('');
+  if (!dry) loadItems();
+}
+document.getElementById('btnVal').onclick = () => run(true);
+document.getElementById('btnPub').onclick = () => run(false);
 
 document.getElementById('btnConnect').onclick = async () => {
   const { data: { session: s } } = await supabase.auth.getSession();
