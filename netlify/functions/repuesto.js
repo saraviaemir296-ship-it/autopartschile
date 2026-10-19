@@ -99,7 +99,7 @@ exports.handler = async (event) => {
 <meta name="robots" content="${sold ? 'noindex,follow' : 'index,follow'}">
 <meta property="og:type" content="product"><meta property="og:title" content="${esc(h1)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">${imgs[0] ? `<meta property="og:image" content="${esc(imgs[0])}">` : ''}
 <meta property="product:price:amount" content="${price}"><meta property="product:price:currency" content="CLP">
-<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20260902cart">
+<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261019acc">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TXKXWQCTZ1');gtag('event','view_item',{currency:'CLP',value:${price},items:[{item_id:${jsStr(p.sku)},item_name:${jsStr(p.name)},price:${price}}]});</script>
@@ -115,6 +115,9 @@ exports.handler = async (event) => {
 .rp-facts{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}.rp-facts th{text-align:left;color:#666;font-weight:600;padding:.45rem .4rem;width:38%;border-bottom:1px solid #eee}.rp-facts td{padding:.45rem .4rem;border-bottom:1px solid #eee}
 .rp-rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.7rem;margin-top:.8rem}.rp-rel a{background:#fff;border-radius:12px;padding:.6rem;text-decoration:none;color:#111;box-shadow:0 1px 6px rgba(0,0,0,.06);font-size:.85rem;font-weight:700}.rp-rel b{display:block;color:var(--red);margin-top:.3rem}
 .rp-faq details{background:#fff;border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem;box-shadow:0 1px 4px rgba(0,0,0,.05)}.rp-faq summary{font-weight:700;cursor:pointer}
+.rp-fav{position:static;width:auto;height:auto;border-radius:8px;padding:.55rem .9rem;gap:.4rem;font-size:.9rem;font-weight:700;color:#555;box-shadow:none;border:1.5px solid #ddd;background:#fff}.rp-fav.on{color:var(--red);border-color:var(--red)}
+.rp-trust{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:1rem 0}.rp-trust div{background:#f7f7f7;border-radius:10px;padding:.65rem .75rem;display:flex;flex-direction:column;gap:.15rem}.rp-trust b{font-size:.85rem}.rp-trust span{font-size:.78rem;color:#555;line-height:1.35}.rp-trust a{color:var(--red);font-weight:700}
+.rp-google{display:inline-block;font-weight:700;font-size:.88rem;color:#111;text-decoration:underline;margin-bottom:.4rem}
 </style></head><body>
 ${HEADER}
 <section class="page-content"><div class="container">
@@ -129,6 +132,14 @@ ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" 
 <p style="color:#555;margin:0">Repuesto original usado, retirado de un vehículo en desarme y revisado.${veh ? ' Proviene de un ' + esc(veh) + '.' : ''}</p>
 <div class="rp-cta">${sold ? '' : '<button class="rp-add" type="button" id="rpAdd">🛒 Agregar al carrito</button>'}
 <a class="rp-wa" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${waText}">💬 Consultar por WhatsApp</a></div>
+<button type="button" class="apc-fav rp-fav" data-sku="${esc(p.sku)}" aria-pressed="false" aria-label="Guardar en favoritos">❤ <span>Guardar en favoritos</span></button>
+<div class="rp-trust">
+<div><b>🛡️ Compra protegida</b><span>Pago con Webpay en la web o en el local. Confirmamos stock y compatibilidad antes de despachar.</span></div>
+<div><b>🔁 Garantía</b><span>Garantía de funcionamiento según nuestras <a href="/garantias">condiciones</a>.</span></div>
+<div><b>🚚 Despacho o retiro</b><span>A todo Chile con el transportista que prefieras, o retiro en La Pintana.</span></div>
+<div><b>💳 Medios de pago</b><span>Webpay (débito y crédito) · Transferencia · Mercado Pago</span></div>
+</div>
+<a class="rp-google" href="https://www.google.com/maps?cid=17947887919721508836" target="_blank" rel="noopener">⭐ Ver opiniones de clientes en Google</a>
 <table class="rp-facts">${facts.map(([k, x]) => `<tr><th>${esc(k)}</th><td>${esc(x)}</td></tr>`).join('')}</table>
 </div></div>
 ${p.description ? `<h2 style="margin-top:2rem">Descripción</h2><p style="white-space:pre-line;line-height:1.6;color:#333">${esc(p.description)}</p>` : ''}
@@ -142,6 +153,7 @@ ${related.length ? `<h2 style="margin-top:2rem">Más repuestos de ${esc(veh)}</h
 </div></section>
 ${FOOTER}
 ${WAFLOAT}
+<script src="/js/apc-store.js?v=20261019b" defer></script>
 <script src="/cart.js" defer></script>
 <script>
 (function(){

@@ -106,6 +106,29 @@
     return cache;
   }
 
+  // ---------- Favoritos (navegador + cuenta si hay sesión) ----------
+  function favs() { try { return JSON.parse(localStorage.getItem('apcFav') || '[]'); } catch (e) { return []; } }
+  function isFav(sku) { return favs().indexOf(sku) !== -1; }
+  function sess() { try { var x = JSON.parse(localStorage.getItem('sb-zlyforhywunqhitrdreo-auth-token') || 'null'); return x && x.access_token && x.expires_at * 1000 > Date.now() ? x : null; } catch (e) { return null; } }
+  function toggleFav(sku, btn) {
+    var a = favs(), on = a.indexOf(sku) === -1;
+    a = on ? a.concat([sku]) : a.filter(function (x) { return x !== sku; });
+    try { localStorage.setItem('apcFav', JSON.stringify(a)); } catch (e) {}
+    document.querySelectorAll('.apc-fav[data-sku="' + sku.replace(/"/g, '') + '"]').forEach(function (b) { b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    var x = sess();
+    if (x) {
+      var h = { apikey: KEY, Authorization: 'Bearer ' + x.access_token, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=ignore-duplicates' };
+      if (on) fetch(URL_ + '/rest/v1/clientes_favoritos', { method: 'POST', headers: h, body: JSON.stringify({ user_id: x.user.id, sku: sku }) });
+      else fetch(URL_ + '/rest/v1/clientes_favoritos?user_id=eq.' + x.user.id + '&sku=eq.' + encodeURIComponent(sku), { method: 'DELETE', headers: h });
+    } else if (on && !sessionStorage.getItem('apcFavTip')) {
+      try { sessionStorage.setItem('apcFavTip', '1'); } catch (e) {}
+      var t = document.createElement('div'); t.className = 'apc-toast'; t.innerHTML = '❤ Guardado en este navegador. <a href="/cuenta">Crea tu cuenta</a> para tenerlo en todos tus dispositivos.';
+      document.body.appendChild(t); setTimeout(function () { t.remove(); }, 6000);
+    }
+    if (on && window.gtag) try { gtag('event', 'add_to_wishlist', { items: [{ item_id: sku }] }); } catch (e) {}
+  }
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.apc-fav'); if (b) { e.preventDefault(); toggleFav(b.dataset.sku, b); } });
+
   function waLink(text) { return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(text); }
 
   function card(p) {
@@ -114,6 +137,7 @@
       : '<div class="apc-nophoto"><span>📷</span><small>Pide la foto real por WhatsApp</small></div>';
     return '<article class="apc-card">' +
       '<a class="apc-card-img" href="' + p.href + '">' + img + '</a>' +
+      '<button type="button" class="apc-fav' + (isFav(p.sku) ? ' on' : '') + '" data-sku="' + esc(p.sku) + '" aria-pressed="' + isFav(p.sku) + '" aria-label="Guardar en favoritos">❤</button>' +
       '<div class="apc-card-body">' +
       '<h3 class="apc-card-name"><a href="' + p.href + '">' + esc(p.name) + '</a></h3>' +
       '<p class="apc-card-veh">' + (p.veh ? esc(p.veh) : 'Compatibilidad por confirmar') + '</p>' +
@@ -198,6 +222,58 @@
     });
   }
 
+  // ---------- Banners de campaña (solo piezas reales con foto y precio vigente) ----------
+  var PROMO_TXT = {
+    'Motores y componentes': ['MOTORES', 'y componentes originales usados'],
+    'Cajas de cambio y transmisión': ['CAJAS DE CAMBIO', 'mecánicas y automáticas'],
+    'Ópticos y focos': ['ÓPTICOS Y FOCOS', 'delanteros y traseros originales'],
+    'Eléctrico y electrónica': ['ELECTRÓNICA', 'computadores, tableros y radios'],
+    'Aire acondicionado y calefacción': ['AIRE ACONDICIONADO', 'compresores y componentes'],
+    'Puertas y portalón': ['PUERTAS', 'completas y en buen estado'],
+    'Carrocería': ['CARROCERÍA', 'capós, tapabarros y más'],
+    'Parachoques': ['PARACHOQUES', 'delanteros y traseros'],
+    'Espejos': ['ESPEJOS', 'retrovisores originales'],
+    'Suspensión y ejes': ['SUSPENSIÓN', 'amortiguadores, muñones y ejes'],
+    'Airbags y seguridad': ['AIRBAGS', 'originales de fábrica']
+  };
+  function promo(el, items) {
+    var g = {};
+    items.forEach(function (p) { if (p.img) (g[p.cat] = g[p.cat] || []).push(p); });
+    var cats = Object.keys(g).filter(function (c) { return PROMO_TXT[c] && g[c].length >= 2; })
+      .sort(function (a, b) { return g[b].length - g[a].length; }).slice(0, 6);
+    var slides = cats.map(function (c) {
+      var list = g[c].slice(0, 3), all = items.filter(function (p) { return p.cat === c; });
+      var from = Math.min.apply(null, all.map(function (p) { return p.price; }));
+      return '<div class="apc-slide" role="group" aria-roledescription="banner" aria-label="' + esc(c) + '">' +
+        '<div class="apc-slide-copy"><span class="apc-slide-kicker">' + all.length + ' disponibles · desde ' + money(from) + '</span>' +
+        '<h2>' + PROMO_TXT[c][0] + '</h2><p>' + PROMO_TXT[c][1] + '</p>' +
+        '<a class="apc-btn apc-btn-red" href="/catalogo?cat=' + encodeURIComponent(c) + '#resultados">Ver todo ›</a></div>' +
+        '<div class="apc-slide-items">' + list.map(function (p) {
+          return '<a class="apc-slide-item" href="' + p.href + '"><span class="apc-slide-img"><img src="' + esc(p.img) + '" alt="' + esc(p.name) + '" loading="lazy"></span>' +
+            '<span class="apc-slide-name">' + esc(p.veh || p.name) + '</span><span class="apc-slide-price">' + money(p.price) + '</span></a>';
+        }).join('') + '</div></div>';
+    });
+    slides.push('<div class="apc-slide apc-slide-card" role="group" aria-roledescription="banner" aria-label="Tarjeta Saravia"><div class="apc-slide-copy"><span class="apc-slide-kicker">Talleres, mecánicos y clientes frecuentes</span><h2>TARJETA SARAVIA</h2><p>Precio preferente acordado contigo, aviso de autos que entran a desarme y atención prioritaria.</p><a class="apc-btn apc-btn-red" href="/tarjeta-saravia">Solicítala gratis ›</a></div>' +
+      '<div class="apc-slide-items apc-slide-cardwrap"><div class="sar-card"><div class="sar-card-top"><span class="sar-card-brand">SARAVIA</span><span class="sar-card-kind">TALLER</span></div><div class="sar-card-chip"></div><div class="sar-card-code">SAR-000000</div><div class="sar-card-bottom"><span>TU TALLER</span><span>Desarmaduría Saravia · AutopartsChile</span></div></div></div></div>');
+    slides.push('<div class="apc-slide apc-slide-ship" role="group" aria-roledescription="banner" aria-label="Despacho"><div class="apc-slide-copy"><span class="apc-slide-kicker">Retiro en La Pintana o despacho</span><h2>DESPACHO A TODO CHILE</h2><p>Enviamos con el transportista que prefieras y también al extranjero por DHL. Embalamos cada pieza para que llegue bien.</p><a class="apc-btn apc-btn-red" href="/envios">Cómo enviamos ›</a></div>' +
+      '<div class="apc-slide-items apc-ship-list"><span>Starken</span><span>Chilexpress</span><span>Blue Express</span><span>DHL (internacional)</span><span>Retiro en local</span></div></div>');
+    el.innerHTML = '<div class="apc-promo" aria-roledescription="carrusel" aria-label="Destacados"><div class="apc-promo-track">' + slides.join('') + '</div>' +
+      '<button class="apc-promo-arrow prev" aria-label="Anterior">‹</button><button class="apc-promo-arrow next" aria-label="Siguiente">›</button>' +
+      '<div class="apc-promo-dots">' + slides.map(function (_, i) { return '<button aria-label="Banner ' + (i + 1) + '"></button>'; }).join('') + '</div></div>';
+    var tr = el.querySelector('.apc-promo-track'), dots = el.querySelectorAll('.apc-promo-dots button'), n = slides.length, cur = 0, timer;
+    function go(i) { cur = (i + n) % n; tr.scrollTo({ left: cur * tr.clientWidth, behavior: 'smooth' }); mark(); }
+    function mark() { dots.forEach(function (d, j) { d.classList.toggle('on', j === cur); d.setAttribute('aria-current', j === cur); }); }
+    tr.addEventListener('scroll', function () { var i = Math.round(tr.scrollLeft / tr.clientWidth); if (i !== cur) { cur = i; mark(); } }, { passive: true });
+    el.querySelector('.prev').onclick = function () { go(cur - 1); restart(); };
+    el.querySelector('.next').onclick = function () { go(cur + 1); restart(); };
+    dots.forEach(function (d, j) { d.onclick = function () { go(j); restart(); }; });
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches, paused = false;
+    function restart() { clearInterval(timer); if (!reduce) timer = setInterval(function () { if (!paused && !document.hidden) go(cur + 1); }, 7000); }
+    el.addEventListener('mouseenter', function () { paused = true; }); el.addEventListener('mouseleave', function () { paused = false; });
+    el.addEventListener('focusin', function () { paused = true; }); el.addEventListener('focusout', function () { paused = false; });
+    mark(); restart();
+  }
+
   // ---------- Catálogo completo con filtros ----------
   function catalog(el, items) {
     var state = {};
@@ -278,16 +354,18 @@
   }
 
   function init() {
+    document.querySelectorAll('.apc-fav').forEach(function (b) { var on = isFav(b.dataset.sku); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     var fEls = document.querySelectorAll('[data-apc-finder]'), nEls = document.querySelectorAll('[data-apc-catnav]');
-    var rEl = document.querySelector('[data-apc-rows]'), cEl = document.querySelector('[data-apc-catalog]');
+    var rEl = document.querySelector('[data-apc-rows]'), cEl = document.querySelector('[data-apc-catalog]'), pEl = document.querySelector('[data-apc-promo]');
     document.querySelectorAll('[data-apc-ask]').forEach(askForm);
-    if (!fEls.length && !nEls.length && !rEl && !cEl) return;
+    if (!fEls.length && !nEls.length && !rEl && !cEl && !pEl) return;
     load().then(function (items) {
       var cat = cEl ? catalog(cEl, items) : null;
       fEls.forEach(function (el) { finder(el, items, cat ? { onSearch: cat.set } : null); });
       nEls.forEach(function (el) { catNav(el, items); });
       if (rEl) rows(rEl, items);
-    }).catch(function () { if (cEl) fail(cEl); if (rEl) rEl.innerHTML = ''; });
+      if (pEl) promo(pEl, items);
+    }).catch(function () { if (cEl) fail(cEl); if (rEl) rEl.innerHTML = ''; if (pEl) pEl.innerHTML = ''; });
   }
   window.APCStore = { categoria: categoria, vehiculo: vehiculo };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

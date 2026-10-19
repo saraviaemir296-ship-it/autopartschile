@@ -1,3 +1,4 @@
+(function(){try{var h=location.hash;if(/access_token=|error_description=|type=(signup|recovery|magiclink)/.test(h)&&location.pathname.indexOf("/cuenta")!==0&&location.pathname.indexOf("/admin")!==0){location.replace("/cuenta"+h);}}catch(e){}})();
 (function () {
   "use strict";
 
@@ -147,6 +148,18 @@
       headerInner.appendChild(btn);
     }
     badgeEl = btn.querySelector(".apc-cart-badge");
+    // Acceso a la cuenta de cliente
+    if (!document.getElementById("apc-acct-link")) {
+      var acct = document.createElement("a");
+      acct.id = "apc-acct-link";
+      acct.href = "/cuenta";
+      acct.className = "apc-cart-btn apc-acct-btn";
+      acct.setAttribute("aria-label", "Mi cuenta");
+      var logged = false;
+      try { logged = !!JSON.parse(localStorage.getItem("sb-zlyforhywunqhitrdreo-auth-token") || "null"); } catch (e) {}
+      acct.innerHTML = '👤<span class="apc-acct-txt">' + (logged ? "Mi cuenta" : "Ingresar") + "</span>";
+      btn.parentNode.insertBefore(acct, btn);
+    }
     btn.addEventListener("click", openPanel);
     updateBadge();
   }
