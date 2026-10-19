@@ -41,6 +41,12 @@ code{background:#f1f1f1;padding:.1rem .35rem;border-radius:4px;font-size:.82rem;
 <button class="ml" id="btnConnect">Conectar mi cuenta de Mercado Libre</button>
 <div id="msg"></div>
 </div>
+<div class="card" id="qCard">
+<h2>Preguntas de compradores <span id="qCount" style="background:#c0392b;color:#fff;border-radius:20px;padding:.1rem .55rem;font-size:.8rem;display:none"></span></h2>
+<p style="font-size:.85rem;color:#666;margin-top:0">Se actualizan solas cada 5 minutos. Responder rápido (menos de 1 hora) sube tu posición en Mercado Libre. No incluyas teléfonos, links ni correos: Mercado Libre lo prohíbe.</p>
+<div id="qList"><p style="color:#888">Cargando…</p></div>
+</div>
+
 <div class="card" id="pubCard">
 <h2>Publicar repuestos en Mercado Libre</h2>
 <p style="font-size:.88rem;color:#666;margin-top:0">Solo aparecen repuestos publicados en tu web, con precio y con <b>foto real</b> (Mercado Libre no acepta publicaciones sin foto). Primero aprieta <b>Validar</b>: Mercado Libre revisa todo sin publicar nada.</p>
@@ -146,6 +152,34 @@ async function run(dry) {
     `<div style="padding:.4rem 0;border-bottom:1px solid #f2f2f2">${x.ok ? '✅' : '❌'} ${esc(x.name)} ${x.price ? '· publicado a $' + x.price.toLocaleString('es-CL') : ''}${x.fee != null ? ' · comisión ML ' + x.fee_pct + '% ($' + Math.round(x.fee).toLocaleString('es-CL') + ') · te queda $' + Math.round(x.net).toLocaleString('es-CL') : ''}<br><small style="color:#666">${esc(x.category || '')} ${x.title ? '· «' + esc(x.title) + '»' : ''}</small>${x.error ? '<br><small style="color:#c0392b">' + esc(x.error) + '</small>' : ''}${x.permalink ? '<br><a href="' + esc(x.permalink) + '" target="_blank" rel="noopener">Ver en Mercado Libre</a>' : ''}</div>`).join('');
   if (!dry) loadItems();
 }
+
+const BANNED = /(\+?56\s?9|\b9\d{8}\b|whats|wsp|@|https?:|www\.|\.cl\b|\.com\b)/i;
+async function loadQuestions() {
+  const { data } = await supabase.from('meli_questions').select('id, item_id, text, status, answer, date_created, products(name)').order('date_created', { ascending: false }).limit(30);
+  const qs = data || [];
+  const pend = qs.filter(q => q.status === 'UNANSWERED');
+  const c = document.getElementById('qCount'); c.textContent = pend.length; c.style.display = pend.length ? 'inline' : 'none';
+  document.getElementById('qList').innerHTML = qs.length ? qs.map(q => `<div style="padding:.6rem 0;border-bottom:1px solid #f0f0f0">
+    <div style="font-size:.78rem;color:#888">${esc(q.products?.name || q.item_id)} · ${new Date(q.date_created).toLocaleString('es-CL')}</div>
+    <div style="font-weight:700;margin:.2rem 0">❓ ${esc(q.text)}</div>
+    ${q.status === 'UNANSWERED' ? `<textarea data-q="${q.id}" rows="2" style="width:100%;padding:.5rem;border:1.5px solid #ddd;border-radius:8px;font-family:inherit" placeholder="Tu respuesta…"></textarea><button class="ml" data-a="${q.id}" style="margin:.4rem 0 0;padding:.5rem 1rem">Responder</button>` : `<div style="color:#16a34a">✅ ${esc(q.answer || 'Respondida')}</div>`}
+  </div>`).join('') : '<p style="color:#888">Aún no hay preguntas.</p>';
+}
+document.getElementById('qList').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const id = b.dataset.a; const ta = document.querySelector(`textarea[data-q="${id}"]`); const text = ta.value.trim();
+  if (text.length < 2) return;
+  if (BANNED.test(text)) { alert('Mercado Libre no permite teléfonos, correos ni links en las respuestas. Quítalos para no recibir una sanción.'); return; }
+  b.disabled = true; b.textContent = 'Enviando…';
+  const { data: { session: s } } = await supabase.auth.getSession();
+  const r = await fetch(SUPABASE_URL + '/functions/v1/meli-questions', { method: 'POST', headers: { Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'answer', id: Number(id), text }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { alert(j.error || 'No se pudo responder'); b.disabled = false; b.textContent = 'Responder'; return; }
+  loadQuestions();
+});
+loadQuestions();
+setInterval(loadQuestions, 60000);
+
 document.getElementById('btnVal').onclick = () => run(true);
 document.getElementById('btnPub').onclick = () => run(false);
 
