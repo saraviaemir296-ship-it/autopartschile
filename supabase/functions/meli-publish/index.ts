@@ -1,5 +1,5 @@
 // Publica productos de autopartschile en Mercado Libre Chile (MLC).
-// POST { product_ids: number[], listing_type_id: string, markup_pct?: number, dry_run?: boolean }
+// POST { product_ids: number[], listing_type_id: string, markup_pct?: number, cover_fee?: boolean, dry_run?: boolean }
 // Solo admin. dry_run usa /items/validate (no publica nada).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
@@ -115,6 +115,7 @@ Deno.serve(async (req) => {
   const listing = String(body.listing_type_id || "");
   const markup = Math.max(0, Math.min(100, Number(body.markup_pct) || 0));
   const dry = body.dry_run !== false;
+  const cover = body.cover_fee === true;
   if (!ids.length) return json({ error: "Sin productos" }, 400);
   if (!LISTING_TYPES.includes(listing)) return json({ error: "Elige el tipo de publicación" }, 400);
 
@@ -143,15 +144,32 @@ Deno.serve(async (req) => {
       if (!cat?.category_id) throw new Error("Mercado Libre no sugirió categoría para este título");
       res.category = `${cat.category_id} · ${cat.category_name ?? ""}`;
 
-      const price = Math.round((Number(p.price_sale) * (1 + markup / 100)) / 10) * 10;
+      const web = Number(p.price_sale);
+      let price = Math.round((web * (1 + markup / 100)) / 10) * 10;
+      if (cover) {
+        // Precio para que, después de la comisión real de Mercado Libre (según su propia tabla), te quede al menos el precio web.
+        for (let i = 0; i < 3; i++) {
+          const f = await fee(tk, price, cat.category_id, listing);
+          if (!f) break;
+          const target = Math.ceil((web + f.fixed) / (1 - f.pct / 100));
+          price = Math.ceil((target + 10) / 1000) * 1000 - 10;
+          const f2 = await fee(tk, price, cat.category_id, listing);
+          if (!f2 || price - f2.amount >= web) break;
+        }
+      }
+      const f = await fee(tk, price, cat.category_id, listing);
+      if (f) { res.fee = f.amount; res.fee_pct = f.pct; res.net = price - f.amount; }
       const item = {
-        title: t, category_id: cat.category_id, price, currency_id: "CLP",
+        title: t, family_name: t, category_id: cat.category_id, price, currency_id: "CLP",
         available_quantity: Math.max(1, Number(p.stock) || 1), buying_mode: "buy_it_now", condition: "used",
         listing_type_id: listing, pictures: pics.slice(0, 10).map((source) => ({ source })),
         attributes: await buildAttributes(tk, cat.category_id, p),
       };
       res.title = t; res.price = price;
 
+      // Cuentas con "user products": Mercado Libre arma el título desde family_name y rechaza "title".
+      const pre = await ml(tk, "POST", "/items/validate", item);
+      if (!pre.ok && JSON.stringify(pre.data ?? "").includes("title")) delete (item as any).title;
       if (dry) {
         const v = await ml(tk, "POST", "/items/validate", item);
         if (!v.ok) throw new Error(mlError(v.data));
@@ -169,8 +187,16 @@ Deno.serve(async (req) => {
   return json({ dry_run: dry, results });
 });
 
+async function fee(tk: string, price: number, categoryId: string, listing: string) {
+  const r = await ml(tk, "GET", `/sites/MLC/listing_prices?price=${price}&category_id=${categoryId}&listing_type_id=${listing}`);
+  const x = Array.isArray(r.data) ? r.data[0] : r.data;
+  if (!x || x.sale_fee_amount == null) return null;
+  return { amount: Number(x.sale_fee_amount) || 0, pct: Number(x.sale_fee_details?.percentage_fee) || 0, fixed: Number(x.sale_fee_details?.fixed_fee) || 0 };
+}
+
 function mlError(d: any): string {
   if (!d) return "Error de Mercado Libre";
   const causes = Array.isArray(d.cause) ? d.cause.map((c: any) => c.message || c.code).filter(Boolean) : [];
-  return [d.message, ...causes].filter(Boolean).join(" · ").slice(0, 600) || JSON.stringify(d).slice(0, 300);
+  const msg = [d.message, ...causes].filter(Boolean).join(" · ");
+  return (msg + " " + JSON.stringify(d.cause ?? d)).slice(0, 900);
 }

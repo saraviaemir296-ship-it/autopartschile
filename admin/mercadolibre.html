@@ -52,7 +52,8 @@ code{background:#f1f1f1;padding:.1rem .35rem;border-radius:4px;font-size:.82rem;
 <option value="gold_special">Clásica (comisión, buena exposición)</option>
 <option value="gold_pro">Premium (más comisión, cuotas sin interés)</option>
 </select></label>
-<label style="font-size:.82rem;font-weight:700">Recargo sobre precio web (%)<br>
+<label style="font-size:.85rem;font-weight:700;display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="cover" checked style="width:auto"> Subir el precio para cubrir la comisión de Mercado Libre</label>
+<label style="font-size:.82rem;font-weight:700">Recargo extra (%)<br>
 <input id="mk" type="number" min="0" max="100" value="0" style="width:110px;padding:.55rem;border:1.5px solid #ddd;border-radius:8px;margin-top:.3rem"></label>
 </div>
 <div style="margin:.9rem 0 .5rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
@@ -135,14 +136,14 @@ async function run(dry) {
   const out = [];
   for (let i = 0; i < ids.length; i += 10) {
     const r = await fetch(SUPABASE_URL + '/functions/v1/meli-publish', { method: 'POST', headers: { Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_ids: ids.slice(i, i + 10), listing_type_id: lt, markup_pct: Number(document.getElementById('mk').value) || 0, dry_run: dry }) });
+      body: JSON.stringify({ product_ids: ids.slice(i, i + 10), listing_type_id: lt, markup_pct: Number(document.getElementById('mk').value) || 0, cover_fee: document.getElementById('cover').checked, dry_run: dry }) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { res.innerHTML = '<div class="msg err">' + esc(j.error || ('Error ' + r.status)) + '</div>'; return; }
     out.push(...j.results);
   }
   const ok = out.filter(x => x.ok).length;
   res.innerHTML = `<b>${ok} de ${out.length} ${dry ? 'pasaron la validación' : 'publicados'}.</b>` + out.map(x =>
-    `<div style="padding:.4rem 0;border-bottom:1px solid #f2f2f2">${x.ok ? '✅' : '❌'} ${esc(x.name)} ${x.price ? '· $' + x.price.toLocaleString('es-CL') : ''}<br><small style="color:#666">${esc(x.category || '')} ${x.title ? '· «' + esc(x.title) + '»' : ''}</small>${x.error ? '<br><small style="color:#c0392b">' + esc(x.error) + '</small>' : ''}${x.permalink ? '<br><a href="' + esc(x.permalink) + '" target="_blank" rel="noopener">Ver en Mercado Libre</a>' : ''}</div>`).join('');
+    `<div style="padding:.4rem 0;border-bottom:1px solid #f2f2f2">${x.ok ? '✅' : '❌'} ${esc(x.name)} ${x.price ? '· publicado a $' + x.price.toLocaleString('es-CL') : ''}${x.fee != null ? ' · comisión ML ' + x.fee_pct + '% ($' + Math.round(x.fee).toLocaleString('es-CL') + ') · te queda $' + Math.round(x.net).toLocaleString('es-CL') : ''}<br><small style="color:#666">${esc(x.category || '')} ${x.title ? '· «' + esc(x.title) + '»' : ''}</small>${x.error ? '<br><small style="color:#c0392b">' + esc(x.error) + '</small>' : ''}${x.permalink ? '<br><a href="' + esc(x.permalink) + '" target="_blank" rel="noopener">Ver en Mercado Libre</a>' : ''}</div>`).join('');
   if (!dry) loadItems();
 }
 document.getElementById('btnVal').onclick = () => run(true);
