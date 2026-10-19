@@ -256,7 +256,7 @@ function drawList() {
 
 function rowHtml(p) {
   var img = realImgs(p.images)[0];
-  var url = '/producto?sku=' + encodeURIComponent(p.sku);
+  var url = p.slug ? '/repuesto/' + encodeURIComponent(p.slug) : '/producto?sku=' + encodeURIComponent(p.sku);
   var enVeh = p.part_status === 'en_vehiculo';
   return '<div class="prow" data-sku="' + esc(p.sku) + '">' +
     '<a class="th" href="' + url + '">' + (img ? '<img src="' + esc(img) + '" alt="' + esc(p.name) + '" loading="lazy">' : '🔧') + '</a>' +

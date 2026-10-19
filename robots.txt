@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Sitemap: https://autopartschile.cl/sitemap.xml
+Sitemap: https://autopartschile.cl/sitemap-repuestos.xml

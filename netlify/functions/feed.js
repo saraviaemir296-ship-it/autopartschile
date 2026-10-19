@@ -22,7 +22,7 @@ exports.handler = async function (event) {
   try {
     const res = await fetch(
       SUPABASE_URL +
-        '/rest/v1/products?select=sku,name,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,part_status&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&order=sku.asc',
+        '/rest/v1/products?select=sku,slug,name,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,part_status&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&order=sku.asc',
       { headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY } },
     );
 
@@ -92,7 +92,7 @@ function toRssItem(p) {
   const compat = formatCompat(p.vehicle_compatibility);
   const title = compat ? p.name + ' - ' + compat + ' (usado)' : p.name + ' (usado)';
   const description = p.description || (p.name + (compat ? ' para ' + compat : '') + '. Repuesto usado con garantía de funcionamiento.');
-  const link = SITE_URL + '/producto?sku=' + encodeURIComponent(p.sku);
+  const link = p.slug ? SITE_URL + '/repuesto/' + p.slug : SITE_URL + '/producto?sku=' + encodeURIComponent(p.sku);
   const image = realImage(p);
   // Pieza usada original: la marca es la del fabricante del vehículo si no hay otra.
   const vc = p.vehicle_compatibility && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : null;
