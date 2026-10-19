@@ -85,7 +85,7 @@
     var saved = loadSaved();
 
     var webpayActionHtml = WEBPAY_LIVE
-      ? '<button type="submit" class="apc-btn-pay apc-btn-webpay" name="gateway" value="webpay">Pagar con Webpay Plus &rarr;</button>'
+      ? '<button type="submit" class="apc-btn-pay apc-btn-webpay" name="gateway" value="webpay">Pagar con Webpay Plus &rarr;</button><div data-apc-pagos="compact"></div>'
       : '<p class="apc-webpay-note">&iquest;Prefieres Webpay o transferencia? <a href="https://wa.me/56953817335" target="_blank" rel="noopener">Escr&iacute;benos por WhatsApp</a></p>';
 
     var overlay = document.createElement("div");

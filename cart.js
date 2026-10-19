@@ -356,7 +356,16 @@
 
   window.apcTrack = { rememberPurchase: rememberPurchase, track: track };
 
+  function loadPagos() {
+    if (document.querySelector('script[src^="/js/apc-pagos.js"]')) return;
+    var s = document.createElement("script");
+    s.src = "/js/apc-pagos.js?v=20261019p";
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
   function init() {
+    loadPagos();
     injectCartIcon();
     injectAddButtons();
     updateBadge();
