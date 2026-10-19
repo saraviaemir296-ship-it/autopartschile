@@ -28,7 +28,7 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-TXKXWQCTZ1');
 </script>
-<link rel="stylesheet" href="/styles.css?v=20260902cart">
+<link rel="stylesheet" href="/styles.css?v=20261019store">
 <style>
 /* === Hero Editorial Premium (negro/blanco/rojo) === */
 .hero-rotator{position:relative;width:100%;overflow:hidden;background:#0a0a0a;min-height:clamp(480px,60vw,680px);opacity:0;animation:heroFadeIn .8s ease forwards;}
@@ -165,6 +165,9 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 </nav>
 
+<div class="apc-finder-bar"><div class="container" data-apc-finder></div></div>
+<nav class="apc-catnav" aria-label="Repuestos por tipo de pieza"><div class="container" data-apc-catnav></div></nav>
+
 <section class="hero-rotator" id="heroRotator" aria-roledescription="carrusel" aria-label="Vehículos de referencia">
 <h1 class="hero-rotator-h1-sr">Comprar un repuesto usado no debería ser una apuesta. Repuestos Suzuki, Kia, Hyundai y Chevrolet con garantía y procedencia acreditada.</h1>
 <div class="hero-inner">
@@ -237,6 +240,23 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 </div>
 </section>
+
+<section class="apc-rows-wrap" id="repuestos-destacados">
+<div class="container">
+<h2 class="apc-rows-title">Repuestos disponibles hoy</h2>
+<p class="apc-rows-sub">Piezas reales de nuestra bodega, con precio publicado. Desliza cada fila o entra a "Ver todo".</p>
+<div data-apc-rows></div>
+<div class="apc-trust" aria-label="Por qué comprar aquí">
+<div><i aria-hidden="true">🏪</i><span><b>Desarmaduría con local</b><small>Av. Lo Blanco 1072 y Guacolda 2050, La Pintana. Puedes venir a ver la pieza.</small></span></div>
+<div><i aria-hidden="true">🚚</i><span><b>Despacho a todo Chile</b><small>Con el transportista que prefieras: Starken, Chilexpress, Blue Express u otro.</small></span></div>
+<div><i aria-hidden="true">🌎</i><span><b>Envíos al extranjero</b><small>Despachamos por DHL y aceptamos pago internacional.</small></span></div>
+<div><i aria-hidden="true">💳</i><span><b>Pago seguro</b><small>Webpay (débito y crédito) o transferencia. <a href="/garantias" style="color:var(--red);font-weight:700">Ver garantía</a></small></span></div>
+</div>
+<div data-apc-ask></div>
+</div>
+</section>
+
+
 
 <div class="facade-strip">
 <img src="/img/fachada-saravia.jpg" alt="Fachada Desarmaduría Saravia — Av. Lo Blanco 1072, La Pintana, Santiago. Empresa establecida desde 2021 con repuestos verificados." width="700" height="525" loading="eager" fetchpriority="high">
@@ -1061,6 +1081,7 @@ gtag('config', 'G-TXKXWQCTZ1');
 })();
 </script>
 
+<script src="/js/apc-store.js?v=20261019" defer></script>
 <script src="/cart.js" defer></script>
 
 </body>
