@@ -15,7 +15,7 @@
   // se deja Mercado Pago + WhatsApp como alternativas que sí pueden cerrar una venta
   // real. Cuando Transbank apruebe la afiliación comercial y se carguen las
   // credenciales reales, cambiar esta constante a `true` para reactivar el botón.
-  var WEBPAY_LIVE = false;
+  var WEBPAY_LIVE = true; // 2026-10-19: credenciales productivas Transbank cargadas (WEBPAY_ENV=production)
 
   function loadSaved() {
     try {

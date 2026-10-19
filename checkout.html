@@ -160,7 +160,7 @@ gtag('config', 'G-TXKXWQCTZ1');
   // desde esa fecha — un cliente real podía llegar aquí y usar un método de pago que
   // nunca cobra de verdad. Cuando se configuren las credenciales reales de Transbank en
   // Supabase (WEBPAY_ENV=production + WEBPAY_COMMERCE_CODE + WEBPAY_API_KEY), cambiar a true.
-  var WEBPAY_LIVE = false;
+  var WEBPAY_LIVE = true; // 2026-10-19: credenciales productivas Transbank cargadas (WEBPAY_ENV=production)
   if (!WEBPAY_LIVE) {
     var webpayBtn = document.getElementById("co-pay-webpay-btn");
     var webpayNote = document.getElementById("co-webpay-note");
