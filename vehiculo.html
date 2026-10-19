@@ -129,7 +129,7 @@ var veh, parts = [], activeSys = '', title = '', years = '';
 
 function load() {
   if (!slug) { showNotFound(); return; }
-  api('vehiculos?select=*&slug=eq.' + encodeURIComponent(slug) + '&is_active=eq.true').then(function(rows){
+  api('vehiculos?select=id,slug,marca,modelo,motor,anio_desde,anio_hasta,color,transmision,traccion,combustible,images,descripcion,seo_title,meta_description,is_active&slug=eq.' + encodeURIComponent(slug) + '&is_active=eq.true').then(function(rows){
     veh = rows && rows[0];
     if (!veh) { showNotFound(); return; }
     renderVehiculo();

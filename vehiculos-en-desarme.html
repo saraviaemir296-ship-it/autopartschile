@@ -500,7 +500,7 @@ function esc(s){ return (s==null?'':String(s)).replace(/"/g,'&quot;'); }
 function loadDynamicVehicles(){
   var grid = document.getElementById('desarmesGrid');
   if(!grid) return;
-  fetch('https://zlyforhywunqhitrdreo.supabase.co/rest/v1/vehiculos?select=*&is_active=eq.true&order=created_at.desc', {
+  fetch('https://zlyforhywunqhitrdreo.supabase.co/rest/v1/vehiculos?select=id,slug,marca,modelo,motor,anio_desde,anio_hasta,color,transmision,images,descripcion,created_at,is_active&is_active=eq.true&order=created_at.desc', {
     headers: {
       apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw',
       Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw'

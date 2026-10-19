@@ -92,7 +92,7 @@ function formatCompat(v){
 
 try {
   var filter = sku ? ('sku=eq.' + encodeURIComponent(sku)) : ('slug=eq.' + encodeURIComponent(slug));
-  var res = await fetch(SUPABASE_URL + '/rest/v1/products?select=*&is_active=eq.true&' + filter, {
+  var res = await fetch(SUPABASE_URL + '/rest/v1/products?select=id,sku,name,slug,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,tags,seo_title,meta_description,warranty,part_status,vehiculo_id,is_active&is_active=eq.true&' + filter, {
     headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
   });
   var rows = res.ok ? await res.json() : [];
