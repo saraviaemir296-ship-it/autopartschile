@@ -54,16 +54,67 @@ function realImages(arr: unknown): string[] {
 }
 
 function compat(p: any) {
-  const vc = p.vehicle_compatibility && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : {};
+  // Fuente principal: la ficha del vehículo del despiece (datos ordenados). Respaldo: vehicle_compatibility del producto.
+  const v = p._veh;
+  if (v?.marca && v?.modelo) {
+    const yrs = v.anio_desde ? (v.anio_hasta && v.anio_hasta !== v.anio_desde ? `${v.anio_desde}-${v.anio_hasta}` : String(v.anio_desde)) : "";
+    return { make: v.marca, model: v.modelo, years: yrs, engine: v.motor || "" };
+  }
+  const vc = p.vehicle_compatibility && typeof p.vehicle_compatibility === "object" && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : {};
   return { make: vc.make || p.brand || "", model: vc.model || "", years: vc.years || "", engine: vc.engine || "" };
 }
 
 function title(p: any) {
+  // Formato que mejor posiciona en autopartes: Pieza (+ lado) + Marca Modelo Motor Años (+ Original), máx. 60
   const c = compat(p);
-  let t = p.name as string;
-  if (c.model && !t.toLowerCase().includes(c.model.toLowerCase())) t += ` ${c.make} ${c.model} ${c.years}`.trimEnd();
-  t = t.replace(/\s+/g, " ").trim();
-  return t.length <= 60 ? t : t.slice(0, 60).replace(/\s+\S*$/, "");
+  const eng = (String(c.engine).match(/\d\.\d/) || [""])[0];
+  let piece = String(p.name);
+  if (c.make) { const i = piece.toLowerCase().indexOf(c.make.toLowerCase()); if (i > 0) piece = piece.slice(0, i); }
+  piece = piece.replace(/\s*\/\s*\S+/g, "").replace(/lado derecho/i, "Derecho").replace(/lado izquierdo/i, "Izquierdo").replace(/\([^)]*\)/g, "").replace(/[,;]/g, "").replace(/\s+/g, " ").trim();
+  let suffix = [c.make, c.model, eng, c.years].filter(Boolean).join(" ");
+  if (!c.model) suffix = "";
+  if (suffix.length > 40) suffix = [c.make, c.model, c.years].filter(Boolean).join(" ");
+  const budget = 60 - (suffix ? suffix.length + 1 : 0);
+  if (piece.length > budget) piece = piece.slice(0, budget).replace(/\s+\S*$/, "");
+  let t = (piece + " " + suffix).replace(/\s+/g, " ").trim();
+  if (!/original/i.test(t) && t.length + 9 <= 60) t += " Original";
+  return t;
+}
+
+async function attachVehicles(ps: any[]) {
+  const ids = [...new Set(ps.map((p) => p.vehiculo_id).filter(Boolean))];
+  if (!ids.length) return;
+  const { data } = await admin.from("vehiculos").select("id, marca, modelo, motor, anio_desde, anio_hasta").in("id", ids);
+  const byId = new Map((data ?? []).map((v: any) => [v.id, v]));
+  for (const p of ps) if (p.vehiculo_id) p._veh = byId.get(p.vehiculo_id);
+}
+
+async function addCompat(tk: string, itemId: string | null, p: any) {
+  const c = compat(p);
+  if (!c.make || !c.model) return { ok: false, error: "sin marca/modelo" };
+  const D = "MLC-CARS_AND_VANS_FOR_COMPATIBILITIES";
+  const norm = (x: string) => x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const b = await ml(tk, "POST", `/catalog_domains/${D}/attributes/BRAND/top_values`, {});
+  const brand = (Array.isArray(b.data) ? b.data : []).find((x: any) => norm(x.name) === norm(c.make));
+  if (!brand) return { ok: false, error: "marca no encontrada en catálogo ML" };
+  const m = await ml(tk, "POST", `/catalog_domains/${D}/attributes/CAR_AND_VAN_MODEL/top_values`, { known_attributes: [{ id: "BRAND", value_id: brand.id }] });
+  const models = Array.isArray(m.data) ? m.data : [];
+  const model = models.find((x: any) => norm(x.name) === norm(c.model)) || models.find((x: any) => norm(x.name).startsWith(norm(c.model)));
+  if (!model) return { ok: false, error: "modelo no encontrado en catálogo ML" };
+  const yrs = String(c.years).match(/\d{4}/g) || [];
+  const from = Number(yrs[0]), to = Number(yrs[1] || yrs[0]);
+  const years: number[] = [];
+  if (from) for (let y = from; y <= to && years.length < 10; y++) years.push(y);
+  const families = (years.length ? years : [0]).map((y) => ({
+    domain_id: D, creation_source: "DEFAULT",
+    attributes: [{ id: "BRAND", value_id: brand.id }, { id: "CAR_AND_VAN_MODEL", value_id: model.id }, ...(y ? [{ id: "YEAR", value_name: String(y) }] : [])],
+  }));
+  if (!itemId) {
+    const cnt = await ml(tk, "POST", "/catalog_compatibilities/products_search/count_family_products", { domain_id: D, attributes: families[0].attributes });
+    return { ok: true, check_only: true, brand: brand.name, model: model.name, years, vehicles_first_year: cnt.data };
+  }
+  const r = await ml(tk, "POST", `/items/${itemId}/compatibilities`, { products_families: families });
+  return r.ok ? { ok: true, count: r.data?.created_compatibilities_count ?? null, model: model.name } : { ok: false, error: mlError(r.data) };
 }
 
 function description(p: any) {
@@ -117,15 +168,25 @@ Deno.serve(async (req) => {
   const dry = body.dry_run !== false;
   const cover = body.cover_fee === true;
   if (!ids.length) return json({ error: "Sin productos" }, 400);
+  if (body.action === "compat") {
+    let tk0: string;
+    try { tk0 = await token(); } catch (e) { return json({ error: (e as Error).message }, 400); }
+    const { data: ps } = await admin.from("products").select("id, sku, name, brand, vehicle_compatibility, meli_item_id, vehiculo_id").in("id", ids);
+    await attachVehicles(ps ?? []);
+    const out: any[] = [];
+    for (const p of ps ?? []) out.push({ id: p.id, name: p.name, title: title(p), ...(p.meli_item_id ? await addCompat(tk0, p.meli_item_id, p) : await addCompat(tk0, null, p)) });
+    return json({ results: out });
+  }
   if (!LISTING_TYPES.includes(listing)) return json({ error: "Elige el tipo de publicación" }, 400);
 
   let tk: string;
   try { tk = await token(); } catch (e) { return json({ error: (e as Error).message }, 400); }
 
   const { data: prods, error } = await admin.from("products")
-    .select("id, sku, name, description, brand, price_sale, stock, images, oem_number, vehicle_compatibility, is_active, part_status, meli_item_id, deleted_at")
+    .select("id, sku, name, description, brand, price_sale, stock, images, oem_number, vehicle_compatibility, is_active, part_status, meli_item_id, deleted_at, vehiculo_id")
     .in("id", ids);
   if (error) return json({ error: error.message }, 500);
+  await attachVehicles(prods ?? []);
 
   const results: any[] = [];
   for (const p of prods ?? []) {
@@ -179,6 +240,7 @@ Deno.serve(async (req) => {
         if (!c.ok) throw new Error(mlError(c.data));
         res.ok = true; res.meli_item_id = c.data.id; res.permalink = c.data.permalink;
         await ml(tk, "POST", `/items/${c.data.id}/description`, { plain_text: description(p) });
+        res.compat = await addCompat(tk, c.data.id, p);
         await admin.from("products").update({ meli_item_id: c.data.id, meli_status: c.data.status, meli_synced_at: new Date().toISOString() }).eq("id", p.id);
       }
     } catch (e) { res.ok = false; res.error = (e as Error).message; }

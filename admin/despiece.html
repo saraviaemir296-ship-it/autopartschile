@@ -41,6 +41,7 @@ button:disabled{opacity:.55;cursor:default;}
 .row .ph .n{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;font-size:.6rem;padding:0 .3rem;border-radius:4px;}
 .row .nm{font-size:.86rem;font-weight:700;line-height:1.25;}
 .row .nm small{display:block;font-weight:400;color:#888;font-size:.72rem;}
+.row .nm input.oem{margin-top:.3rem;width:100%;max-width:220px;padding:.3rem .5rem;border:1px dashed #ccc;border-radius:6px;font-size:.75rem;text-transform:uppercase;}
 .row input.price{width:100%;padding:.5rem;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;}
 .row input.price.sug{border-style:dashed;}
 .row select{width:100%;padding:.5rem;border:1.5px solid #ddd;border-radius:8px;font-size:.82rem;}
@@ -168,7 +169,7 @@ async function loadSuggested() {
 
 async function loadParts() {
   const { data, error } = await supabase.from('products')
-    .select('id, sku, name, price_sale, stock, is_active, images, part_status, lado, catalog_id, part_catalog(sistema, pieza, orden)')
+    .select('id, sku, name, price_sale, stock, is_active, images, part_status, lado, catalog_id, oem_number, part_catalog(sistema, pieza, orden)')
     .eq('vehiculo_id', vehId).is('deleted_at', null).order('sku');
   if (error) { toast('Error cargando piezas: ' + error.message, 'err'); return; }
   parts = data || [];
@@ -218,7 +219,7 @@ function rowEl(p) {
   el.dataset.id = p.id;
   el.innerHTML = `
     <div class="ph" title="Subir foto">${imgs.length ? `<img src="${esc(imgs[0])}" alt="" loading="lazy"><span class="n">${imgs.length}</span>` : '📷'}</div>
-    <div class="nm">${esc(p.name)}<small>${esc(p.sku || '')}</small></div>
+    <div class="nm">${esc(p.name)}<small>${esc(p.sku || '')}</small><input class="oem" type="text" placeholder="N° OEM (de la etiqueta)" value="${esc(p.oem_number || '')}" maxlength="40"></div>
     <div class="pc"><input class="price ${sug ? 'sug' : ''}" type="number" inputmode="numeric" min="0" step="10" placeholder="${sug ? sug : 'Precio'}" value="${Number(p.price_sale) > 0 ? Math.round(p.price_sale) : ''}"></div>
     <div class="st"><select>${Object.entries(STATUS).map(([v, t]) => `<option value="${v}" ${p.part_status === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
     <label class="pub"><input type="checkbox" ${p.is_active ? 'checked' : ''}> Publicada</label>`;
@@ -230,6 +231,10 @@ function rowEl(p) {
     const upd = { price_sale: v };
     if (!v && p.is_active) upd.is_active = false; // sin precio no se publica
     save(p, upd, el);
+  });
+  el.querySelector('input.oem').addEventListener('change', e => {
+    const v = e.target.value.trim().toUpperCase();
+    save(p, { oem_number: v || null }, el);
   });
   el.querySelector('select').addEventListener('change', e => {
     const st = e.target.value;
@@ -247,7 +252,7 @@ function rowEl(p) {
 
 async function save(p, upd, el) {
   el.classList.remove('saved', 'err'); el.classList.add('saving');
-  const { data, error } = await supabase.from('products').update(upd).eq('id', p.id).select('id, price_sale, stock, is_active, part_status, images').single();
+  const { data, error } = await supabase.from('products').update(upd).eq('id', p.id).select('id, price_sale, stock, is_active, part_status, images, oem_number').single();
   el.classList.remove('saving');
   if (error) { el.classList.add('err'); toast('No se guardó: ' + error.message, 'err'); return; }
   Object.assign(p, data);
