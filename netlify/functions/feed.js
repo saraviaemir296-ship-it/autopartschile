@@ -45,7 +45,7 @@ exports.handler = async function (event) {
       '<channel>\n' +
       '<title>AutopartsChile - Desarmaduría Saravia</title>\n' +
       '<link>' + SITE_URL + '</link>\n' +
-      '<description>Repuestos usados de desarme, revisados y con garantía de funcionamiento.</description>\n' +
+      '<description>Repuestos usados de desarme, revisados. Se venden sin garantía.</description>\n' +
       items + '\n' +
       '</channel>\n' +
       '</rss>\n';
@@ -91,7 +91,7 @@ function formatCompat(v) {
 function toRssItem(p) {
   const compat = formatCompat(p.vehicle_compatibility);
   const title = compat ? p.name + ' - ' + compat + ' (usado)' : p.name + ' (usado)';
-  const description = p.description || (p.name + (compat ? ' para ' + compat : '') + '. Repuesto usado con garantía de funcionamiento.');
+  const description = p.description || (p.name + (compat ? ' para ' + compat : '') + '. Repuesto usado, se vende sin garantía.');
   const link = p.slug ? SITE_URL + '/repuesto/' + p.slug : SITE_URL + '/producto?sku=' + encodeURIComponent(p.sku);
   const image = realImage(p);
   // Pieza usada original: la marca es la del fabricante del vehículo si no hay otra.

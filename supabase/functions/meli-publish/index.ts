@@ -127,7 +127,7 @@ function description(p: any) {
     p.oem_number ? `Número OEM: ${p.oem_number}.` : "",
     "",
     "Antes de comprar, confirma la compatibilidad con tu patente o número de pieza por la sección de preguntas.",
-    "Garantía de funcionamiento. Despacho a todo Chile.",
+    "Repuesto usado, se vende sin garantía. Despacho a todo Chile.",
   ].filter((x) => x !== null).join("\n").replace(/\n{3,}/g, "\n\n");
 }
 

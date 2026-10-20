@@ -101,6 +101,7 @@
       '<div class="apc-field"><label>Apellido</label><input type="text" name="last_name" value="' + (saved.last_name || "") + '"></div>' +
       '<div class="apc-field"><label>Email</label><input type="email" name="email" required value="' + (saved.email || "") + '"></div>' +
       '<div class="apc-field"><label>Teléfono</label><input type="tel" name="phone" placeholder="+56 9 ..." value="' + (saved.phone || "") + '"></div>' +
+      '<label class="apc-usado" style="display:flex;gap:.5rem;align-items:flex-start;font-size:.82rem;color:#444;margin:.2rem 0 .8rem;line-height:1.35"><input type="checkbox" name="acepta_usado" required style="margin-top:.15rem;flex-shrink:0"> <span>Entiendo que es un <b>repuesto usado</b> y que se vende <b>sin garantía</b>. <a href="/garantias" target="_blank" rel="noopener" style="color:#D10B0C">Ver condiciones</a></span></label>' +
       '<div class="apc-modal-actions">' +
       '<button type="submit" class="apc-btn-pay apc-btn-mp" name="gateway" value="mercadopago">Pagar con Mercado Pago &rarr;</button>' +
       webpayActionHtml +
