@@ -356,12 +356,18 @@
 
   window.apcTrack = { rememberPurchase: rememberPurchase, track: track };
 
-  function loadPagos() {
-    if (document.querySelector('script[src^="/js/apc-pagos.js"]')) return;
+  function loadScript(src) {
+    if (document.querySelector('script[src^="' + src.split("?")[0] + '"]')) return;
     var s = document.createElement("script");
-    s.src = "/js/apc-pagos.js?v=20261019p";
+    s.src = src;
     s.defer = true;
     document.head.appendChild(s);
+  }
+  function loadPagos() {
+    loadScript("/js/apc-pagos.js?v=20261019p");
+    // OFERTAS_ON: activar cuando exista la migración supabase/migrations/20261020_fidelizacion_ofertas.sql
+    var OFERTAS_ON = false;
+    if (OFERTAS_ON && (document.querySelector("[data-apc-oferta]") || /^\/(producto|repuesto)/.test(location.pathname))) loadScript("/js/apc-oferta.js?v=20261020a");
   }
 
   function init() {

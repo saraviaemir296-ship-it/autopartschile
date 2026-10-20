@@ -41,7 +41,7 @@
         '<label>Contraseña (mínimo 8)<input type="password" name="pass" autocomplete="new-password" required minlength="8"></label>' +
         '<label class="acc-check"><input type="checkbox" name="ofertas"> Quiero recibir avisos de ofertas y vehículos nuevos en desarme</label>' +
         '<button class="apc-btn apc-btn-red" type="submit">Crear mi cuenta</button><p class="acc-msg" role="status"></p></form>') +
-      '<ul class="acc-perks"><li>❤️ Guarda tus repuestos favoritos</li><li>🚗 Registra tus vehículos y encuentra piezas más rápido</li><li>💳 Revisa tu Tarjeta Saravia</li></ul></div>';
+      '<ul class="acc-perks"><li>⭐ Accede a ofertas exclusivas para socios</li><li>💸 Haz ofertas por repuestos y sigue su estado</li><li>❤️ Guarda tus repuestos favoritos</li><li>🚗 Registra tus vehículos y encuentra piezas más rápido</li><li>💳 Revisa tu Tarjeta Saravia</li></ul></div>';
     root.querySelectorAll('.acc-tabs button').forEach(function (b) { b.onclick = function () { renderAuth(b.dataset.m); }; });
     var fl = document.getElementById('fLogin'), fs = document.getElementById('fSignup');
     if (fl) {
@@ -82,7 +82,7 @@
   }
 
   // ---------- Con sesión ----------
-  var user = null, perfil = null;
+  var user = null, perfil = null, socios = [], misOfertas = [];
   function load() {
     sb.auth.getUser().then(function (r) {
       user = r.data && r.data.user;
@@ -90,8 +90,12 @@
       Promise.all([
         sb.from('clientes_perfil').select('*').eq('user_id', user.id).maybeSingle(),
         sb.from('tarjeta_solicitudes').select('id,estado,codigo,tipo,beneficio,nombre,created_at').order('created_at', { ascending: false }).limit(1),
-        sb.from('clientes_favoritos').select('sku')
+        sb.from('clientes_favoritos').select('sku'),
+        sb.from('ofertas_socios').select('sku,precio_socio,nivel,nota,hasta').order('created_at', { ascending: false }).limit(30),
+        sb.from('ofertas_clientes').select('id,sku,product_name,precio_publicado,monto,estado,contraoferta,respuesta,created_at').order('created_at', { ascending: false }).limit(20)
       ]).then(function (res) {
+        socios = (res[3] && !res[3].error && res[3].data) || [];
+        misOfertas = (res[4] && !res[4].error && res[4].data) || [];
         perfil = res[0].data;
         if (!perfil) { // primer ingreso: crea el perfil con lo que dio al registrarse
           var md = user.user_metadata || {};
@@ -134,6 +138,14 @@
         return '<div class="acc-veh"><a href="/catalogo?' + q + '#resultados">' + esc([v.marca, v.modelo, v.anio].join(' ')) + ' → ver repuestos</a><button data-i="' + i + '" class="acc-x" aria-label="Quitar">✕</button></div>';
       }).join('') : '<p class="acc-note">Agrega tu auto y te mostramos solo los repuestos que le sirven.</p>') + '</div>' +
       '<form id="fVeh" class="acc-inline"><input name="marca" placeholder="Marca" required maxlength="30"><input name="modelo" placeholder="Modelo" required maxlength="40"><input name="anio" placeholder="Año" inputmode="numeric" maxlength="4" required><button class="apc-btn apc-btn-red">Agregar</button></form></section>' +
+      '<section class="acc-box acc-wide"><h3>⭐ Ofertas exclusivas para socios</h3><div id="sociosList" class="apc-grid"><p class="acc-note">' + (socios.length ? 'Cargando…' : 'Aún no hay ofertas exclusivas publicadas. Te avisaremos cuando salgan' + (perfil && perfil.acepta_ofertas ? '.' : ' si activas “Recibir avisos de ofertas” en Mis datos.')) + '</p></div></section>' +
+      '<section class="acc-box acc-wide"><h3>💸 Mis ofertas</h3>' + (misOfertas.length ? '<div class="acc-ofs">' + misOfertas.map(function (o) {
+        var st = { pendiente: '⏳ En revisión', aceptada: '✅ Aceptada', rechazada: '❌ No aceptada', contraoferta: '🔁 Te hicimos una contraoferta' }[o.estado] || o.estado;
+        var wa = 'https://wa.me/56953817335?text=' + encodeURIComponent('Hola, sobre mi oferta #' + o.id + ' por ' + (o.product_name || o.sku) + (o.estado === 'contraoferta' && o.contraoferta ? ': acepto la contraoferta de ' + money(o.contraoferta) + '.' : o.estado === 'aceptada' ? ': quiero coordinar el pago.' : '.'));
+        return '<div class="acc-of"><div><b>' + esc(o.product_name || o.sku) + '</b><br><small>Ofreciste ' + money(o.monto) + (o.precio_publicado ? ' · precio ' + money(o.precio_publicado) : '') + '</small>' +
+          (o.contraoferta ? '<br><small>Contraoferta: <b>' + money(o.contraoferta) + '</b></small>' : '') + (o.respuesta ? '<br><small>' + esc(o.respuesta) + '</small>' : '') + '</div>' +
+          '<div class="acc-of-st"><span>' + st + '</span>' + (o.estado === 'aceptada' || o.estado === 'contraoferta' ? '<a class="apc-btn apc-btn-red" target="_blank" rel="noopener" href="' + wa + '">' + (o.estado === 'aceptada' ? 'Coordinar pago' : 'Responder') + '</a>' : '') + '</div></div>';
+      }).join('') + '</div>' : '<p class="acc-note">Aún no haces ofertas. En cada repuesto disponible aprieta “💸 Hacer una oferta”.</p>') + '</section>' +
       '<section class="acc-box acc-wide"><h3>❤️ Mis favoritos</h3><div id="favList" class="apc-grid"><p class="acc-note">' + (favs.length ? 'Cargando…' : 'Aún no guardas repuestos. Aprieta el ❤️ en cualquier repuesto del catálogo.') + '</p></div></section>' +
       '<section class="acc-box"><h3>👤 Mis datos</h3><form id="fPerfil" class="acc-form">' +
       '<label>Nombre<input name="nombre" maxlength="100" value="' + esc(perfil && perfil.nombre) + '"></label>' +
@@ -160,6 +172,25 @@
     function saveVeh() {
       perfil = Object.assign({}, perfil, { user_id: user.id, vehiculos: veh, updated_at: new Date().toISOString() });
       sb.from('clientes_perfil').upsert(perfil).then(function () { load(); });
+    }
+    if (socios.length) {
+      var sk = socios.map(function (o) { return o.sku; });
+      fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,is_active&is_active=eq.true&sku=in.(' + sk.map(function (s) { return '"' + s.replace(/"/g, '') + '"'; }).join(',') + ')', { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
+        .then(function (r) { return r.json(); }).then(function (rows) {
+          var by = {}; (rows || []).forEach(function (p) { by[p.sku] = p; });
+          var el = document.getElementById('sociosList');
+          el.innerHTML = socios.filter(function (o) { return by[o.sku]; }).map(function (o) {
+            var p = by[o.sku];
+            var img = (p.images || []).map(function (u) { return typeof u === 'string' ? u : u && u.url; }).filter(function (u) { return u && !/favicon|placeholder|logo/i.test(u); })[0];
+            var href = p.slug ? '/repuesto/' + encodeURIComponent(p.slug) : '/producto?sku=' + encodeURIComponent(p.sku);
+            var wa = 'https://wa.me/56953817335?text=' + encodeURIComponent('Hola, soy socio (' + user.email + ') y quiero comprar ' + p.name + ' (' + p.sku + ') a precio socio ' + money(o.precio_socio) + '.');
+            return '<article class="apc-card"><a class="apc-card-img" href="' + href + '">' + (img ? '<img src="' + esc(img) + '" alt="' + esc(p.name) + '" loading="lazy">' : '<div class="apc-nophoto"><span>📷</span></div>') + '</a>' +
+              '<div class="apc-card-body"><h3 class="apc-card-name"><a href="' + href + '">' + esc(p.name) + '</a></h3>' +
+              '<p class="apc-card-price">' + money(o.precio_socio) + ' <s style="color:#999;font-size:.8em;font-weight:600">' + money(p.price_sale) + '</s></p>' +
+              (o.nota ? '<p class="acc-note" style="margin:.2rem 0">' + esc(o.nota) + '</p>' : '') +
+              '<div class="apc-card-actions"><a class="apc-btn apc-btn-red" target="_blank" rel="noopener" href="' + wa + '">Comprar a precio socio</a></div></div></article>';
+          }).join('') || '<p class="acc-note">Las ofertas exclusivas de hoy ya se vendieron. Vuelve pronto.</p>';
+        });
     }
     if (favs.length) {
       fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,part_status,is_active&sku=in.(' + favs.map(function (s) { return '"' + s.replace(/"/g, '') + '"'; }).join(',') + ')', { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })

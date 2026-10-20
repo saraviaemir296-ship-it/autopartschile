@@ -99,7 +99,7 @@ exports.handler = async (event) => {
 <meta name="robots" content="${sold ? 'noindex,follow' : 'index,follow'}">
 <meta property="og:type" content="product"><meta property="og:title" content="${esc(h1)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">${imgs[0] ? `<meta property="og:image" content="${esc(imgs[0])}">` : ''}
 <meta property="product:price:amount" content="${price}"><meta property="product:price:currency" content="CLP">
-<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261019acc">
+<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261020of">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TXKXWQCTZ1');gtag('event','view_item',{currency:'CLP',value:${price},items:[{item_id:${jsStr(p.sku)},item_name:${jsStr(p.name)},price:${price}}]});</script>
@@ -133,6 +133,7 @@ ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" 
 <div class="rp-cta">${sold ? '' : '<button class="rp-add" type="button" id="rpAdd">🛒 Agregar al carrito</button>'}
 <a class="rp-wa" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${waText}">💬 Consultar por WhatsApp</a></div>
 <button type="button" class="apc-fav rp-fav" data-sku="${esc(p.sku)}" aria-pressed="false" aria-label="Guardar en favoritos">❤ <span>Guardar en favoritos</span></button>
+${sold ? '' : `<div data-apc-oferta data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${price}"></div>`}
 <div class="rp-trust">
 <div><b>🛡️ Compra protegida</b><span>Pago con Webpay en la web o en el local. Confirmamos stock y compatibilidad antes de despachar.</span></div>
 <div><b>🔁 Garantía</b><span>Garantía de funcionamiento según nuestras <a href="/garantias">condiciones</a>.</span></div>

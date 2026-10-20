@@ -570,6 +570,7 @@ tr:hover td{background:var(--gray-light)}
 .acc-wide{grid-column:1/-1}
 .acc-note{color:#555;font-size:.9rem}
 .acc-veh{display:flex;justify-content:space-between;align-items:center;border:1px solid #eee;border-radius:8px;padding:.5rem .7rem;margin-bottom:.4rem}
+.acc-ofs{display:flex;flex-direction:column;gap:.5rem}.acc-of{display:flex;justify-content:space-between;gap:.8rem;align-items:center;border:1px solid #eee;border-radius:10px;padding:.7rem .85rem;flex-wrap:wrap}.acc-of-st{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:.88rem}.acc-of-st .apc-btn{padding:.45rem .8rem;font-size:.85rem}
 .acc-veh a{font-weight:700;color:#111}
 .acc-x{border:0;background:none;color:#999;cursor:pointer;font-size:1rem}
 .acc-inline{display:grid;grid-template-columns:1fr 1fr 80px auto;gap:.4rem}
