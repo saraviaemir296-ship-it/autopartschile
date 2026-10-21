@@ -147,12 +147,18 @@ var params = new URLSearchParams(location.search);
 var vehiculoId = params.get('id');
 var images = []; // array of public URLs, [0] = principal
 
+function photoLabel(u) {
+  var f = decodeURIComponent(String(u).split('/').pop() || '').toLowerCase();
+  var m = [['tres-cuartos','Vista 3/4'],['3-4','Vista 3/4'],['frente','Frente'],['frontal','Frente'],['lateral','Lateral'],['costado','Lateral'],['trasera','Trasera'],['atras','Trasera'],['interior','Interior'],['tablero','Tablero'],['motor','Motor'],['maletero','Maletero'],['chasis','Chasis']];
+  for (var i = 0; i < m.length; i++) if (f.indexOf(m[i][0]) !== -1) return m[i][1];
+  return '';
+}
 function renderImages() {
   var grid = document.getElementById('imgsGrid');
   grid.innerHTML = images.map(function(url, i){
     return '<div class="img-item' + (i===0?' primary':'') + '">' +
       (i===0 ? '<span class="primary-tag">Principal</span>' : '') +
-      '<img src="' + url + '">' +
+      '<img src="' + url + '">' + (photoLabel(url) ? '<span style="position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.7);color:#fff;font-size:.65rem;font-weight:800;padding:.1rem .4rem;border-radius:10px">' + photoLabel(url) + '</span>' : '') +
       '<button type="button" data-remove="' + i + '">&times;</button>' +
       (i!==0 ? '<button type="button" class="set-primary" data-primary="' + i + '">Hacer principal</button>' : '') +
     '</div>';
