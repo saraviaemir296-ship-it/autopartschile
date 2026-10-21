@@ -123,6 +123,7 @@ button:disabled{opacity:.55;cursor:default;}
 
 <input type="file" id="fileInput" accept="image/*" capture="environment" multiple hidden>
 
+<script src="/admin/apc-marca-agua.js?v=20261021"></script>
 <script type="module">
 import { supabase, requireAdmin, money, toast } from '/admin/admin-common.js';
 
@@ -273,6 +274,7 @@ async function shrink(file) {
     const c = document.createElement('canvas');
     c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
     c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    if (window.apcMarcaAgua) window.apcMarcaAgua(c);   // marca de agua Desarmaduría Saravia
     return await new Promise(r => c.toBlob(b => r(b || file), 'image/jpeg', 0.85));
   } catch (_) { return file; }
 }

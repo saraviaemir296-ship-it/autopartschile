@@ -140,6 +140,7 @@ button:disabled{opacity:.6;}
 </form>
 </div>
 
+<script src="/admin/apc-marca-agua.js?v=20261021"></script>
 <script type="module">
 import { supabase, requireAdmin, slugify } from '/admin/admin-common.js';
 
@@ -184,6 +185,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   var msg = document.getElementById('msg');
   for (var i = 0; i < files.length; i++) {
     var file = files[i];
+    if (window.apcPrepararFoto) file = await window.apcPrepararFoto(file, { max: 1800, calidad: 0.84 }); // achica + marca de agua
     var path = Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
     var { error } = await supabase.storage.from('product-images').upload(path, file, { cacheControl: '31536000', upsert: false });
     if (error) {
