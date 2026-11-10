@@ -48,6 +48,39 @@
   var MAKES = ['Suzuki', 'Chevrolet', 'Kia', 'Hyundai', 'Jeep', 'Nissan', 'Toyota', 'Mitsubishi', 'Peugeot', 'Ford', 'Mazda'];
   var MODELS = ['Grand Cherokee', 'Grand Nomade', 'Alto 800', 'Alto K10', 'S-Presso', 'S-Cross', 'SX4 Crossover', 'Celerio', 'Alto', 'Swift Dzire', 'Dzire', 'Swift', 'SX4', 'Baleno', 'Vitara', 'Ciaz', 'Ignis', 'Mastervan', 'D-Max', 'Optima', 'Cerato', 'Morning', 'Spark', 'Santa Fe'];
   function cap(s) { s = String(s || '').trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''; }
+
+  // --- Búsqueda: sinónimos chilenos, plurales, palabras vacías y orden por relevancia ---
+  var STOP = { de: 1, del: 1, la: 1, el: 1, los: 1, las: 1, para: 1, con: 1, sin: 1, y: 1, o: 1, un: 1, una: 1, en: 1, mi: 1, auto: 1, repuesto: 1, repuestos: 1, pieza: 1, piezas: 1, busco: 1, necesito: 1, tienen: 1, original: 1, usado: 1, usada: 1 };
+  var SYN = [
+    ['optico', 'foco', 'farol', 'faro', 'luz'], ['tapabarro', 'guardabarro', 'guardafango', 'aleta'], ['mascara', 'parrilla', 'rejilla'],
+    ['portalon', 'maleta', 'maletero', 'quinta'], ['parachoque', 'bumper', 'paragolpe', 'defensa'], ['capot', 'capo'],
+    ['computador', 'ecu', 'ecm', 'centralita', 'modulo'], ['mariposa', 'aceleracion', 'tbi', 'obturador'], ['homocinetica', 'semieje', 'palier', 'junta'],
+    ['partida', 'arranque', 'burro'], ['sinoptico', 'tablero', 'velocimetro', 'instrumento', 'cluster', 'tacometro'], ['cuna', 'subchasis', 'puente'],
+    ['munon', 'mangueta', 'portamaza'], ['espejo', 'retrovisor'], ['alzavidrio', 'elevavidrio', 'levantavidrio'], ['caja', 'transmision'],
+    ['culata', 'cabeza'], ['manubrio', 'volante'], ['llanta', 'aro', 'rueda'], ['bandeja', 'brazo'], ['amortiguador', 'strut'],
+    ['telecomando', 'mando', 'palanca'], ['chapa', 'cerradura', 'pestillo'], ['manilla', 'tirador'], ['radiador', 'enfriador'],
+    ['electroventilador', 'ventilador', 'electro'], ['bencina', 'combustible', 'gasolina'], ['silenciador', 'escape', 'mofle'],
+    ['oxigeno', 'lambda', 'o2'], ['detonacion', 'golpeteo', 'knock'], ['balizas', 'hazard', 'emergencia'], ['limpiaparabrisas', 'plumilla', 'wiper'],
+    ['sapito', 'lavaparabrisas', 'washer'], ['guantera', 'gaveta'], ['cinturon', 'cinturones'], ['airbag', 'bolsa'], ['compresor', 'aire'],
+    ['tambor', 'campana'], ['cremallera', 'direccion'], ['embrague', 'clutch'], ['piola', 'cable'], ['estanque', 'tanque', 'deposito']
+  ];
+  var SYNMAP = {}; SYN.forEach(function (g) { g.forEach(function (w) { SYNMAP[w] = g; }); });
+  function stem(w) { if (w.length > 4 && /es$/.test(w) && !/[aeiou]es$/.test(w)) return w.slice(0, -2); if (w.length > 3 && /s$/.test(w)) return w.slice(0, -1); return w; }
+  function qTokens(q) {
+    return plain(q).replace(/[^a-z0-9ñ ]/g, ' ').split(/\s+/).filter(function (w) { return w && !STOP[w]; }).map(function (w) {
+      var st = stem(w), g = SYNMAP[st] || SYNMAP[w];
+      return g ? g : [st];
+    });
+  }
+  function qScore(p, toks) {
+    var hit = 0, sc = 0;
+    for (var i = 0; i < toks.length; i++) {
+      var ok = false, inName = false;
+      for (var j = 0; j < toks[i].length; j++) { var w = toks[i][j]; if (p.search.indexOf(w) !== -1) { ok = true; if (p.nameP.indexOf(w) !== -1) inName = true; } }
+      if (ok) { hit++; sc += inName ? 3 : 1; }
+    }
+    return { hit: hit, sc: sc };
+  }
   function normMake(m) { var p = plain(m); for (var i = 0; i < MAKES.length; i++) if (plain(MAKES[i]) === p) return MAKES[i]; return cap(m); }
 
   // Vehículo de cada pieza: primero la ficha del vehículo, si no, el texto de compatibilidad
@@ -89,7 +122,7 @@
   var cache = null;
   function load() {
     if (cache) return cache;
-    var q = 'products?select=sku,name,slug,price_sale,images,category,part_status,stock,brand,vehicle_compatibility,created_at,vehiculos(marca,modelo,anio_desde,anio_hasta,motor)' +
+    var q = 'products?select=sku,name,slug,price_sale,images,category,part_status,stock,brand,vehicle_compatibility,created_at,oem_number,tags,vehiculos(marca,modelo,anio_desde,anio_hasta,motor)' +
       '&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&sku=not.like.QA-*&order=created_at.desc&limit=2000';
     cache = fetch(URL_ + '/rest/v1/' + q, { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -99,7 +132,7 @@
           return {
             sku: p.sku, name: p.name, slug: p.slug, price: Number(p.price_sale), img: realImg(p),
             cat: categoria(p.category, p.name), v: v, veh: vehTxt(v), href: href(p),
-            search: plain([p.sku, p.name, p.category, vehTxt(v), v.motor, p.brand].join(' '))
+            nameP: plain(p.name), search: plain([p.sku, p.name, p.category, vehTxt(v), v.motor, p.brand, p.oem_number, (p.tags || []).join(' ')].join(' ')).replace(/[-.\/]/g, ' ') + ' ' + plain(p.oem_number || '').replace(/[^a-z0-9]/g, '')
           };
         });
       });
@@ -294,18 +327,26 @@
         }).join('');
     }
     function apply() {
-      var qq = plain(state.q).split(/\s+/).filter(Boolean), y = +state.anio || 0;
-      var res = items.filter(function (p) {
+      var toks = qTokens(state.q), y = +state.anio || 0, partial = false;
+      var base = items.filter(function (p) {
         if (state.cat && p.cat !== state.cat) return false;
         if (state.marca && p.v.marca !== state.marca) return false;
         if (state.modelo && p.v.modelo !== state.modelo) return false;
         if (y && !fitsYear(p, y)) return false;
-        for (var i = 0; i < qq.length; i++) if (p.search.indexOf(qq[i]) === -1) return false;
         return true;
-      }).sort(function (a, b) { return (b.img ? 1 : 0) - (a.img ? 1 : 0); });
+      });
+      var res = base;
+      if (toks.length) {
+        var scored = base.map(function (p) { var r = qScore(p, toks); return { p: p, hit: r.hit, sc: r.sc }; });
+        var full = scored.filter(function (x) { return x.hit === toks.length; });
+        if (!full.length && toks.length > 1) { var mx = Math.max.apply(null, scored.map(function (x) { return x.hit; })); if (mx > 0) { full = scored.filter(function (x) { return x.hit === mx; }); partial = true; } }
+        res = full.sort(function (a, b) { return (b.sc - a.sc) || ((b.p.img ? 1 : 0) - (a.p.img ? 1 : 0)); }).map(function (x) { return x.p; });
+      } else {
+        res = base.slice().sort(function (a, b) { return (b.img ? 1 : 0) - (a.img ? 1 : 0); });
+      }
       grid.innerHTML = res.map(card).join('');
       var veh = [state.marca, state.modelo, state.anio].filter(Boolean).join(' ');
-      document.getElementById('apcTitle').textContent = (state.cat || (state.q ? 'Resultados para "' + state.q + '"' : 'Todos los repuestos')) + (veh ? ' · ' + veh : '');
+      document.getElementById('apcTitle').textContent = (state.cat || (state.q ? (partial ? 'Lo más parecido a "' : 'Resultados para "') + state.q + '"' : 'Todos los repuestos')) + (veh ? ' · ' + veh : '');
       document.getElementById('apcCount').textContent = res.length + (res.length === 1 ? ' resultado' : ' resultados');
       empty.hidden = res.length > 0;
       empty.querySelector('a').href = waLink('Hola, busco ' + (state.q || state.cat || 'un repuesto') + (veh ? ' para ' + veh : '') + '. ¿Lo tienen?');

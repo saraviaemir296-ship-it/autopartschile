@@ -164,7 +164,7 @@ ${related.length ? `<h2 style="margin-top:2rem">Más repuestos de ${esc(veh)}</h
 </div></section>
 ${FOOTER}
 ${WAFLOAT}
-<script src="/js/apc-store.js?v=20261019b" defer></script>
+<script src="/js/apc-store.js?v=20261110a" defer></script>
 <script src="/cart.js" defer></script>
 <script>
 (function(){
