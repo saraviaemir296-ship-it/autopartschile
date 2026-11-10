@@ -1,0 +1,29 @@
+# AutopartsChile · Desarmaduría Saravia
+
+> Desarmaduría de autos en La Pintana, Santiago de Chile, con más de 5 años de experiencia. Vende repuestos originales usados (retirados de vehículos en desarme) y repuestos nuevos importados, con especialidad en Suzuki, además de Kia, Hyundai y Chevrolet. Despacha a todo Chile.
+
+## Datos del negocio
+- Nombre: Desarmaduría Saravia (sitio: autopartschile.cl)
+- Dirección: Av. Lo Blanco 1072, La Pintana, Región Metropolitana, Chile
+- WhatsApp y teléfono: +56 9 5381 7335
+- Horario: lunes a viernes 10:00 a 18:00, sábado 10:00 a 15:30
+- Pago: Webpay (débito y crédito), Mercado Pago, transferencia, efectivo en el local
+- Envíos: a todo Chile por Starken, Chilexpress o Blue Express; retiro en el local
+- Garantía: 7 días de funcionamiento solo en motores completos y cajas de cambio. El resto de las piezas usadas se prueba antes de la entrega y se vende sin garantía posventa.
+
+## Cómo encontrar un repuesto
+- Cada repuesto tiene su ficha en https://autopartschile.cl/repuesto/<slug> con precio en CLP, estado, vehículo de origen y, cuando está verificado, número de parte original (OEM).
+- [Vehículos en desarme](https://autopartschile.cl/vehiculos-en-desarme.html): lista de autos que se están desarmando, con sus piezas.
+- [Catálogo](https://autopartschile.cl/catalogo.html): buscador de todos los repuestos.
+- [Sitemap de repuestos](https://autopartschile.cl/sitemap-repuestos.xml): todas las fichas publicadas.
+- [Feed de productos](https://autopartschile.cl/feed.xml): precio, stock e imagen de cada pieza con foto.
+
+## Información de compra
+- [Cómo comprar](https://autopartschile.cl/como-comprar.html)
+- [Envíos](https://autopartschile.cl/envios.html)
+- [Garantías y condiciones](https://autopartschile.cl/garantias.html)
+- [Métodos de pago](https://autopartschile.cl/metodos-de-pago.html)
+- [Preguntas frecuentes](https://autopartschile.cl/faq.html)
+
+## Compatibilidad
+La compatibilidad publicada corresponde al vehículo del que se retiró la pieza. Antes de comprar se recomienda confirmar con la patente o el número de parte por WhatsApp.

@@ -53,16 +53,26 @@ exports.handler = async (event) => {
   const sold = p.part_status === 'vendida' || p.part_status === 'no_disponible' || !(p.stock > 0) || !(price > 0);
   const enVeh = p.part_status === 'en_vehiculo';
   const url = SITE + '/repuesto/' + p.slug;
-  const title = (p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original') + ' | Desarmaduría Saravia';
+  const title = (p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original') + (p.oem_number ? ' · OEM ' + p.oem_number : '') + ' | Desarmaduría Saravia';
   const desc = p.meta_description || ('Compra ' + h1 + ' original usado a ' + clp(price) + '. Repuesto revisado, pago con Webpay y despacho a todo Chile o retiro en La Pintana.');
   const vehUrl = v && v.is_active && v.slug ? SITE + '/vehiculo.html?slug=' + encodeURIComponent(v.slug) : null;
   const brandName = (v && v.marca) || p.brand || '';
+  const hasWarranty = /^garant/i.test(p.warranty || '');
+  const warrantyText = p.warranty || 'Sin garantía (repuesto usado)';
+  const comp = p.vehicle_compatibility && typeof p.vehicle_compatibility === 'object' && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : null;
+  const faq = [
+    ['¿Este repuesto sirve para mi auto?', 'Proviene de un ' + (veh || 'vehículo del mismo modelo') + '.' + (p.oem_number ? ' Su número de parte original (OEM) es ' + p.oem_number + ': si coincide con el de tu pieza, es compatible.' : '') + ' Para confirmar compatibilidad envíanos tu patente o el número de pieza por WhatsApp antes de comprar.'],
+    ['¿Tiene garantía?', hasWarranty ? 'Sí: ' + warrantyText + '. La garantía cubre el funcionamiento de la pieza; no cubre daños por instalación.' : 'Es un repuesto usado: se prueba antes de la entrega y se vende sin garantía posventa. Si la pieza que recibes no es la publicada, te la cambiamos o reembolsamos.'],
+    ['¿Cuánto cuesta y cómo pago?', 'Cuesta ' + clp(price) + '. Puedes pagar con Webpay (débito o crédito) en la web, Mercado Pago, transferencia o efectivo en el local.'],
+    ['¿Hacen envíos?', 'Sí, despachamos a todo Chile por Starken, Chilexpress o Blue Express. También puedes retirar en Av. Lo Blanco 1072, La Pintana, Santiago (lunes a viernes 10:00 a 18:00, sábado 10:00 a 15:30).'],
+  ];
 
   const ld = [{
     '@context': 'https://schema.org', '@type': 'Product', name: h1, sku: p.sku, url,
     description: p.description || desc, category: p.category || 'Repuestos de autos',
     ...(imgs.length ? { image: imgs.slice(0, 5) } : {}),
     ...(p.oem_number ? { mpn: p.oem_number } : {}),
+    ...(comp && comp.make && comp.model ? { isAccessoryOrSparePartFor: { '@type': 'Car', name: [comp.make, comp.model, comp.engine, comp.years].filter(Boolean).join(' '), brand: { '@type': 'Brand', name: comp.make }, model: comp.model } } : {}),
     ...(brandName ? { brand: { '@type': 'Brand', name: brandName } } : {}),
     offers: {
       '@type': 'Offer', url, price, priceCurrency: 'CLP', itemCondition: 'https://schema.org/UsedCondition',
@@ -79,6 +89,9 @@ exports.handler = async (event) => {
       ...(vehUrl ? [{ '@type': 'ListItem', position: 3, name: veh, item: vehUrl }] : []),
       { '@type': 'ListItem', position: vehUrl ? 4 : 3, name: p.name, item: url },
     ],
+  }, {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
   }];
 
   const waText = encodeURIComponent('Hola, me interesa: ' + h1 + ' (' + p.sku + ') a ' + clp(price) + '. ¿Está disponible?');
@@ -89,7 +102,7 @@ exports.handler = async (event) => {
     veh ? ['Vehículo de origen', veh] : null,
     p.oem_number ? ['Número OEM', p.oem_number] : null,
     ['Código interno', p.sku],
-    ['Garantía', 'Sin garantía (repuesto usado)'],
+    ['Garantía', warrantyText],
     ['Entrega', 'Despacho a todo Chile o retiro en Av. Lo Blanco 1072, La Pintana'],
     ['Pago', 'Webpay (débito y crédito) o transferencia'],
   ].filter(Boolean);
@@ -136,7 +149,7 @@ ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" 
 ${sold ? '' : `<div data-apc-oferta data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${price}"></div>`}
 <div class="rp-trust">
 <div><b>🛡️ Compra protegida</b><span>Pago con Webpay en la web o en el local. Confirmamos stock y compatibilidad antes de despachar.</span></div>
-<div><b>⚠️ Repuesto usado, sin garantía</b><span>Se vende en el estado descrito. Cambio o reembolso si no es la pieza publicada. <a href="/garantias">Condiciones</a>.</span></div>
+${hasWarranty ? `<div><b>✅ ${esc(warrantyText)}</b><span>Aplica a motores y cajas de cambio. <a href="/garantias">Condiciones</a>.</span></div>` : `<div><b>⚠️ Repuesto usado, sin garantía</b><span>Se prueba antes de la entrega. Cambio o reembolso si no es la pieza publicada. <a href="/garantias">Condiciones</a>.</span></div>`}
 <div><b>🚚 Despacho o retiro</b><span>A todo Chile con el transportista que prefieras, o retiro en La Pintana.</span></div>
 <div><b>💳 Medios de pago</b><span>Webpay (débito y crédito) · Transferencia · Mercado Pago</span></div>
 </div>
@@ -145,10 +158,7 @@ ${sold ? '' : `<div data-apc-oferta data-sku="${esc(p.sku)}" data-name="${esc(p.
 </div></div>
 ${p.description ? `<h2 style="margin-top:2rem">Descripción</h2><p style="white-space:pre-line;line-height:1.6;color:#333">${esc(p.description)}</p>` : ''}
 <div class="rp-faq" style="margin-top:2rem"><h2>Preguntas frecuentes</h2>
-<details><summary>¿Este repuesto sirve para mi auto?</summary><p>Proviene de un ${esc(veh || 'vehículo del mismo modelo')}. Para confirmar compatibilidad envíanos tu patente o el número de pieza por WhatsApp antes de comprar.</p></details>
-<details><summary>¿Tiene garantía?</summary><p>No. Es un repuesto usado y se vende sin garantía de funcionamiento. Si la pieza que recibes no es la publicada, te la cambiamos o reembolsamos. Ver <a href="/garantias">condiciones de venta</a>.</p></details>
-<details><summary>¿Hacen envíos?</summary><p>Despachamos a todo Chile. También puedes retirar en Av. Lo Blanco 1072, La Pintana, Santiago.</p></details>
-<details><summary>¿Cómo pago?</summary><p>Con Webpay (tarjeta de débito o crédito) directamente en la web, o por transferencia.</p></details>
+${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
 </div>
 ${related.length ? `<h2 style="margin-top:2rem">Más repuestos de ${esc(veh)}</h2><div class="rp-rel">${related.map((r) => `<a href="/repuesto/${esc(r.slug)}">${esc(r.name)}<b>${clp(r.price_sale)}</b></a>`).join('')}</div>${vehUrl ? `<p style="margin-top:1rem"><a href="${esc(vehUrl)}" class="btn-primary">Ver todos los repuestos de este auto →</a></p>` : ''}` : ''}
 </div></section>
