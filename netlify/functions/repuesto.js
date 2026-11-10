@@ -53,7 +53,7 @@ exports.handler = async (event) => {
   const sold = p.part_status === 'vendida' || p.part_status === 'no_disponible' || !(p.stock > 0) || !(price > 0);
   const enVeh = p.part_status === 'en_vehiculo';
   const url = SITE + '/repuesto/' + p.slug;
-  const title = (p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original') + (p.oem_number ? ' · OEM ' + p.oem_number : '') + ' | Desarmaduría Saravia';
+  const title = (p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original') + (p.oem_number && /^[0-9A-Za-z-]+$/.test(p.oem_number) ? ' · OEM ' + p.oem_number : '') + ' | Desarmaduría Saravia';
   const desc = p.meta_description || ('Compra ' + h1 + ' original usado a ' + clp(price) + '. Repuesto revisado, pago con Webpay y despacho a todo Chile o retiro en La Pintana.');
   const vehUrl = v && v.is_active && v.slug ? SITE + '/vehiculo.html?slug=' + encodeURIComponent(v.slug) : null;
   const brandName = (v && v.marca) || p.brand || '';
@@ -71,7 +71,7 @@ exports.handler = async (event) => {
     '@context': 'https://schema.org', '@type': 'Product', name: h1, sku: p.sku, url,
     description: p.description || desc, category: p.category || 'Repuestos de autos',
     ...(imgs.length ? { image: imgs.slice(0, 5) } : {}),
-    ...(p.oem_number ? { mpn: p.oem_number } : {}),
+    ...(p.oem_number && /^[0-9A-Za-z-]+$/.test(p.oem_number) ? { mpn: p.oem_number } : {}),
     ...(comp && comp.make && comp.model ? { isAccessoryOrSparePartFor: { '@type': 'Car', name: [comp.make, comp.model, comp.engine, comp.years].filter(Boolean).join(' '), brand: { '@type': 'Brand', name: comp.make }, model: comp.model } } : {}),
     ...(brandName ? { brand: { '@type': 'Brand', name: brandName } } : {}),
     offers: {

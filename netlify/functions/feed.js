@@ -112,7 +112,7 @@ function toRssItem(p) {
     '<g:price>' + price + ' CLP</g:price>\n' +
     '<g:condition>used</g:condition>\n' +
     (brand ? '<g:brand>' + xmlEscape(brand) + '</g:brand>\n' : '') +
-    (p.oem_number && brand
+    (p.oem_number && /^[0-9A-Za-z-]+$/.test(p.oem_number) && brand
       ? '<g:mpn>' + xmlEscape(p.oem_number) + '</g:mpn>\n'
       : '<g:identifier_exists>no</g:identifier_exists>\n') +
     '<g:product_type>' + xmlEscape(productType) + '</g:product_type>\n' +
