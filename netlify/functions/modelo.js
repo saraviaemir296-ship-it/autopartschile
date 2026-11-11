@@ -141,10 +141,10 @@ async function modelo(m) {
   const sinFoto = ps.filter((p) => !realImgs(p.images).length);
   const lista = conFoto.concat(sinFoto);
   const precios = ps.map((p) => Number(p.price_sale)).filter((n) => n > 0).sort((a, b) => a - b);
-  // Motores únicos: "K12M 1.2" y "K12M" cuentan como uno (se queda el más corto).
+  // Motores únicos: "K12M 1.2", "K12M" y "1.2" cuentan como uno (se queda el más completo).
   const norm = (s) => String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
   const motores = vs.map((v) => v.motor).concat(ps.map(motorDe)).filter(Boolean).map((s) => String(s).trim())
-    .sort((a, b) => a.length - b.length)
+    .sort((a, b) => b.length - a.length)
     .reduce((acc, s) => (acc.some((x) => norm(s).includes(norm(x)) || norm(x).includes(norm(s))) ? acc : acc.concat(s)), [])
     .slice(0, 6);
   const oems = ps.filter((p) => p.oem_number && /^[0-9A-Za-z-]+$/.test(p.oem_number)).length;
