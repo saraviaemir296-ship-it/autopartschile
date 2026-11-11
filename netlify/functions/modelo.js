@@ -124,7 +124,7 @@ async function indice() {
   const body = `<div class="breadcrumb"><a href="/">Inicio</a> › Repuestos Suzuki</div>
 <h1>Repuestos Suzuki usados originales por modelo</h1>
 <p class="md-lead">Desarmaduría Saravia (La Pintana, Santiago) vende repuestos <b>usados originales de Suzuki</b> retirados de vehículos en desarme. Hoy hay <b>${total} piezas Suzuki con precio</b> publicadas. Retiro en Av. Lo Blanco 1072, La Pintana, o envío a todo Chile por Starken, Chilexpress o Blue Express. Cotiza con tu patente por WhatsApp al <a href="https://wa.me/${WA}">+56 9 5381 7335</a>.</p>
-<div class="md-models">${items.map(({ m, d }) => `<a href="/suzuki/${m.slug}">Suzuki ${esc(m.nombre)}<span>${d.ps.length} repuestos${d.vs.length ? ' · ' + d.vs.length + ' en desarme' : ''}</span></a>`).join('')}</div>
+<div class="md-models">${items.map(({ m, d }) => `<a href="/suzuki/${m.slug}">Suzuki ${esc(m.nombre)}<span>${d.ps.length} ${d.ps.length === 1 ? 'repuesto' : 'repuestos'}${d.vs.length ? ' · ' + d.vs.length + ' en desarme' : ''}</span></a>`).join('')}</div>
 <p class="md-upd">Actualizado automáticamente desde nuestro inventario: ${new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' })}.</p>`;
   return page({ title, desc, url, ld, body });
 }
