@@ -66,7 +66,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function vname(v) { return v ? [v.marca, v.modelo, v.motor].filter(Boolean).join(' ') : 'Sin vehículo asignado'; }
   function years(v) { return v && v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : ''; }
-  function hasPhoto(p) { return Array.isArray(p.images) && p.images.length > 0 && !(p.metadata && p.metadata.foto_limpia === false); }
+  function hasPhoto(p) { return Array.isArray(p.images) && p.images.length > 0 && p.foto_limpia !== false; }
   function num(sku) { var m = String(sku).match(/([0-9A-Za-z]+)$/); return m ? m[1] : sku; }
   // nombre corto: quita el auto del final ("... Suzuki Swift 1.2 K12M 2011-2018")
   function shortName(p) {
@@ -114,7 +114,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
     $('info').innerHTML = '<b>' + rows.length + '</b> piezas · <b>' + sin + '</b> sin foto limpia · ' + Math.ceil(tot / 24) + ' hoja(s) A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes. Foto de cada pieza: nómbrala con el N° grande (ej. 001-1.jpg) dentro de la carpeta del auto.';
   }
 
-  fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,category,oem_number,metadata,vehiculo_id,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)&is_active=eq.true&deleted_at=is.null&sku=not.like.QA-*&order=vehiculo_id.asc,category.asc,sku.asc&limit=5000',
+  fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,category,oem_number,foto_limpia,vehiculo_id,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)&is_active=eq.true&deleted_at=is.null&sku=not.like.QA-*&order=vehiculo_id.asc,category.asc,sku.asc&limit=5000',
     { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (rows) {
