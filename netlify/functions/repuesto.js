@@ -149,7 +149,7 @@ ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" 
 ${sold ? '' : `<div data-apc-oferta data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${price}"></div>`}
 <div class="rp-trust">
 <div><b>🛡️ Compra protegida</b><span>Pago con Webpay en la web o en el local. Confirmamos stock y compatibilidad antes de despachar.</span></div>
-${hasWarranty ? `<div><b>✅ ${esc(warrantyText)}</b><span>Aplica a motores y cajas de cambio. <a href="/garantias">Condiciones</a>.</span></div>` : `<div><b>⚠️ Repuesto usado, sin garantía</b><span>Se prueba antes de la entrega. Cambio o reembolso si no es la pieza publicada. <a href="/garantias">Condiciones</a>.</span></div>`}
+${hasWarranty ? `<div><b>✅ ${esc(warrantyText)}</b><span>Aplica a motores, cajas de cambio y cremalleras de dirección. <a href="/garantias">Condiciones</a>.</span></div>` : `<div><b>⚠️ Repuesto usado, sin garantía</b><span>Se prueba antes de la entrega. Cambio o reembolso si no es la pieza publicada. <a href="/garantias">Condiciones</a>.</span></div>`}
 <div><b>🚚 Despacho o retiro</b><span>A todo Chile con el transportista que prefieras, o retiro en La Pintana.</span></div>
 <div><b>💳 Medios de pago</b><span>Webpay (débito y crédito) · Transferencia · Mercado Pago</span></div>
 </div>
