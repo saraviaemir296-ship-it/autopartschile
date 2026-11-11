@@ -112,7 +112,7 @@ exports.handler = async (event) => {
 <meta name="robots" content="${sold ? 'noindex,follow' : 'index,follow'}">
 <meta property="og:type" content="product"><meta property="og:title" content="${esc(h1)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">${imgs[0] ? `<meta property="og:image" content="${esc(imgs[0])}">` : ''}
 <meta property="product:price:amount" content="${price}"><meta property="product:price:currency" content="CLP">
-<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261020of">
+<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261111lg">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TXKXWQCTZ1');gtag('event','view_item',{currency:'CLP',value:${price},items:[{item_id:${jsStr(p.sku)},item_name:${jsStr(p.name)},price:${price}}]});</script>

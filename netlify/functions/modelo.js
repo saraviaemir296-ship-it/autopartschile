@@ -105,7 +105,7 @@ function page({ title, desc, url, ld, body, robots }) {
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${esc(url)}">
 <meta name="robots" content="${robots || 'index,follow'}">
 <meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">
-<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261020of">
+<link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261111lg">
 <script type="application/ld+json">${ldJson(ld)}</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXKXWQCTZ1"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TXKXWQCTZ1');</script>

@@ -380,6 +380,15 @@ tr:hover td{background:var(--gray-light)}
 .brand-indicator{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--red);transition:width .2s ease}
 .brand-link:hover .brand-indicator,.brand-link:focus-visible .brand-indicator{width:65%}
 .btn-wa-header{flex-shrink:0}
+/* Etiqueta bajo cada logo: dice a dónde lleva (los logos solos no se entendían) */
+.header-brands .brand-link{flex-direction:column;align-items:center;gap:4px}
+.header-brands .brand-link::after{display:block;font-size:.66rem;font-weight:700;letter-spacing:.3px;line-height:1;color:#fff;white-space:nowrap;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22)}
+.header-brands .brand-saravia::after{content:"🚗 Autos en desarme ›"}
+.header-brands .brand-autopartschile::after{content:"🔧 Repuestos ›"}
+.header-brands .brand-link:hover::after,.header-brands .brand-link:focus-visible::after{background:var(--red);border-color:var(--red)}
+.header-brands .brand-indicator{display:none}
+.header.is-scrolled .brand-link::after{font-size:.6rem;padding:2px 5px}
+@media(max-width:600px){.header-brands .brand-link::after{font-size:.56rem;padding:2px 4px;letter-spacing:0}.header-brands .brand-saravia::after{content:"Autos en desarme"}.header-brands .brand-autopartschile::after{content:"Repuestos"}.header-inner{gap:.4rem}.header-brands{gap:.45rem;flex-shrink:0}.header-brands .brand-divider{display:none}.btn-wa-header .wa-short{display:none!important}.btn-wa-header::before{content:"💬";font-size:1.15rem;line-height:1}.btn-wa-header{padding:.5rem .6rem}}
 .btn-wa-header .wa-short{display:none}
 @media(prefers-reduced-motion:reduce){
 .header,.header.is-scrolled,.brand-link,.brand-autopartschile img,.brand-saravia img,.brand-saravia-plate,.brand-indicator{transition:none}
