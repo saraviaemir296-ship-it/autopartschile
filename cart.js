@@ -396,3 +396,7 @@
     addBtnObserver.observe(document.body, { childList: true, subtree: true });
   }
 })();
+
+// Origen del lead: si la visita llegó desde un anuncio pagado (Google o Meta), agrega '(Ref G)' o '(Ref M)'
+// al mensaje de WhatsApp para poder contar qué ventas vinieron de anuncios. No guarda datos personales.
+(function(){try{var q=new URLSearchParams(location.search),s=(q.get('utm_source')||'').toLowerCase(),m=(q.get('utm_medium')||'').toLowerCase(),pago=/cpc|ppc|paid|ads/.test(m),ref='';if(q.get('gclid')||q.get('gbraid')||q.get('wbraid')||(s==='google'&&pago))ref='G';else if(/^(meta|facebook|instagram|fb|ig)$/.test(s)&&pago)ref='M';if(ref){var c=(q.get('utm_campaign')||'').replace(/[^a-z0-9-]/gi,'').slice(0,12);if(c)ref+='-'+c;try{sessionStorage.setItem('apc_ref',ref)}catch(e){}}else{try{ref=sessionStorage.getItem('apc_ref')||''}catch(e){}}if(!ref)return;document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href*="wa.me"],a[href*="api.whatsapp.com"]');if(!a)return;var h=a.getAttribute('href');if(h.indexOf('Ref%20')>-1)return;var x=encodeURIComponent(' (Ref '+ref+')');a.setAttribute('href',/[?&]text=/.test(h)?h.replace(/([?&]text=)([^&#]*)/,function(_,p,v){var i=v.indexOf('%0A');return i>-1?p+v.slice(0,i)+x+v.slice(i):p+v+x}):h+(h.indexOf('?')>-1?'&':'?')+'text='+encodeURIComponent('Hola')+x)},true)}catch(e){}})();
