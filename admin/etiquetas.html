@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Etiquetas de piezas · Desarmaduría Saravia</title>
+<link rel="icon" href="/img/favicon.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#111}
+.bar{background:#111;color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.bar h1{font-size:17px;margin:0 14px 0 0;align-self:center}
+.bar label{font-size:11px;display:flex;flex-direction:column;gap:3px;color:#ccc}
+.bar select,.bar input[type=number],.bar input[type=text]{padding:8px;border-radius:7px;border:0;font-size:14px;min-width:90px}
+.bar .chk{flex-direction:row;align-items:center;font-size:13px;color:#fff;gap:6px;padding-bottom:8px}
+.bar button{background:#d6121c;color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer}
+.bar button.sec{background:#444}
+.info{padding:10px 16px;font-size:13px;color:#333;background:#fff;border-bottom:1px solid #ddd}
+.info b{color:#d6121c}
+.sheet{width:210mm;margin:10px auto;background:#fff;display:grid;grid-template-columns:repeat(3,70mm);grid-auto-rows:37mm;align-content:start}
+.lb{width:70mm;height:37mm;padding:3mm;position:relative;outline:.2mm dashed #bbb;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+.lb .n{position:absolute;left:3mm;top:3mm;width:21mm;height:13mm;background:#d6121c;color:#fff;font:900 8.6mm/13mm "Arial Black",Impact,Arial,sans-serif;text-align:center;letter-spacing:-.3mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.lb .n.s{font-size:6.6mm}
+.lb .m{position:absolute;left:25.5mm;top:3mm;right:19.5mm;font-size:1.95mm;line-height:2.75mm;color:#333;white-space:nowrap;overflow:hidden}
+.lb .m b{font-size:2.2mm;color:#000;display:block;overflow:hidden;text-overflow:ellipsis}
+.lb .q{position:absolute;right:3mm;top:2.5mm;width:15mm;height:15mm}
+.lb .q svg{width:100%;height:100%;display:block}
+.lb .t{position:absolute;left:3mm;right:3mm;top:18.6mm;font-weight:700;font-size:2.95mm;line-height:3.4mm;max-height:6.9mm;overflow:hidden}
+.lb .o{position:absolute;left:3mm;bottom:6.6mm;font-size:2.25mm;color:#222}
+.lb .f{position:absolute;left:3mm;bottom:3mm;font-size:1.8mm;color:#666}
+.lb .p{position:absolute;right:3mm;bottom:2.6mm;font:900 5mm/5mm "Arial Black",Impact,Arial,sans-serif}
+.lb .ln{border-bottom:.2mm solid #555;display:inline-block;width:30mm;height:3mm}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff}.bar,.info{display:none}
+  .sheet{margin:0;padding-top:.4mm}
+  .lb{outline-color:#ddd}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>🏷️ Etiquetas de piezas</h1>
+  <label>Vehículo en desarme<select id="veh"><option value="">Cargando…</option></select></label>
+  <label>Categoría<select id="cat"><option value="">Todas</option></select></label>
+  <label>Buscar<input type="text" id="q" placeholder="pieza, N° o OEM"></label>
+  <label class="chk"><input type="checkbox" id="nofoto"> Solo sin foto</label>
+  <label class="chk"><input type="checkbox" id="precio" checked> Mostrar precio</label>
+  <label>En blanco<input type="number" id="blank" value="0" min="0" max="240" style="width:70px"></label>
+  <button onclick="window.print()">Imprimir</button>
+  <a href="/admin/index.html" style="color:#ccc;font-size:13px;align-self:center">← Panel</a>
+</div>
+<div class="info" id="info">Hoja adhesiva A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes, sin encabezados.</div>
+<div class="sheet" id="sheet"></div>
+
+<script src="/js/qrcode.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var URL_ = 'https://zlyforhywunqhitrdreo.supabase.co';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+  var $ = function (id) { return document.getElementById(id); };
+  var all = [];
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function vname(v) { return v ? [v.marca, v.modelo, v.motor].filter(Boolean).join(' ') : 'Sin vehículo asignado'; }
+  function years(v) { return v && v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : ''; }
+  function hasPhoto(p) { return Array.isArray(p.images) && p.images.length > 0; }
+  function num(sku) { var m = String(sku).match(/([0-9A-Za-z]+)$/); return m ? m[1] : sku; }
+  // nombre corto: quita el auto del final ("... Suzuki Swift 1.2 K12M 2011-2018")
+  function shortName(p) {
+    var n = p.name || '', v = p.vehiculos;
+    if (v && v.marca) { var i = n.toLowerCase().lastIndexOf(' ' + v.marca.toLowerCase() + ' '); if (i > 8) n = n.slice(0, i); }
+    return n.replace(/\s*\((c\/u|par)\)\s*$/i, '');
+  }
+  function oem1(p) { var o = (p.oem_number || '').trim(); return /^[0-9A-Za-z-]+$/.test(o) ? o : (o ? o.split(/[\s,;\/|]+/)[0] + '…' : ''); }
+  function qr(url) {
+    try { var q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); }
+    catch (e) { return ''; }
+  }
+  function money(n) { return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
+  function label(p) {
+    var n = num(p.sku), v = p.vehiculos, pr = +p.price_sale > 0 ? money(+p.price_sale) : '$________';
+    return '<div class="lb"><div class="n' + (n.length > 3 ? ' s' : '') + '">' + esc(n) + '</div>' +
+      '<div class="m">' + esc((p.category || '').toUpperCase()) + '<b>' + esc(v ? (v.modelo + ' ' + (v.motor || '')).toUpperCase() : '') + '</b>' + esc(years(v)) + '<br>' + esc(p.sku) + '</div>' +
+      '<div class="q">' + qr('https://autopartschile.cl/repuesto/' + p.slug) + '</div>' +
+      '<div class="t">' + esc(shortName(p)) + '</div>' +
+      '<div class="o">OEM: ' + (oem1(p) ? esc(oem1(p)) : '<span class="ln"></span>') + '</div>' +
+      '<div class="f">Desarmaduría Saravia · autopartschile.cl</div>' +
+      ($('precio').checked ? '<div class="p">' + pr + '</div>' : '') + '</div>';
+  }
+  function blankLabel() {
+    return '<div class="lb"><div class="n" style="background:#fff;outline:.4mm solid #d6121c;outline-offset:-.4mm"></div>' +
+      '<div class="m">AUTO:<br><span class="ln" style="width:22mm"></span><br>AÑO: <span class="ln" style="width:14mm"></span></div>' +
+      '<div class="t" style="font-weight:400">Pieza: <span class="ln" style="width:48mm"></span></div>' +
+      '<div class="o">OEM: <span class="ln"></span></div><div class="f">Desarmaduría Saravia · autopartschile.cl</div><div class="p">$________</div></div>';
+  }
+
+  function render() {
+    var veh = $('veh').value, cat = $('cat').value, q = $('q').value.trim().toLowerCase(), nf = $('nofoto').checked;
+    var rows = all.filter(function (p) {
+      if (veh && String(p.vehiculo_id || 0) !== veh) return false;
+      if (cat && p.category !== cat) return false;
+      if (nf && hasPhoto(p)) return false;
+      if (q && (p.name + ' ' + p.sku + ' ' + (p.oem_number || '')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var html = rows.map(label).join('');
+    for (var i = 0, b = Math.min(240, +$('blank').value || 0); i < b; i++) html += blankLabel();
+    $('sheet').innerHTML = html;
+    var sin = rows.filter(function (p) { return !hasPhoto(p); }).length, tot = rows.length + (+$('blank').value || 0);
+    $('info').innerHTML = '<b>' + rows.length + '</b> piezas · <b>' + sin + '</b> sin foto · ' + Math.ceil(tot / 24) + ' hoja(s) A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes. Foto de cada pieza: nómbrala con el N° grande (ej. 001-1.jpg) dentro de la carpeta del auto.';
+  }
+
+  fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,category,oem_number,vehiculo_id,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)&is_active=eq.true&deleted_at=is.null&sku=not.like.QA-*&order=vehiculo_id.asc,category.asc,sku.asc&limit=5000',
+    { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (rows) {
+      all = rows;
+      var vs = {}, cs = {};
+      rows.forEach(function (p) {
+        var k = String(p.vehiculo_id || 0);
+        vs[k] = vs[k] || { name: vname(p.vehiculos) + (years(p.vehiculos) ? ' ' + years(p.vehiculos) : ''), n: 0, sin: 0 };
+        vs[k].n++; if (!hasPhoto(p)) vs[k].sin++;
+        if (p.category) cs[p.category] = 1;
+      });
+      $('veh').innerHTML = '<option value="">Todos (' + rows.length + ')</option>' + Object.keys(vs).sort(function (a, b) { return vs[b].sin - vs[a].sin; })
+        .map(function (k) { return '<option value="' + k + '">' + esc(vs[k].name) + ' — ' + vs[k].n + ' piezas, ' + vs[k].sin + ' sin foto</option>'; }).join('');
+      $('cat').innerHTML = '<option value="">Todas</option>' + Object.keys(cs).sort().map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
+      var pre = new URLSearchParams(location.search).get('v'); if (pre && vs[pre]) $('veh').value = pre;
+      render();
+    })
+    .catch(function (e) { $('info').textContent = 'No se pudo cargar el inventario: ' + e.message; });
+
+  ['veh', 'cat', 'nofoto', 'precio'].forEach(function (id) { $(id).addEventListener('change', render); });
+  ['q', 'blank'].forEach(function (id) { $(id).addEventListener('input', render); });
+})();
+</script>
+</body>
+</html>
