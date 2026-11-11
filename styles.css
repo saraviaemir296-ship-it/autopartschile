@@ -202,6 +202,7 @@ tr:hover td{background:var(--gray-light)}
 .suzuki-eyebrow{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#888;margin-bottom:.1rem}
 .suzuki-giant{font-size:clamp(4rem,12vw,7.5rem);font-weight:900;color:var(--red);letter-spacing:-4px;line-height:.85;margin-bottom:.75rem}
 .suzuki-models{font-size:.82rem;color:#666;margin-bottom:1.5rem;line-height:1.7}
+.suzuki-models a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .suzuki-catalog-link{display:block;margin-top:.75rem;font-size:.8rem;color:#555;transition:color .2s}
 .suzuki-catalog-link:hover{color:var(--red)}
 .also-brands-block{margin-top:.5rem}

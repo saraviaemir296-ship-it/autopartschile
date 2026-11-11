@@ -9,7 +9,22 @@
 - Horario: lunes a viernes 10:00 a 18:00, sábado 10:00 a 15:30
 - Pago: Webpay (débito y crédito), Mercado Pago, transferencia, efectivo en el local
 - Envíos: a todo Chile por Starken, Chilexpress o Blue Express; retiro en el local
-- Garantía: 7 días de funcionamiento solo en motores completos y cajas de cambio. El resto de las piezas usadas se prueba antes de la entrega y se vende sin garantía posventa.
+- Garantía: 7 días de funcionamiento en motores completos, medio motor, cajas de cambio y cremalleras de dirección. El resto de las piezas usadas se prueba antes de la entrega (con fotos o video) y se vende sin garantía posventa.
+
+## Repuestos Suzuki por modelo
+Cada página se genera desde el inventario real (repuestos con precio, autos en desarme, motores y años cargados):
+- [Todos los modelos Suzuki](https://autopartschile.cl/suzuki)
+- [Suzuki Celerio](https://autopartschile.cl/suzuki/celerio)
+- [Suzuki SX4](https://autopartschile.cl/suzuki/sx4)
+- [Suzuki Swift](https://autopartschile.cl/suzuki/swift)
+- [Suzuki Alto 800](https://autopartschile.cl/suzuki/alto-800)
+- [Suzuki Alto K10](https://autopartschile.cl/suzuki/alto-k10)
+- [Suzuki S-Presso](https://autopartschile.cl/suzuki/s-presso)
+- [Suzuki Dzire](https://autopartschile.cl/suzuki/dzire)
+- [Suzuki Baleno](https://autopartschile.cl/suzuki/baleno)
+- [Suzuki S-Cross](https://autopartschile.cl/suzuki/s-cross)
+- [Suzuki Vitara / Grand Vitara / Grand Nomade](https://autopartschile.cl/suzuki/vitara)
+- [Suzuki Ignis](https://autopartschile.cl/suzuki/ignis), [Ciaz](https://autopartschile.cl/suzuki/ciaz), [Aerio / Liana](https://autopartschile.cl/suzuki/aerio), [Alto](https://autopartschile.cl/suzuki/alto), [Mastervan / APV](https://autopartschile.cl/suzuki/mastervan)
 
 ## Cómo encontrar un repuesto
 - Cada repuesto tiene su ficha en https://autopartschile.cl/repuesto/<slug> con precio en CLP, estado, vehículo de origen y, cuando está verificado, número de parte original (OEM).
