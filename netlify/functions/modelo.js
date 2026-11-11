@@ -34,6 +34,26 @@ const MODELOS = [
   { slug: 'mastervan', nombre: 'Mastervan / APV', pat: ['Mastervan', 'APV'] },
 ];
 
+
+// Fichas de desarme publicadas como páginas propias (repuestos-suzuki-*.html). Todas se enlazan
+// desde la página de su modelo, aunque sus repuestos no estén en la base: son autos que sí desarmamos.
+const FICHAS = {
+  'aerio': [['repuestos-suzuki-aerio-16-2008', 'Suzuki Aerio 1.6 2008'], ['repuestos-suzuki-aerio-16-blanco', 'Suzuki Aerio 1.6 (blanco)']],
+  'alto': [['repuestos-suzuki-alto-11-2008', 'Suzuki Alto 1.1 2008']],
+  'alto-800': [['repuestos-suzuki-alto-800-2014', 'Suzuki Alto 800 F8D 2014'], ['repuestos-suzuki-alto-800-2016', 'Suzuki Alto 800 F8D 2016'], ['repuestos-suzuki-alto-800-2022', 'Suzuki Alto 800 2022'], ['repuestos-suzuki-alto-800-f8d-azul', 'Suzuki Alto 800 F8D (azul)']],
+  'alto-k10': [['repuestos-suzuki-alto-k10-2012', 'Suzuki Alto K10 1.0 2012'], ['repuestos-suzuki-alto-k10-2020-gris', 'Suzuki Alto K10 2020 (gris)']],
+  'celerio': [['repuestos-suzuki-celerio-2008', 'Suzuki Celerio 1.0 MT 2008'], ['repuestos-suzuki-celerio-2012', 'Suzuki Celerio 1.0 automático 2012'], ['repuestos-suzuki-celerio-k10b-azul', 'Suzuki Celerio 1.0 K10B MT 2008-2014 (azul)'], ['repuestos-suzuki-celerio-k10b-gris', 'Suzuki Celerio 1.0 K10B MT (gris)'], ['repuestos-suzuki-celerio-k10b-rojo', 'Suzuki Celerio 1.0 K10B MT (rojo)'], ['repuestos-suzuki-celerio-k10b-amarillo', 'Suzuki Celerio 1.0 K10B 2017 (amarillo)'], ['repuestos-suzuki-celerio-k10b-beige', 'Suzuki Celerio 1.0 K10B 2018 (beige)']],
+  'ciaz': [['repuestos-suzuki-ciaz', 'Suzuki Ciaz 1.4']],
+  'dzire': [['repuestos-suzuki-dzire', 'Suzuki Dzire 1.2 MT GLX'], ['repuestos-suzuki-dzire-2013', 'Suzuki Swift Dzire 2013 (2012-2017)'], ['repuestos-suzuki-swift-dzire-2022', 'Suzuki Swift Dzire 1.2 2022']],
+  'vitara': [['repuestos-suzuki-grand-nomade-20', 'Suzuki Grand Nomade 2.0 (Grand Vitara)'], ['repuestos-suzuki-vitara-16-2019-azul', 'Suzuki Vitara 1.6 2019 (azul)']],
+  'ignis': [['repuestos-suzuki-ignis-13-2005', 'Suzuki Ignis 1.3 2005']],
+  'mastervan': [['repuestos-suzuki-mastervan-g13b-1', 'Suzuki Mastervan G13B 1.3 (furgón)'], ['repuestos-suzuki-mastervan-g13b-2', 'Suzuki Mastervan G13B 1.3 (furgón, unidad 2)']],
+  's-cross': [['repuestos-suzuki-scross-glx-16', 'Suzuki S-Cross GLX 1.6'], ['repuestos-suzuki-scross', 'Suzuki S-Cross']],
+  's-presso': [['repuestos-suzuki-spresso', 'Suzuki S-Presso 1.0 K10B']],
+  'swift': [['repuestos-suzuki-swift-indio', 'Suzuki Swift 1.2 indio MT'], ['repuestos-suzuki-swift-glx-12-2012-2017', 'Suzuki Swift GLX 1.2 2012-2017 (japonés)'], ['repuestos-suzuki-swift-japones-12-2012-2017-gris', 'Suzuki Swift 1.2 japonés 2012-2017 (gris)'], ['repuestos-suzuki-swift-japones-12-2017-2023', 'Suzuki Swift 1.2 japonés 2017-2023'], ['repuestos-suzuki-swift-14-japones-2015', 'Suzuki Swift 1.4 japonés 2015'], ['repuestos-suzuki-swift-15-2010', 'Suzuki Swift 1.5 automático 2010']],
+  'sx4': [['repuestos-suzuki-sx4-hatchback', 'Suzuki SX4 hatchback']],
+};
+
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
 const abs = (u) => (/^https?:\/\//.test(u) ? u : SITE + (u.startsWith('/') ? '' : '/') + u);
@@ -54,16 +74,28 @@ const orIlike = (col, pats) => 'or=(' + pats.map((p) => col + '.ilike.*' + encod
 const excluded = (txt, excl) => (excl || []).some((e) => String(txt || '').toLowerCase().includes(e.toLowerCase()));
 
 async function datosModelo(m) {
-  const [prods, vehs] = await Promise.all([
-    api('products?select=sku,name,slug,price_sale,images,oem_number,part_status,stock,vehiculo_id,vehicle_compatibility&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&slug=not.is.null&vehicle_compatibility->>make=ilike.suzuki&' + orIlike('vehicle_compatibility->>model', m.pat) + '&order=updated_at.desc&limit=1000'),
+  // Productos con el modelo cargado, o sin modelo pero con "Suzuki <modelo>" en el nombre.
+  const pats = m.pat.map(encodeURIComponent);
+  const orProd = 'or=(' + pats.map((p) => 'and(vehicle_compatibility->>make.ilike.suzuki,vehicle_compatibility->>model.ilike.*' + p + '*)').concat(pats.map((p) => 'and(vehicle_compatibility->>model.is.null,name.ilike.*suzuki*,name.ilike.*' + p + '*)')).join(',') + ')';
+  const [prods, vehs, todos] = await Promise.all([
+    api('products?select=sku,name,slug,price_sale,images,oem_number,part_status,stock,vehiculo_id,vehicle_compatibility&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&slug=not.is.null&' + orProd + '&order=updated_at.desc&limit=1000'),
     api('vehiculos?select=id,slug,marca,modelo,motor,transmision,anio_desde,anio_hasta,color,images,en_desarme&is_active=eq.true&marca=ilike.suzuki&' + orIlike('modelo', m.pat) + '&order=created_at.desc'),
+    // Todas las versiones que hemos desarmado (activas o no): solo modelo, motor y años.
+    api('vehiculos?select=modelo,motor,transmision,anio_desde,anio_hasta&marca=ilike.suzuki&' + orIlike('modelo', m.pat) + '&order=anio_desde.asc'),
   ]);
-  const ps = prods.filter((p) => !excluded(p.vehicle_compatibility && p.vehicle_compatibility.model, m.excl))
+  const modeloDe = (p) => (p.vehicle_compatibility && p.vehicle_compatibility.model) || p.name;
+  const ps = prods.filter((p) => !excluded(modeloDe(p), m.excl))
     .filter((p) => p.part_status !== 'vendida' && p.part_status !== 'no_disponible' && p.stock > 0);
   const vs = vehs.filter((v) => !excluded(v.modelo, m.excl));
-  return { ps, vs };
+  const visto = new Set();
+  const versiones = todos.filter((v) => !excluded(v.modelo, m.excl)).filter((v) => {
+    const k = [String(v.modelo).toLowerCase(), String(v.motor || '').toLowerCase().replace(/\s+/g, ''), v.anio_desde, v.anio_hasta].join('|');
+    if (visto.has(k)) return false; visto.add(k); return true;
+  });
+  return { ps, vs, versiones, fichas: FICHAS[m.slug] || [] };
 }
 
+const aniosRango = (vs) => { const d = vs.map((v) => v.anio_desde).filter(Boolean); const h = vs.map((v) => v.anio_hasta || v.anio_desde).filter(Boolean); return d.length ? Math.min(...d) + (Math.max(...h) > Math.min(...d) ? '-' + Math.max(...h) : '') : ''; };
 const anios = (v) => (v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : '');
 const motorDe = (p) => (p.vehicle_compatibility && p.vehicle_compatibility.engine) || '';
 
@@ -108,7 +140,7 @@ const STORE = {
 
 async function indice() {
   const datos = await Promise.all(MODELOS.map(async (m) => ({ m, d: await datosModelo(m) })));
-  const items = datos.filter(({ d }) => d.ps.length || d.vs.length);
+  const items = datos.filter(({ d }) => d.ps.length || d.vs.length || d.fichas.length);
   const url = SITE + '/suzuki';
   const total = items.reduce((s, { d }) => s + d.ps.length, 0);
   const title = 'Repuestos Suzuki usados originales por modelo | Desarmaduría Saravia';
@@ -124,15 +156,15 @@ async function indice() {
   const body = `<div class="breadcrumb"><a href="/">Inicio</a> › Repuestos Suzuki</div>
 <h1>Repuestos Suzuki usados originales por modelo</h1>
 <p class="md-lead">Desarmaduría Saravia (La Pintana, Santiago) vende repuestos <b>usados originales de Suzuki</b> retirados de vehículos en desarme. Hoy hay <b>${total} piezas Suzuki con precio</b> publicadas. Retiro en Av. Lo Blanco 1072, La Pintana, o envío a todo Chile por Starken, Chilexpress o Blue Express. Cotiza con tu patente por WhatsApp al <a href="https://wa.me/${WA}">+56 9 5381 7335</a>.</p>
-<div class="md-models">${items.map(({ m, d }) => `<a href="/suzuki/${m.slug}">Suzuki ${esc(m.nombre)}<span>${d.ps.length} ${d.ps.length === 1 ? 'repuesto' : 'repuestos'}${d.vs.length ? ' · ' + d.vs.length + ' en desarme' : ''}</span></a>`).join('')}</div>
+<div class="md-models">${items.map(({ m, d }) => `<a href="/suzuki/${m.slug}">Suzuki ${esc(m.nombre)}<span>${[d.ps.length ? d.ps.length + (d.ps.length === 1 ? ' repuesto' : ' repuestos') : '', d.vs.length ? d.vs.length + ' en desarme' : '', d.versiones.length ? 'años ' + aniosRango(d.versiones) : '', !d.ps.length && d.fichas.length ? d.fichas.length + (d.fichas.length === 1 ? ' ficha de desarme' : ' fichas de desarme') : ''].filter(Boolean).join(' · ')}</span></a>`).join('')}</div>
 <p class="md-upd">Actualizado automáticamente desde nuestro inventario: ${new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' })}.</p>`;
   return page({ title, desc, url, ld, body });
 }
 
 async function modelo(m) {
-  const { ps, vs } = await datosModelo(m);
+  const { ps, vs, versiones, fichas } = await datosModelo(m);
   const url = SITE + '/suzuki/' + m.slug;
-  if (!ps.length && !vs.length) {
+  if (!ps.length && !vs.length && !fichas.length) {
     return page({ title: 'Repuestos Suzuki ' + m.nombre + ' | Desarmaduría Saravia', desc: 'Repuestos usados originales Suzuki ' + m.nombre + '. Consulta disponibilidad por WhatsApp.', url, ld: [{ '@context': 'https://schema.org', ...STORE }], robots: 'noindex,follow',
       body: `<h1>Repuestos Suzuki ${esc(m.nombre)}</h1><p class="md-lead">En este momento no tenemos repuestos publicados de este modelo. Escríbenos por WhatsApp al <a href="https://wa.me/${WA}">+56 9 5381 7335</a> con tu patente y te avisamos cuando ingrese uno a desarme.</p><p><a class="btn-primary" href="/suzuki">Ver todos los modelos Suzuki</a></p>` });
   }
@@ -143,7 +175,7 @@ async function modelo(m) {
   const precios = ps.map((p) => Number(p.price_sale)).filter((n) => n > 0).sort((a, b) => a - b);
   // Motores únicos: "K12M 1.2", "K12M" y "1.2" cuentan como uno (se queda el más completo).
   const norm = (s) => String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
-  const motores = vs.map((v) => v.motor).concat(ps.map(motorDe)).filter(Boolean).map((s) => String(s).trim())
+  const motores = vs.map((v) => v.motor).concat(versiones.map((v) => v.motor), ps.map(motorDe)).filter(Boolean).map((s) => String(s).trim())
     .sort((a, b) => b.length - a.length)
     .reduce((acc, s) => (acc.some((x) => norm(s).includes(norm(x)) || norm(x).includes(norm(s))) ? acc : acc.concat(s)), [])
     .slice(0, 6);
@@ -151,10 +183,10 @@ async function modelo(m) {
   const nombreCorto = m.nombre.split(' /')[0];
 
   const title = `Repuestos Suzuki ${nombreCorto} usados originales${motores.length ? ' (' + motores.slice(0, 2).join(', ') + ')' : ''} | Desarmaduría Saravia`;
-  const desc = `${ps.length} repuestos usados originales de Suzuki ${nombreCorto}${precios.length ? ' desde ' + clp(precios[0]) : ''}. ${vs.length ? vs.length + ' auto(s) en desarme. ' : ''}Retiro en La Pintana o envío a todo Chile. Cotiza por WhatsApp.`;
+  const desc = `${ps.length ? ps.length + ' repuestos' : 'Repuestos'} usados originales de Suzuki ${nombreCorto}${precios.length ? ' desde ' + clp(precios[0]) : ''}. ${vs.length ? vs.length + ' auto(s) en desarme. ' : ''}Retiro en La Pintana o envío a todo Chile. Cotiza por WhatsApp.`;
 
   const faq = [
-    [`¿Dónde comprar repuestos usados de Suzuki ${nombreCorto} en Chile?`, `En Desarmaduría Saravia (Av. Lo Blanco 1072, La Pintana, Santiago) hay ${ps.length} repuestos usados originales de Suzuki ${nombreCorto} publicados con precio en autopartschile.cl/suzuki/${m.slug}. Se puede retirar en el local o pedir envío a todo Chile.`],
+    [`¿Dónde comprar repuestos usados de Suzuki ${nombreCorto} en Chile?`, `En Desarmaduría Saravia (Av. Lo Blanco 1072, La Pintana, Santiago) ${ps.length ? 'hay ' + ps.length + ' repuestos usados originales de Suzuki ' + nombreCorto + ' publicados con precio en autopartschile.cl/suzuki/' + m.slug : 'desarmamos Suzuki ' + nombreCorto + ' y cotizamos sus repuestos por WhatsApp con tu patente'}. Se puede retirar en el local o pedir envío a todo Chile.`],
     [`¿Cuánto cuestan los repuestos de Suzuki ${nombreCorto}?`, precios.length ? `Los repuestos publicados de Suzuki ${nombreCorto} van desde ${clp(precios[0])} hasta ${clp(precios[precios.length - 1])}, según la pieza. Cada ficha muestra su precio en pesos chilenos.` : 'Cotiza por WhatsApp con tu patente y la pieza.'],
     [`¿Cómo sé si la pieza le sirve a mi Suzuki ${nombreCorto}?`, `Cada repuesto indica el vehículo del que se retiró${motores.length ? ' (motor ' + motores.join(', ') + ')' : ''}${oems ? ' y, cuando está verificado, el número de parte original (OEM)' : ''}. Antes de comprar envía tu patente o el número de pieza por WhatsApp al +56 9 5381 7335 y confirmamos la compatibilidad.`],
     ['¿Los repuestos tienen garantía?', 'Los motores completos, medio motor, cajas de cambio y cremalleras de dirección tienen garantía de funcionamiento de 7 días. Las demás piezas usadas se prueban antes de la entrega y te enviamos fotos o video antes de comprar.'],
@@ -179,6 +211,13 @@ async function modelo(m) {
 ${vs.map((v) => `<tr><td>${esc([v.marca, v.modelo, v.color].filter(Boolean).join(' '))}</td><td>${esc(v.motor || '—')}</td><td>${esc(anios(v) || '—')}</td><td>${esc(v.transmision || '—')}</td><td>${v.slug ? `<a href="/vehiculo?slug=${encodeURIComponent(v.slug)}">Ver piezas</a>` : ''}</td></tr>`).join('')}
 </table><p style="font-size:.85rem;color:#555">Los años son los del vehículo de origen cargado en nuestro sistema. Para piezas que se cruzan entre modelos, confirma por WhatsApp con tu patente.</p>` : '';
 
+  const tablaVersiones = versiones.length ? `<h2>Versiones de Suzuki ${esc(nombreCorto)} que hemos desarmado</h2>
+<table class="md-tab"><tr><th>Modelo</th><th>Motor</th><th>Años</th><th>Transmisión</th></tr>
+${versiones.map((v) => `<tr><td>Suzuki ${esc(v.modelo)}</td><td>${esc(v.motor || '—')}</td><td>${esc(anios(v) || '—')}</td><td>${esc(v.transmision || '—')}</td></tr>`).join('')}
+</table>` : '';
+  const listaFichas = fichas.length ? `<h2>Fichas de desarme de Suzuki ${esc(nombreCorto)}</h2>
+<div class="md-models">${fichas.map(([u, t]) => `<a href="/${esc(u)}">${esc(t)}<span>Ver repuestos de este auto</span></a>`).join('')}</div>` : '';
+
   const card = (p) => {
     const img = realImgs(p.images)[0];
     return `<a class="md-card" href="/repuesto/${esc(p.slug)}"><div class="ph">${img ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">` : 'Foto por WhatsApp'}</div><div class="tx">${esc(p.name)}<b>${clp(p.price_sale)}</b></div></a>`;
@@ -186,11 +225,12 @@ ${vs.map((v) => `<tr><td>${esc([v.marca, v.modelo, v.color].filter(Boolean).join
 
   const body = `<div class="breadcrumb"><a href="/">Inicio</a> › <a href="/suzuki">Repuestos Suzuki</a> › Suzuki ${esc(m.nombre)}</div>
 <h1>Repuestos Suzuki ${esc(m.nombre)} usados originales</h1>
-<p class="md-lead">En <b>Desarmaduría Saravia</b> (La Pintana, Santiago) vendemos repuestos usados originales de <b>Suzuki ${esc(nombreCorto)}</b>${motores.length ? ', motor ' + esc(motores.join(', ')) : ''}, retirados de vehículos en desarme. Hay <b>${ps.length} piezas publicadas</b>${precios.length ? ' desde <b>' + clp(precios[0]) + '</b>' : ''}. Retiro en Av. Lo Blanco 1072 o envío a todo Chile. Cotiza con tu patente por WhatsApp al <a href="https://wa.me/${WA}?text=${encodeURIComponent('Hola, busco un repuesto de Suzuki ' + nombreCorto)}">+56 9 5381 7335</a>.</p>
+<p class="md-lead">En <b>Desarmaduría Saravia</b> (La Pintana, Santiago) vendemos repuestos usados originales de <b>Suzuki ${esc(nombreCorto)}</b>${motores.length ? ', motor ' + esc(motores.join(', ')) : ''}, retirados de vehículos en desarme. ${ps.length ? 'Hay <b>' + ps.length + ' piezas publicadas</b>' + (precios.length ? ' desde <b>' + clp(precios[0]) + '</b>' : '') + '.' : 'Hemos desarmado ' + (fichas.length + versiones.length > 1 ? 'varias unidades' : 'unidades') + ' de este modelo' + (versiones.length ? ' (años ' + aniosRango(versiones) + ')' : '') + '.'} Retiro en Av. Lo Blanco 1072 o envío a todo Chile. Cotiza con tu patente por WhatsApp al <a href="https://wa.me/${WA}?text=${encodeURIComponent('Hola, busco un repuesto de Suzuki ' + nombreCorto)}">+56 9 5381 7335</a>.</p>
 <div class="md-stats"><div><b>${ps.length}</b>repuestos publicados</div><div><b>${conFoto.length}</b>con foto</div>${vs.length ? `<div><b>${vs.length}</b>en desarme</div>` : ''}${precios.length ? `<div><b>${clp(precios[0])}</b>desde</div>` : ''}</div>
 ${tablaVeh}
-<h2>Repuestos Suzuki ${esc(nombreCorto)} disponibles</h2>
-<div class="md-grid">${lista.slice(0, 120).map(card).join('')}</div>
+${tablaVersiones}
+${lista.length ? `<h2>Repuestos Suzuki ${esc(nombreCorto)} disponibles</h2>\n<div class="md-grid">${lista.slice(0, 120).map(card).join('')}</div>` : `<p class="md-lead">Los repuestos de este modelo se cotizan por WhatsApp: mándanos tu patente y la pieza.</p>`}
+${listaFichas}
 ${lista.length > 120 ? `<p style="margin-top:1rem">Mostrando 120 de ${lista.length}. <a href="/catalogo">Busca el resto en el catálogo</a> o pregúntanos por WhatsApp.</p>` : ''}
 <div class="md-faq" style="margin-top:2rem"><h2>Preguntas frecuentes sobre repuestos Suzuki ${esc(nombreCorto)}</h2>
 ${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
