@@ -11,6 +11,7 @@
 const SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
 const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
 const SITE = 'https://autopartschile.cl';
+const { PIEZAS, esPieza } = require('./lib/piezas-suzuki');
 const WA = '56953817335';
 const H = { apikey: KEY, Authorization: 'Bearer ' + KEY };
 
@@ -142,7 +143,8 @@ const STORE = {
 };
 
 async function indice() {
-  const datos = await Promise.all(MODELOS.map(async (m) => ({ m, d: await datosModelo(m) })));
+  const [datos, rs] = await Promise.all([Promise.all(MODELOS.map(async (m) => ({ m, d: await datosModelo(m) }))), repuestosSuzuki()]);
+  const tipos = PIEZAS.map((t) => ({ t, n: rs.filter((p) => esPieza(t, p)).length })).filter((x) => x.n);
   const items = datos.filter(({ d }) => d.ps.length || d.vs.length || d.fichas.length);
   const url = SITE + '/suzuki';
   const total = items.reduce((s, { d }) => s + d.ps.length, 0);
@@ -160,6 +162,8 @@ async function indice() {
 <h1>Repuestos Suzuki usados originales por modelo</h1>
 <p class="md-lead">Desarmaduría Saravia (La Pintana, Santiago) vende repuestos <b>usados originales de Suzuki</b> retirados de vehículos en desarme. Hoy hay <b>${total} piezas Suzuki con precio</b> publicadas. Retiro en Av. Lo Blanco 1072, La Pintana, o envío a todo Chile por Starken, Chilexpress o Blue Express. Cotiza con tu patente por WhatsApp al <a href="https://wa.me/${WA}">+56 9 5381 7335</a>.</p>
 <div class="md-models">${items.map(({ m, d }) => `<a href="/suzuki/${m.slug}">Suzuki ${esc(m.nombre)}<span>${[d.ps.length ? d.ps.length + (d.ps.length === 1 ? ' repuesto' : ' repuestos') : '', d.vs.length ? d.vs.length + ' en desarme' : '', aniosRango(d.versiones) ? 'años ' + aniosRango(d.versiones) : '', !d.ps.length && d.fichas.length ? d.fichas.length + (d.fichas.length === 1 ? ' ficha de desarme' : ' fichas de desarme') : ''].filter(Boolean).join(' · ')}</span></a>`).join('')}</div>
+<h2 style="margin-top:2rem">Repuestos Suzuki por tipo de pieza</h2>
+<div class="md-models">${tipos.map(({ t, n }) => `<a href="/suzuki/${t.slug}">${esc(t.plural)} Suzuki<span>${n} publicado${n === 1 ? '' : 's'}</span></a>`).join('')}</div>
 <p class="md-upd">Actualizado automáticamente desde nuestro inventario: ${new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' })}.</p>`;
   return page({ title, desc, url, ld, body });
 }
@@ -235,6 +239,7 @@ ${tablaVeh}
 ${tablaVersiones}
 ${lista.length ? `<h2>Repuestos Suzuki ${esc(nombreCorto)} disponibles</h2>\n<div class="md-grid">${lista.slice(0, 120).map(card).join('')}</div>` : `<p class="md-lead">Los repuestos de este modelo se cotizan por WhatsApp: mándanos tu patente y la pieza.</p>`}
 ${listaFichas}
+${(() => { const ts = PIEZAS.map((t) => ({ t, n: ps.filter((p) => esPieza(t, p)).length })).filter((x) => x.n); return ts.length ? `<h2>Suzuki ${esc(nombreCorto)} por tipo de pieza</h2><div class="md-models">${ts.map(({ t, n }) => `<a href="/suzuki/${t.slug}/${m.slug}">${esc(t.plural)} Suzuki ${esc(nombreCorto)}<span>${n} publicado${n === 1 ? '' : 's'}</span></a>`).join('')}</div>` : ''; })()}
 ${lista.length > 120 ? `<p style="margin-top:1rem">Mostrando 120 de ${lista.length}. <a href="/catalogo">Busca el resto en el catálogo</a> o pregúntanos por WhatsApp.</p>` : ''}
 <div class="md-faq" style="margin-top:2rem"><h2>Preguntas frecuentes sobre repuestos Suzuki ${esc(nombreCorto)}</h2>
 ${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
@@ -243,11 +248,77 @@ ${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></de
   return page({ title, desc, url, ld, body });
 }
 
+// Todos los repuestos Suzuki publicados (una consulta), para las páginas por tipo de pieza.
+async function repuestosSuzuki() {
+  const prods = await api('products?select=sku,name,slug,price_sale,images,oem_number,part_status,stock,vehicle_compatibility&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&slug=not.is.null&or=(vehicle_compatibility->>make.ilike.suzuki,name.ilike.*suzuki*)&order=updated_at.desc&limit=3000');
+  return prods.filter((p) => p.part_status !== 'vendida' && p.part_status !== 'no_disponible' && p.stock > 0 && !/^QA-/i.test(p.sku || ''));
+}
+const modeloDeProd = (p) => (p.vehicle_compatibility && p.vehicle_compatibility.model) || p.name;
+const deModelo = (p, m) => m.pat.some((x) => String(modeloDeProd(p)).toLowerCase().includes(x.toLowerCase())) && !excluded(modeloDeProd(p), m.excl);
+
+function tarjeta(p) {
+  const img = realImgs(p.images)[0];
+  return `<a class="md-card" href="/repuesto/${esc(p.slug)}"><div class="ph">${img ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">` : 'Foto por WhatsApp'}</div><div class="tx">${esc(p.name)}<b>${clp(p.price_sale)}</b></div></a>`;
+}
+
+async function pieza(t, m) {
+  const todos = (await repuestosSuzuki()).filter((p) => esPieza(t, p));
+  const ps = m ? todos.filter((p) => deModelo(p, m)) : todos;
+  const nomM = m ? m.nombre.split(' /')[0] : '';
+  const sujeto = t.plural + ' Suzuki' + (m ? ' ' + nomM : '');
+  const url = SITE + '/suzuki/' + t.slug + (m ? '/' + m.slug : '');
+  const conFoto = ps.filter((p) => realImgs(p.images).length);
+  const lista = conFoto.concat(ps.filter((p) => !realImgs(p.images).length));
+  const precios = ps.map((p) => Number(p.price_sale)).filter((n) => n > 0).sort((a, b) => a - b);
+  // Modelos con esta pieza (para enlazar /suzuki/<pieza>/<modelo>).
+  const porModelo = MODELOS.map((mm) => ({ mm, n: todos.filter((p) => deModelo(p, mm)) })).filter((x) => x.n.length);
+  const garantia = t.garantia ? `Los ${t.slug === 'cremalleras' ? 'cremalleras de dirección' : t.slug === 'cajas-de-cambio' ? 'cajas de cambio' : 'motores completos y medio motor'} tienen garantía de funcionamiento de 7 días.` : 'Se prueban antes de la entrega y te enviamos fotos o video antes de comprar.';
+  const wa = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('Hola, busco ' + t.uno.toLowerCase() + ' para Suzuki ' + (nomM || '') + '.\nPatente: \nModelo y año: ');
+  const usad = t.fem ? 'usadas originales' : 'usados originales';
+  const title = `${sujeto} ${usad}${precios.length ? ' desde ' + clp(precios[0]) : ''} | Desarmaduría Saravia`;
+  const desc = `${ps.length ? ps.length + ' ' : ''}${t.plural.toLowerCase()} Suzuki${m ? ' ' + nomM : ''} ${usad}${porModelo.length && !m ? ' para ' + porModelo.slice(0, 5).map((x) => x.mm.nombre.split(' /')[0]).join(', ') : ''}. ${t.garantia ? 'Garantía 7 días. ' : ''}Envío a todo Chile o retiro en La Pintana. Cotiza con tu patente.`;
+  const faq = [
+    [`¿Dónde comprar ${t.uno.toLowerCase()} Suzuki${m ? ' ' + nomM : ''} ${t.fem ? 'usada' : 'usado'} en Chile?`, `En Desarmaduría Saravia (Av. Lo Blanco 1072, La Pintana, Santiago). ${ps.length ? 'Hay ' + ps.length + (t.fem ? ' publicadas' : ' publicados') + ' con precio en ' + url.replace('https://', '') + '.' : 'Cotízalo por WhatsApp con tu patente.'} Retiro en el local o envío a todo Chile.`],
+    [`¿Cuánto cuesta ${t.fem ? 'una' : 'un'} ${t.uno.toLowerCase()} Suzuki${m ? ' ' + nomM : ''} ${t.fem ? 'usada' : 'usado'}?`, precios.length ? `Los publicados van desde ${clp(precios[0])} hasta ${clp(precios[precios.length - 1])}, según modelo y estado.` : 'Depende del modelo: cotiza por WhatsApp con tu patente.'],
+    ['¿Cómo sé si le sirve a mi auto?', `Cada ficha indica de qué vehículo salió (modelo, motor y años)${ps.some((p) => p.oem_number) ? ' y, si está verificado, el número de parte original (OEM)' : ''}. Antes de comprar manda tu patente por WhatsApp al +56 9 5381 7335 y confirmamos.`],
+    ['¿Tiene garantía?', garantia],
+  ];
+  const ld = [
+    { '@context': 'https://schema.org', ...STORE },
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: sujeto + ' ' + usad, url, description: desc, isPartOf: { '@id': SITE + '/#store' },
+      about: { '@type': 'Thing', name: t.uno + ' Suzuki' + (m ? ' ' + nomM : ''), alternateName: t.sin },
+      mainEntity: { '@type': 'ItemList', numberOfItems: lista.length, itemListElement: lista.slice(0, 50).map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/repuesto/' + p.slug, name: p.name })) } },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Repuestos Suzuki', item: SITE + '/suzuki' },
+      { '@type': 'ListItem', position: 3, name: t.plural + ' Suzuki', item: SITE + '/suzuki/' + t.slug },
+      ...(m ? [{ '@type': 'ListItem', position: 4, name: 'Suzuki ' + nomM, item: url }] : []) ] },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+  ];
+  const body = `<div class="breadcrumb"><a href="/">Inicio</a> › <a href="/suzuki">Repuestos Suzuki</a> › ${m ? `<a href="/suzuki/${t.slug}">${esc(t.plural)} Suzuki</a> › ${esc(nomM)}` : esc(t.plural) + ' Suzuki'}</div>
+<h1>${esc(sujeto)} ${usad}</h1>
+<p class="md-cta"><a class="md-wa" href="${esc(wa)}" target="_blank" rel="noopener">Cotizar por WhatsApp con mi patente</a><a class="md-tel" href="tel:+${WA}">Llamar</a><span>Respondemos Lun a Vie 10:00-18:00 y Sáb 10:00-15:30.</span></p>
+<p class="md-lead">${ps.length ? `Hay <b>${ps.length} ${esc(t.plural.toLowerCase())} Suzuki${m ? ' ' + esc(nomM) : ''}</b> ${t.fem ? 'publicadas' : 'publicados'}${precios.length ? ' desde <b>' + clp(precios[0]) + '</b>' : ''}, ` : `Cotiza ${esc(t.uno.toLowerCase())} Suzuki${m ? ' ' + esc(nomM) : ''} por WhatsApp: `}repuestos usados originales retirados de autos en desarme en Desarmaduría Saravia, Av. Lo Blanco 1072, La Pintana. ${esc(garantia)} Envío a todo Chile por Starken, Chilexpress o Blue Express. También conocido como: ${esc(t.sin.join(', '))}.</p>
+${!m && porModelo.length ? `<h2>${esc(t.plural)} Suzuki por modelo</h2><div class="md-models">${porModelo.map(({ mm, n }) => `<a href="/suzuki/${t.slug}/${mm.slug}">${esc(t.uno)} Suzuki ${esc(mm.nombre.split(' /')[0])}<span>${n.length} ${t.fem ? 'publicada' : 'publicado'}${n.length === 1 ? '' : 's'} · desde ${clp(Math.min(...n.map((p) => Number(p.price_sale))))}</span></a>`).join('')}</div>` : ''}
+${lista.length ? `<h2>${esc(sujeto)} disponibles</h2><div class="md-grid">${lista.slice(0, 120).map(tarjeta).join('')}</div>` : `<p class="md-lead">Ahora no hay ${t.fem ? 'publicadas' : 'publicados'}. Mándanos tu patente por WhatsApp y te avisamos cuando ingrese uno a desarme.</p>`}
+<div class="md-faq" style="margin-top:2rem"><h2>Preguntas frecuentes</h2>${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+<p style="margin-top:1.5rem">${m ? `<a class="btn-primary" href="/suzuki/${m.slug}">Todos los repuestos Suzuki ${esc(nomM)}</a> ` : ''}<a class="btn-primary" href="/suzuki">Repuestos Suzuki por modelo</a></p>
+<p class="md-upd">Actualizado automáticamente desde nuestro inventario: ${new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' })}.</p>`;
+  return page({ title, desc, url, ld, body, robots: ps.length >= (m ? 1 : 2) ? 'index,follow' : 'noindex,follow' });
+}
+
 exports.handler = async (event) => {
   const slug = String(event.path || '').replace(/^.*\/suzuki\/?/, '').replace(/\/$/, '').toLowerCase();
   const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=600, stale-while-revalidate=3600' };
   try {
     if (!slug) return { statusCode: 200, headers, body: await indice() };
+    const [a, b] = slug.split('/');
+    const t = PIEZAS.find((x) => x.slug === a);
+    if (t) {
+      const mm = b ? MODELOS.find((x) => x.slug === b) : null;
+      if (b && !mm) return { statusCode: 301, headers: { Location: '/suzuki/' + t.slug }, body: '' };
+      return { statusCode: 200, headers, body: await pieza(t, mm) };
+    }
     const m = MODELOS.find((x) => x.slug === slug);
     if (!m) return { statusCode: 301, headers: { Location: '/suzuki' }, body: '' };
     return { statusCode: 200, headers, body: await modelo(m) };
@@ -258,6 +329,7 @@ exports.handler = async (event) => {
 };
 
 exports.MODELOS = MODELOS;
+exports.PIEZAS = PIEZAS;
 
 const HEADER = "<header class=\"header\"><div class=\"container header-inner\"><div class=\"header-brands\"><a href=\"/vehiculos-en-desarme\" class=\"brand-link brand-saravia\" aria-label=\"Desarmaduría Saravia — Venta de repuestos multimarca\"><span class=\"brand-saravia-plate\"><img src=\"/img/logo/desarmaduria-saravia.svg\" alt=\"Desarmaduría Saravia — Venta de repuestos multimarca\" width=\"52\" height=\"34\"></span><span class=\"brand-indicator\" aria-hidden=\"true\"></span></a><span class=\"brand-divider\" aria-hidden=\"true\"></span><a href=\"/catalogo\" class=\"brand-link brand-autopartschile\" aria-label=\"Autopartschile — Importación y repuestos\"><img src=\"/img/logo/autopartschile.svg\" alt=\"Autopartschile — Importación y repuestos\" width=\"60\" height=\"42\" loading=\"eager\"><span class=\"brand-indicator\" aria-hidden=\"true\"></span></a></div><div class=\"header-actions\"><a href=\"https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto\" class=\"btn-wa-header\" target=\"_blank\" rel=\"noopener\"><span class=\"wa-full\">&#128172; Cotizar por WhatsApp</span><span class=\"wa-short\">&#128172; WhatsApp</span></a></div></div></header>\n<nav class=\"nav\"><div class=\"container\"><button class=\"nav-toggle\" onclick=\"document.getElementById('nl').classList.toggle('open')\" aria-label=\"Menú\">&#9776; Menú</button><ul class=\"nav-list\" id=\"nl\"><li><a href=\"/catalogo\">Catálogo</a></li><li><a href=\"/suzuki\" class=\"active\">Repuestos Suzuki</a></li><li><a href=\"/vehiculos-en-desarme\">Vehículos en Desarme</a></li><li><a href=\"/como-comprar\">Cómo Comprar</a></li><li><a href=\"/envios\">Envíos</a></li><li><a href=\"/metodos-de-pago\">Métodos de Pago</a></li><li><a href=\"/faq\">FAQ</a></li><li><a href=\"/opiniones\">Opiniones</a></li></ul></div></nav>";
 const FOOTER = "<section class=\"cta-final\"><div class=\"container\"><h2>¿Tienes el modelo, el año y la pieza?</h2><p>Escríbenos por WhatsApp con tu patente y te cotizamos.</p><a href=\"https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto\" class=\"btn-primary btn-lg\" target=\"_blank\" rel=\"noopener\">&#128172; Cotizar mi repuesto por WhatsApp</a></div></section>\n<footer class=\"footer\"><div class=\"container footer-grid\"><div class=\"footer-col\"><h4>Desarmaduría Saravia</h4><p>Especialistas en repuestos Suzuki. También Kia, Hyundai y Chevrolet.</p></div><div class=\"footer-col\"><h4>Catálogo</h4><ul><li><a href=\"/suzuki\">Repuestos Suzuki por modelo</a></li><li><a href=\"/catalogo\">Catálogo completo</a></li><li><a href=\"/vehiculos-en-desarme\">Vehículos en Desarme</a></li></ul></div><div class=\"footer-col\"><h4>Información</h4><ul><li><a href=\"/garantias\">Condiciones y Devoluciones</a></li><li><a href=\"/envios\">Envíos a Todo Chile</a></li><li><a href=\"/metodos-de-pago\">Métodos de Pago</a></li><li><a href=\"/faq\">Preguntas Frecuentes</a></li></ul></div><div class=\"footer-col\"><h4>Contacto</h4><p>&#128205; Av. Lo Blanco 1072, La Pintana</p><p>&#128172; <a href=\"https://wa.me/56953817335\">+56 9 5381 7335</a></p><p>&#128336; Lun–Vie 10:00–18:00 · Sáb 10:00–15:30</p></div></div><div class=\"footer-bottom\"><div class=\"container\"><p>&#169; 2026 Desarmaduría Saravia – AutopartsChile.</p></div></div></footer>";

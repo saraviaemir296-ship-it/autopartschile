@@ -26,6 +26,46 @@ Cada página se genera desde el inventario real (repuestos con precio, autos en 
 - [Suzuki Vitara / Grand Vitara / Grand Nomade](https://autopartschile.cl/suzuki/vitara)
 - [Suzuki Ignis](https://autopartschile.cl/suzuki/ignis), [Ciaz](https://autopartschile.cl/suzuki/ciaz), [Aerio / Liana](https://autopartschile.cl/suzuki/aerio), [Alto](https://autopartschile.cl/suzuki/alto), [Mastervan / APV](https://autopartschile.cl/suzuki/mastervan)
 
+
+## Repuestos Suzuki por tipo de pieza
+
+Cada página lista las piezas publicadas con precio, de todos los modelos Suzuki, con enlaces por modelo (ej. /suzuki/motores/swift).
+
+- [Motores Suzuki](https://autopartschile.cl/suzuki/motores)
+- [Cajas de cambio Suzuki](https://autopartschile.cl/suzuki/cajas-de-cambio)
+- [Bombas de bencina Suzuki](https://autopartschile.cl/suzuki/bombas-de-bencina)
+- [Puertas Suzuki](https://autopartschile.cl/suzuki/puertas)
+- [Focos y ópticos Suzuki](https://autopartschile.cl/suzuki/focos)
+- [Parachoques Suzuki](https://autopartschile.cl/suzuki/parachoques)
+- [Capot Suzuki](https://autopartschile.cl/suzuki/capot)
+- [Espejos retrovisores Suzuki](https://autopartschile.cl/suzuki/espejos)
+- [Radiadores Suzuki](https://autopartschile.cl/suzuki/radiadores)
+- [Culatas Suzuki](https://autopartschile.cl/suzuki/culatas)
+- [Computadores (ECU) Suzuki](https://autopartschile.cl/suzuki/computadores)
+- [Alternadores Suzuki](https://autopartschile.cl/suzuki/alternadores)
+- [Motores de partida Suzuki](https://autopartschile.cl/suzuki/motores-de-partida)
+- [Compresores de aire acondicionado Suzuki](https://autopartschile.cl/suzuki/compresores-aire-acondicionado)
+- [Cremalleras de dirección Suzuki](https://autopartschile.cl/suzuki/cremalleras)
+- [Amortiguadores Suzuki](https://autopartschile.cl/suzuki/amortiguadores)
+- [Airbags Suzuki](https://autopartschile.cl/suzuki/airbags)
+- [Tableros e instrumentos Suzuki](https://autopartschile.cl/suzuki/tableros)
+- [Portalones y tapas de maleta Suzuki](https://autopartschile.cl/suzuki/portalones)
+- [Tapabarros Suzuki](https://autopartschile.cl/suzuki/tapabarros)
+- [Llantas Suzuki](https://autopartschile.cl/suzuki/llantas)
+- [Cuerpos de aceleración Suzuki](https://autopartschile.cl/suzuki/cuerpos-de-aceleracion)
+- [Alzavidrios Suzuki](https://autopartschile.cl/suzuki/alzavidrios)
+- [Asientos Suzuki](https://autopartschile.cl/suzuki/asientos)
+- [Sensores Suzuki](https://autopartschile.cl/suzuki/sensores)
+- [Chapas y cerraduras Suzuki](https://autopartschile.cl/suzuki/chapas)
+- [Vidrios Suzuki](https://autopartschile.cl/suzuki/vidrios)
+- [Manillas Suzuki](https://autopartschile.cl/suzuki/manillas)
+- [Homocinéticas Suzuki](https://autopartschile.cl/suzuki/homocineticas)
+- [Frenos Suzuki](https://autopartschile.cl/suzuki/frenos)
+- [Frontales Suzuki](https://autopartschile.cl/suzuki/frontales)
+- [Electroventiladores Suzuki](https://autopartschile.cl/suzuki/electroventiladores)
+- [Cinturones de seguridad Suzuki](https://autopartschile.cl/suzuki/cinturones)
+- [Volantes Suzuki](https://autopartschile.cl/suzuki/volantes)
+
 ## Cómo encontrar un repuesto
 - Cada repuesto tiene su ficha en https://autopartschile.cl/repuesto/<slug> con precio en CLP, estado, vehículo de origen y, cuando está verificado, número de parte original (OEM).
 - [Vehículos en desarme](https://autopartschile.cl/vehiculos-en-desarme.html): lista de autos que se están desarmando, con sus piezas.

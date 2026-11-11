@@ -7,6 +7,7 @@ const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
 const SITE = 'https://autopartschile.cl';
 const H = { apikey: KEY, Authorization: 'Bearer ' + KEY };
 const { MODELOS } = require('./modelo');
+const { PIEZAS } = require('./lib/piezas-suzuki');
 const x = (s) => String(s).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
 
 exports.handler = async () => {
@@ -17,7 +18,7 @@ exports.handler = async () => {
     ]);
     const urls = [];
     const hoy = new Date().toISOString().slice(0, 10);
-    for (const u of ['/suzuki', ...MODELOS.map((m) => '/suzuki/' + m.slug)]) urls.push(`<url><loc>${x(SITE + u)}</loc><lastmod>${hoy}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`);
+    for (const u of ['/suzuki', ...MODELOS.map((m) => '/suzuki/' + m.slug), ...PIEZAS.map((t) => '/suzuki/' + t.slug)]) urls.push(`<url><loc>${x(SITE + u)}</loc><lastmod>${hoy}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`);
     for (const v of vs) urls.push(`<url><loc>${x(SITE + '/vehiculo.html?slug=' + encodeURIComponent(v.slug))}</loc>${v.updated_at ? `<lastmod>${v.updated_at.slice(0, 10)}</lastmod>` : ''}<changefreq>daily</changefreq><priority>0.8</priority></url>`);
     for (const p of ps) {
       if (p.part_status === 'vendida' || p.part_status === 'no_disponible' || !(p.stock > 0)) continue;

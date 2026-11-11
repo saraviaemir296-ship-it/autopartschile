@@ -11,6 +11,7 @@ const HOST = 'autopartschile.cl';
 const INDEXNOW_KEY = '0dd62e96d86b94b582a4a8060f278d9e';
 const H = { apikey: KEY, Authorization: 'Bearer ' + KEY };
 const { MODELOS } = require('./modelo');
+const { PIEZAS } = require('./lib/piezas-suzuki');
 
 async function api(path) {
   const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: H });
@@ -24,7 +25,7 @@ exports.handler = async () => {
     api('products?select=slug&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&slug=not.is.null' + filtro + '&limit=5000'),
     api('vehiculos?select=slug&is_active=eq.true&slug=not.is.null' + filtro),
   ]);
-  const urls = [SITE + '/suzuki', ...MODELOS.map((m) => SITE + '/suzuki/' + m.slug)]
+  const urls = [SITE + '/suzuki', ...MODELOS.map((m) => SITE + '/suzuki/' + m.slug), ...PIEZAS.map((t) => SITE + '/suzuki/' + t.slug)]
     .concat(ps.map((p) => SITE + '/repuesto/' + p.slug))
     .concat(vs.map((v) => SITE + '/vehiculo?slug=' + encodeURIComponent(v.slug)));
   // IndexNow acepta hasta 10.000 URLs por envío.
