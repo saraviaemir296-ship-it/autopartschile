@@ -110,6 +110,7 @@ function page({ title, desc, url, ld, body, robots }) {
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TXKXWQCTZ1');</script>
 <style>
 .md-lead{font-size:1.05rem;line-height:1.6;color:#222;max-width:860px}
+.md-cta{margin:1rem 0;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem .9rem}.md-wa{background:#25d366;color:#fff;font-weight:800;text-decoration:none;padding:.85rem 1.3rem;border-radius:12px;font-size:1.02rem;box-shadow:0 2px 8px rgba(37,211,102,.35)}.md-cta span{font-size:.85rem;color:#555}
 .md-stats{display:flex;gap:.6rem;flex-wrap:wrap;margin:1rem 0}.md-stats div{background:#fff;border-radius:10px;padding:.6rem .9rem;box-shadow:0 1px 5px rgba(0,0,0,.06);font-size:.85rem}.md-stats b{display:block;font-size:1.15rem;color:var(--red)}
 .md-tab{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.9rem;background:#fff}.md-tab th,.md-tab td{padding:.5rem .6rem;border-bottom:1px solid #eee;text-align:left}.md-tab th{background:#111;color:#fff;font-weight:700}
 .md-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;margin-top:.8rem}
@@ -226,6 +227,7 @@ ${versiones.map((v) => `<tr><td>Suzuki ${esc(v.modelo)}</td><td>${esc(v.motor ||
   const body = `<div class="breadcrumb"><a href="/">Inicio</a> › <a href="/suzuki">Repuestos Suzuki</a> › Suzuki ${esc(m.nombre)}</div>
 <h1>Repuestos Suzuki ${esc(m.nombre)} usados originales</h1>
 <p class="md-lead">En <b>Desarmaduría Saravia</b> (La Pintana, Santiago) vendemos repuestos usados originales de <b>Suzuki ${esc(nombreCorto)}</b>${motores.length ? ', motor ' + esc(motores.join(', ')) : ''}, retirados de vehículos en desarme. ${ps.length ? 'Hay <b>' + ps.length + ' piezas publicadas</b>' + (precios.length ? ' desde <b>' + clp(precios[0]) + '</b>' : '') + '.' : 'Hemos desarmado ' + (fichas.length + versiones.length > 1 ? 'varias unidades' : 'unidades') + ' de este modelo' + (aniosRango(versiones) ? ' (años ' + aniosRango(versiones) + ')' : '') + '.'} Retiro en Av. Lo Blanco 1072 o envío a todo Chile. Cotiza con tu patente por WhatsApp al <a href="https://wa.me/${WA}?text=${encodeURIComponent('Hola, busco un repuesto de Suzuki ' + nombreCorto)}">+56 9 5381 7335</a>.</p>
+<p class="md-cta"><a class="md-wa" href="https://wa.me/${WA}?text=${encodeURIComponent('Hola, necesito un repuesto para Suzuki ' + nombreCorto + '.\nPatente: \nPieza que busco: ')}" target="_blank" rel="noopener">Cotizar por WhatsApp con mi patente</a><span>Manda tu patente y la pieza. Respondemos Lun a Vie 10:00-18:00 y Sáb 10:00-15:30.</span></p>
 <div class="md-stats"><div><b>${ps.length}</b>repuestos publicados</div><div><b>${conFoto.length}</b>con foto</div>${vs.length ? `<div><b>${vs.length}</b>en desarme</div>` : ''}${precios.length ? `<div><b>${clp(precios[0])}</b>desde</div>` : ''}</div>
 ${tablaVeh}
 ${tablaVersiones}
