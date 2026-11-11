@@ -45,7 +45,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
   <label>Vehículo en desarme<select id="veh"><option value="">Cargando…</option></select></label>
   <label>Categoría<select id="cat"><option value="">Todas</option></select></label>
   <label>Buscar<input type="text" id="q" placeholder="pieza, N° o OEM"></label>
-  <label class="chk"><input type="checkbox" id="nofoto"> Solo sin foto</label>
+  <label class="chk"><input type="checkbox" id="nofoto"> Solo sin foto limpia</label>
   <label class="chk"><input type="checkbox" id="precio" checked> Mostrar precio</label>
   <label>En blanco<input type="number" id="blank" value="0" min="0" max="240" style="width:70px"></label>
   <button onclick="window.print()">Imprimir</button>
@@ -66,7 +66,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function vname(v) { return v ? [v.marca, v.modelo, v.motor].filter(Boolean).join(' ') : 'Sin vehículo asignado'; }
   function years(v) { return v && v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : ''; }
-  function hasPhoto(p) { return Array.isArray(p.images) && p.images.length > 0; }
+  function hasPhoto(p) { return Array.isArray(p.images) && p.images.length > 0 && !(p.metadata && p.metadata.foto_limpia === false); }
   function num(sku) { var m = String(sku).match(/([0-9A-Za-z]+)$/); return m ? m[1] : sku; }
   // nombre corto: quita el auto del final ("... Suzuki Swift 1.2 K12M 2011-2018")
   function shortName(p) {
@@ -74,7 +74,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
     if (v && v.marca) { var i = n.toLowerCase().lastIndexOf(' ' + v.marca.toLowerCase() + ' '); if (i > 8) n = n.slice(0, i); }
     return n.replace(/\s*\((c\/u|par)\)\s*$/i, '');
   }
-  function oem1(p) { var o = (p.oem_number || '').trim(); return /^[0-9A-Za-z-]+$/.test(o) ? o : (o ? o.split(/[\s,;\/|]+/)[0] + '…' : ''); }
+  function oem1(p) { var o = (p.oem_number || '').trim(); if (/^[0-9A-Za-z-]+$/.test(o)) return o; var m = o.match(/\b(?=[0-9A-Z-]*\d)[0-9A-Z][0-9A-Z-]{6,}\b/); return m ? m[0] + '…' : ''; }
   function qr(url) {
     try { var q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); }
     catch (e) { return ''; }
@@ -111,10 +111,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
     for (var i = 0, b = Math.min(240, +$('blank').value || 0); i < b; i++) html += blankLabel();
     $('sheet').innerHTML = html;
     var sin = rows.filter(function (p) { return !hasPhoto(p); }).length, tot = rows.length + (+$('blank').value || 0);
-    $('info').innerHTML = '<b>' + rows.length + '</b> piezas · <b>' + sin + '</b> sin foto · ' + Math.ceil(tot / 24) + ' hoja(s) A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes. Foto de cada pieza: nómbrala con el N° grande (ej. 001-1.jpg) dentro de la carpeta del auto.';
+    $('info').innerHTML = '<b>' + rows.length + '</b> piezas · <b>' + sin + '</b> sin foto limpia · ' + Math.ceil(tot / 24) + ' hoja(s) A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes. Foto de cada pieza: nómbrala con el N° grande (ej. 001-1.jpg) dentro de la carpeta del auto.';
   }
 
-  fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,category,oem_number,vehiculo_id,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)&is_active=eq.true&deleted_at=is.null&sku=not.like.QA-*&order=vehiculo_id.asc,category.asc,sku.asc&limit=5000',
+  fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,category,oem_number,metadata,vehiculo_id,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)&is_active=eq.true&deleted_at=is.null&sku=not.like.QA-*&order=vehiculo_id.asc,category.asc,sku.asc&limit=5000',
     { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (rows) {
@@ -127,7 +127,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
         if (p.category) cs[p.category] = 1;
       });
       $('veh').innerHTML = '<option value="">Todos (' + rows.length + ')</option>' + Object.keys(vs).sort(function (a, b) { return vs[b].sin - vs[a].sin; })
-        .map(function (k) { return '<option value="' + k + '">' + esc(vs[k].name) + ' — ' + vs[k].n + ' piezas, ' + vs[k].sin + ' sin foto</option>'; }).join('');
+        .map(function (k) { return '<option value="' + k + '">' + esc(vs[k].name) + ' — ' + vs[k].n + ' piezas, ' + vs[k].sin + ' sin foto limpia</option>'; }).join('');
       $('cat').innerHTML = '<option value="">Todas</option>' + Object.keys(cs).sort().map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
       var pre = new URLSearchParams(location.search).get('v'); if (pre && vs[pre]) $('veh').value = pre;
       render();
