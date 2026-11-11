@@ -324,6 +324,7 @@ function observe() {
 }
 
 function injectJsonLd() {
+  if (document.getElementById('ssr-ld')) return; // ya viene del servidor (netlify/functions/vehiculo.js)
   var data = {
     '@context': 'https://schema.org', '@type': 'ItemList',
     name: 'Repuestos ' + title + ' ' + years,

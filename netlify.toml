@@ -8,6 +8,12 @@
 # Netlify publica la raíz del repo, así que se bloquean explícitamente con 404.
 # Código de funciones de Supabase: vive en el repo como respaldo, no debe servirse.
 [[redirects]]
+  from = "/vehiculo"
+  to = "/.netlify/functions/vehiculo"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/suzuki"
   to = "/.netlify/functions/modelo"
   status = 200
@@ -172,3 +178,6 @@
 # cambiadas en las últimas 26 h. 13:15 UTC = 10:15 en Chile.
 [functions."indexnow-diario"]
   schedule = "15 13 * * *"
+
+[functions.vehiculo]
+  included_files = ["vehiculo.html"]
