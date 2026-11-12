@@ -77,6 +77,7 @@ Cada página lista las piezas publicadas con precio, de todos los modelos Suzuki
 - [Cómo comprar](https://autopartschile.cl/como-comprar.html)
 - [Envíos](https://autopartschile.cl/envios.html)
 - [Garantías y condiciones](https://autopartschile.cl/garantias.html)
+- [Desarmaduría en Santiago](https://autopartschile.cl/desarmaduria-santiago): dirección, horario, marcas y modelos que desarmamos, comunas que atendemos y preguntas frecuentes.
 - [Métodos de pago](https://autopartschile.cl/metodos-de-pago.html)
 - [Preguntas frecuentes](https://autopartschile.cl/faq.html)
 
