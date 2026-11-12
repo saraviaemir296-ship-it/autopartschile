@@ -6,7 +6,7 @@ const SUPABASE_URL = 'https://zlyforhywunqhitrdreo.supabase.co';
 const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
 const SITE = 'https://autopartschile.cl';
 const H = { apikey: KEY, Authorization: 'Bearer ' + KEY };
-const { MODELOS, repuestosSuzuki, deModelo } = require('./modelo');
+const { MODELOS, repuestosSuzuki, deModelo, MOTORES, tieneCodigo, motorDe } = require('./modelo');
 const { PIEZAS, esPieza } = require('./lib/piezas-suzuki');
 const x = (s) => String(s).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
 
@@ -27,6 +27,7 @@ exports.handler = async () => {
       if (deT.length >= 2) piezaUrls.push('/suzuki/' + t.slug);
       for (const m of MODELOS) if (deT.some((p) => deModelo(p, m))) piezaUrls.push('/suzuki/' + t.slug + '/' + m.slug);
     }
+    for (const e of MOTORES) if (suz.filter((p) => tieneCodigo(motorDe(p), e.code) || tieneCodigo(p.name, e.code)).length >= 3) piezaUrls.push('/suzuki/' + e.slug);
     for (const u of ['/suzuki', ...MODELOS.map((m) => '/suzuki/' + m.slug)]) urls.push(`<url><loc>${x(SITE + u)}</loc><lastmod>${hoy}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`);
     for (const u of piezaUrls) urls.push(`<url><loc>${x(SITE + u)}</loc><lastmod>${hoy}</lastmod><changefreq>daily</changefreq><priority>${u.split('/').length > 3 ? '0.8' : '0.9'}</priority></url>`);
     for (const v of vs) urls.push(`<url><loc>${x(SITE + '/vehiculo.html?slug=' + encodeURIComponent(v.slug))}</loc>${v.updated_at ? `<lastmod>${v.updated_at.slice(0, 10)}</lastmod>` : ''}<changefreq>daily</changefreq><priority>0.8</priority></url>`);

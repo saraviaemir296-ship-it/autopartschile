@@ -307,12 +307,72 @@ ${lista.length ? `<h2>${esc(sujeto)} disponibles</h2><div class="md-grid">${list
   return page({ title, desc, url, ld, body, robots: ps.length >= (m ? 1 : 2) ? 'index,follow' : 'noindex,follow' });
 }
 
+
+// Páginas por código de motor: /suzuki/motor-m16a. La gente busca "motor m16a", "culata k12m".
+// Solo afirma lo que está en la base: repuestos publicados y autos que hemos desarmado con ese motor.
+const MOTORES = [
+  { slug: 'motor-m16a', code: 'M16A', cc: '1.6' },
+  { slug: 'motor-k12m', code: 'K12M', cc: '1.2' },
+  { slug: 'motor-k10b', code: 'K10B', cc: '1.0' },
+  { slug: 'motor-f8d', code: 'F8D', cc: '0.8' },
+  { slug: 'motor-j20a', code: 'J20A', cc: '2.0' },
+];
+const tieneCodigo = (txt, code) => new RegExp('\\b' + code + '\\b', 'i').test(String(txt || ''));
+
+async function motorPage(e) {
+  const [rs, vehs] = await Promise.all([
+    repuestosSuzuki(),
+    api('vehiculos?select=modelo,motor,transmision,anio_desde,anio_hasta&marca=ilike.suzuki&motor=ilike.*' + e.code + '*&order=anio_desde.asc'),
+  ]);
+  const ps = rs.filter((p) => tieneCodigo(motorDe(p), e.code) || tieneCodigo(p.name, e.code));
+  const visto = new Set();
+  const versiones = vehs.filter((v) => { const k = [String(v.modelo).toLowerCase(), v.anio_desde, v.anio_hasta, v.transmision].join('|'); if (visto.has(k)) return false; visto.add(k); return true; });
+  const modelosTxt = [...new Set(versiones.map((v) => 'Suzuki ' + v.modelo + (anios(v) ? ' ' + anios(v) : '')))];
+  const url = SITE + '/suzuki/' + e.slug;
+  const motores = ps.filter((p) => esPieza(PIEZAS[0], p));
+  const conFoto = ps.filter((p) => realImgs(p.images).length);
+  const lista = conFoto.concat(ps.filter((p) => !realImgs(p.images).length));
+  const tipos = PIEZAS.map((t) => ({ t, n: ps.filter((p) => esPieza(t, p)) })).filter((x) => x.n.length);
+  const precioMotor = motores.map((p) => Number(p.price_sale)).filter((n) => n > 0).sort((a, b) => a - b);
+  const title = `Motor Suzuki ${e.code} ${e.cc} usado y repuestos${precioMotor.length ? ' desde ' + clp(precioMotor[0]) : ''} | Desarmaduría Saravia`;
+  const desc = `Motor ${e.code} ${e.cc} Suzuki y ${ps.length} repuestos de ese motor${modelosTxt.length ? ' sacados de ' + modelosTxt.slice(0, 3).join(', ') : ''}. Garantía 7 días (excepto eléctricos). Envío a todo Chile.`;
+  const wa = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('Hola, busco repuestos para motor Suzuki ' + e.code + '.\nPatente: \nPieza: ');
+  const faq = [
+    [`¿En qué autos venía el motor ${e.code}?`, modelosTxt.length ? `En nuestros desarmes, el motor ${e.code} venía en: ${modelosTxt.join('; ')}. Hay versiones del mismo código con diferencias (por ejemplo con o sin VVT), así que confirma con tu patente antes de comprar.` : `Confirma con tu patente por WhatsApp: hay versiones del mismo código con diferencias.`],
+    [`¿Cuánto cuesta un motor ${e.code} usado?`, precioMotor.length ? `Los motores ${e.code} publicados van desde ${clp(precioMotor[0])}. El precio depende de si es motor completo, sin accesorios o medio motor.` : `Ahora no hay motor ${e.code} completo publicado; cotízalo por WhatsApp y te avisamos cuando entre uno a desarme.`],
+    ['¿Tiene garantía?', 'Los repuestos mecánicos (motor, culata, block, cigüeñal y demás) tienen garantía de funcionamiento de 7 días. Las piezas eléctricas y electrónicas (sensores, bobinas, computador, alternador, motor de partida) se prueban antes de la entrega y no tienen garantía posventa.'],
+    ['¿Dónde están?', 'Desarmaduría Saravia, Av. Lo Blanco 1072, La Pintana, Santiago. Retiro en el local o envío a todo Chile por Starken, Chilexpress o Blue Express.'],
+  ];
+  const ld = [
+    { '@context': 'https://schema.org', ...STORE },
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Repuestos motor Suzuki ' + e.code, url, description: desc, isPartOf: { '@id': SITE + '/#store' },
+      mainEntity: { '@type': 'ItemList', numberOfItems: lista.length, itemListElement: lista.slice(0, 50).map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/repuesto/' + p.slug, name: p.name })) } },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Repuestos Suzuki', item: SITE + '/suzuki' },
+      { '@type': 'ListItem', position: 3, name: 'Motor ' + e.code, item: url } ] },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+  ];
+  const body = `<div class="breadcrumb"><a href="/">Inicio</a> › <a href="/suzuki">Repuestos Suzuki</a> › Motor ${esc(e.code)}</div>
+<h1>Motor Suzuki ${esc(e.code)} ${esc(e.cc)}: motor usado y repuestos</h1>
+<p class="md-cta"><a class="md-wa" href="${esc(wa)}" target="_blank" rel="noopener">Cotizar con mi patente</a><a class="md-tel" href="tel:+${WA}">Llamar</a><span>Lun a Vie 10:00-18:00 · Sáb 10:00-15:30</span></p>
+<p class="md-lead">${ps.length ? `Hay <b>${ps.length} repuestos</b> del motor ${esc(e.code)} publicados` : `Cotiza repuestos del motor ${esc(e.code)} por WhatsApp`}${modelosTxt.length ? `, sacados de ${esc(modelosTxt.slice(0, 4).join(', '))}` : ''}. Repuestos usados originales de autos en desarme en Desarmaduría Saravia, La Pintana. Garantía de funcionamiento de 7 días en piezas mecánicas.</p>
+${tipos.length ? `<h2>Repuestos del motor ${esc(e.code)} por tipo</h2><div class="md-stats">${tipos.slice(0, 12).map(({ t, n }) => `<div><b>${n.length}</b>${esc(t.plural)}</div>`).join('')}</div>` : ''}
+${lista.length ? `<h2>Publicados</h2><div class="md-grid">${lista.slice(0, 120).map(tarjeta).join('')}</div>` : ''}
+<div class="md-faq" style="margin-top:2rem"><h2>Preguntas frecuentes</h2>${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
+<p style="margin-top:1.5rem"><a class="btn-primary" href="/suzuki/motores">Todos los motores Suzuki</a> <a class="btn-primary" href="/suzuki">Repuestos Suzuki por modelo</a></p>
+<p class="md-upd">Actualizado automáticamente desde nuestro inventario: ${new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' })}.</p>`;
+  return page({ title, desc, url, ld, body, robots: ps.length >= 3 ? 'index,follow' : 'noindex,follow' });
+}
+
 exports.handler = async (event) => {
   const slug = String(event.path || '').replace(/^.*\/suzuki\/?/, '').replace(/\/$/, '').toLowerCase();
   const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=600, stale-while-revalidate=3600' };
   try {
     if (!slug) return { statusCode: 200, headers, body: await indice() };
     const [a, b] = slug.split('/');
+    const mo = MOTORES.find((x) => x.slug === a);
+    if (mo) return { statusCode: 200, headers, body: await motorPage(mo) };
     const t = PIEZAS.find((x) => x.slug === a);
     if (t) {
       const mm = b ? MODELOS.find((x) => x.slug === b) : null;
@@ -336,3 +396,6 @@ const FOOTER = "<section class=\"cta-final\"><div class=\"container\"><h2>¿Tien
 const WAFLOAT = "<a href=\"https://wa.me/56953817335?text=Hola%2C%20necesito%20cotizar%20un%20repuesto\" class=\"wa-float\" target=\"_blank\" rel=\"noopener\" aria-label=\"WhatsApp\">&#128172;</a>";
 exports.repuestosSuzuki = repuestosSuzuki;
 exports.deModelo = deModelo;
+exports.MOTORES = MOTORES;
+exports.tieneCodigo = tieneCodigo;
+exports.motorDe = motorDe;
