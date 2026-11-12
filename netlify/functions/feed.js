@@ -22,7 +22,7 @@ exports.handler = async function (event) {
   try {
     const res = await fetch(
       SUPABASE_URL +
-        '/rest/v1/products?select=sku,slug,name,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,part_status&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&order=sku.asc',
+        '/rest/v1/products?select=sku,slug,name,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,part_status,warranty&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&order=sku.asc',
       { headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY } },
     );
 
@@ -45,7 +45,7 @@ exports.handler = async function (event) {
       '<channel>\n' +
       '<title>AutopartsChile - Desarmaduría Saravia</title>\n' +
       '<link>' + SITE_URL + '</link>\n' +
-      '<description>Repuestos usados de desarme, revisados. Se venden sin garantía.</description>\n' +
+      '<description>Repuestos usados originales de desarme, revisados. Garantía de 7 días excepto piezas eléctricas.</description>\n' +
       items + '\n' +
       '</channel>\n' +
       '</rss>\n';
@@ -91,7 +91,7 @@ function formatCompat(v) {
 function toRssItem(p) {
   const compat = formatCompat(p.vehicle_compatibility);
   const title = compat ? p.name + ' - ' + compat + ' (usado)' : p.name + ' (usado)';
-  const description = p.description || (p.name + (compat ? ' para ' + compat : '') + '. Repuesto usado, se vende sin garantía.');
+  const description = p.description || (p.name + (compat ? ' para ' + compat : '') + '. Repuesto usado original. ' + (/^garant/i.test(p.warranty || '') ? 'Garantía de funcionamiento 7 días.' : 'Se prueba antes de la entrega.'));
   const link = p.slug ? SITE_URL + '/repuesto/' + p.slug : SITE_URL + '/producto?sku=' + encodeURIComponent(p.sku);
   const image = realImage(p);
   // Pieza usada original: la marca es la del fabricante del vehículo si no hay otra.

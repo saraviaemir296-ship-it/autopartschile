@@ -62,7 +62,7 @@ exports.handler = async (event) => {
   const comp = p.vehicle_compatibility && typeof p.vehicle_compatibility === 'object' && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : null;
   const faq = [
     ['¿Este repuesto sirve para mi auto?', 'Proviene de un ' + (veh || 'vehículo del mismo modelo') + '.' + (p.oem_number ? ' Su número de parte original (OEM) es ' + p.oem_number + ': si coincide con el de tu pieza, es compatible.' : '') + ' Para confirmar compatibilidad envíanos tu patente o el número de pieza por WhatsApp antes de comprar.'],
-    ['¿Tiene garantía?', hasWarranty ? 'Sí: ' + warrantyText + '. La garantía cubre el funcionamiento de la pieza; no cubre daños por instalación.' : 'Es un repuesto usado: se prueba antes de la entrega y se vende sin garantía posventa. Si la pieza que recibes no es la publicada, te la cambiamos o reembolsamos.'],
+    ['¿Tiene garantía?', hasWarranty ? 'Sí: ' + warrantyText + '. La garantía cubre el funcionamiento de la pieza; no cubre daños por instalación.' : 'Es una pieza eléctrica o electrónica: venía funcionando en el vehículo, se prueba antes de la entrega y se vende sin garantía posventa. Si la pieza que recibes no es la publicada, te la cambiamos o reembolsamos.'],
     ['¿Cuánto cuesta y cómo pago?', 'Cuesta ' + clp(price) + '. Puedes pagar con Webpay (débito o crédito) en la web, Mercado Pago, transferencia o efectivo en el local.'],
     ['¿Hacen envíos?', 'Sí, despachamos a todo Chile por Starken, Chilexpress o Blue Express. También puedes retirar en Av. Lo Blanco 1072, La Pintana, Santiago (lunes a viernes 10:00 a 18:00, sábado 10:00 a 15:30).'],
   ];
@@ -149,7 +149,7 @@ ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" 
 ${sold ? '' : `<div data-apc-oferta data-sku="${esc(p.sku)}" data-name="${esc(p.name)}" data-price="${price}"></div>`}
 <div class="rp-trust">
 <div><b>🛡️ Compra protegida</b><span>Pago con Webpay en la web o en el local. Confirmamos stock y compatibilidad antes de despachar.</span></div>
-${hasWarranty ? `<div><b>✅ ${esc(warrantyText)}</b><span>Aplica a motores, cajas de cambio y cremalleras de dirección. <a href="/garantias">Condiciones</a>.</span></div>` : `<div><b>⚠️ Repuesto usado, sin garantía</b><span>Se prueba antes de la entrega. Cambio o reembolso si no es la pieza publicada. <a href="/garantias">Condiciones</a>.</span></div>`}
+${hasWarranty ? `<div><b>✅ ${esc(warrantyText)}</b><span>Cubre el funcionamiento de la pieza. <a href="/garantias">Condiciones</a>.</span></div>` : `<div><b>⚡ Pieza eléctrica: sin garantía posventa</b><span>Se prueba antes de la entrega. Cambio o reembolso si no es la pieza publicada. <a href="/garantias">Condiciones</a>.</span></div>`}
 <div><b>🚚 Despacho o retiro</b><span>A todo Chile con el transportista que prefieras, o retiro en La Pintana.</span></div>
 <div><b>💳 Medios de pago</b><span>Webpay (débito y crédito) · Transferencia · Mercado Pago</span></div>
 </div>
