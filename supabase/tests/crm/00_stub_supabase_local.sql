@@ -1,0 +1,59 @@
+-- Réplica mínima del entorno Supabase + tablas existentes relevantes (según inspección del 12-11-2026)
+do $$ begin
+  if not exists (select 1 from pg_roles where rolname='anon') then create role anon nologin; end if;
+  if not exists (select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if;
+  if not exists (select 1 from pg_roles where rolname='service_role') then create role service_role nologin bypassrls; end if;
+  if not exists (select 1 from pg_roles where rolname='supabase_admin') then create role supabase_admin nologin; end if;
+end $$;
+grant anon, authenticated, service_role to postgres;
+create schema auth;
+create table auth.users (id uuid primary key, instance_id uuid, aud text, role text, email text,
+  raw_app_meta_data jsonb, raw_user_meta_data jsonb, created_at timestamptz, updated_at timestamptz);
+create function auth.uid() returns uuid language sql stable as $$
+  select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''),
+                  (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
+create function auth.role() returns text language sql stable as $$
+  select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''),
+                  (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role'))::text $$;
+grant usage on schema auth, public to anon, authenticated, service_role;
+grant execute on all functions in schema auth to anon, authenticated, service_role;
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+
+create table public.admins (user_id uuid primary key references auth.users(id), email text not null, created_at timestamptz not null default now());
+create table public.customers (id bigserial primary key, external_id text unique, email text not null unique,
+  first_name text, last_name text, phone text, rut text, address jsonb default '{}', tags text[] default '{}',
+  hubspot_contact_id text, total_orders int default 0, total_spent numeric default 0, last_order_at timestamptz,
+  created_at timestamptz default now(), updated_at timestamptz default now());
+create table public.vehiculos (id bigint generated always as identity primary key, marca text, modelo text);
+create table public.products (id bigserial primary key, sku text unique not null, name text not null, oem_number varchar,
+  stock int default 0, is_active boolean default true, deleted_at timestamptz,
+  part_status text not null default 'desmontada' check (part_status in ('en_vehiculo','desmontada','vendida','no_disponible')),
+  price_sale numeric);
+create table public.orders_full (id bigserial primary key);
+create table public.orders (id bigserial primary key, external_id text unique, customer_id bigint references public.customers(id),
+  status text default 'pending' check (status in ('pending','processing','completed','cancelled','refunded')),
+  source text default 'woocommerce', subtotal numeric, discount numeric default 0, shipping numeric default 0, total numeric,
+  currency text default 'CLP', shipping_address jsonb default '{}', notes text, payment_method text default 'mercadopago',
+  delivery_method text not null default 'pickup', shipping_status text not null default 'none',
+  webpay_status text, created_at timestamptz default now(), updated_at timestamptz default now());
+alter table public.orders add constraint orders_source_check check (source = any (array['woocommerce','direct','whatsapp','phone']));
+create table public.order_items (id bigserial primary key, order_id bigint references public.orders(id), product_id bigint references public.products(id),
+  sku text, name text, quantity int not null default 1, unit_price numeric, total_price numeric,
+  is_dropshipping boolean default false, supplier_id bigint, metadata jsonb default '{}');
+create table public.shipping_tracking (id bigserial primary key, order_id bigint, carrier text, status text default 'pending');
+alter table public.shipping_tracking add constraint shipping_tracking_order_id_fkey foreign key (order_id) references public.orders_full(id) on delete cascade;
+create table public.returns (id bigserial primary key, return_number text unique, order_id bigint, status text default 'pending');
+alter table public.returns add constraint returns_order_id_fkey foreign key (order_id) references public.orders_full(id);
+do $$ declare t text; begin for t in select unnest(array['admins','customers','orders','order_items','shipping_tracking','returns','products','vehiculos']) loop
+  execute format('alter table public.%I enable row level security', t);
+  execute format('create policy service_only_%s on public.%I for all using ((select auth.role()) = ''service_role'')', t, t);
+end loop; end $$;
+create policy public_read_products on public.products for select using (true);
+create function public.is_admin() returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.admins where user_id = auth.uid()) $$;
+-- Datos parecidos a producción (incluye los duplicados de prueba detectados)
+insert into public.customers (email, phone) values ('carlos.mendez@gmail.com','+56987654321'),('pedro@e2e.cl','987654321'),
+  ('test-webpay@autopartschile.cl','+56900000000'),('test-fix@autopartschile.cl','+56900000000'),('saraviaemir296@gmail.com','953817335');
+insert into public.products (sku, name, oem_number, stock, part_status, price_sale) values ('APC-TEST-1','Foco trasero izq Aveo','92402-XX',1,'desmontada',35000);
+insert into public.orders (customer_id, source, total) values (5, 'direct', 50000);
