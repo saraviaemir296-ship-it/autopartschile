@@ -141,6 +141,7 @@ create table if not exists public.crm_staff (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+drop trigger if exists crm_staff_touch on public.crm_staff;
 create trigger crm_staff_touch before update on public.crm_staff
   for each row execute function public.crm_touch_updated_at();
 
@@ -385,6 +386,7 @@ create table if not exists public.crm_follow_up_tasks (
 create index if not exists crm_tasks_open_idx on public.crm_follow_up_tasks (due_at) where status in ('pendiente','en_curso');
 create index if not exists crm_tasks_conv_idx on public.crm_follow_up_tasks (conversation_id, status);
 create index if not exists crm_tasks_assigned_idx on public.crm_follow_up_tasks (assigned_to, status, due_at);
+drop trigger if exists crm_tasks_touch on public.crm_follow_up_tasks;
 create trigger crm_tasks_touch before update on public.crm_follow_up_tasks
   for each row execute function public.crm_touch_updated_at();
 
@@ -439,6 +441,7 @@ create table if not exists public.crm_quotations (
 );
 create index if not exists crm_quotations_conv_idx on public.crm_quotations (conversation_id);
 create index if not exists crm_quotations_status_idx on public.crm_quotations (status, created_at desc);
+drop trigger if exists crm_quotations_touch on public.crm_quotations;
 create trigger crm_quotations_touch before update on public.crm_quotations
   for each row execute function public.crm_touch_updated_at();
 
@@ -639,3 +642,10 @@ create table if not exists public.crm_notification_preferences (
   active boolean not null default true,
   updated_at timestamptz not null default now()
 );
+
+-- RLS activado desde el inicio (las políticas llegan en la migración 03)
+do $$ declare t text; begin
+  for t in select tablename from pg_tables where schemaname = 'public' and tablename like 'crm\_%' loop
+    execute format('alter table public.%I enable row level security', t);
+  end loop;
+end $$;

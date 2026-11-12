@@ -11,6 +11,7 @@ Esta carpeta no se publica en el sitio (netlify.toml redirige `/supabase/*` a 40
 | `migrations/20261112120100_crm_02_seed_rules.sql` | Datos de catálogo y todas las reglas de negocio (triggers y funciones). |
 | `migrations/20261112120200_crm_03_rls.sql` | Row Level Security por rol y permisos de ejecución. |
 | `migrations/20261112120300_crm_04_selftest.sql` | `crm_selftest()`: 23 pruebas que se deshacen solas (no dejan datos). |
+| `migrations/20261112120400_crm_05_resenas.sql` | Reseñas Google: al concretar venta o entregar, crea tarea "Pedir reseña" (24 h después) y deja el mensaje con link listo para aprobar. Una vez por cliente cada 90 días. Se pide a todos (sin filtrar satisfechos: Google lo prohíbe). `crm_settings` guarda link, demora y plantilla. Prueba: `crm_selftest_resenas()`. |
 
 ## Qué se reutiliza (no se duplicó)
 
