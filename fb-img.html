@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>img</title></head><body>
+<p id="s">Enviando…</p>
+<script>
+(async()=>{const q=new URLSearchParams(location.search);const list=(q.get('f')||'').split(',').filter(Boolean);
+for(const f of list){const r=await fetch('/img/'+f);const b=await r.blob();
+window.opener&&window.opener.postMessage({apcImg:b,name:f.split('/').pop()},'*');}
+document.getElementById('s').textContent='Listo: '+list.length;setTimeout(()=>window.close(),800);})();
+</script></body></html>
