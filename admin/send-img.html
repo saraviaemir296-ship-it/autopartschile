@@ -4,12 +4,15 @@
 <script>
 // Ayudante para publicar en Marketplace: envía imágenes del propio sitio (solo /img/repuestos/) a la pestaña de Facebook que abrió esta ventana.
 (async () => {
-  const names = new URLSearchParams(location.search).getAll("f").filter((n) => /^[\w.-]+\.(jpe?g|png|webp)$/i.test(n));
+  const q = new URLSearchParams(location.search);
+  const SB = "https://zlyforhywunqhitrdreo.supabase.co/storage/v1/object/public/product-images/";
+  const names = q.getAll("f").filter((n) => /^[\w.-]+\.(jpe?g|png|webp)$/i.test(n)).map((n) => "/img/repuestos/" + n)
+    .concat(q.getAll("s").filter((n) => /^[\w./-]+\.(jpe?g|png|webp)$/i.test(n) && !n.includes("..")).map((n) => SB + n));
   if (!window.opener || !names.length) { document.body.textContent = "Nada que enviar."; return; }
   const files = [];
   for (const n of names) {
-    const r = await fetch("/img/repuestos/" + n);
-    if (r.ok) files.push({ name: n, blob: await r.blob() });
+    const r = await fetch(n);
+    if (r.ok) files.push({ name: n.split("/").pop(), blob: await r.blob() });
   }
   window.opener.postMessage({ apcImgs: files }, "https://www.facebook.com");
   document.body.textContent = "Listo (" + files.length + ")";
