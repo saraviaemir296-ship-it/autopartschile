@@ -15,7 +15,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 // Compra para desarme: sin restricción de marca, deuda, papeles o siniestro no declarado.
 // Año mínimo 2000. El score es puramente valor de desarme/repuestos vs. precio.
 const UMBRAL_SCORE = 70;
-const ANIO_MINIMO = 2000;
+const ANIO_MINIMO = 2008;
 const MAX_ITEMS_NUEVOS_POR_CORRIDA = 60;
 
 interface MLItem {
