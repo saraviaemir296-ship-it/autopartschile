@@ -163,14 +163,17 @@ async function sendTelegram(item: MLItem, score: number, analisis: string) {
 Deno.serve(async (_req: Request) => {
   const resumen = { procesados: 0, nuevos: 0, descartados_por_anio: 0, notificados: 0, errores: 0, telegram_configurado: !!(TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID), fallos_ml: [] as string[] };
 
+  // Solo autos bajo $1.500.000 con daño: chocados, motor malo, para desarme, con detalles.
+  const PRECIO = "price=*-1500000";
   const fetches = [
-    "sort=price_asc",
-    "sort=price_asc&offset=50",
-    `q=${encodeURIComponent("remate")}`,
-    `q=${encodeURIComponent("liquidacion")}`,
-    `q=${encodeURIComponent("urgente")}`,
-    `q=${encodeURIComponent("sin papeles")}`,
-    `q=${encodeURIComponent("para desarme")}`,
+    `${PRECIO}&q=${encodeURIComponent("chocado")}`,
+    `${PRECIO}&q=${encodeURIComponent("motor malo")}`,
+    `${PRECIO}&q=${encodeURIComponent("para desarme")}`,
+    `${PRECIO}&q=${encodeURIComponent("fundido")}`,
+    `${PRECIO}&q=${encodeURIComponent("siniestrado")}`,
+    `${PRECIO}&q=${encodeURIComponent("no arranca")}`,
+    `${PRECIO}&q=${encodeURIComponent("con detalles")}`,
+    `${PRECIO}&sort=price_asc`,
   ];
 
   let nuevosScoreados = 0;
@@ -184,7 +187,7 @@ Deno.serve(async (_req: Request) => {
       resumen.procesados++;
 
       const anioItem = getAnio(item);
-      if (anioItem !== null && anioItem < ANIO_MINIMO) {
+      if ((anioItem !== null && anioItem < ANIO_MINIMO) || Number(item.price) > 1_500_000) {
         resumen.descartados_por_anio++;
         continue;
       }
