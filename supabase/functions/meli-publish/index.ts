@@ -1,6 +1,10 @@
 // Publica productos de autopartschile en Mercado Libre Chile (MLC).
 // POST { product_ids: number[], listing_type_id: string, markup_pct?: number, cover_fee?: boolean, dry_run?: boolean }
+// POST { product_ids, action: "compat" } agrega compatibilidades a productos ya publicados.
 // Solo admin. dry_run usa /items/validate (no publica nada).
+// v14: en ML usa solo fotos limpias (archivo con "foto" en el nombre) si existen, porque ML modera
+//      las imágenes promo con sellos; compatibilidades con domain_id y en lotes de 10.
+// v15: la descripción incluye metadata.nota_estado (detalles visibles: rayones, color, mica opaca).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
@@ -18,6 +22,7 @@ const CORS = {
 };
 const admin = createClient(SB_URL, SERVICE, { auth: { persistSession: false } });
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "Content-Type": "application/json" } });
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function token(): Promise<string> {
   const { data: a } = await admin.from("meli_account").select("*").eq("id", 1).maybeSingle();
@@ -47,6 +52,14 @@ async function ml(tk: string, method: string, path: string, body?: unknown) {
   return { ok: r.ok, status: r.status, data };
 }
 
+function onlyWarnings(d: any): boolean {
+  const c = Array.isArray(d?.cause) ? d.cause : [];
+  return c.length > 0 && c.every((x: any) => x.type === "warning");
+}
+function errorCauses(d: any): any[] {
+  return (Array.isArray(d?.cause) ? d.cause : []).filter((x: any) => x.type !== "warning");
+}
+
 function realImages(arr: unknown): string[] {
   return (Array.isArray(arr) ? arr : [])
     .filter((u) => typeof u === "string" && u && !/favicon|placeholder|logo/i.test(u))
@@ -54,7 +67,6 @@ function realImages(arr: unknown): string[] {
 }
 
 function compat(p: any) {
-  // Fuente principal: la ficha del vehículo del despiece (datos ordenados). Respaldo: vehicle_compatibility del producto.
   const v = p._veh;
   if (v?.marca && v?.modelo) {
     const yrs = v.anio_desde ? (v.anio_hasta && v.anio_hasta !== v.anio_desde ? `${v.anio_desde}-${v.anio_hasta}` : String(v.anio_desde)) : "";
@@ -65,12 +77,11 @@ function compat(p: any) {
 }
 
 function title(p: any) {
-  // Formato que mejor posiciona en autopartes: Pieza (+ lado) + Marca Modelo Motor Años (+ Original), máx. 60
   const c = compat(p);
   const eng = (String(c.engine).match(/\d\.\d/) || [""])[0];
   let piece = String(p.name);
   if (c.make) { const i = piece.toLowerCase().indexOf(c.make.toLowerCase()); if (i > 0) piece = piece.slice(0, i); }
-  piece = piece.replace(/\s*\/\s*\S+/g, "").replace(/lado derecho/i, "Derecho").replace(/lado izquierdo/i, "Izquierdo").replace(/\([^)]*\)/g, "").replace(/[,;]/g, "").replace(/\s+/g, " ").trim();
+  piece = piece.replace(/\([^)]*\)/g, "").replace(/\s*\/\s*\S+/g, "").replace(/lado derecho/i, "Derecho").replace(/lado izquierdo/i, "Izquierdo").replace(/[,;]/g, "").replace(/\s+/g, " ").trim();
   let suffix = [c.make, c.model, eng, c.years].filter(Boolean).join(" ");
   if (!c.model) suffix = "";
   if (suffix.length > 40) suffix = [c.make, c.model, c.years].filter(Boolean).join(" ");
@@ -79,6 +90,30 @@ function title(p: any) {
   let t = (piece + " " + suffix).replace(/\s+/g, " ").trim();
   if (!/original/i.test(t) && t.length + 9 <= 60) t += " Original";
   return t;
+}
+
+async function pickCategory(tk: string, p: any, t: string) {
+  const forced = p.metadata?.meli_category_id;
+  if (forced) {
+    const c = await ml(tk, "GET", `/categories/${forced}`);
+    return { category_id: forced, category_name: c.data?.name ?? "", path: (c.data?.path_from_root ?? []).map((x: any) => x.name).join(" > ") };
+  }
+  const queries = [t, String(p.name)];
+  const seen = new Set<string>();
+  let first: any = null;
+  for (const q of queries) {
+    const d = await ml(tk, "GET", `/sites/MLC/domain_discovery/search?limit=8&q=${encodeURIComponent(q)}`);
+    for (const cand of Array.isArray(d.data) ? d.data : []) {
+      if (!cand?.category_id || seen.has(cand.category_id)) continue;
+      seen.add(cand.category_id);
+      const c = await ml(tk, "GET", `/categories/${cand.category_id}`);
+      const path = (c.data?.path_from_root ?? []).map((x: any) => x.name).join(" > ");
+      const cat = { category_id: cand.category_id, category_name: cand.category_name ?? c.data?.name ?? "", path };
+      if (!first) first = cat;
+      if (/Repuestos Autos y Camionetas/i.test(path) && !/Línea Pesada|Motos|Fundas|Cubre|Ventanas/i.test(path)) return cat;
+    }
+  }
+  return first;
 }
 
 async function attachVehicles(ps: any[]) {
@@ -93,7 +128,7 @@ async function addCompat(tk: string, itemId: string | null, p: any) {
   const c = compat(p);
   if (!c.make || !c.model) return { ok: false, error: "sin marca/modelo" };
   const D = "MLC-CARS_AND_VANS_FOR_COMPATIBILITIES";
-  const norm = (x: string) => x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const norm = (x: string) => x.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
   const b = await ml(tk, "POST", `/catalog_domains/${D}/attributes/BRAND/top_values`, {});
   const brand = (Array.isArray(b.data) ? b.data : []).find((x: any) => norm(x.name) === norm(c.make));
   if (!brand) return { ok: false, error: "marca no encontrada en catálogo ML" };
@@ -104,30 +139,58 @@ async function addCompat(tk: string, itemId: string | null, p: any) {
   const yrs = String(c.years).match(/\d{4}/g) || [];
   const from = Number(yrs[0]), to = Number(yrs[1] || yrs[0]);
   const years: number[] = [];
-  if (from) for (let y = from; y <= to && years.length < 10; y++) years.push(y);
+  if (from) for (let y = from; y <= to && years.length < 30; y++) years.push(y);
   const families = (years.length ? years : [0]).map((y) => ({
-    domain_id: D, creation_source: "DEFAULT",
+    domain_id: D,
     attributes: [{ id: "BRAND", value_id: brand.id }, { id: "CAR_AND_VAN_MODEL", value_id: model.id }, ...(y ? [{ id: "YEAR", value_name: String(y) }] : [])],
   }));
   if (!itemId) {
     const cnt = await ml(tk, "POST", "/catalog_compatibilities/products_search/count_family_products", { domain_id: D, attributes: families[0].attributes });
     return { ok: true, check_only: true, brand: brand.name, model: model.name, years, vehicles_first_year: cnt.data };
   }
-  const r = await ml(tk, "POST", `/items/${itemId}/compatibilities`, { products_families: families });
-  return r.ok ? { ok: true, count: r.data?.created_compatibilities_count ?? null, model: model.name } : { ok: false, error: mlError(r.data) };
+  // Cuentas con "user products": las compatibilidades van en /user-products/{id}/compatibilities.
+  const it = await ml(tk, "GET", `/items/${itemId}?attributes=user_product_id`);
+  const up = it.data?.user_product_id;
+  const path = up ? `/user-products/${up}/compatibilities` : `/items/${itemId}/compatibilities`;
+  let created = 0; let lastErr: string | null = null;
+  for (let i = 0; i < families.length; i += 10) {
+    if (i) await sleep(1500); // ML bloquea escrituras paralelas/rápidas (423)
+    const r = await ml(tk, "POST", path, { domain_id: D, products_families: families.slice(i, i + 10) });
+    if (r.ok) created += Number(r.data?.created_compatibilities_count ?? 0); else lastErr = mlError(r.data);
+  }
+  return created > 0 || !lastErr
+    ? { ok: true, via: up ? "user_product" : "item", count: created, model: model.name, years, ...(lastErr ? { partial_error: lastErr } : {}) }
+    : { ok: false, via: up ? "user_product" : "item", error: lastErr };
+}
+
+function warrantyDays(p: any): number {
+  const m = String(p.warranty || "").match(/(\d+)\s*d[ií]as?/i);
+  return m && !/sin garant/i.test(String(p.warranty)) ? Number(m[1]) : 0;
+}
+
+function saleTerms(p: any) {
+  const d = warrantyDays(p);
+  return d > 0
+    ? [{ id: "WARRANTY_TYPE", value_name: "Garantía del vendedor" }, { id: "WARRANTY_TIME", value_name: `${d} días` }]
+    : [{ id: "WARRANTY_TYPE", value_name: "Sin garantía" }];
 }
 
 function description(p: any) {
   const c = compat(p);
+  const vc = p.vehicle_compatibility && typeof p.vehicle_compatibility === "object" && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : {};
+  const d = warrantyDays(p);
   return [
     `${p.name}`,
     "",
-    "Repuesto original usado, retirado de vehículo en desarme y revisado.",
+    "Repuesto original usado, retirado de vehículo en desarme.",
     c.model ? `Vehículo de origen: ${[c.make, c.model, c.engine, c.years].filter(Boolean).join(" ")}.` : "",
-    p.oem_number ? `Número OEM: ${p.oem_number}.` : "",
+    vc.tambien_compatible ? `También compatible: ${vc.tambien_compatible}.` : "",
+    p.oem_number ? `Número de parte (referencia): ${p.oem_number}.` : "",
+    p.metadata?.nota_estado ? `Estado: ${p.metadata.nota_estado}` : "",
     "",
     "Antes de comprar, confirma la compatibilidad con tu patente o número de pieza por la sección de preguntas.",
-    "Repuesto usado, se vende sin garantía. Despacho a todo Chile.",
+    d > 0 ? `Garantía de funcionamiento ${d} días.` : (p.warranty ? String(p.warranty).trim() : "Sin garantía (repuesto usado). Se revisa antes de la entrega."),
+    "Retiro en La Pintana o despacho a todo Chile.",
   ].filter((x) => x !== null).join("\n").replace(/\n{3,}/g, "\n\n");
 }
 
@@ -137,15 +200,15 @@ async function buildAttributes(tk: string, categoryId: string, p: any) {
   const attrs: any[] = Array.isArray(r.data) ? r.data : [];
   const out: any[] = [];
   const known: Record<string, string | null> = {
-    BRAND: c.make || null, MODEL: c.model || null, PART_NUMBER: p.oem_number || null,
+    BRAND: c.make || null, MODEL: c.model || null, PART_NUMBER: p.oem_number || p.sku,
     OEM: p.oem_number || null, ORIGINAL_OEM_NUMBER: p.oem_number || null, ITEM_CONDITION: null, SELLER_SKU: p.sku,
   };
   for (const a of attrs) {
     const required = a.tags?.required || a.tags?.catalog_required || a.tags?.conditional_required;
     const val = known[a.id];
-    if (a.id === "ITEM_CONDITION") continue; // se informa con "condition"
+    if (a.id === "ITEM_CONDITION" || a.id === "VEHICLE_TYPE") continue;
     if (val) out.push({ id: a.id, value_name: String(val) });
-    else if (required) out.push({ id: a.id, value_id: "-1", value_name: null }); // "No aplica"
+    else if (required) out.push({ id: a.id, value_id: "-1", value_name: null });
   }
   if (!out.find((x) => x.id === "SELLER_SKU")) out.push({ id: "SELLER_SKU", value_name: p.sku });
   return out;
@@ -174,7 +237,7 @@ Deno.serve(async (req) => {
     const { data: ps } = await admin.from("products").select("id, sku, name, brand, vehicle_compatibility, meli_item_id, vehiculo_id").in("id", ids);
     await attachVehicles(ps ?? []);
     const out: any[] = [];
-    for (const p of ps ?? []) out.push({ id: p.id, name: p.name, title: title(p), ...(p.meli_item_id ? await addCompat(tk0, p.meli_item_id, p) : await addCompat(tk0, null, p)) });
+    for (const p of ps ?? []) out.push({ id: p.id, name: p.name, item: p.meli_item_id, ...(p.meli_item_id ? await addCompat(tk0, p.meli_item_id, p) : await addCompat(tk0, null, p)) });
     return json({ results: out });
   }
   if (!LISTING_TYPES.includes(listing)) return json({ error: "Elige el tipo de publicación" }, 400);
@@ -183,7 +246,7 @@ Deno.serve(async (req) => {
   try { tk = await token(); } catch (e) { return json({ error: (e as Error).message }, 400); }
 
   const { data: prods, error } = await admin.from("products")
-    .select("id, sku, name, description, brand, price_sale, stock, images, oem_number, vehicle_compatibility, is_active, part_status, meli_item_id, deleted_at, vehiculo_id")
+    .select("id, sku, name, description, brand, price_sale, stock, images, oem_number, warranty, metadata, vehicle_compatibility, is_active, part_status, meli_item_id, deleted_at, vehiculo_id")
     .in("id", ids);
   if (error) return json({ error: error.message }, 500);
   await attachVehicles(prods ?? []);
@@ -198,17 +261,20 @@ Deno.serve(async (req) => {
       if (p.part_status === "vendida" || p.part_status === "no_disponible") throw new Error("Marcada como " + p.part_status);
       const pics = realImages(p.images);
       if (!pics.length) throw new Error("Sin foto real (Mercado Libre la exige)");
+      // ML pausa publicaciones cuya foto trae sellos/precios (imagen promo). Si hay fotos limpias
+      // (archivo con "foto" en el nombre), se usan solo esas en ML; la promo queda para la web y Facebook.
+      const clean = pics.filter((u) => /foto/i.test(u.split("/").pop() || ""));
+      const mlPics = clean.length ? clean : pics;
+      res.ml_pics = clean.length ? `${clean.length} foto(s) limpia(s)` : "solo imagen promo (riesgo de revisión en ML)";
 
       const t = title(p);
-      const disc = await ml(tk, "GET", `/sites/MLC/domain_discovery/search?limit=1&q=${encodeURIComponent(t)}`);
-      const cat = Array.isArray(disc.data) && disc.data[0];
+      const cat = await pickCategory(tk, p, t);
       if (!cat?.category_id) throw new Error("Mercado Libre no sugirió categoría para este título");
-      res.category = `${cat.category_id} · ${cat.category_name ?? ""}`;
+      res.category = `${cat.category_id} · ${cat.path || cat.category_name}`;
 
       const web = Number(p.price_sale);
       let price = Math.round((web * (1 + markup / 100)) / 10) * 10;
       if (cover) {
-        // Precio para que, después de la comisión real de Mercado Libre (según su propia tabla), te quede al menos el precio web.
         for (let i = 0; i < 3; i++) {
           const f = await fee(tk, price, cat.category_id, listing);
           if (!f) break;
@@ -220,21 +286,26 @@ Deno.serve(async (req) => {
       }
       const f = await fee(tk, price, cat.category_id, listing);
       if (f) { res.fee = f.amount; res.fee_pct = f.pct; res.net = price - f.amount; }
-      const item = {
+      const item: any = {
         title: t, family_name: t, category_id: cat.category_id, price, currency_id: "CLP",
         available_quantity: Math.max(1, Number(p.stock) || 1), buying_mode: "buy_it_now", condition: "used",
-        listing_type_id: listing, pictures: pics.slice(0, 10).map((source) => ({ source })),
+        listing_type_id: listing, pictures: mlPics.slice(0, 10).map((source) => ({ source })),
         attributes: await buildAttributes(tk, cat.category_id, p),
+        sale_terms: saleTerms(p),
+        shipping: { mode: "me2", local_pick_up: true, free_shipping: false },
       };
-      res.title = t; res.price = price;
+      res.title = t; res.price = price; res.warranty = item.sale_terms.map((s: any) => s.value_name).join(" · ");
 
-      // Cuentas con "user products": Mercado Libre arma el título desde family_name y rechaza "title".
-      const pre = await ml(tk, "POST", "/items/validate", item);
-      if (!pre.ok && JSON.stringify(pre.data ?? "").includes("title")) delete (item as any).title;
+      const validate = async () => { const v = await ml(tk, "POST", "/items/validate", item); return { ...v, good: v.ok || onlyWarnings(v.data) }; };
+      let v = await validate();
+      if (!v.good && JSON.stringify(v.data ?? "").includes("title")) { delete item.title; v = await validate(); }
+      if (!v.good && /me2|shipping/i.test(JSON.stringify(errorCauses(v.data)))) { item.shipping = { mode: "not_specified", local_pick_up: true, free_shipping: false }; v = await validate(); }
+      if (!v.good && /sale_terms|WARRANTY/i.test(JSON.stringify(errorCauses(v.data)))) { delete item.sale_terms; res.warranty_note = "ML rechazó sale_terms; garantía solo en descripción"; v = await validate(); }
+      res.shipping = item.shipping.mode;
+      if (Array.isArray(v.data?.cause)) res.warnings = v.data.cause.filter((x: any) => x.type === "warning").map((x: any) => x.message);
+      if (!v.good) throw new Error(mlError(v.data));
       if (dry) {
-        const v = await ml(tk, "POST", "/items/validate", item);
-        if (!v.ok) throw new Error(mlError(v.data));
-        res.ok = true; res.validated = true;
+        res.ok = true; res.validated = true; res.description_preview = description(p);
       } else {
         const c = await ml(tk, "POST", "/items", item);
         if (!c.ok) throw new Error(mlError(c.data));
@@ -258,7 +329,8 @@ async function fee(tk: string, price: number, categoryId: string, listing: strin
 
 function mlError(d: any): string {
   if (!d) return "Error de Mercado Libre";
-  const causes = Array.isArray(d.cause) ? d.cause.map((c: any) => c.message || c.code).filter(Boolean) : [];
+  const errs = errorCauses(d);
+  const causes = (errs.length ? errs : (Array.isArray(d.cause) ? d.cause : [])).map((c: any) => c.message || c.code).filter(Boolean);
   const msg = [d.message, ...causes].filter(Boolean).join(" · ");
-  return (msg + " " + JSON.stringify(d.cause ?? d)).slice(0, 900);
+  return msg.slice(0, 900);
 }
