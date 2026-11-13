@@ -10,4 +10,5 @@ run 00_stub_supabase_local.sql
 for f in "$tmp"/20261112*_crm_*.sql; do run "$(basename "$f")"; done
 su postgres -c "psql -d crm_test -P pager=off -c 'select n, ok, prueba, detalle from public.crm_selftest()'"
 su postgres -c "psql -d crm_test -P pager=off -c 'select * from public.crm_selftest_resenas()'"
+su postgres -c "psql -d crm_test -P pager=off -c 'select * from public.crm_selftest_automatizaciones()'"
 su postgres -c "psql -d crm_test -P pager=off -f $tmp/10_regresion_checkout.sql"
