@@ -82,7 +82,7 @@ exports.handler = async (event) => {
   const oems = oemList(p.oem_number);
   const oemVars = oemVariants(oems);
   const baseTitle = p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original';
-  const title = baseTitle + (oems[0] && !baseTitle.toUpperCase().includes(oems[0].replace(/-/g, '').slice(0, 5)) ? ' · OEM ' + oems[0] : '') + ' | Desarmaduría Saravia';
+  const title = baseTitle + (oems[0] && !baseTitle.toUpperCase().replace(/-/g, '').includes(oems[0].replace(/-/g, '')) ? ' · OEM ' + oems[0] : '') + ' | Desarmaduría Saravia';
   const desc = p.meta_description || ('Compra ' + h1 + ' original usado a ' + clp(price) + '. Repuesto revisado, pago con Webpay y despacho a todo Chile o retiro en La Pintana.');
   const vehUrl = v && v.is_active && v.slug ? SITE + '/vehiculo.html?slug=' + encodeURIComponent(v.slug) : null;
   const brandName = (v && v.marca) || p.brand || '';
