@@ -117,6 +117,7 @@ Cada auto que entra al desarme tiene su página con fotos, versión, motor y pie
 - [Catálogo](https://autopartschile.cl/catalogo.html): buscador de todos los repuestos.
 - [Sitemap de repuestos](https://autopartschile.cl/sitemap-repuestos.xml): todas las fichas publicadas.
 - [Feed de productos](https://autopartschile.cl/feed.xml): precio, stock e imagen de cada pieza con foto.
+- Búsqueda por número de parte: cada ficha publica el OEM con y sin guion (ej. 17700-68K10 y 1770068K10) y, en piezas Maruti Suzuki, la variante con M (17700M68K10), además de los modelos compatibles verificados (ej. Celerio 2008-2014 = Alto 2009-2014; Aerio = Liana).
 
 ## Información de compra
 - [Cómo comprar](https://autopartschile.cl/como-comprar.html)

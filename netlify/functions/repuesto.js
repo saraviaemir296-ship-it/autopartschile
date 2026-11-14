@@ -32,6 +32,31 @@ function vehText(p, v) {
   return [c.make, c.model, c.engine, c.years || c.year].filter(Boolean).join(' ');
 }
 
+
+// Extrae números de parte (OEM) de textos como "17700-68K10 (17700M68K10)" o "71741M83P00 o 71741M75L00"
+function oemList(raw) {
+  if (!raw) return [];
+  const toks = String(raw).toUpperCase().match(/\b[0-9A-Z]{1,12}(?:-[0-9A-Z]{1,8}){0,3}\b/g) || [];
+  const out = [];
+  for (const t of toks) {
+    const d = t.replace(/-/g, '');
+    if (d.length < 7 || d.length > 15 || (d.match(/\d/g) || []).length < 4 || /[A-Z]{4,}/.test(d)) continue;
+    if (!out.includes(t)) out.push(t);
+  }
+  return out;
+}
+function oemVariants(list) {
+  const v = [];
+  for (const o of list) {
+    const d = o.replace(/-/g, '');
+    [o, d].forEach((x) => { if (!v.includes(x)) v.push(x); });
+  }
+  return v.slice(0, 10);
+}
+function alsoList(comp) {
+  return comp && Array.isArray(comp.also) ? comp.also.filter((x) => typeof x === 'string' && x.length < 120).slice(0, 8) : [];
+}
+
 exports.handler = async (event) => {
   const slug = decodeURIComponent((event.path || '').replace(/^.*\/repuesto\//, '').replace(/\/$/, ''));
   if (!slug || !/^[a-z0-9-]{3,200}$/.test(slug)) return notFound();
@@ -46,22 +71,30 @@ exports.handler = async (event) => {
     related = await api('products?select=name,slug,price_sale&is_active=eq.true&deleted_at=is.null&price_sale=gt.0&slug=not.is.null&vehiculo_id=eq.' + p.vehiculo_id + '&id=neq.' + p.id + '&order=name.asc&limit=12');
   }
   const veh = vehText(p, v);
-  const nameHasVeh = v && p.name.toLowerCase().includes(String(v.modelo).toLowerCase());
+  const modelName = (v && v.modelo) || (p.vehicle_compatibility && !Array.isArray(p.vehicle_compatibility) && typeof p.vehicle_compatibility === 'object' && p.vehicle_compatibility.model) || '';
+  const nameHasVeh = !!modelName && p.name.toLowerCase().includes(String(modelName).toLowerCase());
   const h1 = nameHasVeh || !veh ? p.name : p.name + ' ' + veh;
   const imgs = realImgs(p.images);
   const price = Math.round(Number(p.price_sale) || 0);
   const sold = p.part_status === 'vendida' || p.part_status === 'no_disponible' || !(p.stock > 0) || !(price > 0);
   const enVeh = p.part_status === 'en_vehiculo';
   const url = SITE + '/repuesto/' + p.slug;
-  const title = (p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original') + (p.oem_number && /^[0-9A-Za-z-]+$/.test(p.oem_number) ? ' · OEM ' + p.oem_number : '') + ' | Desarmaduría Saravia';
+  const oems = oemList(p.oem_number);
+  const oemVars = oemVariants(oems);
+  const baseTitle = p.seo_title && p.seo_title.length > 20 ? p.seo_title : h1 + ' usado original';
+  const title = baseTitle + (oems[0] && !baseTitle.toUpperCase().includes(oems[0].replace(/-/g, '').slice(0, 5)) ? ' · OEM ' + oems[0] : '') + ' | Desarmaduría Saravia';
   const desc = p.meta_description || ('Compra ' + h1 + ' original usado a ' + clp(price) + '. Repuesto revisado, pago con Webpay y despacho a todo Chile o retiro en La Pintana.');
   const vehUrl = v && v.is_active && v.slug ? SITE + '/vehiculo.html?slug=' + encodeURIComponent(v.slug) : null;
   const brandName = (v && v.marca) || p.brand || '';
   const hasWarranty = /^garant/i.test(p.warranty || '');
   const warrantyText = p.warranty || 'Sin garantía (repuesto usado)';
   const comp = p.vehicle_compatibility && typeof p.vehicle_compatibility === 'object' && !Array.isArray(p.vehicle_compatibility) ? p.vehicle_compatibility : null;
+  const also = alsoList(comp);
+  const compMain = comp && comp.make && comp.model ? [comp.make, comp.model, comp.engine, comp.transmission, comp.years].filter(Boolean).join(' ') : '';
   const faq = [
     ['¿Este repuesto sirve para mi auto?', 'Proviene de un ' + (veh || 'vehículo del mismo modelo') + '.' + (p.oem_number ? ' Su número de parte original (OEM) es ' + p.oem_number + ': si coincide con el de tu pieza, es compatible.' : '') + ' Para confirmar compatibilidad envíanos tu patente o el número de pieza por WhatsApp antes de comprar.'],
+    ...(oems.length ? [['¿Cuál es el número de parte (OEM)?', 'El número de parte original es ' + oems.join(' / ') + '.' + (oemVars.some((x) => !oems.includes(x)) ? ' También se escribe ' + oemVars.filter((x) => !oems.includes(x)).join(', ') + '.' : '') + ' Compáralo con el número grabado o etiquetado en tu pieza.']] : []),
+    ...(compMain ? [['¿Con qué modelos es compatible?', 'Sirve para ' + compMain + (also.length ? '; también para ' + also.join('; ') : '') + '. Confirma con tu patente o número de pieza por WhatsApp antes de comprar.']] : []),
     ['¿Tiene garantía?', hasWarranty ? 'Sí: ' + warrantyText + '. La garantía cubre el funcionamiento de la pieza; no cubre daños por instalación.' : 'Es una pieza eléctrica o electrónica: venía funcionando en el vehículo, se prueba antes de la entrega y se vende sin garantía posventa. Si la pieza que recibes no es la publicada, te la cambiamos o reembolsamos.'],
     ['¿Cuánto cuesta y cómo pago?', 'Cuesta ' + clp(price) + '. Puedes pagar con Webpay (débito o crédito) en la web, Mercado Pago, transferencia o efectivo en el local.'],
     ['¿Hacen envíos?', 'Sí, despachamos a todo Chile por Starken, Chilexpress o Blue Express. También puedes retirar en Av. Lo Blanco 1072, La Pintana, Santiago (lunes a viernes 10:00 a 18:00, sábado 10:00 a 15:30).'],
@@ -71,8 +104,9 @@ exports.handler = async (event) => {
     '@context': 'https://schema.org', '@type': 'Product', name: h1, sku: p.sku, url,
     description: p.description || desc, category: p.category || 'Repuestos de autos',
     ...(imgs.length ? { image: imgs.slice(0, 5) } : {}),
-    ...(p.oem_number && /^[0-9A-Za-z-]+$/.test(p.oem_number) ? { mpn: p.oem_number } : {}),
-    ...(comp && comp.make && comp.model ? { isAccessoryOrSparePartFor: { '@type': 'Car', name: [comp.make, comp.model, comp.engine, comp.years].filter(Boolean).join(' '), brand: { '@type': 'Brand', name: comp.make }, model: comp.model } } : {}),
+    ...(oems[0] ? { mpn: oems[0], productID: 'oem:' + oems[0] } : {}),
+    ...(oemVars.length ? { keywords: [p.name, ...oemVars, compMain, ...also].filter(Boolean).join(', '), additionalProperty: [{ '@type': 'PropertyValue', name: 'Número de parte OEM', value: oemVars.join(', ') }] } : {}),
+    ...(compMain ? { isAccessoryOrSparePartFor: [{ '@type': 'Car', name: compMain, brand: { '@type': 'Brand', name: comp.make }, model: comp.model }, ...also.map((a) => ({ '@type': 'Car', name: a }))] } : {}),
     ...(brandName ? { brand: { '@type': 'Brand', name: brandName } } : {}),
     offers: {
       '@type': 'Offer', url, price, priceCurrency: 'CLP', itemCondition: 'https://schema.org/UsedCondition',
@@ -101,6 +135,8 @@ exports.handler = async (event) => {
     ['Condición', 'Original usado, revisado'],
     veh ? ['Vehículo de origen', veh] : null,
     p.oem_number ? ['Número OEM', p.oem_number] : null,
+    oemVars.length > 1 ? ['También se escribe', oemVars.join(' · ')] : null,
+    compMain ? ['Compatible con', compMain + (also.length ? ' · ' + also.join(' · ') : '')] : null,
     ['Código interno', p.sku],
     ['Garantía', warrantyText],
     ['Entrega', 'Despacho a todo Chile o retiro en Av. Lo Blanco 1072, La Pintana'],
