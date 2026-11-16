@@ -52,7 +52,7 @@ const FICHAS = {
   's-cross': [['repuestos-suzuki-scross-glx-16', 'Suzuki S-Cross GLX 1.6'], ['repuestos-suzuki-scross', 'Suzuki S-Cross']],
   's-presso': [['repuestos-suzuki-spresso', 'Suzuki S-Presso 1.0 K10B']],
   'swift': [['repuestos-suzuki-swift-indio', 'Suzuki Swift 1.2 indio MT'], ['repuestos-suzuki-swift-glx-12-2012-2017', 'Suzuki Swift GLX 1.2 2012-2017 (japonés)'], ['repuestos-suzuki-swift-japones-12-2012-2017-gris', 'Suzuki Swift 1.2 japonés 2012-2017 (gris)'], ['repuestos-suzuki-swift-japones-12-2017-2023', 'Suzuki Swift 1.2 japonés 2017-2023'], ['repuestos-suzuki-swift-14-japones-2015', 'Suzuki Swift 1.4 japonés 2015'], ['repuestos-suzuki-swift-15-2010', 'Suzuki Swift 1.5 automático 2010']],
-  'sx4': [['repuestos-suzuki-sx4-hatchback', 'Suzuki SX4 hatchback']],
+  'sx4': [['repuestos-suzuki-sx4-hatchback-rojo-16-sin-vvt', 'Suzuki SX4 hatchback 1.6 sin VVT (rojo)'], ['repuestos-suzuki-sx4-hatchback', 'Suzuki SX4 hatchback']],
 };
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
