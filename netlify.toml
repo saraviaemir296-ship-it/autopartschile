@@ -7,6 +7,19 @@
 # Documentos internos (auditorías, conciliaciones, logs): no se publican.
 # Netlify publica la raíz del repo, así que se bloquean explícitamente con 404.
 # Código de funciones de Supabase: vive en el repo como respaldo, no debe servirse.
+# Swift plata: era K14B 1.4, no K12B (corregido 21-nov-2026). La URL vieja ya estaba compartida.
+[[redirects]]
+  from = "/repuestos-suzuki-swift-12-k12b-plata"
+  to = "/repuestos-suzuki-swift-14-k14b-plata"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/repuestos-suzuki-swift-12-k12b-plata.html"
+  to = "/repuestos-suzuki-swift-14-k14b-plata"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/vehiculo"
   to = "/.netlify/functions/vehiculo"
