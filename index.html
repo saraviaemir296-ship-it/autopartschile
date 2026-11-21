@@ -69,6 +69,42 @@ gtag('config', 'G-TXKXWQCTZ1');
 @media(max-width:960px){.hero-inner{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding-top:2.2rem;padding-bottom:1.5rem;min-height:0;}.hero-left{padding:0 0 1.4rem;}.hero-right{min-height:clamp(280px,78vw,440px);}}
 @media(max-width:600px){.hero-vslide-imgwrap{height:54%;margin-top:-9%;}.hero-vslide-shadow{bottom:24%;}.hero-rotator{min-height:0;}.hero-headline{font-size:1.55rem;}.hero-cta-row{flex-direction:column;}.btn-hero-primary,.btn-hero-outline{width:100%;text-align:center;justify-content:center;}.hero-rotator-arrow{width:32px;height:32px;font-size:.95rem;}}
 @media(prefers-reduced-motion:reduce){.hero-rotator{animation:none;opacity:1;}.hero-vslide{transition:none;}.hero-vslide-img{animation:none!important;}.hero-vslide-imgwrap{transition:none;}}
+/* === Nuevos ingresos a desarme === */
+.ing-section{padding:2.2rem 0 2rem;background:#fff;border-bottom:1px solid #ececec;}
+.ing-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;}
+.ing-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem;}
+.ing-dot{width:9px;height:9px;border-radius:50%;background:var(--red);animation:ingPulse 1.8s infinite;}
+@keyframes ingPulse{0%{box-shadow:0 0 0 0 rgba(209,11,12,.55);}70%{box-shadow:0 0 0 9px rgba(209,11,12,0);}100%{box-shadow:0 0 0 0 rgba(209,11,12,0);}}
+.ing-title{font-size:1.7rem;font-weight:900;line-height:1.15;color:#111;margin:0;}
+.ing-sub{color:var(--text-sec);font-size:.95rem;margin:.35rem 0 0;max-width:58ch;}
+.ing-all{flex:none;font-weight:800;font-size:.88rem;color:#111;text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:2px;white-space:nowrap;}
+.ing-all:hover{color:var(--red);}
+.ing-track{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.ing-card{display:flex;flex-direction:column;background:#111;color:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.16);transition:transform .2s,box-shadow .2s;}
+.ing-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(0,0,0,.24);}
+.ing-media{display:block;position:relative;aspect-ratio:1/1;overflow:hidden;background:#1c1c1c;}
+.ing-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s;}
+.ing-card:hover .ing-media img{transform:scale(1.04);}
+.ing-media.is-fit img{object-fit:contain;position:relative;}
+.ing-media.is-fit img.ing-bg{position:absolute;top:-8%;left:-8%;width:116%;height:116%;object-fit:cover;filter:blur(14px) brightness(.55);}
+.ing-body{display:flex;flex-direction:column;flex:1;padding:0 .9rem .9rem;}
+.ing-badge{align-self:flex-start;margin-top:-13px;position:relative;z-index:1;background:var(--red);color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.35);}
+.ing-badge.is-old{background:#fff;color:#111;}
+.ing-card h3{font-size:1.02rem;font-weight:800;line-height:1.25;margin:.6rem 0 .15rem;color:#fff;}
+.ing-meta{font-size:.8rem;color:#b9b9b9;margin:0 0 .85rem;}
+.ing-actions{margin-top:auto;display:grid;gap:.45rem;}
+.ing-wa{display:block;text-align:center;background:#25D366;color:#fff;font-weight:800;font-size:.84rem;padding:.6rem .5rem;border-radius:8px;text-decoration:none;}
+.ing-wa:hover{background:#1db954;}
+.ing-link{display:block;text-align:center;color:#fff;font-weight:700;font-size:.8rem;padding:.48rem .5rem;border-radius:8px;border:1.5px solid rgba(255,255,255,.35);text-decoration:none;}
+.ing-link:hover{background:#fff;color:#111;border-color:#fff;}
+.ing-more{display:flex;flex-direction:column;justify-content:center;gap:.5rem;background:var(--red);color:#fff;border-radius:14px;padding:1.3rem;text-decoration:none;box-shadow:0 6px 18px rgba(209,11,12,.25);transition:transform .2s,background .2s;}
+.ing-more:hover{background:var(--red-dark);transform:translateY(-4px);}
+.ing-more b{font-size:1.3rem;font-weight:900;line-height:1.15;}
+.ing-more span{font-size:.86rem;opacity:.92;}
+.ing-more i{font-style:normal;font-weight:900;font-size:1.7rem;line-height:1;margin-top:.5rem;}
+@media(max-width:900px){.ing-track{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.ing-section{padding:1.7rem 0 1rem;}.ing-head{display:block;margin-bottom:1.2rem;}.ing-title{font-size:1.4rem;}.ing-all{display:none;}.ing-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:1rem;-webkit-overflow-scrolling:touch;gap:.75rem;margin:0 -1rem;padding:14px 1rem 1.1rem;scrollbar-width:none;}.ing-track::-webkit-scrollbar{display:none;}.ing-track>*{flex:0 0 76%;scroll-snap-align:start;}.ing-track>.ing-more{flex-basis:58%;}.ing-card:hover,.ing-more:hover{transform:none;}}
+@media(prefers-reduced-motion:reduce){.ing-dot{animation:none;}.ing-card,.ing-more,.ing-media img{transition:none;}}
 /* === Vehiculos en Desarme === */
 .desarmes-section{padding:3.5rem 0;background:#f4f6f8;}
 .desarmes-title{text-align:center;font-size:1.9rem;font-weight:800;margin-bottom:.4rem;color:#111;}
@@ -240,6 +276,186 @@ gtag('config', 'G-TXKXWQCTZ1');
 </div>
 </div>
 </section>
+
+<!-- NUEVOS INGRESOS A DESARME. Las 3 tarjetas de abajo son el respaldo (sin JavaScript y mientras carga). El script consulta la tabla vehiculos (is_active + en_desarme + con foto, orden fecha_ingreso) y muestra los 3 últimos: reutiliza la tarjeta de aquí si el slug coincide y arma una nueva si el auto no está. Al ingresar un auto: agregar su tarjeta aquí con data-slug y data-fecha iguales a la base y foto limpia /img/repuestos/<carpeta>/ingreso.jpg (640x640, sin texto). -->
+<section class="ing-section" id="nuevos-ingresos" aria-labelledby="ingTitle">
+<div class="container">
+<div class="ing-head">
+<div>
+<span class="ing-eyebrow"><span class="ing-dot" aria-hidden="true"></span>Recién llegados al patio</span>
+<h2 class="ing-title" id="ingTitle">Nuevos ingresos a desarme</h2>
+<p class="ing-sub">Autos que acaban de entrar a nuestro patio en La Pintana. Pide la pieza que necesitas antes de que se venda.</p>
+</div>
+<a class="ing-all" href="/vehiculos-en-desarme">Ver todos los vehículos &rarr;</a>
+</div>
+<div class="ing-track" id="ingTrack">
+<article class="ing-card" data-slug="desarme-suzuki-swift-12-k12b-plata" data-fecha="2026-11-20" data-product="Nuevo ingreso: Suzuki Swift 1.2 K12B">
+<a class="ing-media" href="/repuestos-suzuki-swift-12-k12b-plata" data-ing="foto"><img src="/img/repuestos/swift-k12b-plata/ingreso.jpg" alt="Suzuki Swift 1.2 K12B plata recién ingresado a desarme" loading="lazy" decoding="async" width="640" height="640"></a>
+<div class="ing-body">
+<span class="ing-badge">Nuevo ingreso</span>
+<h3>Suzuki Swift 1.2 K12B</h3>
+<p class="ing-meta">2011-2018 · Plata</p>
+<div class="ing-actions">
+<a class="ing-wa" href="https://wa.me/56953817335?text=Hola%2C%20vi%20el%20Suzuki%20Swift%201.2%20K12B%20que%20ingres%C3%B3%20a%20desarme.%20Necesito%3A%20" target="_blank" rel="noopener" data-ing="whatsapp">&#128172; Pedir un repuesto</a>
+<a class="ing-link" href="/repuestos-suzuki-swift-12-k12b-plata" data-ing="ver">Ver repuestos y precios &rarr;</a>
+</div>
+</div>
+</article>
+<article class="ing-card" data-slug="desarme-chevrolet-tracker-2019-1-8-mecanico-blanco" data-fecha="2026-11-19" data-product="Nuevo ingreso: Chevrolet Tracker 1.8 Ecotec">
+<a class="ing-media" href="/repuestos-chevrolet-tracker-18-2019-4x2" data-ing="foto"><img src="/img/repuestos/tracker-2019-blanco/ingreso.jpg" alt="Chevrolet Tracker 1.8 2019 blanco recién ingresado a desarme" loading="lazy" decoding="async" width="640" height="640"></a>
+<div class="ing-body">
+<span class="ing-badge">Nuevo ingreso</span>
+<h3>Chevrolet Tracker 1.8 Ecotec</h3>
+<p class="ing-meta">2019 · Blanco · Mecánica 5 velocidades</p>
+<div class="ing-actions">
+<a class="ing-wa" href="https://wa.me/56953817335?text=Hola%2C%20vi%20el%20Chevrolet%20Tracker%201.8%20Ecotec%20que%20ingres%C3%B3%20a%20desarme.%20Necesito%3A%20" target="_blank" rel="noopener" data-ing="whatsapp">&#128172; Pedir un repuesto</a>
+<a class="ing-link" href="/repuestos-chevrolet-tracker-18-2019-4x2" data-ing="ver">Ver repuestos y precios &rarr;</a>
+</div>
+</div>
+</article>
+<article class="ing-card" data-slug="suzuki-sx4-2010-rojo-m16a-mecanico" data-fecha="2026-11-14" data-product="Nuevo ingreso: Suzuki SX4 M16A 1.6 sin VVT">
+<a class="ing-media" href="/repuestos-suzuki-sx4-hatchback-rojo-16-sin-vvt" data-ing="foto"><img src="/img/repuestos/sx4-hb-rojo/ingreso.jpg" alt="Suzuki SX4 hatchback rojo 1.6 sin VVT recién ingresado a desarme" loading="lazy" decoding="async" width="640" height="640"></a>
+<div class="ing-body">
+<span class="ing-badge">Nuevo ingreso</span>
+<h3>Suzuki SX4 M16A 1.6 sin VVT</h3>
+<p class="ing-meta">2010 · Rojo · Mecánica</p>
+<div class="ing-actions">
+<a class="ing-wa" href="https://wa.me/56953817335?text=Hola%2C%20vi%20el%20Suzuki%20SX4%20M16A%201.6%20sin%20VVT%20que%20ingres%C3%B3%20a%20desarme.%20Necesito%3A%20" target="_blank" rel="noopener" data-ing="whatsapp">&#128172; Pedir un repuesto</a>
+<a class="ing-link" href="/repuestos-suzuki-sx4-hatchback-rojo-16-sin-vvt" data-ing="ver">Ver repuestos y precios &rarr;</a>
+</div>
+</div>
+</article>
+<a class="ing-more" href="/vehiculos-en-desarme" data-ing="todos"><b>Ver todos los vehículos en desarme</b><span>Suzuki, Kia, Hyundai y Chevrolet</span><i aria-hidden="true">&rarr;</i></a>
+</div>
+</div>
+</section>
+<script>
+(function(){
+  var track = document.getElementById('ingTrack');
+  if(!track) return;
+  var MAX = 3, NEW_DAYS = 14;
+  var MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var API = 'https://zlyforhywunqhitrdreo.supabase.co/rest/v1/vehiculos?select=id,slug,marca,modelo,motor,anio_desde,anio_hasta,color,transmision,images,fecha_ingreso&is_active=eq.true&en_desarme=eq.true&fecha_ingreso=not.is.null&order=fecha_ingreso.desc,id.desc&limit=12';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
+
+  function parseDate(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function badge(iso){
+    var d = parseDate(iso);
+    if(!d) return { text: 'Nuevo ingreso', old: false };
+    var n = new Date();
+    var days = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - d) / 86400000);
+    if(days <= 0) return { text: 'Nuevo · ingresó hoy', old: false };
+    if(days === 1) return { text: 'Nuevo · ingresó ayer', old: false };
+    if(days <= NEW_DAYS) return { text: 'Nuevo · hace ' + days + ' días', old: false };
+    return { text: 'Ingresó el ' + d.getDate() + ' ' + MESES[d.getMonth()], old: true };
+  }
+  function paint(){
+    var cards = track.querySelectorAll('.ing-card');
+    for(var i = 0; i < cards.length; i++){
+      var b = cards[i].querySelector('.ing-badge');
+      if(!b) continue;
+      var r = badge(cards[i].getAttribute('data-fecha'));
+      b.textContent = r.text;
+      b.className = 'ing-badge' + (r.old ? ' is-old' : '');
+    }
+  }
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text != null) e.textContent = text;
+    return e;
+  }
+  function years(v){
+    if(!v.anio_desde) return '';
+    return (!v.anio_hasta || v.anio_hasta === v.anio_desde) ? String(v.anio_desde) : v.anio_desde + '-' + v.anio_hasta;
+  }
+  function imgOk(u){ return typeof u === 'string' && (/^https:\/\//.test(u) || /^\/[^\/]/.test(u)) && !/favicon|placeholder|logo/i.test(u); }
+  function build(v){
+    var title = [v.marca, v.modelo, v.motor].filter(Boolean).join(' ');
+    var meta = [years(v), v.color, v.transmision].filter(Boolean).join(' · ');
+    var href = '/vehiculo?slug=' + encodeURIComponent(v.slug);
+    var card = el('article', 'ing-card');
+    card.setAttribute('data-slug', v.slug);
+    card.setAttribute('data-product', 'Nuevo ingreso: ' + title);
+    var media = el('a', 'ing-media');
+    media.href = href; media.setAttribute('data-ing', 'foto');
+    var img = el('img');
+    img.alt = title + ' recién ingresado a desarme';
+    img.loading = 'lazy'; img.decoding = 'async'; img.width = 640; img.height = 640;
+    img.addEventListener('load', function(){
+      if(img.naturalWidth > img.naturalHeight * 1.15 && !media.querySelector('.ing-bg')){
+        var bg = el('img', 'ing-bg');
+        bg.alt = ''; bg.setAttribute('aria-hidden', 'true'); bg.src = img.src;
+        media.insertBefore(bg, img);
+        media.className = 'ing-media is-fit';
+      }
+    });
+    img.addEventListener('error', function(){ if(card.parentNode) card.parentNode.removeChild(card); });
+    img.src = v.images[0];
+    media.appendChild(img);
+    var body = el('div', 'ing-body');
+    body.appendChild(el('span', 'ing-badge', 'Nuevo ingreso'));
+    body.appendChild(el('h3', null, title));
+    body.appendChild(el('p', 'ing-meta', meta || 'En desarme'));
+    var actions = el('div', 'ing-actions');
+    var wa = el('a', 'ing-wa', '💬 Pedir un repuesto');
+    wa.href = 'https://wa.me/56953817335?text=' + encodeURIComponent('Hola, vi el ' + title + ' que ingresó a desarme. Necesito: ');
+    wa.target = '_blank'; wa.rel = 'noopener'; wa.setAttribute('data-ing', 'whatsapp');
+    var ver = el('a', 'ing-link', 'Ver ficha del vehículo →');
+    ver.href = href; ver.setAttribute('data-ing', 'ver');
+    actions.appendChild(wa); actions.appendChild(ver);
+    body.appendChild(actions);
+    card.appendChild(media); card.appendChild(body);
+    return card;
+  }
+  function render(rows){
+    var list = (Array.isArray(rows) ? rows : []).filter(function(v){
+      return v && typeof v.slug === 'string' && /^[a-z0-9-]{3,200}$/.test(v.slug) && Array.isArray(v.images) && imgOk(v.images[0]);
+    }).slice(0, MAX);
+    if(!list.length) return;
+    var known = {}, current = track.querySelectorAll('.ing-card'), i, same = current.length === list.length;
+    for(i = 0; i < current.length; i++){
+      known[current[i].getAttribute('data-slug')] = current[i];
+      if(same && current[i].getAttribute('data-slug') !== list[i].slug) same = false;
+    }
+    if(same){
+      for(i = 0; i < list.length; i++) current[i].setAttribute('data-fecha', list[i].fecha_ingreso || '');
+      paint();
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    for(i = 0; i < list.length; i++){
+      var c = known[list[i].slug] || build(list[i]);
+      c.setAttribute('data-fecha', list[i].fecha_ingreso || '');
+      frag.appendChild(c);
+    }
+    var stale = track.querySelectorAll('.ing-card');
+    for(i = 0; i < stale.length; i++) track.removeChild(stale[i]);
+    track.insertBefore(frag, track.firstChild);
+    track.scrollLeft = 0;
+    paint();
+  }
+
+  paint();
+  try{
+    fetch(API, { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(rows){ if(rows) render(rows); })
+      .catch(function(){});
+  }catch(e){}
+
+  track.addEventListener('click', function(e){
+    var a = e.target.closest ? e.target.closest('a[data-ing]') : null;
+    if(!a || typeof gtag !== 'function') return;
+    var card = a.closest('.ing-card');
+    var h = card ? card.querySelector('h3') : null;
+    try{ gtag('event', 'nuevo_ingreso_click', { accion: a.getAttribute('data-ing'), vehiculo: h ? h.textContent : 'todos' }); }catch(err){}
+  });
+})();
+</script>
 
 <section class="apc-rows-wrap" id="repuestos-destacados">
 <div class="container">
