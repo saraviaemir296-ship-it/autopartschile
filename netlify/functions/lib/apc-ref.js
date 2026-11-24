@@ -22,7 +22,7 @@
     ['airbag', /airbag/], ['cinturon', /cinturon/],
     ['turbo', /\bturbo|intercooler|recirculacion/],
     ['embrague', /embrague|\bprensa\b|collarin|volante motor/],
-    ['caja', /caja de cambio|caja automatica|caja mecanica|caja cvt|transmision automatica|convertidor de torque|palanca (de cambios|selectora)|selector de cambios|piola de cambio|mecatronic|\btcm\b/],
+    ['caja', /caja de cambio|caja automatica|caja mecanica|caja cvt|transmision automatica|convertidor de torque|palanca (de cambios|selectora)|selector de cambios|piolas? de cambio|mecatronic|\btcm\b/],
     ['interior', /tapiz|consola|guantera|alfombra|cielo|parasol|cenicero|encendedor|apoya|posavasos|zocalo|bandeja trasera|cubre maleta|cubre equipaje|piso de maleta|panel lateral|moldura de pilar|molduras de pilar|molduras de madera|manilla de techo/],
     ['electrico', /\bcomando\b/],
     ['audio', /parlante|\bradio\b|antena|amplificador/],
@@ -45,11 +45,11 @@
     ['direccion', /direccion|cremallera|volante|manubrio|columna|terminal de|axial/],
     ['audio', /\bradio\b|parlante|antena|amplificador|subwoofer|tweeter/],
     ['bocina', /bocina/],
-    ['suspension', /amortiguador|espiral|resorte|bandeja|\bbrazo|bieleta|barra estabilizadora|rotula|\bcuna\b|subchasis|puente|eje trasero|munon|suspension|\bbuje/],
+    ['suspension', /amortiguador|espiral|resorte|bandeja|\bbrazo|bieleta|barra estabilizadora|rotula|\bcuna\b|subchasis|puente|eje trasero|munon|suspension|\bbuje|tren delantero/],
     ['freno', /freno|caliper|\bdisco\b|tambor|pastilla|balata|\bservo\b/],
     ['rueda', /llanta|neumatico|rueda|tapa centro|tuerca/],
-    ['transmision', /palier|semieje|homocinetica|cardan|diferencial|cruceta|transfer|punta de eje|\bmaza\b|rodamiento/],
-    ['radiador', /radiador|refrigerante|termostato/],
+    ['transmision', /palier|semieje|homocinetica|cardan|diferencial|cruceta|transfer|punta de eje|\bmasas?\b|\bmaza\b|rodamiento/],
+    ['radiador', /radiador|refrigerante|termostato|mangueras? de agua/],
     ['combustible', /bencina|combustible|inyector|\briel\b|canister|estanque|alta presion/],
     ['escape', /escape|catalitic|catalizador|silenciador|downpipe/],
     ['admision', /admision|filtro de aire|portafiltro|cuerpo de aceleracion|mariposa/],
@@ -57,7 +57,7 @@
     ['bomba', /bomba/],
     ['motor_int', /culata|\bblock\b|ciguenal|levas|piston|biela|valvula|distribucion|cadena|polea|tensor|variador|balancin|empaquetadura|soporte de (motor|caja)/],
     ['motor', /\bmotor\b/],
-    ['carroceria', /capot|tapabarro|parachoque|mascara|parrilla|frontal|\btecho\b|costado|guardafango|cubrepolvo|refuerzo|pisadera|rejilla|emblema|insignia|chasis|travesano|spoiler|barras de techo|pick ?up|moldura/]
+    ['carroceria', /capot|tapabarro|parachoque|mascara|parrilla|frontal|\btecho\b|costado|guardafango|cubrepolvo|refuerzo|pisadera|rejilla|emblema|insignia|chasis|travesano|spoiler|barras de techo|pick ?up|moldura|cuarto de pollo|guardabarro|remolque/]
   ];
   function norm(s) { return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
   function tipo(nombre) {
