@@ -610,3 +610,7 @@ tr:hover td{background:var(--gray-light)}
 .tj-ok a{color:var(--red);font-weight:700}
 .tj-ok .apc-btn-wa-full{color:#fff;align-self:flex-start}
 @media (max-width:800px){.tj-hero-in{grid-template-columns:1fr}.tj-grid{grid-template-columns:1fr}.tj-card-wrap{order:-1}}
+
+/* Imagen referencial en tarjetas sin foto real */
+.apc-card-img .apc-ref-th{position:absolute;inset:0}
+.apc-card-img .apc-ref-note{position:absolute;left:0;right:0;bottom:0;background:rgba(17,17,17,.82);color:#fff;font-size:.68rem;font-weight:600;text-align:center;padding:4px 6px}

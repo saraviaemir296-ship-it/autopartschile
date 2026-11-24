@@ -15,6 +15,7 @@ const H = { apikey: KEY, Authorization: 'Bearer ' + KEY };
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
 const abs = (u) => (/^https?:\/\//.test(u) ? u : SITE + (u.startsWith('/') ? '' : '/') + u);
+const APCRef = require('./lib/apc-ref.js');
 const realImgs = (a) => (Array.isArray(a) ? a : []).filter((u) => typeof u === 'string' && u && !/favicon|placeholder|logo/i.test(u)).map(abs);
 const jsStr = (s) => JSON.stringify(String(s)).replace(/</g, '\\u003c');
 
@@ -75,6 +76,15 @@ exports.handler = async (event) => {
   const nameHasVeh = !!modelName && p.name.toLowerCase().includes(String(modelName).toLowerCase());
   const h1 = nameHasVeh || !veh ? p.name : p.name + ' ' + veh;
   const imgs = realImgs(p.images);
+  // Imagen de referencia: foto libre por N° de parte si existe (tabla ref_fotos); si no, ilustración del tipo de pieza.
+  const ref = APCRef.info(p);
+  let refFoto = null;
+  const oemTok = String(p.oem_number || '').split(/[\s,;\/()+:]+/).map((t) => t.replace(/[^A-Za-z0-9-]/g, '')).find((t) => t.replace(/-/g, '').length >= 7 && /\d/.test(t));
+  if (oemTok) { try { const rf = await api('ref_fotos?select=fuente,image_url,page_url,licencia,licencia_url,autor&estado=eq.encontrada&oem=eq.' + encodeURIComponent(oemTok) + '&limit=1'); refFoto = (rf && rf[0]) || null; } catch (e) { refFoto = null; } }
+  const refDatos = [p.oem_number ? 'N° de parte ' + p.oem_number : '', p.brand || '', (v && v.modelo) || ''].filter(Boolean).join(' · ');
+  const refHtml = refFoto
+    ? `<figure class="rp-ref"><span class="rp-ref-tag">Foto de referencia</span><img src="${esc(refFoto.image_url)}" alt="${esc('Foto de referencia del N° de parte ' + oemTok + ' (no es la unidad en venta)')}" loading="lazy"><figcaption><b>Foto de referencia del mismo N° de parte.</b> No es la unidad que vendemos. ${esc(refDatos)}<br>Foto: ${esc(refFoto.autor || '')} · <a href="${esc(refFoto.licencia_url || refFoto.page_url)}" target="_blank" rel="noopener nofollow">${esc(refFoto.licencia || 'licencia libre')}</a> · <a href="${esc(refFoto.page_url)}" target="_blank" rel="noopener nofollow">${esc(refFoto.fuente || 'fuente')}</a></figcaption></figure>`
+    : `<figure class="rp-ref"><span class="rp-ref-tag">Imagen referencial</span><img class="rp-ref-ilu" src="${ref.src}" alt="${esc(ref.alt)}" loading="lazy" width="600" height="600"><figcaption><b>Ilustración del tipo de pieza: ${esc(ref.etiqueta)}.</b> No es la foto del repuesto real. ${esc(refDatos)}</figcaption></figure>`;
   const price = Math.round(Number(p.price_sale) || 0);
   const sold = p.part_status === 'vendida' || p.part_status === 'no_disponible' || !(p.stock > 0) || !(price > 0);
   const enVeh = p.part_status === 'en_vehiculo';
@@ -156,6 +166,14 @@ exports.handler = async (event) => {
 .rp{display:grid;grid-template-columns:1.05fr 1fr;gap:2rem;margin-top:1.2rem;align-items:start}@media(max-width:800px){.rp{grid-template-columns:1fr;gap:1.2rem}}
 .rp-main{border-radius:14px;overflow:hidden;background:#f1f1f1;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:#999;font-weight:700}
 .rp-main img{width:100%;height:100%;object-fit:cover}
+.rp-fotos{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:.8rem;align-items:start}.rp-fotos.rp-solo-ref{grid-template-columns:minmax(0,1fr)}
+.rp-real-tag,.rp-ref-tag{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:.25rem .5rem;border-radius:6px;margin-bottom:.35rem}
+.rp-real-tag{background:#0a7d3b;color:#fff}.rp-ref-tag{background:#111;color:#fff}
+.rp-ref{margin:0}.rp-ref img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:linear-gradient(160deg,#f6f7f9,#e6e9ee);display:block}.rp-ref img.rp-ref-ilu{object-fit:contain}
+.rp-solo-ref .rp-ref img{aspect-ratio:4/3;max-height:420px}
+.rp-ref figcaption{font-size:.74rem;line-height:1.35;color:#555;margin-top:.4rem}.rp-ref figcaption a{color:#555;text-decoration:underline}
+.rp-ref-aviso{font-size:.85rem;color:#444;background:#fff8e1;border:1px solid #f1d98a;border-radius:8px;padding:.5rem .7rem;margin:.6rem 0 0}
+@media(max-width:640px){.rp-fotos{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}}
 .rp-th{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap}.rp-th img{width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer}
 .rp h1{font-size:1.5rem;line-height:1.2;margin:.4rem 0 .6rem}.rp-price{font-size:2rem;font-weight:800;color:var(--red);margin:.4rem 0}
 .rp-st{display:inline-block;font-size:.8rem;font-weight:700;padding:.25rem .6rem;border-radius:6px}.rp-st.ok{background:#e8f9ee;color:#15803d}.rp-st.veh{background:#fff4d6;color:#8a5a00}.rp-st.no{background:#eee;color:#666}
@@ -172,7 +190,7 @@ ${HEADER}
 <section class="page-content"><div class="container">
 <div class="breadcrumb"><a href="/">Inicio</a> › <a href="/vehiculos-en-desarme.html">Vehículos en Desarme</a>${vehUrl ? ` › <a href="${esc(vehUrl)}">${esc(veh)}</a>` : ''} › ${esc(p.name)}</div>
 <div class="rp">
-<div><div class="rp-main">${imgs[0] ? `<img id="rpImg" src="${esc(imgs[0])}" alt="${esc(h1)}">` : 'Foto disponible por WhatsApp'}</div>
+<div><div class="rp-fotos${imgs[0] ? '' : ' rp-solo-ref'}">${imgs[0] ? `<div><span class="rp-real-tag">Foto real del repuesto</span><div class="rp-main"><img id="rpImg" src="${esc(imgs[0])}" alt="${esc(h1)}"></div></div>` : ''}${refHtml}</div>${imgs[0] ? '' : '<p class="rp-ref-aviso">Aún no cargamos la foto real de esta pieza. Pídela por WhatsApp y te la mandamos antes de que compres.</p>'}
 ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" alt="${esc(h1)}" loading="lazy" data-full="${esc(u)}">`).join('')}</div>` : ''}</div>
 <div>
 <span class="rp-st ${sold ? 'no' : enVeh ? 'veh' : 'ok'}">${sold ? 'No disponible' : enVeh ? 'En el vehículo · se desmonta al confirmar' : '✓ Desmontado · listo para despacho'}</span>

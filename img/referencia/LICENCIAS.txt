@@ -1,0 +1,12 @@
+Imágenes de referencia por tipo de pieza (AutopartsChile / Desarmaduría Saravia)
+
+Son ilustraciones genéricas del TIPO de pieza. No muestran el repuesto real y en el sitio siempre van rotuladas como "Imagen referencial".
+
+Origen y licencias de los íconos usados:
+- Material Design Icons (@mdi/svg 7.4.47), Pictogrammers. Licencia Apache-2.0. https://github.com/Templarian/MaterialDesign
+- Tabler Icons (@tabler/icons 3.53.0), ícono "car-suspension". Licencia MIT. https://github.com/tabler/tabler-icons
+
+Ambas licencias permiten uso comercial y modificación. Se agregó el rótulo "IMAGEN REFERENCIAL" y se convirtieron a PNG con fondo transparente.
+
+Fotos libres por número de parte: se guardan en la tabla ref_fotos (Supabase) con su autor, licencia y enlace a la fuente
+(Wikimedia Commons u Openverse; solo CC0, dominio público, CC BY y CC BY-SA). Se muestran con esa atribución en la ficha del repuesto.

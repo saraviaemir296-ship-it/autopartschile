@@ -167,7 +167,8 @@
   function card(p) {
     var img = p.img
       ? '<img src="' + esc(p.img) + '" alt="' + esc(p.name) + '" loading="lazy" width="320" height="240">'
-      : '<div class="apc-nophoto"><span>📷</span><small>Pide la foto real por WhatsApp</small></div>';
+      : (window.APCRef ? APCRef.thumb(p) + '<small class="apc-ref-note">Imagen referencial · pide la foto real por WhatsApp</small>'
+        : '<div class="apc-nophoto"><span>📷</span><small>Pide la foto real por WhatsApp</small></div>');
     return '<article class="apc-card">' +
       '<a class="apc-card-img" href="' + p.href + '">' + img + '</a>' +
       '<button type="button" class="apc-fav' + (isFav(p.sku) ? ' on' : '') + '" data-sku="' + esc(p.sku) + '" aria-pressed="' + isFav(p.sku) + '" aria-label="Guardar en favoritos">❤</button>' +
