@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>tx</title></head><body>
+<pre id="s">cargando…</pre><pre id="out"></pre>
+<script type="module">
+import {pipeline, env} from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';
+const s=document.getElementById('s'); const log=t=>{s.textContent=t;};
+try{
+  const model=new URLSearchParams(location.search).get('m')||'onnx-community/whisper-small';
+  log('descargando modelo '+model);
+  let asr;
+  try{ asr=await pipeline('automatic-speech-recognition',model,{device:'webgpu',dtype:'fp32'}); log('webgpu'); }
+  catch(e){ asr=await pipeline('automatic-speech-recognition',model,{dtype:'q8'}); log('wasm'); }
+  const buf=await (await fetch('audi.mp3')).arrayBuffer();
+  const ctx=new AudioContext({sampleRate:16000}); const ab=await ctx.decodeAudioData(buf);
+  const data=ab.getChannelData(0);
+  log('transcribiendo '+ab.duration.toFixed(1)+'s');
+  const r=await asr(data,{language:'spanish',task:'transcribe',return_timestamps:true,chunk_length_s:30,stride_length_s:5});
+  window.__tx=r; document.getElementById('out').textContent=JSON.stringify(r);
+  log('LISTO');
+}catch(e){ log('ERROR '+e); window.__txerr=String(e); }
+</script></body></html>
