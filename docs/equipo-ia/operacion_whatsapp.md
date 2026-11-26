@@ -42,3 +42,12 @@ Tabla de oportunidades: `v_oportunidades_wa` (nombre, teléfono, producto/servic
 
 ## Prompt para la sesión en el PC (pegar tal cual)
 > Ejecuta la operación "Auditoría total WhatsApp Business — Saravia" siguiendo `docs/equipo-ia/operacion_whatsapp.md` del repo autopartschile y los skills `revisar-whatsapp-business` y `atencion-a-clientes`. Revisa chat por chat (recientes, antiguos, archivados, no leídos). Por cada chat escribe una línea JSON con el esquema del documento en `wa_auditoria_<fecha>.jsonl`. Archiva en WhatsApp solo los chats que cumplan los criterios de cierre; ante la duda marca `dudoso: true` y no archives. No envíes mensajes, no borres nada, no confirmes pagos. Cada 25 chats pega las líneas en Centro de Mando → WhatsApp → Importar. Al terminar, cierra la auditoría desde el panel anotando los límites de acceso que encontraste.
+
+
+## Actualización 26-nov · el Cerrador trabaja sobre la auditoría
+- Al **cerrar la auditoría** (`wa_auditoria_cerrar`), el agente **Cerrador de ventas** corre de inmediato sobre los chats importados (sin esperar 20 h): cotizaciones sin respuesta, leads calientes, reservas y pagos pendientes reciben su mensaje de cierre PROPUESTO en Centro de Mando → Aprobaciones, con botón de WhatsApp. Nada se envía sin el OK de Emir.
+- Los chats donde el cliente escribió último aparecen en "Responder a clientes" (botones Tenemos / No tenemos / Faltan datos / Va en conjunto).
+- Rango pedido por Emir: **último mes** primero (recientes, no leídos, archivados del mes); lo anterior después.
+
+## Prompt corto para la sesión del PC (Claude Desktop con uso de computador)
+> WhatsApp Business ya está abierto. Ejecuta la auditoría de `docs/equipo-ia/operacion_whatsapp.md` (repo autopartschile) con los skills `revisar-whatsapp-business` y `atencion-a-clientes`: revisa chat por chat el último mes (recientes, no leídos y archivados), una línea JSON por chat con el esquema del documento, distingue Desarmaduría de Grúas, archiva solo los cerrados sin compromisos, marca `dudoso` ante la duda. No envíes mensajes ni borres nada. Cada 25 chats pega las líneas en https://autopartschile.cl/admin/equipo-ia.html → pestaña WhatsApp → Importar. Al terminar toca "Cerrar auditoría" y anota los límites de acceso. El Cerrador de ventas propone los mensajes de cierre solo.
