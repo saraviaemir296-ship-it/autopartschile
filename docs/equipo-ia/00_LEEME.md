@@ -55,3 +55,17 @@ Pedido de Emir: "que haya para todos los ámbitos de mi empresa, todos mezclados
 **En la cola de aprobación para Emir:** 1 recuperación de pago, 2 propuestas de Ads, 1 tarea de sistema con los 4 secretos que faltan.
 
 **Cómo ver el panel:** sigue sin estar en producción. Netlify solo publica la rama principal y no hay despliegues por rama; la red de esta sesión no alcanza autopartschile.cl ni netlify.app para verificar. Opciones: Emir responde "integra" (se fusiona a la rama principal) o activa "Branch deploys: all" en Netlify → Site configuration → Build & deploy, y la rama queda en `claude-autopartschile-ai-team-64yelo--stupendous-custard-ca782a.netlify.app`.
+
+## 26-nov (noche) · publicado en el sitio, caja conectada, GEO, Diseñador, Precio de mercado
+
+Pedido de Emir: "aumenta el GEO a más no poder", "editor de fotos con N° OEM, compatibilidad y foto del vehículo", "investigar precio de mercado", "hasta el bot de finanzas conectado para que sepa qué se vendió y se marque vendido en el sitio", y "coloquemos esa wea funcionando" (tras pedir 3 veces ver la oficina → se fusionó la rama a la principal; Netlify la publicó).
+
+| Pieza | Dónde | Estado |
+|---|---|---|
+| Centro de Mando en producción | `autopartschile.cl/admin/equipo-ia.html` | publicado (deploy Netlify listo) |
+| Caja → inventario | `supabase/migrations/20261126_fase2_caja_inventario.sql` | aplicado. Cada venta anotada en finance-bot propone marcar la pieza vendida en la web (46 propuestas de noviembre en cola); pedido web pagado sin anotar → propone registrarlo en caja con asiento igual al del bot; lote de auto comprado → propone cargar costo de compra (7 propuestas) |
+| GEO | `robots.txt`, `netlify/functions/llms-full.js` (`/llms-full.txt`), `llms.txt`, `netlify/functions/repuesto.js` | publicado. Bots de IA explícitos; catálogo completo legible en vivo; Product con Vehicle/motor/años, política de devolución, despacho, validez de precio, redes; resumen en lenguaje claro en cada ficha |
+| Diseñador (editor de imagen promocional) | `admin/disenador.html` | publicado. Plantilla 1080×1350: foto completa sin recortar, nombre, N° OEM, compatibilidad, auto de origen abajo (PNG del auto si se sube; si no, su foto), precio y garantía. Lote automático para todas las piezas listas. Hoy 0 piezas tenían imagen promocional: era lo que bloqueaba la regla 1 en todo el catálogo |
+| Precio de mercado | edge function `precio-mercado` + cron `precio-mercado-diario` 8:40 | desplegado. Busca 20 piezas/día en Mercado Libre (usados), guarda la mediana en `metadata.precio_mercado`, sugiere precio a las pendientes y propone bajar las que están 30 % sobre el mercado (regla 2: tú fijas) |
+
+Correcciones honestas del informe: de los 7 pedidos web "pagados", 2 son pruebas internas ($1.000 y $50) y 4 son el mismo producto "Bobinas de encendido" de septiembre; la única venta web real reciente ($60.000, 18-nov) sí estaba anotada en caja. La homocinética del pedido #57 (Mercado Pago pendiente) la pagó el cliente por transferencia el mismo día (caja #202): la propuesta del Recuperador se expiró y la función ahora revisa la caja antes de proponer.
