@@ -1,4 +1,4 @@
-// AGENTE SEGUIMIENTO (fase 2.1). Revisa los leads con próxima acción vencida, diagnostica por qué
+// AGENTE SEGUIMIENTO (fase 2.1; 26-nov: funciona sin ANTHROPIC_API_KEY usando plantillas por etapa). Revisa los leads con próxima acción vencida, diagnostica por qué
 // no cerraron y deja UN mensaje propuesto por lead en agente_tareas (requiere_aprobacion).
 // No envía nada. Emir aprueba desde la cola (fase 3: botón en Telegram) o abre el enlace wa.me.
 //
@@ -9,7 +9,7 @@
 // tras 3 seguimientos sin respuesta proponer cerrar como cliente_dejo_de_responder.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {
-  autorizar, cerrarTarea, claudeJSON, clp, db, enHorario, fallarTarea, garantiaPara,
+  ANTHROPIC_KEY, autorizar, cerrarTarea, claudeJSON, clp, db, enHorario, fallarTarea, garantiaPara,
   hayPropuestaPendiente, iniciarTarea, json, MODELO_REDACTOR, NEGOCIO, proponer, waLink,
 } from "../_shared/agente.ts";
 
@@ -41,6 +41,30 @@ REGLAS DURAS:
 - Si el cliente escribió último y nadie le respondió, la acción es enviar_mensaje respondiendo lo que preguntó, no "hacer seguimiento".
 - Firma implícita: el mensaje lo envía Emir desde el WhatsApp del local; no firmes como IA.
 Devuelve JSON: {"etapa_real":"...","por_que_no_cerro":"...","accion":"enviar_mensaje|cerrar_perdido|esperar","motivo_perdida":null,"mensaje":"...","siguiente_contacto_horas":24}`;
+
+/** Sin ANTHROPIC_API_KEY: seguimiento por plantilla según la etapa y lo que hay en el chat. Nunca inventa precio ni stock. */
+function diagnosticoPlantilla(lead: Lead, msgs: { direction: string; body: string | null }[], seguimientos: number, r: { nombre: string; precio_final: number | null; precio_estado: string; categoria: string | null } | null): Diagnostico {
+  const nombre = (lead.cliente ?? "").split(" ")[0] || "";
+  const hola = nombre ? `Hola ${nombre}, ` : "Hola, ";
+  const ultimo = msgs[0];
+  const clienteEscribioUltimo = ultimo && ultimo.direction === "entrante";
+  const pieza = lead.pieza_buscada ? ` ${lead.pieza_buscada}` : " la pieza";
+  const veh = lead.vehiculo_buscado ? ` para ${lead.vehiculo_buscado}` : "";
+  if (seguimientos >= MAX_SEGUIMIENTOS) return { etapa_real: "sin_respuesta", por_que_no_cerro: `${seguimientos} seguimientos sin respuesta`, accion: "cerrar_perdido", motivo_perdida: "cliente_dejo_de_responder", mensaje: "", siguiente_contacto_horas: 0 };
+  if (clienteEscribioUltimo) return { etapa_real: "nuevo", por_que_no_cerro: "el cliente escribió último y nadie le respondió", accion: "esperar", motivo_perdida: null, mensaje: "", siguiente_contacto_horas: 4 };
+  const et = lead.etapa_detalle;
+  if (et === "cotizacion_enviada" || et === "cotizacion_vista" || et === "negociacion" || et === "esperando_decision") {
+    const precio = r && r.precio_estado === "fijado" && r.precio_final ? ` Sigue disponible a ${clp(r.precio_final)}, con ${garantiaPara(r.nombre, r.categoria)}.` : " Sigue disponible.";
+    return { etapa_real: "cotizado", por_que_no_cerro: "recibió la cotización y no respondió", accion: "enviar_mensaje", motivo_perdida: null, mensaje: `${hola}¿pudiste ver la cotización de${pieza}${veh}?${precio} Si quieres te la reservo o te mando los datos para el envío.`, siguiente_contacto_horas: 48 };
+  }
+  if (et === "intencion_compra" || et === "pago_pendiente") return { etapa_real: "intencion_compra", por_que_no_cerro: "quiso comprar y no se concretó el pago", accion: "enviar_mensaje", motivo_perdida: null, mensaje: `${hola}te tengo reservada${pieza}. ¿Te mando los datos para transferir o prefieres pagar al retirar en La Pintana?`, siguiente_contacto_horas: 24 };
+  if (et === "calificacion" || et === "necesidad_identificada" || et === "consulta_disponibilidad") return { etapa_real: "calificando", por_que_no_cerro: "faltan datos del auto para confirmar la pieza", accion: "enviar_mensaje", motivo_perdida: null, mensaje: `${hola}para confirmarte${pieza}${veh} me falta el año y la patente o el VIN del auto. Con eso te digo al tiro si la tenemos y el precio.`, siguiente_contacto_horas: 48 };
+  if (et === "cotizacion_solicitada" || et === "cotizacion_en_preparacion") {
+    if (r && r.precio_estado === "fijado" && r.precio_final) return { etapa_real: "cotizado", por_que_no_cerro: "pidió cotización y no se le envió", accion: "enviar_mensaje", motivo_perdida: null, mensaje: `${hola}sí tenemos ${r.nombre} a ${clp(r.precio_final)}, con ${garantiaPara(r.nombre, r.categoria)}. Retiro en La Pintana o envío a todo Chile. ¿Te la reservo?`, siguiente_contacto_horas: 24 };
+    return { etapa_real: "nuevo", por_que_no_cerro: "pidió cotización y nadie le respondió; la pieza no está confirmada en sistema", accion: "esperar", motivo_perdida: null, mensaje: "", siguiente_contacto_horas: 24 };
+  }
+  return { etapa_real: "nuevo", por_que_no_cerro: `etapa ${et} sin regla de seguimiento`, accion: "enviar_mensaje", motivo_perdida: null, mensaje: `${hola}¿sigues buscando${pieza}${veh}? Cuéntame y lo reviso al tiro.`, siguiente_contacto_horas: 72 };
+}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "POST" }, 405);
@@ -96,7 +120,9 @@ Datos del local: ${NEGOCIO.direccion}. Horario ${NEGOCIO.horario}. Envíos por S
 CONVERSACIÓN (más antigua arriba):
 ${historial || "(sin mensajes registrados; el lead viene de " + lead.canal + ": " + (lead.ultimo_mensaje ?? "") + ")"}`;
 
-        const { data: d, uso } = await claudeJSON<Diagnostico>({ system: SYSTEM, user, modelo: MODELO_REDACTOR, maxTokens: 700 });
+        let d: Diagnostico; let uso: { modelo: string; tokens: number };
+        if (ANTHROPIC_KEY) { const c = await claudeJSON<Diagnostico>({ system: SYSTEM, user, modelo: MODELO_REDACTOR, maxTokens: 700 }); d = c.data; uso = c.uso; }
+        else { d = diagnosticoPlantilla(lead, (msgs ?? []) as { direction: string; body: string | null }[], seguimientosPrevios ?? 0, r ?? null); uso = { modelo: "plantilla", tokens: 0 }; }
         tokensTotal += uso.tokens;
 
         const base = {
