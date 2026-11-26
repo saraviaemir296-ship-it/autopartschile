@@ -8,6 +8,7 @@ Documentación de trabajo del "equipo de empleados IA" sobre la base única (Sup
 | `fase1_plan.md` | Plan de la fase 1, decisiones de diseño explicadas y preguntas para Emir |
 | `fase1_diagrama.md` | Diagrama de relaciones (mermaid) del modelo resultante y catálogo de vistas |
 | `operacion_whatsapp.md` | Auditoría total de WhatsApp Business: cómo se ejecuta en el PC y cómo queda registrada chat por chat en la base (categorías, archivado, oportunidades, informe de 10 puntos) |
+| `rendimiento_web_y_marketing.md` | Rendimiento real del sitio (Netlify + base), anuncios Meta, Mercado Libre, redes y SEO/GEO, con lo que falta conectar |
 | `fase2_plan.md` | Plan de la fase 2: arquitectura común, ficha de cada agente (disparador, entradas, salidas, aprobación), orden de construcción y decisiones pendientes |
 | `../../supabase/migrations/20261126_fase1_base_central.sql` | Migración de la fase 1 (APLICADA 26-nov-2026) |
 | `../../supabase/migrations/20261126_fase1b_correcciones.sql` | Correcciones post-verificación (PENDIENTE: requiere confirmación en Supabase) |
