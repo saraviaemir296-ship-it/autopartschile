@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Cola de grupos · Saravia</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--red:#d80002;--bg:#f6f6f7;--txt:#111;--muted:#555;--line:#e3e3e6;--ok:#1f8f45}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--red);color:#fff;padding:1rem}header h1{margin:0;font-size:1.2rem}header a{color:#fff;font-size:.85rem;margin-right:.8rem}
+main{max-width:820px;margin:0 auto;padding:1rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:.8rem}
+.card h2{margin:0 0 .5rem;font-size:1.05rem}.note{color:var(--muted);font-size:.9rem}
+.kpi{display:flex;gap:.6rem;flex-wrap:wrap}.kpi div{background:#fafafa;border-radius:10px;padding:.5rem .8rem;font-size:.85rem;color:var(--muted)}.kpi b{display:block;font-size:1.3rem;color:#111}
+.btn{border:none;border-radius:10px;padding:.75rem 1rem;font-weight:800;font-size:1rem;cursor:pointer;background:#eee;color:#111;text-decoration:none;display:inline-block}
+.btn.red{background:var(--red);color:#fff}.btn.ok{background:var(--ok);color:#fff}.btn.dark{background:#111;color:#fff}
+.row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}.row .btn{flex:1 1 160px;text-align:center}
+textarea,input{width:100%;padding:.6rem;border:1px solid #ccc;border-radius:10px;font:inherit;font-size:.95rem}textarea{min-height:190px}
+.fotos{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.fotos img{width:90px;height:90px;object-fit:cover;border-radius:8px;background:#eee}
+.warn{background:#fff6e5;border:1px solid #ffd28a;border-radius:10px;padding:.6rem .8rem;font-size:.92rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{border-bottom:1px solid #eee;padding:.35rem;text-align:left}
+.tag{border-radius:999px;padding:.05rem .5rem;font-size:.75rem;background:#eee}.tag.ok{background:#dcf5e3}.tag.red{background:#fde2e2}.tag.warn{background:#fff1cc}
+details summary{cursor:pointer;font-weight:800}
+code{background:#f1f1f1;border-radius:4px;padding:0 .25rem}
+</style>
+</head>
+<body>
+<header><h1>📣 Cola de publicación en grupos de Facebook</h1><div style="margin-top:.3rem"><a href="/admin/hoy.html">Hoy</a><a href="/admin/equipo-ia.html">Centro de Mando</a></div></header>
+<main>
+  <div class="card"><div class="kpi" id="kpi">cargando…</div></div>
+
+  <div class="card" id="actual">
+    <h2>Publicación actual</h2>
+    <div id="cur" class="note">Toca "Siguiente" para tomar la próxima publicación de la cola.</div>
+    <div class="row"><button class="btn dark" id="sig">▶ Siguiente publicación</button></div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>🤖 Instrucciones para el agente (Claude en el Chrome de Emir)</summary>
+      <div class="note" style="margin-top:.5rem">
+        <p>Repite hasta que la cola diga "vacía" o "esperar" por tope diario:</p>
+        <ol>
+          <li>En esta pestaña toca <b>▶ Siguiente publicación</b>. Si dice "esperar N segundos", espera ese tiempo y vuelve a tocar.</li>
+          <li>Abre el grupo con <b>Abrir grupo</b> (pestaña nueva). Si abre una búsqueda, entra al grupo exacto con ese nombre y copia su link en el campo "link del grupo".</li>
+          <li>Publica siguiendo la skill <code>publicar-en-grupos-facebook</code>, sección 5: cierra chats, abre "Escribe algo", pega las fotos con la página de fotos (botón temporal + clic real), escribe el texto del cuadro tal cual con el teclado, verifica grupo, fotos y texto, y toca Publicar.</li>
+          <li>Vuelve a esta pestaña y marca el resultado: <b>Publicado</b>, <b>Quedó pendiente del admin</b>, <b>No se pudo</b> (con el motivo) o <b>Saltar</b> si el grupo prohíbe ventas o no corresponde.</li>
+          <li>Si Facebook muestra "Limitamos…", "Tu publicación infringe…", un captcha o bloqueo: toca <b>Facebook avisó límite</b> y PARA. La cola se pausa 24 h sola.</li>
+          <li>Nunca uses "Agregar grupos" del composer. Nunca publiques en un grupo que no esté en esta cola. No respondas comentarios ni chats.</li>
+        </ol>
+      </div>
+    </details>
+  </div>
+
+  <div class="card"><h2>Últimos movimientos</h2><div id="lista"></div></div>
+</main>
+<script type="module">
+import { supabase, requireStaff } from '/admin/admin-common.js';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const abs = (u) => (!u ? '' : /^https?:/.test(u) ? u : location.origin + (u.startsWith('/') ? '' : '/') + u);
+const session = await requireStaff(); if (!session) throw new Error('sin sesión');
+let CUR = null;
+
+async function estado() {
+  const { data: e, error } = await supabase.rpc('grupos_cola_estado');
+  if (error) { $('#kpi').textContent = error.message; return; }
+  $('#kpi').innerHTML = `<div><b>${e.pendientes}</b>en cola</div><div><b>${e.publicadas_hoy} / ${e.tope ?? 15}</b>publicadas hoy (tope)</div>`;
+  const T = { publicado: 'ok', pendiente_admin: 'warn', fallido: 'red', salteado: '', pendiente: '', publicando: 'warn' };
+  $('#lista').innerHTML = (e.items || []).length ? `<table><tr><th>Grupo</th><th>Pieza</th><th>Estado</th><th>Detalle</th></tr>${e.items.map((i) => `<tr><td>${esc(i.grupo)}</td><td>${esc((i.pieza || '').slice(0, 50))}</td><td><span class="tag ${T[i.estado] || ''}">${esc(i.estado.replace('_', ' '))}</span></td><td>${esc(i.detalle || '')}</td></tr>`).join('')}</table>` : '<div class="note">La cola está vacía. Aprueba piezas desde Hoy con "Aprobar: el agente publica en todos los grupos".</div>';
+}
+function pintar(r) {
+  if (r.vacia) { CUR = null; $('#cur').innerHTML = `<div class="warn">Cola vacía ✓. Hoy van ${r.publicadas_hoy} publicaciones.</div>`; return; }
+  if (r.esperar_segundos) { $('#cur').innerHTML = `<div class="warn" data-esperar="${r.esperar_segundos}">Esperar ${r.esperar_segundos} segundos antes de la siguiente (ritmo humano para que Facebook no lo marque como spam).</div>`; return; }
+  if (r.esperar) { CUR = null; $('#cur').innerHTML = `<div class="warn">${esc(r.esperar)}</div>`; return; }
+  CUR = r;
+  $('#cur').innerHTML = `<div data-cola-id="${r.id}"><div><b>Grupo:</b> ${esc(r.grupo)}</div><div class="note">Pieza: ${esc(r.pieza)} · quedan ${r.quedan} en cola · hoy ${r.publicadas_hoy}/${r.tope}</div>
+    <div class="row"><a class="btn red" id="abrir" href="${esc(r.url)}" target="_blank" rel="noopener">Abrir grupo ↗</a><a class="btn" href="${esc(r.fb_img)}" target="_blank" rel="noopener">Página de fotos ↗</a><button class="btn" id="copiar">Copiar texto</button></div>
+    ${r.tiene_link ? '' : '<label class="note" style="display:block;margin-top:.5rem">Link del grupo (si abrió una búsqueda, pega aquí el link del grupo correcto)<input id="link" placeholder="https://www.facebook.com/groups/..."></label>'}
+    <div class="fotos">${(r.fotos || []).map((f) => `<img src="${esc(abs(f))}" alt="">`).join('')}</div>
+    <textarea id="texto">${esc(r.texto)}</textarea>
+    <div class="row"><button class="btn ok" data-res="publicado">✓ Publicado</button><button class="btn" data-res="pendiente_admin">Quedó pendiente del admin</button><button class="btn" data-res="fallido">No se pudo</button><button class="btn" data-res="salteado">Saltar</button><button class="btn red" data-res="bloqueado">⚠️ Facebook avisó límite</button></div></div>`;
+}
+$('#sig').onclick = async () => { const { data, error } = await supabase.rpc('grupos_cola_siguiente'); if (error) { alert(error.message); return; } pintar(data || {}); estado(); };
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.id === 'copiar' && CUR) { try { await navigator.clipboard.writeText($('#texto').value); b.textContent = 'Copiado ✓'; } catch { b.textContent = 'Copia a mano'; } return; }
+  if (b.dataset.res && CUR) {
+    let det = null;
+    if (b.dataset.res === 'fallido' || b.dataset.res === 'salteado' || b.dataset.res === 'bloqueado') det = prompt('Motivo (corto):', b.dataset.res === 'bloqueado' ? 'Facebook mostró aviso de límite' : '') ?? '';
+    const { error } = await supabase.rpc('grupos_cola_resultado', { p_id: CUR.id, p_estado: b.dataset.res, p_detalle: det, p_url_grupo: $('#link')?.value?.trim() || null });
+    if (error) { alert(error.message); return; }
+    $('#cur').innerHTML = `<div class="warn">Registrado: ${esc(b.dataset.res.replace('_', ' '))}. Toca "Siguiente publicación" para continuar.</div>`; CUR = null; estado();
+  }
+});
+await estado();
+</script>
+</body>
+</html>
