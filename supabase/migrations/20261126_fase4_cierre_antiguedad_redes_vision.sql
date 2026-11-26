@@ -1,0 +1,25 @@
+-- FASE 4 · "Sigue construyendo" (aplicado en producción el 26-11-2026 vía MCP; este archivo documenta lo que quedó en la BD)
+--
+-- 1) cierre_del_dia(p_fecha): ahora incluye 💰 Caja real (finance-bot: ventas, gastos, movimientos del día),
+--    🔁 conciliación caja↔web (ventas web completadas sin movimiento de caja equivalente ±20 %, 1 día; ventas de caja
+--    con marcar_vendida pendiente) y ⏱ tiempo de primera respuesta promedio de los chats del día.
+-- 2) precio_antiguedad_revisar(): semanal (cron 'precio-antiguedad-semanal' '50 11 * * 2' = martes 8:50 Chile).
+--    Piezas activas con precio FIJADO, >60 días sin venderse y sin ajuste en 45 días → UNA tarea por auto
+--    (agente precio_mercado, accion 'ajustar_precios_lote'): -10 % (60-89 d) / -20 % (≥90 d), redondeo a .990, mínimo 1.990.
+--    Regla 2: la IA propone, Emir fija. Al aprobar se aplican los del lote; editado "SKU=precio" por línea cambia solo esos.
+--    Marca products.metadata.ultimo_ajuste_antiguedad para no insistir cada semana.
+-- 3) agente_tareas_ejecutar_precio(): branches nuevos 'ajustar_precios_lote' y 'sugerir_numero_parte' (escribe oem_number).
+-- 4) redes_post_desarme(vehiculo) + trigger trg_redes_vehiculo (insert/update de en_desarme): propone el post de Instagram/
+--    Facebook (texto, piezas destacadas, hashtags, garantía). Aprobar = Emir lo publica desde el celular; cuando existan
+--    tokens de Meta se publicará solo. Primera corrida: 10 autos de las últimas 2 semanas.
+-- 5) Edge function catalogador-vision (supabase/functions/catalogador-vision): Claude (visión) lee el N° de parte en las
+--    fotos de hasta 15 piezas/día sin OEM (las de mayor precio primero) y PROPONE 'sugerir_numero_parte'. Marca
+--    metadata.vision_oem_at para no releer. Cron 'catalogador-vision-diario' '10 13 * * 1-6' (10:10 Chile) vía agente_lanzar.
+--    Requiere ANTHROPIC_API_KEY (tarea 'sistema/configurar' pendiente para Emir). 123 piezas en cola al crearlo.
+--
+-- Las definiciones completas están en la BD (pg_get_functiondef). Para re-aplicar en otro entorno, exportar con:
+--   select pg_get_functiondef('public.cierre_del_dia(date)'::regprocedure);
+--   select pg_get_functiondef('public.precio_antiguedad_revisar()'::regprocedure);
+--   select pg_get_functiondef('public.agente_tareas_ejecutar_precio()'::regprocedure);
+--   select pg_get_functiondef('public.redes_post_desarme(bigint)'::regprocedure);
+--   select pg_get_functiondef('public.trg_redes_vehiculo()'::regprocedure);
