@@ -1,0 +1,15 @@
+-- AGENTE CERRADOR DE VENTAS (aplicado en producción el 26-11-2026 vía MCP; las funciones viven en la BD)
+-- agentes.codigo = 'cerrador' · cron 'cerrador-diario' '40 13 * * 1-6' (10:40 Chile, L-S)
+-- cerrador_mensaje(conv, toque)  → {accion: enviar_mensaje|cerrar_perdido|esperar, texto, motivo, etapa, precio}
+--   Plantillas de cierre (español de Chile, una pregunta por mensaje, solo datos reales):
+--   · cotización sin respuesta (toque 1): recapitula pieza + precio cotizado/fijado + garantía según pieza + "es la única" si stock=1 + "¿te la reservo hasta mañana?"
+--   · toque 2: diagnostica la objeción (precio / envío / compatibilidad)
+--   · objeción precio: valor (original, revisada, garantía, retiro sin costo) + pide la otra oferta para revisarla con el jefe; NUNCA inventa descuento
+--   · objeción compatibilidad: pide patente/VIN + "si no calza, se cambia o devuelve"
+--   · objeción calidad: ofrece fotos/video + garantía
+--   · intención de compra / lead caliente / reservado: reserva hasta mañana + Webpay/tarjeta o transferencia (crm_settings.datos_transferencia; vacío = "te mando los datos") + aviso de RUT autorizados
+--   · pago pendiente: pide comprobante
+--   · toque 3 sin respuesta → proponer_cierre (cliente_dejo_de_responder)
+-- cerrador_revisar() → una propuesta por conversación (agente_tareas 'proponer_mensaje' con wa_link, o 'proponer_cierre'); salta si el cliente escribió último
+--   (eso es de Responder), si hay otra tarea pendiente de esa conversación o si ya se tocó en 40 h. Deja next_action_at +2 días para no chocar con Seguimiento.
+-- Para rellenar los datos de transferencia: update crm_settings set value = to_jsonb('Banco X, Cta Cte N°..., RUT ..., correo ...'::text) where key = 'datos_transferencia';
