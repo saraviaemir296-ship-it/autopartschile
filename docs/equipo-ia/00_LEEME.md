@@ -100,3 +100,10 @@ Emir: "hago todo esto hoy mismo". Para que sus empleados partan hoy: tabla `empl
 - **Redes sociales**: cada auto que entra a desarme genera el texto del post (piezas destacadas, garantía, WhatsApp, hashtags). Aprobar = lo publicas desde el celular con un reel o 3 fotos. Primera corrida: 10 autos de las últimas 2 semanas. Cuando existan tokens de Meta, se publica solo.
 - **Catalogador con visión** (`catalogador-vision`, 10:10 L-S): lee el N° de parte en las fotos de hasta 15 piezas al día y lo propone; al aprobar queda en la ficha y la pieza puede publicarse. Hay 123 piezas con foto y sin N° de parte en la cola. Necesita `ANTHROPIC_API_KEY` (tarea "configurar" pendiente para Emir con los 3 pasos).
 - Archivo: `supabase/migrations/20261126_fase4_cierre_antiguedad_redes_vision.sql` (notas; las funciones viven en la BD).
+
+## 26-nov, noche 2 · Responder a clientes con botones
+- En **Hoy** y en el **Centro de Mando** cada cliente que espera respuesta aparece como una tarjeta con lo que pidió, el auto, los datos que ya mandó (año, patente, VIN, foto) y su último mensaje. Abajo cuatro botones: **Tenemos**, **No tenemos**, **Faltan datos**, **Otro**.
+- **Tenemos** muestra las piezas candidatas en stock con precio y ubicación (o un buscador por nombre/SKU/N° de parte), el precio al cliente (un empleado solo puede usar precios ya fijados; Emir puede cambiarlo y queda fijado) y arma el mensaje con garantía según el tipo de pieza, retiro y envío.
+- **No tenemos** y **Faltan datos** arman el mensaje solos. **Otro** deja escribir libre. El texto siempre se puede editar antes de enviar.
+- **Enviar por WhatsApp** registra el mensaje en el CRM (etapa, precio cotizado, pieza, siguiente acción en 24 h para el Seguimiento), cierra la tarea y abre WhatsApp con el texto escrito. Messenger/Instagram quedan en cola: se envían solos cuando estén los tokens de Meta; mientras, "Copiar" y pegar en el inbox.
+- Probado en seco con las conversaciones reales pendientes (Patricia, foco SX4 a $79.990; yobany, soporte de selectora sin stock). Archivo: `supabase/migrations/20261126_fase4_responder_interactivo.sql`.

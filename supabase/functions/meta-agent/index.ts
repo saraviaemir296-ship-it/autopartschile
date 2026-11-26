@@ -1,9 +1,12 @@
-// BOT DE MESSENGER E INSTAGRAM (v12, 26-nov-2026). Reemplaza al agente anterior (que dependía de Claude + Telegram y
+// BOT DE MESSENGER E INSTAGRAM (v13, 26-nov-2026). v13: además procesa la cola crm_outbox kind=meta_reply (respuestas que
+// Emir/empleados arman con botones en /admin/hoy.html) cuando lo invoca pg_cron con nonce (agente_lanzar) y body {"accion":"outbox"}.
+// Si no hay META_PAGE_ACCESS_TOKEN la cola espera (no es error): el texto se copia a mano desde el inbox. Reemplaza al agente anterior (que dependía de Claude + Telegram y
 // nunca tuvo secretos). Ahora usa la RECEPCIÓN común (_shared/recepcion.ts): registra cada mensaje en el CRM, pide
 // marca/modelo/año/VIN o patente/foto/pieza, confirma stock solo con precio fijado, y deriva a Emir el resto como tarea.
 // Secretos: META_VERIFY_TOKEN, META_PAGE_ACCESS_TOKEN, META_APP_SECRET. Webhook: .../functions/v1/meta-agent (messages).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { recibir, registrarSalida, registrarTarea, type Canal } from "./recepcion.ts";
+import { autorizar, db, json } from "./agente.ts";
 
 const VERIFY = Deno.env.get("META_VERIFY_TOKEN") ?? "";
 const PAGE_TOKEN = Deno.env.get("META_PAGE_ACCESS_TOKEN") ?? "";
@@ -24,6 +27,29 @@ async function enviar(psid: string, text: string): Promise<string | null> {
   return j?.message_id ?? null;
 }
 
+/** Cola de respuestas humanas para Messenger/Instagram (crm_outbox kind=meta_reply). Responde dentro de las 24 h del último mensaje del cliente. */
+async function procesarOutbox(): Promise<Response> {
+  if (!PAGE_TOKEN) return json({ ok: true, omitido: "META_PAGE_ACCESS_TOKEN no configurado; la cola espera" });
+  const { data: rows, error } = await db.from("crm_outbox").select("id, payload, attempts").eq("kind", "meta_reply").eq("status", "pendiente").lte("run_after", new Date().toISOString()).order("id").limit(20);
+  if (error) return json({ error: error.message }, 500);
+  let enviados = 0, fallidos = 0;
+  for (const r of rows ?? []) {
+    const p = r.payload as { psid: string; texto: string; conversation_id: string; canal: Canal; tarea: number };
+    try {
+      const id = await enviar(p.psid, p.texto);
+      await db.from("crm_outbox").update({ status: "enviado", processed_at: new Date().toISOString() }).eq("id", r.id);
+      await db.from("crm_messages").update({ status: "entregado", external_message_id: id }).eq("conversation_id", p.conversation_id).eq("direction", "saliente").contains("raw", { tarea: p.tarea });
+      enviados++;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e); const n = (r.attempts ?? 0) + 1;
+      await db.from("crm_outbox").update({ attempts: n, last_error: msg.slice(0, 500), status: n >= 5 ? "fallido" : "pendiente", run_after: new Date(Date.now() + 10 * 60_000).toISOString() }).eq("id", r.id);
+      if (n >= 5) { await db.from("crm_messages").update({ status: "fallido" }).eq("conversation_id", p.conversation_id).eq("direction", "saliente").contains("raw", { tarea: p.tarea }); await db.rpc("notificar", { p_titulo: "⚠️ No pude enviar por " + p.canal, p_texto: msg.slice(0, 140) + " — mándalo a mano desde el inbox.", p_url: "/admin/hoy.html", p_dedupe: "meta_reply_fail:" + r.id }); }
+      fallidos++;
+    }
+  }
+  return json({ ok: true, enviados, fallidos });
+}
+
 Deno.serve(async (req) => {
   const url = new URL(req.url);
   if (req.method === "GET") {
@@ -32,6 +58,11 @@ Deno.serve(async (req) => {
     return new Response("Forbidden", { status: 403 });
   }
   if (req.method !== "POST") return new Response("Not found", { status: 404 });
+  // Cola de salida (cron con nonce o service role), separada del webhook de Meta que exige firma.
+  if (req.headers.get("x-agente-nonce") || (req.headers.get("authorization") ?? "").includes(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "---")) {
+    if (!(await autorizar(req, "recepcionista"))) return json({ error: "no autorizado" }, 401);
+    return await procesarOutbox();
+  }
   const raw = await req.text();
   if (!(await firmaValida(req, raw))) { await registrarTarea("messenger", null, {}, APP_SECRET ? "firma inválida" : "META_APP_SECRET no configurado: evento rechazado (falla cerrado)"); return new Response("Forbidden", { status: 403 }); }
   let body: any; try { body = JSON.parse(raw); } catch { return new Response("Bad Request", { status: 400 }); }

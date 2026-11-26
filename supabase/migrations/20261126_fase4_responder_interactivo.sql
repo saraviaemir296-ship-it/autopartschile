@@ -1,0 +1,24 @@
+-- FASE 4b · RESPONDER A CLIENTES CON BOTONES (aplicado en producción el 26-11-2026 vía MCP; las funciones viven en la BD)
+-- Pedido de Emir: "quiero una parte interactiva: tenemos / no tenemos / precio, porque no puedo escribir en el mismo mensaje".
+--
+-- responder_pendientes()                      → una tarjeta por conversación con tarea pendiente (responder_cliente, sin_stock,
+--                                               elegir_repuesto, whatsapp_responder, revisar_adjunto): cliente, canal, qué pide, auto,
+--                                               año/patente/VIN/foto recogidos, último mensaje, candidatos en stock, es_admin.
+-- responder_contexto(tarea)                   → lo mismo para una tarea.
+-- responder_buscar_stock(texto)               → piezas disponibles por nombre/SKU/N° de parte (para "Tenemos" cuando no hubo match).
+-- responder_redactar(tarea, decision, product_id, precio) → texto en español de Chile:
+--     tenemos      → nombre, precio (solo FIJADO; si no, error "Emir debe fijarlo"), garantía 7 días o aviso eléctrica, retiro/envío.
+--     no_tenemos   → "por ahora no la tenemos… te aviso apenas entre un <auto> a desarme".
+--     faltan_datos → pide solo lo que falta (año, patente/VIN, foto).
+--     otro         → "Hola <nombre>, " para escribir libre.
+-- responder_enviar(tarea, decision, texto, product_id, precio) → registra el mensaje saliente (sender vendedor), actualiza la
+--     conversación (etapa, precio cotizado, pieza, siguiente acción +24 h para el Seguimiento, vendedor responsable = quien responde;
+--     se da de alta en crm_staff si no existe), cierra la tarea y sus hermanas de la misma conversación (incl. la propuesta del
+--     Cotizador que dispara el cambio de pieza). WhatsApp/web → devuelve wa_link con el texto; Messenger/Instagram → cola
+--     crm_outbox kind='meta_reply' (la envía meta-agent v13 cada 5 min, cron 'meta-outbox-5min', solo con META_PAGE_ACCESS_TOKEN).
+--     Precio: si el producto no tiene precio fijado o el precio difiere, exige is_admin() y lo deja fijado (regla 2).
+-- url_encode(text)                            → para armar el enlace wa.me.
+--
+-- Front: admin/responder.js (módulo compartido) montado en admin/hoy.html (empleados) y admin/equipo-ia.html (Centro de Mando,
+-- sección "Responder a clientes"; esas tareas ya no aparecen en la lista genérica de aprobaciones).
+-- Exportar definiciones: select pg_get_functiondef(oid) from pg_proc where proname like 'responder_%' or proname = 'url_encode';

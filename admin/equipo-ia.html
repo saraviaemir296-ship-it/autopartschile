@@ -122,7 +122,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
     <div id="feed" class="feed"></div>
   </section>
   <section id="s-resumen" class="on"><div id="pushNote" class="note" hidden></div><div id="kpis" class="grid"></div><h2>🧭 Mente maestra (Estratega)</h2><div id="mente" class="tbl"></div><h2>Caja real (lo que registras en finance-bot)</h2><div id="finanzas" class="grid"></div><h2>Anuncios Meta · última lectura real</h2><div id="ads" class="tbl"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
-  <section id="s-aprob"><p class="note">Nada sale a un cliente ni se publica sin tu sí. Aprobar un mensaje lo deja listo; "Enviar por WhatsApp" abre el chat con el texto escrito; "Marcar enviado" lo cierra.</p><div id="aprob"></div></section>
+  <section id="s-aprob"><p class="note">Nada sale a un cliente ni se publica sin tu sí. Las respuestas a clientes se arman con botones (Tenemos / No tenemos / Faltan datos); el resto se aprueba, edita o rechaza.</p><h3 style="margin:.6rem 0 .3rem">💬 Responder a clientes <span class="tag" id="nResp">0</span></h3><div id="resp"></div><h3 style="margin:1rem 0 .3rem">Otras aprobaciones</h3><div id="aprob"></div></section>
   <section id="s-pipeline"><div id="kanban" class="kanban"></div></section>
   <section id="s-equipo"><div id="equipo" class="grid"></div><h2>Errores recientes</h2><div id="errores"></div></section>
   <section id="s-inv"><p class="note">Toca el costo de compra para cargarlo: sin costo no hay "recuperado vs costo".</p><div id="inv" class="tbl"></div></section>
@@ -142,6 +142,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 
 <script type="module">
 import { supabase, requireAdmin } from '/admin/admin-common.js';
+import { montarResponder } from '/admin/responder.js';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -167,7 +168,7 @@ async function load() {
   if (error) return fail(error);
   D = data;
   $('#stamp').textContent = 'datos reales · ' + fecha(D.generado_at);
-  renderKpis(); renderFinanzas(); renderAds(); renderMente(); renderCron(); renderAprob(); renderKanban(); renderEquipo(); renderInv(); renderRadar();
+  renderKpis(); renderFinanzas(); renderAds(); renderMente(); renderCron(); renderAprob(); renderResp().catch(e => toast('Respuestas: ' + e.message, true)); renderKanban(); renderEquipo(); renderInv(); renderRadar();
   loadWa().catch(fail); loadOficina().catch(fail);
 }
 
@@ -230,8 +231,10 @@ function renderCron() {
   $('#cron').innerHTML = `<table><thead><tr><th>Trabajo</th><th>Horario</th><th>Estado</th><th>Última corrida</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
+const RESP_ACCIONES = ['responder_cliente', 'whatsapp_responder', 'sin_stock', 'elegir_repuesto', 'revisar_adjunto'];
+async function renderResp() { const n = await montarResponder($('#resp'), supabase, { toast, onDone: () => { $('#nResp').textContent = Math.max(0, Number($('#nResp').textContent) - 1); } }); $('#nResp').textContent = n; }
 function renderAprob() {
-  const A = D.aprobaciones || [];
+  const A = (D.aprobaciones || []).filter(a => !(a.tipo === 'tarea' && a.entidad_tipo === 'crm_conversation' && RESP_ACCIONES.includes(a.accion)));
   $('#nAprob').textContent = A.length;
   if (!A.length) { $('#aprob').innerHTML = '<div class="empty">Nada pendiente. Los agentes dejan aquí sus propuestas.</div>'; return; }
   // Lote por agente: muchas tareas iguales (p. ej. 46 "marcar vendida" de la caja) se aprueban de una vez. Sigue siendo tu sí: pide confirmación.

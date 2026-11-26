@@ -36,7 +36,7 @@ pre{white-space:pre-wrap;font:inherit;font-size:.9rem;background:#fafafa;border-
   <div style="margin-top:.4rem"><a class="solo-admin" href="/admin/index.html">Admin</a><a class="solo-admin" href="/admin/equipo-ia.html">Centro de Mando (jefe)</a><a href="/admin/disenador.html">Diseñador</a></div>
 </header>
 <main>
-  <section><h2>💬 Responder a clientes <b id="nResp">0</b></h2><div class="help">Abre el chat, responde y toca Listo.</div><div id="resp"></div></section>
+  <section><h2>💬 Responder a clientes <b id="nResp">0</b></h2><div class="help">Toca <b>Tenemos</b>, <b>No tenemos</b> o <b>Faltan datos</b>: el mensaje se arma solo con la pieza y el precio. Revísalo y envíalo.</div><div id="resp"></div></section>
   <section><h2>📣 Publicar hoy <b id="nPub">0</b></h2><div class="help">Texto listo y aprobado por el jefe. Copiar, pegar en Marketplace o el grupo con la imagen, y marcar publicada.</div><div id="pub"></div></section>
   <section><h2>📷 Sacar fotos <b id="nFoto">0</b></h2><div class="help">Las piezas más valiosas sin foto. Saca la foto desde la ficha (botón Abrir) y sube la imagen.</div><div id="foto"></div></section>
   <section><h2>🏷️ Buscar número de parte <b id="nOem">0</b></h2><div class="help">Mira la etiqueta de la pieza o la foto y escribe el N° OEM en la ficha.</div><div id="oem"></div></section>
@@ -46,6 +46,7 @@ pre{white-space:pre-wrap;font:inherit;font-size:.9rem;background:#fafafa;border-
 <div class="toast" id="toast"></div>
 <script type="module">
 import { supabase, requireStaff } from '/admin/admin-common.js';
+import { montarResponder } from '/admin/responder.js';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
@@ -57,16 +58,14 @@ $('#sub').textContent = new Date().toLocaleDateString('es-CL', { weekday: 'long'
 
 const ubic = (p) => `<div class="m" style="margin-top:.4rem;display:flex;gap:.3rem;align-items:center">📍 <input data-ubic="${p.id}" value="${esc(p.ubicacion_fisica || '')}" placeholder="ubicación (ej. estante B3)" style="padding:.35rem .5rem;border:1px solid #ccc;border-radius:8px;font:inherit;font-size:.85rem;width:170px"><button class="btn" data-ubicok="${p.id}" style="padding:.35rem .6rem;font-size:.85rem">Guardar</button></div>`;
 async function cargar() {
-  const [tareas, pubs, sinFoto, sinOem, pedidos] = await Promise.all([
-    supabase.from('agente_tareas').select('id,agente,accion,propuesta,salida,created_at').eq('estado_aprobacion', 'pendiente').in('accion', ['whatsapp_responder', 'sin_stock', 'elegir_repuesto', 'revisar_adjunto']).order('id', { ascending: false }).limit(30),
+  const [pubs, sinFoto, sinOem, pedidos] = await Promise.all([
     supabase.from('publicaciones').select('id,product_id,canal,titulo,texto,imagen_url,created_at').eq('estado', 'aprobada').order('product_id').limit(300),
     supabase.from('products').select('id,sku,name,price_sale,ubicacion_fisica,images').eq('is_active', true).is('deleted_at', null).gt('stock', 0).not('part_status', 'in', '("vendida","no_disponible")').or('images.is.null,images.eq.[]').order('price_sale', { ascending: false }).limit(25),
     supabase.from('products').select('id,sku,name,price_sale,ubicacion_fisica,images,oem_number').is('deleted_at', null).gt('stock', 0).not('part_status', 'in', '("vendida","no_disponible")').or('oem_number.is.null,oem_number.eq.').not('images', 'is', null).neq('images', '[]').order('price_sale', { ascending: false }).limit(25),
     supabase.from('orders').select('id,total,delivery_method,tracking_number,fulfillment_status,created_at,shipping_address,customer_id').eq('status', 'completed').gte('created_at', new Date(Date.now() - 30 * 864e5).toISOString()).order('created_at', { ascending: false }).limit(30),
   ]);
-  // 1. responder
-  const T = tareas.data || []; $('#nResp').textContent = T.length;
-  $('#resp').innerHTML = T.length ? T.map((t) => `<div class="card"><div class="body"><div class="t">${esc((t.propuesta || '').split('\n')[0].slice(0, 120))}</div><div class="m">${esc(t.agente)} · ${esc(t.accion.replace(/_/g, ' '))}</div>${t.propuesta && t.propuesta.length > 120 ? `<pre>${esc(t.propuesta)}</pre>` : ''}</div><div class="acts">${t.salida?.wa_link ? `<a class="btn wa" target="_blank" rel="noopener" href="${esc(t.salida.wa_link)}">WhatsApp</a>` : ''}<button class="btn ok" data-tarea="${t.id}">Listo ✓</button></div></div>`).join('') : '<div class="empty">Nadie espera respuesta ahora.</div>';
+  // 1. responder (botones: Tenemos / No tenemos / Faltan datos / Otro)
+  const nResp = await montarResponder($('#resp'), supabase, { toast, onDone: () => { $('#nResp').textContent = Math.max(0, Number($('#nResp').textContent) - 1); } }); $('#nResp').textContent = nResp;
   // 2. publicar (una tarjeta por pieza; los canales como botones)
   const P = pubs.data || []; const porProd = {}; P.forEach((p) => (porProd[p.product_id] = porProd[p.product_id] || []).push(p));
   const grupos = Object.values(porProd); $('#nPub').textContent = P.length;
