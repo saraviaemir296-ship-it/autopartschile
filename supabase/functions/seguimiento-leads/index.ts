@@ -14,7 +14,7 @@ import {
 } from "../_shared/agente.ts";
 
 const MAX_LEADS = 25;
-const MAX_SEGUIMIENTOS = 3;
+const MAX_SEGUIMIENTOS = 2; // skill seguimiento-leads-ventas: 24 h y 72 h, después cerrar
 
 interface Lead {
   id: string; cliente: string | null; telefono: string | null; canal: string; etapa_detalle: string;
@@ -121,7 +121,7 @@ CONVERSACIÓN (más antigua arriba):
 ${historial || "(sin mensajes registrados; el lead viene de " + lead.canal + ": " + (lead.ultimo_mensaje ?? "") + ")"}`;
 
         let d: Diagnostico; let uso: { modelo: string; tokens: number };
-        if (ANTHROPIC_KEY) { const c = await claudeJSON<Diagnostico>({ system: SYSTEM, user, modelo: MODELO_REDACTOR, maxTokens: 700 }); d = c.data; uso = c.uso; }
+        if (ANTHROPIC_KEY) { const c = await claudeJSON<Diagnostico>({ agente: "seguimiento", system: SYSTEM, user, modelo: MODELO_REDACTOR, maxTokens: 700 }); d = c.data; uso = c.uso; }
         else { d = diagnosticoPlantilla(lead, (msgs ?? []) as { direction: string; body: string | null }[], seguimientosPrevios ?? 0, r ?? null); uso = { modelo: "plantilla", tokens: 0 }; }
         tokensTotal += uso.tokens;
 

@@ -124,7 +124,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
   <section id="s-resumen" class="on"><div id="pushNote" class="note" hidden></div><div id="kpis" class="grid"></div><h2>🧭 Mente maestra (Estratega)</h2><div id="mente" class="tbl"></div><h2>Caja real (lo que registras en finance-bot)</h2><div id="finanzas" class="grid"></div><h2>Anuncios Meta · última lectura real</h2><div id="ads" class="tbl"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
   <section id="s-aprob"><p class="note">Nada sale a un cliente ni se publica sin tu sí. Las respuestas a clientes se arman con botones (Tenemos / No tenemos / Faltan datos); el resto se aprueba, edita o rechaza.</p><h3 style="margin:.6rem 0 .3rem">💬 Responder a clientes <span class="tag" id="nResp">0</span></h3><div id="resp"></div><h3 style="margin:1rem 0 .3rem">Otras aprobaciones</h3><div id="aprob"></div></section>
   <section id="s-pipeline"><div id="kanban" class="kanban"></div></section>
-  <section id="s-equipo"><div id="equipo" class="grid"></div><h2>Errores recientes</h2><div id="errores"></div></section>
+  <section id="s-equipo"><div id="equipo" class="grid"></div><h2>📚 Lo que saben los agentes</h2><p class="note">Reglas de tus skills (atención, cotizar, seguimiento, garantía, despacho, precios, catálogo, grupos, estrategia). Los agentes con IA las leen antes de cada respuesta; las de plantilla ya las siguen.</p><div id="saber"></div><h2>Errores recientes</h2><div id="errores"></div></section>
   <section id="s-inv"><p class="note">Toca el costo de compra para cargarlo: sin costo no hay "recuperado vs costo".</p><div id="inv" class="tbl"></div></section>
   <section id="s-radar"><div id="radar"></div></section>
   <section id="s-wa">
@@ -168,7 +168,7 @@ async function load() {
   if (error) return fail(error);
   D = data;
   $('#stamp').textContent = 'datos reales · ' + fecha(D.generado_at);
-  renderKpis(); renderFinanzas(); renderAds(); renderMente(); renderCron(); renderAprob(); renderResp().catch(e => toast('Respuestas: ' + e.message, true)); renderKanban(); renderEquipo(); renderInv(); renderRadar();
+  renderKpis(); renderFinanzas(); renderAds(); renderMente(); renderCron(); renderAprob(); renderResp().catch(e => toast('Respuestas: ' + e.message, true)); renderSaber().catch(() => {}); renderKanban(); renderEquipo(); renderInv(); renderRadar();
   loadWa().catch(fail); loadOficina().catch(fail);
 }
 
@@ -191,6 +191,11 @@ function renderKpis() {
   ].map(([l, n, s, red]) => `<div class="kpi"><div class="n ${red ? 'red' : ''}">${esc(n)}</div><div class="l">${esc(l)}</div><div class="s">${esc(s)}</div></div>`).join('');
 }
 
+async function renderSaber() {
+  const { data, error } = await supabase.from('conocimiento_agentes').select('clave,titulo,contenido,agentes,fuente').eq('activo', true).order('orden');
+  if (error) { $('#saber').innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  $('#saber').innerHTML = (data || []).map(k => `<details class="card" style="margin-bottom:.5rem"><summary style="cursor:pointer;font-weight:800">${esc(k.titulo)} <span class="tag">${esc((k.agentes || []).join(', '))}</span></summary><pre style="white-space:pre-wrap;font:inherit;font-size:.88rem;margin:.5rem 0 0">${esc(k.contenido)}</pre><div class="meta"><span>fuente: ${esc(k.fuente || '')}</span></div></details>`).join('') || '<div class="empty">Sin conocimiento cargado.</div>';
+}
 async function renderMente() {
   const el = $('#mente'); el.innerHTML = '<div class="empty">cargando…</div>';
   const { data, error } = await supabase.from('agente_tareas').select('id,accion,propuesta,created_at,resultado,error').eq('agente', 'estratega').in('accion', ['informe_semanal', 'dossier_semanal']).order('id', { ascending: false }).limit(3);

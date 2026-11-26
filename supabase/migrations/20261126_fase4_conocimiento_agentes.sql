@@ -1,0 +1,14 @@
+-- CONOCIMIENTO DE LAS SKILLS EN LOS BOTS (aplicado en producción el 26-11-2026 vía MCP; funciones en la BD)
+-- conocimiento_agentes (13 entradas): negocio, reglas de oro, garantía, cotizar, seguimiento, despacho, cierre del día,
+--   precio de mercado, catálogo/anatomía, grupos de Facebook, canales de venta, estrategia (Hormozi/Verdú), auditoría WhatsApp.
+--   Fuente: skills de Emir (atencion-a-clientes, cotizar-repuesto, seguimiento-leads-ventas, cierre-del-dia, despacho-starken,
+--   precio-mercado-repuestos, anatomia-vehiculo-desarme, publicar-en-grupos-facebook, publicar-repuestos-marketplace,
+--   responder-pedidos-grupos-facebook, estrategia-hormozi-verdu, revisar-whatsapp-business). Garantía: se usa la política
+--   del 12-nov (todo 7 días salvo eléctricas), que reemplaza la regla vieja de atencion-a-clientes.
+-- conocimiento_para(agente) → texto que _shared/agente.ts antepone al prompt de Claude (claudeJSON con { agente }).
+--   Lo usan seguimiento-leads (v4), estratega (v2) y catalogador-vision (v2) cuando exista ANTHROPIC_API_KEY.
+-- Cambios deterministas alineados a las skills:
+--   · Cerrador y Seguimiento: máximo 2 seguimientos (24 h y 72 h) y después proponer cerrar como perdido.
+--   · busqueda_variantes(texto): sinónimos chilenos (foco/faro/óptico, tapabarro/guardafango, piloto=izquierdo, copiloto=derecho,
+--     palier/semieje/homocinética, etc.); responder_buscar_stock los usa en el botón "Tenemos".
+-- Centro de Mando → Equipo → "Lo que saben los agentes" muestra las entradas.

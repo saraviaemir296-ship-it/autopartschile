@@ -11,7 +11,7 @@ export type Agente =
   | "recepcionista" | "cotizador" | "seguimiento" | "red_desarmadurias"
   | "catalogador" | "disenador" | "publicador" | "ingreso_vehiculo"
   | "radar" | "despacho" | "cierre_dia" | "auditor" | "cotizador_grua" | "sistema"
-  | "recuperador_pagos" | "finanzas" | "precio_mercado" | "marketing_ads" | "redes_sociales" | "seo_geo" | "mercadolibre" | "importaciones" | "estratega" | "dropi" | "grupos_facebook";
+  | "recuperador_pagos" | "finanzas" | "precio_mercado" | "marketing_ads" | "redes_sociales" | "seo_geo" | "mercadolibre" | "importaciones" | "estratega" | "dropi" | "grupos_facebook" | "cerrador" | "recortador";
 
 export const SB_URL = Deno.env.get("SUPABASE_URL") ?? "";
 export const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -142,11 +142,22 @@ export async function hayPropuestaPendiente(agente: Agente, accion: string, enti
 export interface ClaudeUso { modelo: string; tokens: number; }
 
 /** Pide a Claude un JSON y lo valida. Lanza error si la API falla o la respuesta no es JSON. */
+/** Conocimiento del negocio que viene de las skills de Emir (tabla conocimiento_agentes). Se cachea por corrida. */
+const conocimientoCache = new Map<string, string>();
+export async function conocimiento(agente: Agente): Promise<string> {
+  if (conocimientoCache.has(agente)) return conocimientoCache.get(agente)!;
+  const { data, error } = await db.rpc("conocimiento_para", { p_agente: agente });
+  const txt = !error && typeof data === "string" ? data : "";
+  conocimientoCache.set(agente, txt); return txt;
+}
+
 export async function claudeJSON<T>(opts: {
-  system: string; user: string; modelo?: string; maxTokens?: number; imagenesUrl?: string[];
+  system: string; user: string; modelo?: string; maxTokens?: number; imagenesUrl?: string[]; agente?: Agente;
 }): Promise<{ data: T; uso: ClaudeUso }> {
   if (!ANTHROPIC_KEY) throw new Error("ANTHROPIC_API_KEY no configurada");
   const modelo = opts.modelo ?? MODELO_RAPIDO;
+  const saber = opts.agente ? await conocimiento(opts.agente) : "";
+  const system = saber ? `CONOCIMIENTO DEL NEGOCIO (manda sobre cualquier suposición tuya):\n${saber}\n\n---\n${opts.system}` : opts.system;
   const content: unknown[] = [];
   for (const url of opts.imagenesUrl ?? []) content.push({ type: "image", source: { type: "url", url } });
   content.push({ type: "text", text: opts.user });
@@ -155,7 +166,7 @@ export async function claudeJSON<T>(opts: {
     headers: { "content-type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
       model: modelo, max_tokens: opts.maxTokens ?? 1200,
-      system: opts.system + "\nResponde SOLO con un objeto JSON válido, sin markdown ni texto adicional.",
+      system: system + "\nResponde SOLO con un objeto JSON válido, sin markdown ni texto adicional.",
       messages: [{ role: "user", content }],
     }),
   });

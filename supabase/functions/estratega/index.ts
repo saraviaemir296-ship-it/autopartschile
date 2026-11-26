@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
       await cerrarTarea(t, { resumen: "dossier dejado, sin análisis (falta ANTHROPIC_API_KEY)" }, undefined, "omitida");
       return json({ ok: true, sin_clave: true });
     }
-    const { data: inf, uso } = await claudeJSON<Informe>({ system: SISTEMA, user: "DOSSIER:\n\n" + dossier, modelo: MODELO_REDACTOR, maxTokens: 3000 });
+    const { data: inf, uso } = await claudeJSON<Informe>({ agente: "estratega", system: SISTEMA, user: "DOSSIER:\n\n" + dossier, modelo: MODELO_REDACTOR, maxTokens: 3000 });
     const texto = render(inf, fecha);
     const { data: row } = await db.from("agente_tareas").insert({ agente: "estratega", accion: "informe_semanal", entidad_tipo: "semana", entidad_id: fecha, propuesta: texto, salida: inf as unknown as Record<string, unknown>, modelo: uso.modelo, tokens: uso.tokens }).select("id").single();
     let n = 0;

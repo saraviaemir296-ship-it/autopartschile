@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       if (await hayPropuestaPendiente("catalogador", "sugerir_numero_parte", "product", p.id)) continue;
       const urls = (p.images as string[]).filter((u) => typeof u === "string" && u).slice(0, 3).map((u) => (/^https?:/.test(u) ? u : SITE + (u.startsWith("/") ? "" : "/") + u));
       if (!urls.length) continue;
-      const { data: r, uso } = await claudeJSON<Lectura>({
+      const { data: r, uso } = await claudeJSON<Lectura>({ agente: "catalogador",
         modelo: MODELO_RAPIDO, maxTokens: 400, imagenesUrl: urls,
         system: "Eres catalogador de una desarmaduría de autos en Chile. Miras fotos de UNA pieza usada y buscas el número de parte OEM grabado, estampado o en etiqueta (ej. 33910-71LA0, 48150M53M20, 0 261 S05 790). Responde JSON: {\"numero_parte\": string|null, \"confianza\": \"alta\"|\"media\"|\"baja\", \"donde\": \"dónde está escrito\", \"otros_numeros\": [], \"marca_pieza\": string|null}. Si no se lee con claridad, numero_parte = null. Nunca inventes.",
         user: `Pieza: ${p.name} (SKU ${p.sku}). ¿Qué número de parte se lee en las fotos?`,
