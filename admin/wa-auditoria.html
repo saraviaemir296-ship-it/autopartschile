@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Clasificar WhatsApp · Saravia</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--red:#d80002;--bg:#f6f6f7;--txt:#111;--muted:#555;--line:#e3e3e6;--ok:#1f8f45}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--red);color:#fff;padding:1rem}header h1{margin:0;font-size:1.2rem}header a{color:#fff;font-size:.85rem;margin-right:.8rem}
+main{max-width:860px;margin:0 auto;padding:1rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:.8rem}
+.card h2{margin:0 0 .5rem;font-size:1.05rem}.note{color:var(--muted);font-size:.9rem}
+.kpi{display:flex;gap:.6rem;flex-wrap:wrap}.kpi div{background:#fafafa;border-radius:10px;padding:.5rem .8rem;font-size:.85rem;color:var(--muted)}.kpi b{display:block;font-size:1.3rem;color:#111}
+.btn{border:none;border-radius:10px;padding:.75rem 1rem;font-weight:800;font-size:1rem;cursor:pointer;background:#eee;color:#111;text-decoration:none;display:inline-block}
+.btn.red{background:var(--red);color:#fff}.btn.ok{background:var(--ok);color:#fff}.btn.dark{background:#111;color:#fff}
+.row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}.row .btn{flex:1 1 180px;text-align:center}
+textarea,input{width:100%;padding:.6rem;border:1px solid #ccc;border-radius:10px;font:inherit;font-size:.92rem}textarea{min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+.warn{background:#fff6e5;border:1px solid #ffd28a;border-radius:10px;padding:.6rem .8rem;font-size:.92rem}
+.okbox{background:#e9f8ee;border:1px solid #a6e0b8;border-radius:10px;padding:.6rem .8rem;font-size:.92rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{border-bottom:1px solid #eee;padding:.35rem;text-align:left;vertical-align:top}
+details summary{cursor:pointer;font-weight:800}
+code{background:#f1f1f1;border-radius:4px;padding:0 .25rem;font-size:.85em}
+pre{background:#f7f7f8;border-radius:10px;padding:.6rem;white-space:pre-wrap;word-break:break-word;font-size:.8rem}
+.instr li{margin-bottom:.35rem}
+</style>
+</head>
+<body>
+<header><h1>💬 Clasificar los chats de WhatsApp</h1><div style="margin-top:.3rem"><a href="/admin/hoy.html">Hoy</a><a href="/admin/equipo-ia.html">Centro de Mando</a></div></header>
+<main>
+  <div class="card"><div class="kpi" id="kpi">cargando…</div><div id="audEstado" class="note" style="margin-top:.4rem"></div></div>
+
+  <div class="card">
+    <details open>
+      <summary>🤖 Instrucciones para el agente (Claude en el Chrome de Emir)</summary>
+      <div class="note instr" style="margin-top:.5rem;color:#222">
+        <p><b>Objetivo:</b> revisar los chats de WhatsApp Business de la Desarmaduría Saravia (y Grúas Saravia, mismo número) y dejar cada uno clasificado en el sistema. Primero el <b>último mes</b>; después lo anterior si queda tiempo.</p>
+        <ol>
+          <li>Abre <b>https://web.whatsapp.com</b> en otra pestaña. Si pide escanear un código QR, PARA y avísale a Emir: en el celular, WhatsApp Business → ⋮ → Dispositivos vinculados → Vincular dispositivo.</li>
+          <li>Mira abajo la lista "Ya revisados en esta auditoría" y sáltate esos chats. Revisa en este orden: no leídos, recientes, archivados del último mes.</li>
+          <li>Por cada chat: ábrelo, lee los mensajes del último mes (sube si hace falta) y arma <b>una línea JSON</b> con el formato de abajo. El teléfono es obligatorio: si el chat muestra un nombre, toca el nombre arriba y copia el número de la ficha del contacto.</li>
+          <li>Cada <b>10 a 20 chats</b>, escribe las líneas en el cuadro "Pegar chats" de esta página (una por línea) y toca <b>Importar</b>. Revisa que diga "errores 0"; si hay errores, corrige esas líneas y vuelve a importar (repetir un teléfono actualiza, no duplica).</li>
+          <li>Archivar en WhatsApp: solo chats terminados sin compromisos pendientes (venta entregada y pagada, consulta muerta hace más de 30 días, spam). Si archivas, pon <code>"archivado":true</code>. Ante la duda NO archives y pon <code>"dudoso":true</code>.</li>
+          <li>Al terminar (o si ya no quedan chats del último mes), escribe en "Límites" lo que no pudiste abrir y toca <b>Cerrar auditoría</b>. Eso genera el informe y el Cerrador de ventas propone los mensajes de cierre (no envía nada).</li>
+        </ol>
+        <p><b>Prohibido:</b> enviar mensajes, responder, borrar chats o archivos, bloquear contactos, confirmar pagos, marcar como leído a propósito lo que el cliente espera. Una cotización no es una venta; un pago sin comprobante no es pago. Nunca inventes precios: <code>precio_cotizado</code> solo si el número está escrito en el chat.</p>
+        <p><b>Formato (una línea por chat):</b></p>
+<pre>{"telefono":"+56 9 1234 5678","nombre":"Hugo","negocio":"desarmaduria","categoria":"cotizacion_enviada","resumen":"Pidió foco trasero izq SX4 2012; se le dio 70.000 el 14-nov; no respondió","repuesto":"Foco trasero izquierdo","vehiculo":"Suzuki SX4 2012","precio_cotizado":70000,"ultima_interaccion":"2026-11-14","proxima_accion":"Preguntar si sigue interesado; ofrecer foto y retiro","potencial":"medio","archivado":false,"dudoso":false,"notas":""}</pre>
+        <table>
+          <tr><th>Campo</th><th>Valores</th></tr>
+          <tr><td><code>negocio</code></td><td><code>desarmaduria</code> (repuestos) · <code>gruas</code> (traslados, remolque) · <code>ambos</code> · <code>otro</code> (personal, proveedores, spam)</td></tr>
+          <tr><td><code>categoria</code></td><td>
+            <code>lead_caliente</code> quiere comprar ya / preguntó cómo pagar o retirar ·
+            <code>lead_pendiente</code> el cliente escribió último y nadie le respondió ·
+            <code>cotizacion_enviada</code> se le dio precio y no cerró ·
+            <code>pago_pendiente</code> dijo que paga/transfiere y no hay comprobante ·
+            <code>producto_reservado</code> se le apartó una pieza ·
+            <code>venta_cerrada</code> pagó y retiró/se despachó ·
+            <code>cliente_recurrente</code> compra seguido (taller, mecánico) ·
+            <code>consulta_sin_concretar</code> preguntó y se enfrió ·
+            <code>chat_cerrado</code> no tenemos la pieza, spam, personal</td></tr>
+          <tr><td><code>potencial</code></td><td><code>alto</code> · <code>medio</code> · <code>bajo</code> · <code>nulo</code></td></tr>
+          <tr><td><code>ultima_interaccion</code></td><td>fecha del último mensaje, formato AAAA-MM-DD</td></tr>
+          <tr><td><code>proxima_accion</code></td><td>qué conviene hacer, en una frase (lo ejecuta el Cerrador con aprobación de Emir)</td></tr>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Pegar chats (una línea JSON por chat)</h2>
+    <textarea id="json" placeholder='{"telefono":"+56 9 ...","nombre":"...","negocio":"desarmaduria","categoria":"lead_pendiente", ...}'></textarea>
+    <div class="row"><button class="btn ok" id="importar">⬆ Importar</button></div>
+    <div id="res" style="margin-top:.5rem"></div>
+  </div>
+
+  <div class="card">
+    <h2>Cerrar auditoría</h2>
+    <label class="note">Límites (chats que no abrieron, PIN, archivados que no cargaron, rango revisado)<input id="limites" placeholder="Ej: revisado del 26-oct al 26-nov; 3 chats no cargaron"></label>
+    <div class="row"><button class="btn red" id="cerrar">Cerrar auditoría y generar informe</button></div>
+  </div>
+
+  <div class="card"><h2>Ya revisados en esta auditoría</h2><div id="lista" class="note">cargando…</div></div>
+</main>
+<script type="module">
+import { supabase, requireStaff } from '/admin/admin-common.js';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const session = await requireStaff(); if (!session) throw new Error('sin sesión');
+
+function parseLineas(t) {
+  t = t.trim(); if (!t) return { chats: [], malas: [] };
+  if (t.startsWith('[')) return { chats: JSON.parse(t), malas: [] };
+  const chats = [], malas = [], textoMalas = [];
+  t.split(/\n+/).map((l) => l.trim().replace(/,$/, '')).filter(Boolean).forEach((l, i) => {
+    try { chats.push(JSON.parse(l)); } catch { malas.push(i + 1); textoMalas.push(l); }
+  });
+  return { chats, malas, textoMalas };
+}
+
+async function cargar() {
+  const [{ data: D, error: e1 }, { data: R, error: e2 }] = await Promise.all([supabase.rpc('dashboard_wa'), supabase.rpc('wa_auditoria_revisados')]);
+  if (e1 || e2) { $('#kpi').textContent = (e1 || e2).message; return; }
+  const a = D?.auditoria, r = a?.resumen || {};
+  const n = (k) => (typeof r[k] === 'number' ? r[k] : (r[k]?.length ?? 0));
+  $('#kpi').innerHTML = a ? `<div><b>${n('total_revisados')}</b>revisados</div><div><b>${n('leads_calientes')}</b>calientes</div><div><b>${n('cotizaciones_pendientes')}</b>cotizaciones sin cerrar</div><div><b>${n('pagos_pendientes')}</b>pagos pendientes</div><div><b>${n('esperando_respuesta')}</b>esperando respuesta</div><div><b>${n('requieren_propietario')}</b>para Emir</div>` : '<div><b>0</b>revisados</div>';
+  $('#audEstado').textContent = a ? `Auditoría #${a.id} · ${a.estado === 'en_curso' ? 'en curso' : 'cerrada'} · iniciada ${new Date(a.iniciada_at).toLocaleString('es-CL')}` : 'Sin auditoría todavía: se abre sola al importar los primeros chats.';
+  const chats = R?.chats || [];
+  $('#lista').innerHTML = chats.length ? `<table><tr><th>Nombre</th><th>Teléfono</th><th>Categoría</th></tr>${chats.map((c) => `<tr><td>${esc(c.nombre)}</td><td>${esc(c.telefono)}</td><td>${esc((c.categoria || '').replace(/_/g, ' '))}${c.dudoso ? ' ⚠️' : ''}</td></tr>`).join('')}</table>` : 'Ninguno todavía.';
+}
+
+$('#importar').onclick = async () => {
+  let p; try { p = parseLineas($('#json').value); } catch (e) { $('#res').innerHTML = `<div class="warn">JSON inválido: ${esc(e.message)}</div>`; return; }
+  if (!p.chats.length) { $('#res').innerHTML = `<div class="warn">Nada que importar${p.malas.length ? ' (líneas con error: ' + p.malas.join(', ') + ')' : ''}.</div>`; return; }
+  const { data: aid, error: e0 } = await supabase.rpc('wa_auditoria_abrir', { p_operador: 'agente_chrome' });
+  if (e0) { $('#res').innerHTML = `<div class="warn">${esc(e0.message)}</div>`; return; }
+  const { data, error } = await supabase.rpc('wa_auditoria_registrar', { p_auditoria_id: aid, p_chats: p.chats });
+  if (error) { $('#res').innerHTML = `<div class="warn">${esc(error.message)}</div>`; return; }
+  const errs = (data.detalle_errores || []).concat(p.malas.map((l) => 'línea ' + l + ' no es JSON válido'));
+  $('#res').innerHTML = `<div class="${errs.length ? 'warn' : 'okbox'}">Registrados ${data.registrados} · errores ${errs.length}${errs.length ? ': ' + esc(errs.join(' | ')) : ''}</div>`;
+  if (!(data.detalle_errores || []).length) $('#json').value = (p.textoMalas || []).join('\n');
+  cargar();
+};
+
+$('#cerrar').onclick = async () => {
+  const { data: D } = await supabase.rpc('dashboard_wa'); const a = D?.auditoria;
+  if (!a || a.estado !== 'en_curso') { $('#res').innerHTML = '<div class="warn">No hay auditoría en curso.</div>'; return; }
+  if (!confirm('¿Cerrar la auditoría #' + a.id + ' y generar el informe?')) return;
+  const { error } = await supabase.rpc('wa_auditoria_cerrar', { p_id: a.id, p_notas: null, p_limites: $('#limites').value.trim() || null });
+  if (error) { alert(error.message); return; }
+  $('#res').innerHTML = `<div class="okbox">Auditoría #${a.id} cerrada. Informe en Centro de Mando → WhatsApp; el Cerrador dejó sus propuestas en Aprobaciones.</div>`;
+  cargar();
+};
+
+await cargar();
+</script>
+</body>
+</html>

@@ -55,3 +55,9 @@ Tabla de oportunidades: `v_oportunidades_wa` (nombre, teléfono, producto/servic
 ## Regla de Emir (26-nov): no mostrar chats ya respondidos
 - Un chat va a "esperando respuesta" SOLO si el último mensaje es del cliente y quedó sin contestar. Si el último mensaje es nuestro, no se lista como pendiente de respuesta: se clasifica por su estado comercial (cotización enviada, venta cerrada, cerrado…) y lo toma el Cerrador o Seguimiento, no Emir.
 - En el informe, la sección "Clientes esperando respuesta" lleva únicamente esos chats. Todo lo demás va resumido en números, sin detalle chat por chat, salvo leads calientes, pagos pendientes, reservas y dudosos.
+
+## 26-nov · lo ejecuta Claude en el Chrome de Emir (WhatsApp Web)
+Página de trabajo: `/admin/wa-auditoria.html` (instrucciones completas, formato, cuadro para importar, lista de ya revisados y botón de cierre). El agente no necesita leer este repo.
+Prompt para la extensión de Claude en Chrome:
+> Clasifica los chats de WhatsApp: abre https://autopartschile.cl/admin/wa-auditoria.html, sigue "Instrucciones para el agente" con WhatsApp Web en otra pestaña, empezando por el último mes, importa cada 10 a 20 chats y al terminar cierra la auditoría. No envíes mensajes ni borres nada.
+Si WhatsApp Web pide QR: Emir lo escanea una vez desde el celular (WhatsApp Business → Dispositivos vinculados).
