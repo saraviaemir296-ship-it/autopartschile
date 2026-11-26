@@ -48,6 +48,13 @@
   to = "/.netlify/functions/sitemap-repuestos"
   status = 200
 
+# Catálogo completo legible para asistentes de IA (GEO): todas las piezas disponibles, en vivo.
+[[redirects]]
+  from = "/llms-full.txt"
+  to = "/.netlify/functions/llms-full"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/docs/*"
   to = "/404.html"

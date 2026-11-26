@@ -10,7 +10,8 @@ import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supa
 export type Agente =
   | "recepcionista" | "cotizador" | "seguimiento" | "red_desarmadurias"
   | "catalogador" | "disenador" | "publicador" | "ingreso_vehiculo"
-  | "radar" | "despacho" | "cierre_dia" | "auditor" | "cotizador_grua" | "sistema";
+  | "radar" | "despacho" | "cierre_dia" | "auditor" | "cotizador_grua" | "sistema"
+  | "recuperador_pagos" | "finanzas" | "precio_mercado" | "marketing_ads" | "redes_sociales" | "seo_geo" | "mercadolibre" | "importaciones" | "estratega" | "dropi" | "grupos_facebook";
 
 export const SB_URL = Deno.env.get("SUPABASE_URL") ?? "";
 export const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";

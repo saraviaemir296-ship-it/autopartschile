@@ -1,5 +1,33 @@
+# autopartschile.cl · Desarmaduría Saravia
+# Buscadores y asistentes de IA: bienvenidos a todo el catálogo. Solo el panel interno queda fuera.
+# Catálogo legible para IA: /llms.txt (resumen) y /llms-full.txt (todas las piezas con precio, N° OEM y compatibilidad).
+
 User-agent: *
 Allow: /
 Disallow: /admin/
+
+# Asistentes y rastreadores de IA (ChatGPT, Claude, Perplexity, Gemini, Meta, Apple, Amazon, You, Mistral, Common Crawl)
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: Amazonbot
+User-agent: meta-externalagent
+User-agent: meta-externalfetcher
+User-agent: DuckAssistBot
+User-agent: YouBot
+User-agent: MistralAI-User
+User-agent: CCBot
+User-agent: Bytespider
+Allow: /
+Disallow: /admin/
+
 Sitemap: https://autopartschile.cl/sitemap.xml
 Sitemap: https://autopartschile.cl/sitemap-repuestos.xml

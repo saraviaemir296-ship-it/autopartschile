@@ -61,7 +61,7 @@ function alsoList(comp) {
 exports.handler = async (event) => {
   const slug = decodeURIComponent((event.path || '').replace(/^.*\/repuesto\//, '').replace(/\/$/, ''));
   if (!slug || !/^[a-z0-9-]{3,200}$/.test(slug)) return notFound();
-  const rows = await api('products?select=id,sku,name,slug,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,warranty,part_status,vehiculo_id,seo_title,meta_description&is_active=eq.true&deleted_at=is.null&slug=eq.' + encodeURIComponent(slug) + '&limit=1');
+  const rows = await api('products?select=id,sku,name,slug,description,brand,category,vehicle_compatibility,price_sale,stock,images,oem_number,warranty,part_status,vehiculo_id,seo_title,meta_description,condicion,lado&is_active=eq.true&deleted_at=is.null&slug=eq.' + encodeURIComponent(slug) + '&limit=1');
   const p = rows[0];
   if (!p) return notFound();
   let v = null;
@@ -110,20 +110,56 @@ exports.handler = async (event) => {
     ['¿Hacen envíos?', 'Sí, despachamos a todo Chile por Starken, Chilexpress o Blue Express. También puedes retirar en Av. Lo Blanco 1072, La Pintana, Santiago (lunes a viernes 10:00 a 18:00, sábado 10:00 a 15:30).'],
   ];
 
+  const validez = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  const vehLd = (nombre, make, model, engine, years) => ({
+    '@type': 'Vehicle', name: nombre,
+    ...(make ? { brand: { '@type': 'Brand', name: make }, manufacturer: { '@type': 'Organization', name: make } } : {}),
+    ...(model ? { model } : {}),
+    ...(engine ? { vehicleEngine: { '@type': 'EngineSpecification', name: engine } } : {}),
+    ...(years ? { productionDate: String(years) } : {}),
+  });
+  const vehYears = v && v.anio_desde ? (v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '')) : (comp && (comp.years || comp.year)) || '';
+  const compatLd = [
+    ...(compMain ? [vehLd(compMain, comp.make, comp.model, comp.engine, comp.years || comp.year)] : []),
+    ...(veh && !compMain ? [vehLd(veh, v && v.marca, v && v.modelo, v && v.motor, vehYears)] : []),
+    ...also.map((a) => vehLd(a)),
+  ];
+  const resumenIa = [
+    h1 + ' es un repuesto ' + (p.condicion === 'nuevo' ? 'nuevo' : 'original usado') + (veh ? ' retirado de un ' + veh : '') + '.',
+    compMain || also.length ? 'Sirve para ' + [compMain, ...also].filter(Boolean).join(' y ') + '.' : '',
+    oems.length ? 'Su número de parte OEM es ' + oems.join(' / ') + '.' : '',
+    'Cuesta ' + clp(price) + ' y ' + (sold ? 'ya no está disponible.' : enVeh ? 'está disponible (todavía montado en el vehículo; se desmonta al confirmar la compra).' : 'está disponible, desmontado y listo para despacho.'),
+    hasWarranty ? 'Tiene ' + warrantyText.toLowerCase() + '.' : 'Es pieza eléctrica: se prueba con video antes de entregar y se vende sin garantía posventa.',
+    'Lo vende Desarmaduría Saravia (autopartschile.cl), La Pintana, Santiago; despacho a todo Chile o retiro en el local.',
+  ].filter(Boolean).join(' ');
   const ld = [{
-    '@context': 'https://schema.org', '@type': 'Product', name: h1, sku: p.sku, url,
-    description: p.description || desc, category: p.category || 'Repuestos de autos',
+    '@context': 'https://schema.org', '@type': 'Product', '@id': url + '#producto', name: h1, sku: p.sku, url, inLanguage: 'es-CL',
+    description: p.description || desc, category: p.category || 'Repuestos de autos', disambiguatingDescription: resumenIa,
+    ...(p.lado ? { additionalProperty: [{ '@type': 'PropertyValue', name: 'Lado', value: p.lado }] } : {}),
     ...(imgs.length ? { image: imgs.slice(0, 5) } : {}),
     ...(oems[0] ? { mpn: oems[0], productID: 'oem:' + oems[0] } : {}),
     ...(oemVars.length ? { keywords: [p.name, ...oemVars, compMain, ...also].filter(Boolean).join(', '), additionalProperty: [{ '@type': 'PropertyValue', name: 'Número de parte OEM', value: oemVars.join(', ') }] } : {}),
-    ...(compMain ? { isAccessoryOrSparePartFor: [{ '@type': 'Car', name: compMain, brand: { '@type': 'Brand', name: comp.make }, model: comp.model }, ...also.map((a) => ({ '@type': 'Car', name: a }))] } : {}),
+    ...(compatLd.length ? { isAccessoryOrSparePartFor: compatLd } : {}),
+    ...(v && v.marca && !compMain ? {} : {}),
     ...(brandName ? { brand: { '@type': 'Brand', name: brandName } } : {}),
     offers: {
-      '@type': 'Offer', url, price, priceCurrency: 'CLP', itemCondition: 'https://schema.org/UsedCondition',
-      availability: sold ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+      '@type': 'Offer', url, price, priceCurrency: 'CLP', priceValidUntil: validez,
+      itemCondition: p.condicion === 'nuevo' ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition',
+      availability: sold ? 'https://schema.org/OutOfStock' : enVeh ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
+      inventoryLevel: { '@type': 'QuantitativeValue', value: sold ? 0 : Math.max(1, Number(p.stock) || 1) },
+      areaServed: { '@type': 'Country', name: 'Chile' },
+      acceptedPaymentMethod: ['http://purl.org/goodrelations/v1#ByBankTransferInAdvance', 'http://purl.org/goodrelations/v1#PaymentMethodCreditCard', 'http://purl.org/goodrelations/v1#Cash'],
+      hasMerchantReturnPolicy: hasWarranty
+        ? { '@type': 'MerchantReturnPolicy', applicableCountry: 'CL', returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow', merchantReturnDays: 7, returnMethod: 'https://schema.org/ReturnInStore', returnFees: 'https://schema.org/FreeReturn', description: warrantyText + '. Cambio o reembolso si la pieza no es la publicada.' }
+        : { '@type': 'MerchantReturnPolicy', applicableCountry: 'CL', returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted', description: 'Pieza eléctrica/electrónica: se prueba con video antes de la entrega; sin garantía posventa. Cambio o reembolso solo si la pieza recibida no es la publicada.' },
+      shippingDetails: [
+        { '@type': 'OfferShippingDetails', shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'CL' }, deliveryTime: { '@type': 'ShippingDeliveryTime', handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 2, unitCode: 'DAY' }, transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 5, unitCode: 'DAY' } }, description: 'Despacho a todo Chile por Starken, Chilexpress o Blue Express (costo se cotiza según comuna). Retiro gratis en Av. Lo Blanco 1072, La Pintana.' },
+      ],
       seller: {
-        '@type': 'AutoPartsStore', name: 'Desarmaduría Saravia', url: SITE, telephone: '+56953817335',
+        '@type': 'AutoPartsStore', '@id': SITE + '/#tienda', name: 'Desarmaduría Saravia', alternateName: 'AutopartsChile', url: SITE, telephone: '+56953817335',
         address: { '@type': 'PostalAddress', streetAddress: 'Av. Lo Blanco 1072', addressLocality: 'La Pintana', addressRegion: 'Región Metropolitana', addressCountry: 'CL' },
+        openingHours: ['Mo-Fr 10:00-18:00', 'Sa 10:00-15:30'],
+        sameAs: ['https://www.instagram.com/desarmaduria.saravia', 'https://www.facebook.com/profile.php?id=762247893633542', 'https://www.google.com/maps?cid=17947887919721508836'],
       },
     },
   }, {
@@ -155,7 +191,7 @@ exports.handler = async (event) => {
 
   const body = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${esc(url)}">
-<meta name="robots" content="${sold ? 'noindex,follow' : 'index,follow'}">
+<meta name="robots" content="${sold ? 'noindex,follow' : 'index,follow,max-snippet:-1,max-image-preview:large'}">
 <meta property="og:type" content="product"><meta property="og:title" content="${esc(h1)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}">${imgs[0] ? `<meta property="og:image" content="${esc(imgs[0])}">` : ''}
 <meta property="product:price:amount" content="${price}"><meta property="product:price:currency" content="CLP">
 <link rel="icon" type="image/png" href="/img/favicon.png"><link rel="stylesheet" href="/styles.css?v=20261111lg">
@@ -196,7 +232,7 @@ ${imgs.length > 1 ? `<div class="rp-th">${imgs.map((u) => `<img src="${esc(u)}" 
 <span class="rp-st ${sold ? 'no' : enVeh ? 'veh' : 'ok'}">${sold ? 'No disponible' : enVeh ? 'En el vehículo · se desmonta al confirmar' : '✓ Desmontado · listo para despacho'}</span>
 <h1>${esc(h1)}</h1>
 <div class="rp-price">${clp(price)}</div>
-<p style="color:#555;margin:0">Repuesto original usado, retirado de un vehículo en desarme y revisado.${veh ? ' Proviene de un ' + esc(veh) + '.' : ''}</p>
+<p class="rp-resumen" style="color:#333;margin:0 0 .4rem;line-height:1.5">${esc(resumenIa)}</p>
 <div class="rp-cta">${sold ? '' : '<button class="rp-add" type="button" id="rpAdd">🛒 Agregar al carrito</button>'}
 <a class="rp-wa" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${waText}">💬 Consultar por WhatsApp</a></div>
 <button type="button" class="apc-fav rp-fav" data-sku="${esc(p.sku)}" aria-pressed="false" aria-label="Guardar en favoritos">❤ <span>Guardar en favoritos</span></button>

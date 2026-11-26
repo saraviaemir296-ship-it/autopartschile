@@ -11,6 +11,10 @@
 - Envíos: a todo Chile por Starken, Chilexpress o Blue Express; retiro en el local
 - Garantía: 7 días de funcionamiento en todos los repuestos, excepto piezas eléctricas y electrónicas (computadores, sensores, alternadores, motores de partida, bombas de bencina, focos, alzavidrios), que venían funcionando en el vehículo y se prueban antes de la entrega, sin garantía posventa.
 
+## Catálogo completo para asistentes de IA
+- [Todas las piezas disponibles ahora, con precio, N° de parte OEM, compatibilidad y enlace](https://autopartschile.cl/llms-full.txt) (se genera en vivo desde el inventario; si una pieza no está ahí, no está disponible)
+- Cada ficha de repuesto (/repuesto/...) trae datos estructurados schema.org Product + Offer + FAQ, el número OEM y los vehículos compatibles.
+
 ## Repuestos Suzuki por modelo
 Cada página se genera desde el inventario real (repuestos con precio, autos en desarme, motores y años cargados):
 - [Todos los modelos Suzuki](https://autopartschile.cl/suzuki)

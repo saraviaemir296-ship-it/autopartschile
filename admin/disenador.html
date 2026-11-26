@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Diseñador · Imagen promocional</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--bg:#0b0b0c;--panel:#141416;--line:#262629;--txt:#f3f3f3;--muted:#9a9a9f;--red:#d80002;--red2:#ff3b3f;--ok:#2ea043;--warn:#d29922}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding:.7rem 1rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+header h1{font-size:1.05rem;margin:0}header h1 span{color:var(--red2)}
+header a.back{font-size:.85rem;color:var(--muted);text-decoration:none}
+main{display:grid;grid-template-columns:360px 1fr;gap:1rem;padding:1rem;max-width:1400px;margin:0 auto}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.9rem}
+.panel h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 .6rem}
+input,select,textarea,button{font:inherit}
+input[type=search],input[type=text],select,textarea{width:100%;background:#0f0f11;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem}
+textarea{min-height:70px;resize:vertical}
+.list{max-height:60vh;overflow:auto;display:flex;flex-direction:column;gap:.4rem;margin-top:.6rem}
+.it{display:grid;grid-template-columns:56px 1fr;gap:.6rem;align-items:center;background:#0f0f11;border:1px solid var(--line);border-radius:10px;padding:.45rem;cursor:pointer}
+.it:hover,.it.on{border-color:var(--red2)}
+.it img{width:56px;height:56px;object-fit:cover;border-radius:7px;background:#222}
+.it .n{font-size:.82rem;font-weight:700;line-height:1.25}.it .m{font-size:.72rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.68rem;padding:.1rem .45rem;border-radius:6px;background:#222;color:#ccc;margin-right:.3rem}.tag.ok{background:#12351f;color:#7ee2a0}.tag.warn{background:#3a2a05;color:#ffd27a}.tag.red{background:#3b0b0c;color:#ff8a8c}
+.btn{border:none;border-radius:10px;padding:.65rem 1rem;font-weight:800;cursor:pointer;background:#2a2a2e;color:#fff}
+.btn.red{background:var(--red)}.btn.ok{background:var(--ok)}.btn.ghost{background:transparent;border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.5rem 0}
+.field{margin:.55rem 0}.field label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.25rem}
+.cv{background:#000;border:1px solid var(--line);border-radius:14px;padding:.5rem;display:flex;justify-content:center}
+canvas{width:100%;max-width:560px;height:auto;border-radius:8px;background:#fff}
+.thumbs{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}.thumbs img{width:60px;height:60px;object-fit:cover;border-radius:7px;border:2px solid transparent;cursor:pointer}.thumbs img.on{border-color:var(--red2)}
+.prog{height:8px;background:#222;border-radius:6px;overflow:hidden;margin:.4rem 0}.prog div{height:100%;background:var(--ok);width:0}
+.note{font-size:.78rem;color:var(--muted)}
+.kpi{display:flex;gap:.6rem;flex-wrap:wrap}.kpi div{background:#0f0f11;border:1px solid var(--line);border-radius:10px;padding:.5rem .7rem;font-size:.8rem}.kpi b{display:block;font-size:1.2rem}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/admin/equipo-ia.html">← Centro de Mando</a>
+  <h1>🎨 Diseñador · <span>imagen promocional</span></h1>
+  <span class="note" id="who"></span>
+</header>
+<main>
+  <section class="panel">
+    <h2>Cola del Diseñador</h2>
+    <div class="kpi" id="kpi"></div>
+    <div class="row">
+      <input type="search" id="q" placeholder="Buscar SKU, pieza, N° de parte…">
+    </div>
+    <div class="row">
+      <select id="fVeh"><option value="">Todos los vehículos</option></select>
+      <label class="note"><input type="checkbox" id="fListas" checked> solo listas para publicar (foto + N° parte + precio)</label>
+    </div>
+    <div class="row">
+      <button class="btn ok" id="batch">⚡ Generar todas las listas</button>
+      <button class="btn ghost" id="stop" disabled>Detener</button>
+    </div>
+    <div class="prog"><div id="bar"></div></div>
+    <div class="note" id="batchMsg">Genera y guarda la imagen de cada pieza lista con la plantilla estándar. Cada una queda en la cola del Publicador para tu OK antes de publicar (regla 3).</div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section>
+    <div class="panel" id="editor" hidden>
+      <div class="row" style="justify-content:space-between">
+        <div><b id="eName"></b><div class="note" id="eMeta"></div></div>
+        <div class="row">
+          <button class="btn" id="prev">‹</button><button class="btn" id="next">›</button>
+        </div>
+      </div>
+      <div class="cv"><canvas id="cv" width="1080" height="1350"></canvas></div>
+      <div class="thumbs" id="thumbs"></div>
+      <div class="field"><label>N° de parte OEM (regla 1: sin número no se publica)</label><input type="text" id="fOem"></div>
+      <div class="field"><label>Compatibilidad (texto que sale en la imagen)</label><textarea id="fCompat"></textarea></div>
+      <div class="field"><label>Vehículo de origen (línea bajo la foto del auto)</label><input type="text" id="fVehTxt"></div>
+      <div class="row">
+        <label class="note"><input type="checkbox" id="fPrecio" checked> mostrar precio</label>
+        <label class="note"><input type="checkbox" id="fRecorte"> recortar la foto para llenar (por defecto se muestra completa)</label>
+      </div>
+      <div class="field"><label>PNG del auto (recorte con fondo transparente, opcional; queda guardado para todas las piezas de este vehículo)</label><input type="file" id="fPng" accept="image/png,image/webp"></div>
+      <div class="row">
+        <button class="btn red" id="save">💾 Guardar imagen promocional</button>
+        <button class="btn ghost" id="download">⬇ Descargar PNG</button>
+        <span class="note" id="saveMsg"></span>
+      </div>
+    </div>
+    <div class="panel" id="empty">Elige una pieza de la cola. La imagen se arma sola: foto grande sin recortar, nombre, N° de parte OEM, compatibilidad y el auto de origen abajo. Tú solo revisas y guardas.</div>
+  </section>
+</main>
+
+<script type="module">
+import { supabase, requireAdmin, toast } from '/admin/admin-common.js';
+const $ = (s) => document.querySelector(s);
+const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const abs = (u) => (!u ? '' : /^https?:/.test(u) ? u : location.origin + (u.startsWith('/') ? '' : '/') + u);
+const session = await requireAdmin(); if (!session) throw new Error('sin sesión');
+$('#who').textContent = session.user.email;
+
+let P = [], V = {}, TAREAS = {}, cur = null, fotoIdx = 0, stop = false;
+const imgCache = new Map();
+function loadImg(url) {
+  if (!url) return Promise.resolve(null);
+  if (imgCache.has(url)) return imgCache.get(url);
+  const p = new Promise((res) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => res(null); im.src = abs(url); });
+  imgCache.set(url, p); return p;
+}
+function vehTxt(v) { return v ? [v.marca, v.modelo, v.motor, v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : '', v.color].filter(Boolean).join(' ') : ''; }
+function compatTxt(p) {
+  const c = p.vehicle_compatibility; const out = [];
+  if (c && typeof c === 'object' && !Array.isArray(c)) { const m = [c.make, c.model, c.engine, c.transmission, c.years || c.year].filter(Boolean).join(' '); if (m) out.push(m); if (Array.isArray(c.also)) out.push(...c.also.filter((x) => typeof x === 'string').slice(0, 4)); }
+  else if (Array.isArray(c)) out.push(...c.filter((x) => typeof x === 'string').slice(0, 5));
+  else if (typeof c === 'string' && c) out.push(c);
+  if (!out.length && V[p.vehiculo_id]) out.push(vehTxt(V[p.vehiculo_id]).replace(/\s(Rojo|Azul|Gris|Negro|Blanco|Plata|Plateado|Rosado|Verde|Amarillo|Café|Beige)$/i, ''));
+  return out.join(' · ');
+}
+const lista = (p) => !!(p.oem_number && String(p.oem_number).trim()) && p.precio_estado === 'fijado' && Number(p.price_sale) > 0 && Array.isArray(p.images) && p.images.length;
+const esElectrica = (n) => /el[eé]ctric|electr[oó]nic|computador|\becu\b|sensor|m[oó]dulo|bobina|alternador|motor de partida|radio|pantalla|tablero|switch|rel[eé]|airbag|\bbcm\b|\babs\b/i.test(n || '');
+
+async function load() {
+  const [{ data: ps, error: e1 }, { data: vs, error: e2 }, { data: ts }] = await Promise.all([
+    supabase.from('products').select('id,sku,name,oem_number,price_sale,precio_estado,images,vehicle_compatibility,lado,vehiculo_id,imagen_promocional_url,updated_at').eq('is_active', true).is('deleted_at', null).gt('stock', 0).not('part_status', 'in', '("vendida","no_disponible")').is('imagen_promocional_url', null).order('updated_at', { ascending: false }).limit(2000),
+    supabase.from('vehiculos').select('id,codigo,marca,modelo,motor,anio_desde,anio_hasta,color,images,imagen_png_url'),
+    supabase.from('agente_tareas').select('id,entidad_id').eq('agente', 'disenador').eq('accion', 'crear_imagen_promocional').eq('estado_aprobacion', 'pendiente'),
+  ]);
+  if (e1 || e2) { toast((e1 || e2).message, 'err'); return; }
+  P = (ps || []).filter((p) => Array.isArray(p.images) && p.images.length);
+  V = Object.fromEntries((vs || []).map((v) => [v.id, v]));
+  TAREAS = Object.fromEntries((ts || []).map((t) => [String(t.entidad_id), t.id]));
+  const sel = $('#fVeh'); sel.innerHTML = '<option value="">Todos los vehículos</option>' + Object.values(V).filter((v) => P.some((p) => p.vehiculo_id === v.id)).sort((a, b) => vehTxt(a).localeCompare(vehTxt(b))).map((v) => `<option value="${v.id}">${esc(vehTxt(v))} (${P.filter((p) => p.vehiculo_id === v.id).length})</option>`).join('');
+  render();
+}
+function filtered() {
+  const q = $('#q').value.trim().toLowerCase(), veh = $('#fVeh').value, solo = $('#fListas').checked;
+  return P.filter((p) => (!veh || String(p.vehiculo_id) === veh) && (!solo || lista(p)) && (!q || (p.sku + ' ' + p.name + ' ' + (p.oem_number || '')).toLowerCase().includes(q)))
+          .sort((a, b) => (TAREAS[b.id] ? 1 : 0) - (TAREAS[a.id] ? 1 : 0) || (lista(b) ? 1 : 0) - (lista(a) ? 1 : 0));
+}
+function render() {
+  const L = filtered();
+  const nListas = P.filter(lista).length;
+  $('#kpi').innerHTML = `<div><b>${P.length}</b>con foto, sin imagen promo</div><div><b>${nListas}</b>listas para generar</div><div><b>${Object.keys(TAREAS).length}</b>pedidas por el Publicador</div>`;
+  $('#list').innerHTML = L.length ? L.map((p) => `<div class="it ${cur && cur.id === p.id ? 'on' : ''}" data-id="${p.id}"><img src="${esc(abs(p.images[0]))}" alt="" loading="lazy"><div><div class="n">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)} ${p.oem_number ? '<span class="tag ok">OEM</span>' : '<span class="tag red">sin N° parte</span>'}${p.precio_estado !== 'fijado' ? '<span class="tag warn">precio pendiente</span>' : ''}${TAREAS[p.id] ? '<span class="tag warn">pedida</span>' : ''}</div></div></div>`).join('') : '<div class="note">Nada que mostrar con estos filtros.</div>';
+  $('#batch').textContent = `⚡ Generar todas las listas (${L.filter(lista).length})`;
+}
+['#q', '#fVeh', '#fListas'].forEach((s) => $(s).addEventListener('input', render));
+$('#list').addEventListener('click', (e) => { const it = e.target.closest('.it'); if (!it) return; abrir(P.find((p) => p.id === Number(it.dataset.id))); });
+
+async function abrir(p) {
+  cur = p; fotoIdx = 0; $('#editor').hidden = false; $('#empty').hidden = true; $('#saveMsg').textContent = '';
+  const v = V[p.vehiculo_id];
+  $('#eName').textContent = p.name; $('#eMeta').textContent = `${p.sku} · ${clp(p.price_sale)} · ${v ? vehTxt(v) : 'sin vehículo de origen'}${TAREAS[p.id] ? ' · pedida por el Publicador (tarea #' + TAREAS[p.id] + ')' : ''}`;
+  $('#fOem').value = p.oem_number || ''; $('#fCompat').value = compatTxt(p); $('#fVehTxt').value = v ? 'Retirado de: ' + vehTxt(v) : '';
+  $('#fPrecio').checked = p.precio_estado === 'fijado' && Number(p.price_sale) > 0; $('#fRecorte').checked = false; $('#fPng').value = '';
+  $('#thumbs').innerHTML = p.images.map((u, i) => `<img src="${esc(abs(u))}" data-i="${i}" class="${i === 0 ? 'on' : ''}" alt="">`).join('');
+  render(); await dibujar();
+}
+$('#thumbs').addEventListener('click', (e) => { const im = e.target.closest('img'); if (!im) return; fotoIdx = Number(im.dataset.i); $('#thumbs img').forEach((x) => x.classList.toggle('on', x === im)); dibujar(); });
+['#fOem', '#fCompat', '#fVehTxt', '#fPrecio', '#fRecorte'].forEach((s) => $(s).addEventListener('input', () => dibujar()));
+$('#prev').onclick = () => { const L = filtered(); const i = L.findIndex((x) => x.id === cur.id); if (i > 0) abrir(L[i - 1]); };
+$('#next').onclick = () => { const L = filtered(); const i = L.findIndex((x) => x.id === cur.id); if (i < L.length - 1) abrir(L[i + 1]); };
+
+// ---- Plantilla (1080x1350, fondo blanco, rojo/negro de la marca) ----
+const W = 1080, H = 1350, RED = '#d80002';
+function wrap(ctx, text, maxW, maxLines) {
+  const words = String(text || '').split(/\s+/).filter(Boolean); const lines = []; let line = '';
+  for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; if (lines.length === maxLines) break; }
+  if (line && lines.length < maxLines) lines.push(line);
+  if (lines.length === maxLines && words.join(' ').length > lines.join(' ').length) lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S*$/, '…');
+  return lines;
+}
+function fit(ctx, text, maxW, size, min) { let s = size; ctx.font = `800 ${s}px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif`; while (ctx.measureText(text).width > maxW && s > min) { s -= 2; ctx.font = `800 ${s}px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif`; } return s; }
+function drawContain(ctx, im, x, y, w, h, cover) {
+  if (!im) return;
+  const r = Math[cover ? 'max' : 'min'](w / im.naturalWidth, h / im.naturalHeight); const dw = im.naturalWidth * r, dh = im.naturalHeight * r;
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.drawImage(im, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh); ctx.restore();
+}
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+async function dibujar(opts = {}) {
+  const p = opts.p || cur; if (!p) return;
+  const cv = opts.canvas || $('#cv'); const ctx = cv.getContext('2d');
+  const v = V[p.vehiculo_id];
+  const oem = opts.p ? (p.oem_number || '') : $('#fOem').value.trim();
+  const compat = opts.p ? compatTxt(p) : $('#fCompat').value.trim();
+  const vehT = opts.p ? (v ? 'Retirado de: ' + vehTxt(v) : '') : $('#fVehTxt').value.trim();
+  const showPrice = opts.p ? (p.precio_estado === 'fijado' && Number(p.price_sale) > 0) : $('#fPrecio').checked;
+  const cover = opts.p ? false : $('#fRecorte').checked;
+  const foto = await loadImg(p.images[opts.p ? 0 : fotoIdx] || p.images[0]);
+  const auto = v ? await loadImg(v.imagen_png_url || (Array.isArray(v.images) && v.images[0]) || '') : null;
+  const F = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  // franja superior
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, W, 104);
+  ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.font = `900 40px ${F}`; ctx.fillText('DESARMADURÍA SARAVIA', 40, 44);
+  ctx.font = `600 24px ${F}`; ctx.fillText('Repuestos originales · La Pintana · envíos a todo Chile', 40, 80);
+  ctx.textAlign = 'right'; ctx.font = `800 30px ${F}`; ctx.fillText('WhatsApp +56 9 5381 7335', W - 40, 44);
+  ctx.font = `600 24px ${F}`; ctx.fillText('autopartschile.cl', W - 40, 80);
+  // foto grande, sin recortar
+  ctx.fillStyle = '#f3f3f4'; rr(ctx, 40, 128, W - 80, 640, 22); ctx.fill();
+  ctx.save(); rr(ctx, 40, 128, W - 80, 640, 22); ctx.clip(); drawContain(ctx, foto, 56, 144, W - 112, 608, cover); ctx.restore();
+  ctx.fillStyle = RED; rr(ctx, 60, 148, 196, 44, 10); ctx.fill(); ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = `800 22px ${F}`; ctx.fillText('FOTO REAL', 78, 170);
+  // nombre
+  ctx.fillStyle = '#111'; ctx.textBaseline = 'alphabetic';
+  let y = 830; ctx.font = `800 46px ${F}`; const tl = wrap(ctx, p.name, W - 80, 2); for (const l of tl) { ctx.fillText(l, 40, y); y += 54; }
+  // OEM
+  y += 8;
+  if (oem) { ctx.font = `800 34px ${F}`; const t = 'N° DE PARTE OEM  ' + oem.toUpperCase(); const s = fit(ctx, t, W - 120, 34, 22); const tw = ctx.measureText(t).width; ctx.fillStyle = '#111'; rr(ctx, 40, y - 2, tw + 40, 58, 12); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillText(t, 60, y + 38); y += 78; }
+  else { ctx.fillStyle = RED; ctx.font = `800 28px ${F}`; ctx.fillText('FALTA N° DE PARTE (regla 1: no publicar sin número)', 40, y + 30); y += 60; }
+  // compatibilidad
+  if (compat) { ctx.fillStyle = '#444'; ctx.font = `700 28px ${F}`; ctx.fillText('Compatible con:', 40, y + 26); ctx.fillStyle = '#111'; ctx.font = `600 28px ${F}`; const cl = wrap(ctx, compat, W - 300, 2); let yy = y + 26; for (const l of cl) { ctx.fillText(l, 262, yy); yy += 34; } y = Math.max(y + 60, yy + 6); }
+  // franja inferior: auto de origen + precio
+  const by = Math.max(y + 10, 1095);
+  ctx.fillStyle = '#f7f7f7'; ctx.fillRect(0, by, W, H - by);
+  ctx.fillStyle = RED; ctx.fillRect(0, by, W, 6);
+  if (auto) drawContain(ctx, auto, 40, by + 22, 330, H - by - 44, false);
+  else { ctx.fillStyle = '#ddd'; rr(ctx, 40, by + 22, 330, H - by - 44, 14); ctx.fill(); ctx.fillStyle = '#888'; ctx.font = `700 22px ${F}`; ctx.textAlign = 'center'; ctx.fillText('sin foto del auto', 205, by + (H - by) / 2); ctx.textAlign = 'left'; }
+  let ry = by + 56;
+  if (vehT) { ctx.fillStyle = '#333'; ctx.font = `700 27px ${F}`; for (const l of wrap(ctx, vehT, W - 440, 2)) { ctx.fillText(l, 400, ry); ry += 33; } }
+  if (showPrice) { ctx.fillStyle = RED; ctx.font = `900 72px ${F}`; ctx.fillText(clp(p.price_sale), 400, ry + 70); ry += 86; }
+  ctx.fillStyle = '#555'; ctx.font = `600 24px ${F}`;
+  const gar = esElectrica(p.name) ? 'Pieza eléctrica: se prueba con video antes de entregar' : 'Garantía de funcionamiento 7 días';
+  ctx.fillText(gar, 400, Math.min(ry + 30, H - 70));
+  ctx.fillText('Retiro en La Pintana o despacho por Starken · Webpay, transferencia, Mercado Pago', 400, Math.min(ry + 62, H - 34));
+  return cv;
+}
+
+async function subirCanvas(cv, p) {
+  const blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+  const path = `promo/${p.sku.replace(/[^A-Za-z0-9_-]/g, '_')}-${Date.now()}.png`;
+  const { error } = await supabase.storage.from('product-images').upload(path, blob, { contentType: 'image/png', upsert: true, cacheControl: '31536000' });
+  if (error) throw error;
+  const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(path);
+  const upd = { imagen_promocional_url: publicUrl };
+  if (!opts_oemLocked && !p.oem_number && $('#fOem').value.trim() && cur && cur.id === p.id) upd.oem_number = $('#fOem').value.trim();
+  const { error: e2 } = await supabase.from('products').update(upd).eq('id', p.id);
+  if (e2) throw e2;
+  if (TAREAS[p.id]) { await supabase.rpc('agente_tarea_decidir', { p_id: TAREAS[p.id], p_decision: 'ejecutada' }).catch(() => {}); delete TAREAS[p.id]; }
+  P = P.filter((x) => x.id !== p.id);
+  return publicUrl;
+}
+let opts_oemLocked = false;
+$('#save').onclick = async () => {
+  if (!cur) return; const oem = $('#fOem').value.trim();
+  if (!oem) { toast('Regla 1: sin número de parte no se guarda la imagen.', 'err'); return; }
+  $('#save').disabled = true; $('#saveMsg').textContent = 'guardando…';
+  try { const cv = await dibujar(); const url = await subirCanvas(cv, cur); $('#saveMsg').innerHTML = `guardada ✓ <a href="${esc(url)}" target="_blank" rel="noopener">ver</a>`; toast('Imagen promocional guardada'); const L = filtered(); render(); if (L.length) abrir(L[0]); else { $('#editor').hidden = true; $('#empty').hidden = false; } }
+  catch (e) { toast(e.message || 'error', 'err'); $('#saveMsg').textContent = 'error: ' + (e.message || e); }
+  $('#save').disabled = false;
+};
+$('#download').onclick = async () => { const cv = await dibujar(); const a = document.createElement('a'); a.download = (cur.sku || 'promo') + '.png'; a.href = cv.toDataURL('image/png'); a.click(); };
+$('#fPng').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f || !cur || !cur.vehiculo_id) return;
+  const v = V[cur.vehiculo_id]; const path = `vehiculos/png/${v.codigo.replace(/[^A-Za-z0-9_-]/g, '_')}-${Date.now()}.${f.type.includes('webp') ? 'webp' : 'png'}`;
+  const { error } = await supabase.storage.from('product-images').upload(path, f, { contentType: f.type, upsert: true });
+  if (error) { toast(error.message, 'err'); return; }
+  const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(path);
+  const { error: e2 } = await supabase.from('vehiculos').update({ imagen_png_url: publicUrl }).eq('id', v.id);
+  if (e2) { toast(e2.message, 'err'); return; }
+  v.imagen_png_url = publicUrl; toast('PNG del auto guardado para ' + vehTxt(v)); dibujar();
+};
+
+// ---- Lote: todas las piezas listas con la plantilla estándar ----
+$('#batch').onclick = async () => {
+  const L = filtered().filter(lista); if (!L.length) { toast('No hay piezas listas en este filtro.', 'err'); return; }
+  if (!confirm(`Generar y guardar ${L.length} imágenes promocionales con la plantilla estándar?\nCada pieza quedará en la cola del Publicador para tu OK antes de publicarse.`)) return;
+  stop = false; $('#batch').disabled = true; $('#stop').disabled = false; const off = document.createElement('canvas'); off.width = W; off.height = H;
+  let ok = 0, err = 0;
+  for (let i = 0; i < L.length; i++) {
+    if (stop) break;
+    const p = L[i]; $('#batchMsg').textContent = `${i + 1}/${L.length} · ${p.sku} ${p.name}`; $('#bar').style.width = Math.round(100 * (i + 1) / L.length) + '%';
+    try { await dibujar({ p, canvas: off }); await subirCanvas(off, p); ok++; } catch (e) { err++; console.error(p.sku, e); }
+  }
+  $('#batchMsg').textContent = `Listo: ${ok} guardadas${err ? ', ' + err + ' con error (ver consola)' : ''}${stop ? ' · detenido' : ''}. El Publicador ya tiene sus textos listos para tu OK en el Centro de Mando.`;
+  $('#batch').disabled = false; $('#stop').disabled = true; render();
+};
+$('#stop').onclick = () => { stop = true; };
+
+await load();
+</script>
+</body>
+</html>
