@@ -194,7 +194,7 @@ create or replace trigger trg_lote_a_vehiculo after insert on finance.lots for e
 -- vincular_lote_vehiculo: costo_compra/fecha_compra en vehiculos + lots.vehiculo_id
 create or replace function public.agente_tareas_ejecutar() returns trigger
 language plpgsql security definer set search_path = public as $$
-declare r record; q uuid; pid bigint; vid bigint; ids bigint[]; tok text; txid bigint; acct_money int; acct_inc int; cb bigint; tot numeric; n int := 0;
+declare r record; q uuid; pid bigint; vid bigint; ids bigint[]; txid bigint; acct_money int; acct_inc int; cb bigint; tot numeric; n int := 0;
 begin
   if new.estado_aprobacion in ('aprobada','editada') and old.estado_aprobacion is distinct from new.estado_aprobacion then
     if new.accion = 'proponer_cierre' and new.entidad_tipo = 'crm_conversation' then

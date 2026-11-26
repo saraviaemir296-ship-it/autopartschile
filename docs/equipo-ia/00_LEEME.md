@@ -71,3 +71,15 @@ Pedido de Emir: "aumenta el GEO a más no poder", "editor de fotos con N° OEM, 
 Correcciones honestas del informe: de los 7 pedidos web "pagados", 2 son pruebas internas ($1.000 y $50) y 4 son el mismo producto "Bobinas de encendido" de septiembre; la única venta web real reciente ($60.000, 18-nov) sí estaba anotada en caja. La homocinética del pedido #57 (Mercado Pago pendiente) la pagó el cliente por transferencia el mismo día (caja #202): la propuesta del Recuperador se expiró y la función ahora revisa la caja antes de proponer.
 
 **26-nov, mediodía.** Aprobaciones en lote en el Centro de Mando (tareas repetidas del mismo agente y publicaciones por canal), con confirmación: sigue siendo el sí de Emir, en un toque. Captura real del panel renderizada con los datos de la base (Playwright + stub de supabase-js): 25 escritorios, caja real, 11 campañas, 4 lotes; sin errores de consola. WhatsApp Business: no hay nada que revisar desde el sistema (0 chats importados, 0 conversaciones de WhatsApp en el CRM, `wa_conversation_summary` solo tiene pruebas de junio); el camino sigue siendo la operación en el PC descrita en `operacion_whatsapp.md` o conectar la Cloud API.
+
+## 26-nov, tarde · "aprueba todo por tu cuenta", Dropi fuera, Estratega (mente maestra)
+
+Emir delegó las aprobaciones ("aprueba todo por tu cuenta si eres full inteligente"). Se revisaron una por una, no a ciegas; cada decisión quedó marcada en `agente_tareas.salida.decidido_por = ia_delegada_por_emir`:
+- Ventas de caja → vendidas en la web: 16 aprobadas (4 con el SKU corregido a mano), 21 rechazadas con motivo (pieza equivocada, auto distinto —el Swift "gris oscuro de 750.000" no está en el sistema—, duplicados, una venta anulada). 22 piezas quedaron vendidas y pausadas en ML. 8 quedaron pendientes para Emir porque hay dos candidatos plausibles.
+- 7 lotes de autos vinculados: `vehiculos.costo_compra` cargado en 7 autos ($4.400.000).
+- 183 publicaciones aprobadas (61 piezas × 3 canales); 3 piezas se rechazaron solas porque ya no tenían stock. Aprobar no publica: Mercado Libre se publica desde el admin de ML y Marketplace/grupos desde la plantilla.
+- Meta Ads: las 3 campañas activas sin gasto (Kia Optima, Alto 800, Chevrolet Lumina) se pausaron de verdad por la API (26-nov).
+- Quedaron para Emir: 4 "sin stock" del Recepcionista (necesitan saber si la pieza está en el patio), 1 elegir repuesto, los 2 secretos, el permiso de búsqueda de ML.
+- Dropi: escritorio eliminado. No se pudo verificar el catálogo de Dropi desde esta sesión (sin red): si Dropi tiene autopartes para dropshipping, se vuelve a crear.
+
+**Estratega (mente maestra)**: `estratega_dossier()` + edge function `estratega` + cron lunes 7:30 + prompt en `docs/equipo-ia/mente_maestra_prompt.md` (10 lentes: Hormozi, Goldratt, Ohno, Bezos, Munger/Buffett, Drucker, Kennedy/Halbert, Walton, Grove, Naval). Sin clave de Anthropic deja el dossier listo para pegar (tarea #204, botón "copiar" en el Resumen del panel). El primer informe lo redactó esta sesión sobre ese dossier y quedó como `informe_semanal` con 3 acciones en la cola (aprobar = comprometerse). Bloque "Mente maestra" en la pestaña Resumen.
