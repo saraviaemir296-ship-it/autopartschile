@@ -2,8 +2,8 @@
 -- FASE 1 — BASE CENTRAL DEL EQUIPO IA (Desarmaduría Saravia / AutopartsChile)
 -- Proyecto Supabase: zlyforhywunqhitrdreo (autopartschile-ai)
 --
--- ESTADO: BORRADOR. NO APLICADO. Se aplica solo con el OK de Emir.
--- Probado en seco contra la base real con BEGIN ... ROLLBACK (sin dejar cambios).
+-- ESTADO: APLICADA el 26-nov-2026 como 20261126021054_fase1_base_central_equipo_ia.
+-- Correcciones posteriores en 20261126_fase1b_correcciones.sql (aplicar después).
 --
 -- PRINCIPIO: no se crea una base paralela. Se EXTIENDE lo que ya existe
 -- (products, vehiculos, customers, crm_*, orders, oportunidades) y solo se
@@ -250,12 +250,12 @@ begin
   if new.estado in ('aprobada','publicada') and (old is null or old.estado is distinct from new.estado) then
     select oem_number, images, imagen_promocional_url, precio_estado, price_sale, stock, is_active, part_status, deleted_at
       into p from products where id = new.product_id;
-    if p.deleted_at is not null then faltan := faltan || 'repuesto eliminado'; end if;
-    if nullif(btrim(p.oem_number),'') is null then faltan := faltan || 'número de parte'; end if;
-    if p.images is null or jsonb_typeof(p.images) <> 'array' or jsonb_array_length(p.images) = 0 then faltan := faltan || 'foto del repuesto'; end if;
-    if nullif(btrim(p.imagen_promocional_url),'') is null then faltan := faltan || 'imagen con autos compatibles'; end if;
-    if p.precio_estado <> 'fijado' or p.price_sale is null or p.price_sale <= 0 then faltan := faltan || 'precio fijado por Emir'; end if;
-    if coalesce(p.stock,0) <= 0 or p.part_status in ('vendida','no_disponible') then faltan := faltan || 'stock'; end if;
+    if p.deleted_at is not null then faltan := array_append(faltan, 'repuesto eliminado'); end if;
+    if nullif(btrim(p.oem_number),'') is null then faltan := array_append(faltan, 'número de parte'); end if;
+    if p.images is null or jsonb_typeof(p.images) <> 'array' or jsonb_array_length(p.images) = 0 then faltan := array_append(faltan, 'foto del repuesto'); end if;
+    if nullif(btrim(p.imagen_promocional_url),'') is null then faltan := array_append(faltan, 'imagen con autos compatibles'); end if;
+    if p.precio_estado <> 'fijado' or p.price_sale is null or p.price_sale <= 0 then faltan := array_append(faltan, 'precio fijado por Emir'); end if;
+    if coalesce(p.stock,0) <= 0 or p.part_status in ('vendida','no_disponible') then faltan := array_append(faltan, 'stock'); end if;
     if array_length(faltan,1) > 0 then
       raise exception 'No se puede publicar: falta %', array_to_string(faltan, ', ');
     end if;

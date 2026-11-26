@@ -45,8 +45,9 @@ Proyecto aparte: `gruas-saravia` (mgkfsodgdldotjiybate), con su propia base.
 |---|---|---|
 | Repuestos activos sin número de parte | **597 de 1.038** | Regla 1 dice que no se publica sin número de parte → el 58 % de tu stock no es publicable hoy. El cuello de botella es catalogación, no tablas. |
 | Repuestos activos sin foto | **778 de 1.038** | Ídem. |
-| Repuestos marcados `pendiente_aprobacion_emir=true` en metadata | **185** (todos del Audi A4) | Están **publicados en la web con precio** sin tu aprobación. Hoy ya se viola la regla 2. |
-| Vehículo SCR1721 (S-Cross 2017-21) | 148 piezas creadas, **0 disponibles** (todas inactivas) | Despiece generado y nunca activado. |
+| Repuestos marcados `pendiente_aprobacion_emir=true` en metadata | 185, todos del Audi A4 "AUA4T20" (vehículo 39) | **Corrección:** los 185 están borrados (soft delete, importación temporal). No hay repuestos vivos publicados sin tu aprobación. La migración igual los deja `precio_pendiente` por si se restauran. |
+| Vehículo SCR1721 (S-Cross 2017-21) | 148 piezas creadas con precio, **0 publicadas** (todas inactivas), $15,9 M de stock | Despiece generado y nunca activado. Es el auto con más valor parado. |
+| Repuestos vivos sin precio (`price_sale` nulo o 0) | 46, todos inactivos | Pasan a `precio_pendiente` en la 1b. |
 | Leads web | 5, todos con próxima acción vencida desde el 13-nov | Son los primeros candidatos reales del agente Seguimiento. |
 | Clientes con comuna | 0 de 24 | La "segmentación por comuna" del dashboard no tendrá datos hasta que el Recepcionista la capture. |
 | Ventas | 7 pedidos web completados + 3 manuales "no especificado" | Con 10 ventas registradas, "tasa de cierre" y "días promedio para vender" van a ser números con 1 decimal de ruido. Mostrarlos igual, pero con el `n` al lado. |
