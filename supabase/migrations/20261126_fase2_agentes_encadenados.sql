@@ -38,3 +38,5 @@
 --   * Recepcionista v3: calce por PIEZA con sinónimos de part_catalog.como_busca (foco/óptico/faro...), luego por
 --     vehículo; si el formulario no trae vehículo, detecta una marca conocida en el mensaje (p. ej. "Hyundai accent 2019")
 --     y exige que el stock sea de esa marca → si no hay, "sin_stock" en vez de ofrecer piezas de otro auto.
+--   * Recepcionista v4: si el cliente nombra un modelo (lista de modelos frecuentes + los de vehiculos), la marca sola no
+--     basta para calzar: evita cotizar una pieza de SX4 a quien pide para Swift (caso real detectado y anulado).
