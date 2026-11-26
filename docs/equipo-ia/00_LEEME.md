@@ -12,3 +12,13 @@ Documentación de trabajo del "equipo de empleados IA" sobre la base única (Sup
 | `../../supabase/migrations/20261126_fase1b_correcciones.sql` | Correcciones post-verificación (PENDIENTE: requiere confirmación en Supabase) |
 
 Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
+
+## Código de la fase 2 (escrito, NO desplegado)
+
+| Archivo | Qué es |
+|---|---|
+| `../../supabase/functions/_shared/agente.ts` | Librería común: registro en `agente_tareas`, propuestas con aprobación, llamada a Claude con JSON validado, horario, garantía por tipo de pieza, enlace `wa.me` |
+| `../../supabase/functions/seguimiento-leads/index.ts` | Agente Seguimiento (fase 2.1): diagnostica leads vencidos y propone un mensaje o un cierre por lead |
+| `../../supabase/migrations/20261127_fase2_0_cola_aprobacion.sql` | Aprobar una tarea encola su ejecución en `crm_outbox`; cada propuesta avisa por Telegram |
+
+Pendiente para desplegar: OK de Emir a `fase2_plan.md`, secretos `ANTHROPIC_API_KEY` y Telegram vigentes, y la migración 1b.
