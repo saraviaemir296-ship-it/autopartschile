@@ -228,7 +228,10 @@ function renderAprob() {
   const porAgente = {};
   A.filter(a => a.tipo === 'tarea').forEach(a => { const k = a.agente + '·' + a.accion; (porAgente[k] = porAgente[k] || { agente: a.agente, accion: a.accion, ids: [] }).ids.push(a.id); });
   const lotes = Object.values(porAgente).filter(g => g.ids.length >= 3);
-  const barra = lotes.length ? `<div class="card"><div class="t">Aprobar en lote</div><div class="meta">Solo para tareas repetidas del mismo tipo. Revisa una o dos antes.</div><div class="acts">${lotes.map(g => `<button class="btn red" data-act="lote" data-ids="${g.ids.join(',')}">Aprobar ${g.ids.length} · ${esc(g.agente)} · ${esc(g.accion.replace(/_/g, ' '))}</button>`).join('')}</div></div>` : '';
+  const pubs = A.filter(a => a.tipo === 'publicacion');
+  const pubsPorCanal = {}; pubs.forEach(a => (pubsPorCanal[a.canal] = pubsPorCanal[a.canal] || []).push(a.id));
+  const botonesPub = pubs.length >= 3 ? `<button class="btn red" data-act="lote-pub" data-ids="${pubs.map(a => a.id).join(',')}">Aprobar ${pubs.length} publicaciones (todos los canales)</button>` + Object.entries(pubsPorCanal).map(([c, ids]) => `<button class="btn" data-act="lote-pub" data-ids="${ids.join(',')}">Solo ${esc(c.replace(/_/g, ' '))} (${ids.length})</button>`).join('') : '';
+  const barra = (lotes.length || botonesPub) ? `<div class="card"><div class="t">Aprobar en lote</div><div class="meta">Solo para tareas repetidas del mismo tipo. Revisa una o dos antes.</div><div class="acts">${lotes.map(g => `<button class="btn red" data-act="lote" data-ids="${g.ids.join(',')}">Aprobar ${g.ids.length} · ${esc(g.agente)} · ${esc(g.accion.replace(/_/g, ' '))}</button>`).join('')}${botonesPub}</div></div>` : '';
   $('#aprob').innerHTML = barra + A.map(a => {
     const head = `<div class="meta"><span class="tag red">${esc(a.tipo)}</span>${a.agente ? `<span class="tag">${esc(a.agente)}</span>` : ''}<span>hace ${ago(a.desde)}</span></div>`;
     if (a.tipo === 'precio') {
@@ -263,6 +266,15 @@ $('#aprob').addEventListener('click', async e => {
     lote.disabled = true; let ok = 0, err = 0;
     for (const id of ids) { const { error } = await supabase.rpc('agente_tarea_decidir', { p_id: id, p_decision: 'aprobada' }); if (error) err++; else ok++; }
     toast(`${ok} aprobadas${err ? ', ' + err + ' con error' : ''}`, err ? 'err' : 'ok'); load(); return;
+  }
+  const lotePub = e.target.closest('button[data-act="lote-pub"]');
+  if (lotePub) {
+    const ids = lotePub.dataset.ids.split(',').map(Number);
+    if (!confirm(`¿Aprobar ${ids.length} publicaciones? Quedan listas para salir por su canal (Mercado Libre se publica solo; Marketplace y grupos se copian desde la plantilla).`)) return;
+    lotePub.disabled = true;
+    const { error } = await supabase.from('publicaciones').update({ estado: 'aprobada' }).in('id', ids).eq('estado', 'pendiente_aprobacion');
+    if (error) { toast(error.message, 'err'); lotePub.disabled = false; return; }
+    toast(ids.length + ' publicaciones aprobadas'); load(); return;
   }
   const b = e.target.closest('button[data-act]'); if (!b) return;
   const id = b.dataset.id, act = b.dataset.act, dec = b.dataset.dec;
