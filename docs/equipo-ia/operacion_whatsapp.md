@@ -61,3 +61,12 @@ Página de trabajo: `/admin/wa-auditoria.html` (instrucciones completas, formato
 Prompt para la extensión de Claude en Chrome:
 > Clasifica los chats de WhatsApp: abre https://autopartschile.cl/admin/wa-auditoria.html, sigue "Instrucciones para el agente" con WhatsApp Web en otra pestaña, empezando por el último mes, importa cada 10 a 20 chats y al terminar cierra la auditoría. No envíes mensajes ni borres nada.
 Si WhatsApp Web pide QR: Emir lo escanea una vez desde el celular (WhatsApp Business → Dispositivos vinculados).
+
+## 26-nov (2) · 2 meses y "tiempo real" con el agente de Chrome
+- Rango: 2 meses (la página calcula la fecha). Primera vez: revisión completa y cerrar auditoría. Después: revisión cada hora solo de chats con mensajes nuevos, sin cerrar.
+- Si el último mensaje es del cliente sin contestar (`esperando_respuesta: true` + `ultimo_mensaje_cliente`), aparece al tiro la tarjeta en **Hoy → Responder a clientes** con las piezas en stock que calzan. Si después se contestó desde el teléfono, la siguiente revisión la cierra sola.
+- Tiempo real de verdad (al segundo) solo con la API de WhatsApp (app de Meta + coexistencia, ya construido en `/admin/whatsapp.html`). Con Chrome el retraso es el intervalo de la tarea programada.
+Prompt revisión completa:
+> Clasifica los chats de WhatsApp: abre https://autopartschile.cl/admin/wa-auditoria.html y haz la "Revisión completa" de "Instrucciones para el agente" con WhatsApp Web en otra pestaña (2 meses). Importa cada 10 a 20 chats. Al terminar cierra la auditoría. No envíes mensajes ni borres nada.
+Prompt tarea programada (cada 1 hora, 9:00–20:00):
+> Abre https://autopartschile.cl/admin/wa-auditoria.html y haz la "Revisión cada hora" de "Instrucciones para el agente" con WhatsApp Web: solo chats con mensajes nuevos desde la última revisión; importa y no cierres la auditoría. No envíes mensajes ni borres nada.
