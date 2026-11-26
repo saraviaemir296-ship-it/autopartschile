@@ -1,0 +1,7 @@
+-- AGENTE CIERRE DEL DÍA — APLICADA 26-nov-2026 (fase2_cierre_del_dia + fase2_cierre_del_dia_formato).
+-- 100 % SQL sobre las vistas de la fase 1 (sin IA, sin números inventados). Escribe agente_tareas
+-- (agente 'cierre_dia') y encola el resumen a Telegram (crm_outbox kind 'telegram').
+-- cron: cierre-del-dia-semana '15 21 * * 1-5' y cierre-del-dia-sabado '45 18 * * 6' (UTC; Chile verano = UTC-3.
+--       Revisar en abril/septiembre cuando cambie la hora).
+-- Primera corrida real (25-nov): detectó 1 pedido pagado sin N° de seguimiento (#56) y 1 descuadre
+-- (SX40515-031 vendida con stock>0). Función: public.cierre_del_dia(p_fecha date default hoy) returns text.

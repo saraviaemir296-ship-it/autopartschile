@@ -1,0 +1,14 @@
+-- FASE 2.0 — APLICADA 26-nov-2026 (fase2_0_cola_aprobacion + fase2_0_nonces_y_formato_clp).
+-- a) agente_tareas → crm_outbox: cada propuesta pendiente avisa por Telegram (kind 'telegram');
+--    al aprobar un cierre de lead se aplica en el CRM; al aprobar un mensaje se reprograma next_action_at.
+-- b) Autorización de agentes desde pg_cron SIN exponer la llave de servicio: pg_cron usa la llave anon
+--    (verificado: el token de los crons existentes tiene role=anon), así que agente_lanzar() crea un
+--    nonce de un solo uso (5 min) y lo manda en la cabecera x-agente-nonce; la edge function lo consume
+--    con agente_nonce_consumir(). Un atacante con la llave anon no puede disparar agentes.
+-- c) fmt_clp(): pesos chilenos con punto de miles.
+-- El SQL exacto aplicado está en el historial de migraciones de Supabase; aquí el resumen de objetos:
+--   funciones: agente_tareas_notificar(), agente_tareas_ejecutar(), agente_nonce_crear(text),
+--              agente_nonce_consumir(uuid,text), agente_lanzar(text,text,jsonb), fmt_clp(numeric)
+--   tabla:     agente_nonces (RLS sin políticas: solo service role / definer)
+--   triggers:  trg_agente_tareas_notificar, trg_agente_tareas_ejecutar
+--   cron:      seguimiento-leads-diario '30 12 * * 1-6' (9:30 Chile L-S) → agente_lanzar('seguimiento','seguimiento-leads')

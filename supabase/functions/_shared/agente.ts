@@ -36,12 +36,17 @@ export const db: SupabaseClient = createClient(SB_URL, SERVICE_KEY, { auth: { pe
 export const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json; charset=utf-8" } });
 
-/** Solo cron (service role) o Emir (admin). Las edge functions de agentes se despliegan con verify_jwt=true. */
-export async function autorizar(req: Request): Promise<boolean> {
+/** Quién puede invocar un agente: service role, pg_cron con nonce de un solo uso (agente_lanzar) o Emir (admin). */
+export async function autorizar(req: Request, agente: Agente): Promise<boolean> {
   const auth = req.headers.get("authorization") ?? "";
   const tk = auth.replace(/^Bearer\s+/i, "");
   if (!tk) return false;
   if (tk === SERVICE_KEY) return true;
+  const nonce = req.headers.get("x-agente-nonce");
+  if (nonce) {
+    const { data, error } = await db.rpc("agente_nonce_consumir", { p_nonce: nonce, p_agente: agente });
+    return !error && data === true;
+  }
   const anon = createClient(SB_URL, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
     global: { headers: { Authorization: `Bearer ${tk}` } }, auth: { persistSession: false },
   });

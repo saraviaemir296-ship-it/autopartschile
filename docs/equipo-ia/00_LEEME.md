@@ -13,7 +13,7 @@ Documentación de trabajo del "equipo de empleados IA" sobre la base única (Sup
 
 Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
 
-## Código de la fase 2 (escrito, NO desplegado)
+## Fase 2 · estado real (26-nov-2026)
 
 | Archivo | Qué es |
 |---|---|
@@ -21,4 +21,9 @@ Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
 | `../../supabase/functions/seguimiento-leads/index.ts` | Agente Seguimiento (fase 2.1): diagnostica leads vencidos y propone un mensaje o un cierre por lead |
 | `../../supabase/migrations/20261127_fase2_0_cola_aprobacion.sql` | Aprobar una tarea encola su ejecución en `crm_outbox`; cada propuesta avisa por Telegram |
 
-Pendiente para desplegar: OK de Emir a `fase2_plan.md`, secretos `ANTHROPIC_API_KEY` y Telegram vigentes, y la migración 1b.
+**Desplegado y programado (corre solo):**
+- `seguimiento-leads` (edge function, v2) · pg_cron `seguimiento-leads-diario` 9:30 Chile L–S. Primera corrida: leyó los 5 leads vencidos y falló en la llamada a Claude por falta de `ANTHROPIC_API_KEY` (los 5 errores quedaron registrados en `agente_tareas`, como debe ser).
+- `cierre_del_dia()` (SQL) · pg_cron L–V 18:15 y Sáb 15:45 Chile. Primera corrida real OK; el aviso quedó encolado en `crm_outbox` y no salió por falta de `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`.
+- Cola de aprobación conectada: cada propuesta avisa por Telegram; aprobar un cierre lo aplica en el CRM.
+
+**Bloqueado por secretos que solo Emir puede cargar** (Supabase → Edge Functions → Secrets): `ANTHROPIC_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Hallazgo: ninguno de los agentes IA de este proyecto (`meta-agent`, `radar-oportunidades`) ha tenido jamás la llave de Anthropic; nunca han razonado nada.

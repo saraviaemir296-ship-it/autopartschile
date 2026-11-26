@@ -44,7 +44,7 @@ Devuelve JSON: {"etapa_real":"...","por_que_no_cerro":"...","accion":"enviar_men
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "POST" }, 405);
-  if (!(await autorizar(req))) return json({ error: "no autorizado" }, 401);
+  if (!(await autorizar(req, "seguimiento"))) return json({ error: "no autorizado" }, 401);
 
   const corrida = await iniciarTarea("seguimiento", "revisar_vencidos", undefined, { max: MAX_LEADS });
   const resumen = { revisados: 0, propuestas: 0, cierres_propuestos: 0, saltados: 0, errores: 0, fuera_horario: !(await enHorario()) };

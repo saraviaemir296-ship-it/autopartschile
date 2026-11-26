@@ -1,5 +1,6 @@
 -- FASE 1b — correcciones tras verificar la fase 1 con datos reales y los advisors de Supabase.
--- PENDIENTE DE APLICAR: Supabase pide confirmación de Emir (contiene drop policy / revoke).
+-- APLICADA PARCIALMENTE 26-nov-2026 (fase1b_correcciones_sin_drops): puntos 1, 2, 5, 6 y 7.
+-- PENDIENTE (requiere confirmación de Emir en Supabase): puntos 3 (revoke) y 4 (drop policy *_service).
 --
 -- 1. publicaciones_validar: `text[] || 'texto'` se interpretaba como literal de arreglo
 --    (el bloqueo funcionaba, pero el mensaje de error era "malformed array literal").
