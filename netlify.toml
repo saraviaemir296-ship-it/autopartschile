@@ -20,6 +20,19 @@
   status = 301
   force = true
 
+# Vehículo que ya no está en desarme (eliminado 26-11-2026): quien llegue por Google va a la lista de autos en desarme.
+[[redirects]]
+  from = "/repuestos-kia-optima-hibrido"
+  to = "/vehiculos-en-desarme"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/repuestos-kia-optima-hibrido.html"
+  to = "/vehiculos-en-desarme"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/vehiculo"
   to = "/.netlify/functions/vehiculo"
