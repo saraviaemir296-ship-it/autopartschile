@@ -224,7 +224,12 @@ function renderAprob() {
   const A = D.aprobaciones || [];
   $('#nAprob').textContent = A.length;
   if (!A.length) { $('#aprob').innerHTML = '<div class="empty">Nada pendiente. Los agentes dejan aquí sus propuestas.</div>'; return; }
-  $('#aprob').innerHTML = A.map(a => {
+  // Lote por agente: muchas tareas iguales (p. ej. 46 "marcar vendida" de la caja) se aprueban de una vez. Sigue siendo tu sí: pide confirmación.
+  const porAgente = {};
+  A.filter(a => a.tipo === 'tarea').forEach(a => { const k = a.agente + '·' + a.accion; (porAgente[k] = porAgente[k] || { agente: a.agente, accion: a.accion, ids: [] }).ids.push(a.id); });
+  const lotes = Object.values(porAgente).filter(g => g.ids.length >= 3);
+  const barra = lotes.length ? `<div class="card"><div class="t">Aprobar en lote</div><div class="meta">Solo para tareas repetidas del mismo tipo. Revisa una o dos antes.</div><div class="acts">${lotes.map(g => `<button class="btn red" data-act="lote" data-ids="${g.ids.join(',')}">Aprobar ${g.ids.length} · ${esc(g.agente)} · ${esc(g.accion.replace(/_/g, ' '))}</button>`).join('')}</div></div>` : '';
+  $('#aprob').innerHTML = barra + A.map(a => {
     const head = `<div class="meta"><span class="tag red">${esc(a.tipo)}</span>${a.agente ? `<span class="tag">${esc(a.agente)}</span>` : ''}<span>hace ${ago(a.desde)}</span></div>`;
     if (a.tipo === 'precio') {
       const sug = a.precio_sugerido ?? a.precio_actual ?? '';
@@ -251,6 +256,14 @@ function renderAprob() {
 }
 
 $('#aprob').addEventListener('click', async e => {
+  const lote = e.target.closest('button[data-act="lote"]');
+  if (lote) {
+    const ids = lote.dataset.ids.split(',').map(Number);
+    if (!confirm(`¿Aprobar ${ids.length} tareas de una vez? Cada una se ejecuta igual que si la aprobaras sola.`)) return;
+    lote.disabled = true; let ok = 0, err = 0;
+    for (const id of ids) { const { error } = await supabase.rpc('agente_tarea_decidir', { p_id: id, p_decision: 'aprobada' }); if (error) err++; else ok++; }
+    toast(`${ok} aprobadas${err ? ', ' + err + ' con error' : ''}`, err ? 'err' : 'ok'); load(); return;
+  }
   const b = e.target.closest('button[data-act]'); if (!b) return;
   const id = b.dataset.id, act = b.dataset.act, dec = b.dataset.dec;
   b.disabled = true;
