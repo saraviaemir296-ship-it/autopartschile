@@ -1,0 +1,34 @@
+-- AGENTES ENCADENADOS (versión SQL) — APLICADAS 26-nov-2026 (fase2_agentes_encadenados_sql, fase2_recepcionista_match_exacto).
+-- Corren HOY sin llave de IA. Cada eslabón deja constancia en agente_tareas y lo que sale al cliente pide tu OK.
+--
+-- CADENA VENTAS
+--   lead entrante (web/WhatsApp; trigger en crm_conversations y crm_messages)
+--     → RECEPCIONISTA lead_match_stock(): extrae pieza/vehículo, empareja con stock (palabras del nombre).
+--         1 calce → asigna product_id; si el precio está fijado → COTIZADOR; si no → tarea "pedir_precio".
+--         varios → tarea "elegir_repuesto" (editas y escribes el SKU). ninguno → tarea "sin_stock" + queda en demanda.
+--     → COTIZADOR cotizador_proponer(): crm_quotations + ítem (precio fijado, garantía por tipo), mensaje según
+--         skill cotizar-repuesto, enlace wa.me. Al aprobar: cotización 'enviada', lead 'cotizacion_enviada', seguimiento +24 h.
+--     → SEGUIMIENTO (edge, cada hora) toma los vencidos.
+--     → venta pagada (orders.status='completed') → DESPACHO: ficha Starken/DHL (valida RUT, teléfono, correo, dirección)
+--         o mensaje de retiro; al cargar tracking_number → mensaje de seguimiento al cliente.
+--   Emir fija precio (products.precio_estado='fijado') → cotiza a todos los leads que esperaban esa pieza + PUBLICADOR.
+--
+-- CADENA COMPRAS / DESARME / PUBLICACIÓN
+--   oportunidad 'comprada' → crea vehiculos (estado ingresado, costo_compra = precio) → INGRESO DE VEHÍCULO:
+--     si faltan datos mecánicos → tarea "completar_datos"; si están → tarea "generar_despiece" (al aprobar corre
+--     aplicar_despiece: piezas en precio_pendiente).
+--   pieza con foto + N° + precio pero sin imagen promocional → tarea DISEÑADOR "crear_imagen_promocional".
+--   pieza con foto sin N° de parte → tarea CATALOGADOR "revisar_numero_parte".
+--   pieza publicable (regla 1 completa) → PUBLICADOR publicador_preparar(): publicaciones pendientes en mercadolibre,
+--     marketplace y grupo_facebook con título/texto de la ficha SEO; al aprobar pasan a 'aprobada' (el trigger de la
+--     fase 1 vuelve a validar la regla 1).
+--
+-- IMPORTACIÓN OEM (India) — tablas importaciones / importacion_items; importaciones_revisar() diario 8:05
+--   (ETA ≤ 3 días → aviso; ítems recibidos sin cargar a stock → tarea). Vista v_demanda_sin_stock: lo que piden y no
+--   tenemos (puente ventas → compras/importación).
+--
+-- Utilidades: rut_valido(), url_encode(), wa_link(), garantia_texto(), tarea_pendiente_existe().
+-- Prueba de punta a punta (transacción revertida): lead web → 3 candidatos (→ ajuste de calce exacto) ; cotización
+-- aprobada → 'enviada'; ficha de despacho del pedido #56; vehículo nuevo → 150 piezas en precio_pendiente al aprobar;
+-- oportunidad comprada → vehículo RAD-30 + tarea de datos faltantes.
+-- Corrida real: los 5 leads web vencidos pasaron por el Recepcionista (ver agente_tareas).

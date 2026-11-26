@@ -115,7 +115,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 <main>
   <section id="s-oficina">
     <p class="note">Cada escritorio es un agente real de la base. Verde = trabajó en los últimos 5 minutos; ámbar = tiene propuestas esperando tu decisión; rojo = error en las últimas 24 h; gris punteado = todavía no está construido. Abajo, cada acción apenas ocurre.</p>
-    <div class="pixwrap"><canvas id="pix" width="400" height="860"></canvas></div>
+    <div class="pixwrap"><canvas id="pix" width="400" height="960"></canvas></div>
     <h2>Escritorios</h2>
     <div id="office" class="office"></div>
     <h2>En vivo <span class="live" id="live"><i></i><span>conectando…</span></span></h2>
@@ -315,8 +315,8 @@ $('#radar').addEventListener('click', async e => {
 const PX = (() => {
   const cv = $('#pix'); const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
   const S = 2;                                   // 1 px lógico = 2 px de lienzo (320x260 lógicos)
-  const W = 200, H = 430;
-  const COLS = [20, 124], ROWS = [70, 120, 170, 220, 270, 320, 370];
+  const W = 200, H = 480;
+  const COLS = [20, 124], ROWS = [70, 120, 170, 220, 270, 320, 370, 420];
   const EMIR = { x: 74, y: 14 };               // escritorio de Emir (cola de aprobación)
   const SPR = ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','b.bbbb.b','..bbbb..','..l..l..','..l..l..','.kk..kk.'];
   const SPR2= ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','b.bbbb.b','..bbbb..','.l....l.','.l....l.','kk....kk'];

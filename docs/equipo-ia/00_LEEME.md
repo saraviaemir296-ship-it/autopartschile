@@ -22,6 +22,8 @@ Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
 | `../../supabase/functions/seguimiento-leads/index.ts` | Agente Seguimiento (fase 2.1): diagnostica leads vencidos y propone un mensaje o un cierre por lead |
 | `../../supabase/migrations/20261127_fase2_0_cola_aprobacion.sql` | Aprobar una tarea encola su ejecución en `crm_outbox`; cada propuesta avisa por Telegram |
 
+**Agentes encadenados en SQL (26-nov, corren hoy sin IA):** Recepcionista (empareja lead con stock), Cotizador (cotización + mensaje), Publicador (textos por canal), Ingreso de vehículo (propone despiece), Despacho (ficha Starken/DHL, retiro, aviso de seguimiento), Radar→compra→vehículo, Diseñador y Catalogador como tareas humanas, Importaciones OEM (ETA y recepción) y demanda sin stock. Detalle en `supabase/migrations/20261126_fase2_agentes_encadenados.sql`.
+
 **Desplegado y programado (corre solo):**
 - `seguimiento-leads` (edge function, v2) · pg_cron `seguimiento-leads-1h`: cada hora de 9:00 a 20:00 Chile, L–S (pedido de Emir 26-nov; idempotente, no duplica propuestas). Primera corrida: leyó los 5 leads vencidos y falló en la llamada a Claude por falta de `ANTHROPIC_API_KEY` (los 5 errores quedaron registrados en `agente_tareas`, como debe ser).
 - `cierre_del_dia()` (SQL) · pg_cron L–V 18:15 y Sáb 15:45 Chile. Primera corrida real OK; el aviso quedó encolado en `crm_outbox` y no salió por falta de `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`.
