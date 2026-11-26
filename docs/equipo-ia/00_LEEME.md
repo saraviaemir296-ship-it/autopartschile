@@ -9,6 +9,7 @@ Documentación de trabajo del "equipo de empleados IA" sobre la base única (Sup
 | `fase1_diagrama.md` | Diagrama de relaciones (mermaid) del modelo resultante y catálogo de vistas |
 | `operacion_whatsapp.md` | Auditoría total de WhatsApp Business: cómo se ejecuta en el PC y cómo queda registrada chat por chat en la base (categorías, archivado, oportunidades, informe de 10 puntos) |
 | `rendimiento_web_y_marketing.md` | Rendimiento real del sitio (Netlify + base), anuncios Meta, Mercado Libre, redes y SEO/GEO, con lo que falta conectar |
+| `../../supabase/migrations/20261126_fase2_todas_las_areas.sql` | Todos los ámbitos en una oficina (APLICADA 26-nov): FK agente→agentes, escritorios Recuperador de pagos, Finanzas, Ads, Grupos FB, Dropi, Precio de mercado, Estratega; tabla `ads_metricas`; dashboard con caja real y anuncios |
 | `fase2_plan.md` | Plan de la fase 2: arquitectura común, ficha de cada agente (disparador, entradas, salidas, aprobación), orden de construcción y decisiones pendientes |
 | `../../supabase/migrations/20261126_fase1_base_central.sql` | Migración de la fase 1 (APLICADA 26-nov-2026) |
 | `../../supabase/migrations/20261126_fase1b_correcciones.sql` | Correcciones post-verificación (PENDIENTE: requiere confirmación en Supabase) |
@@ -38,3 +39,19 @@ Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
 **Canal de avisos (26-nov, Emir descartó Telegram):** notificaciones web push al celular desde el propio Centro de Mando. Cola `avisos` → edge function `avisos-worker` (cada 2 min) → navegador del celular (service worker `admin/sw.js`, manifest PWA). Llaves VAPID generadas por el proyecto: pública en `crm_settings`, privada en Vault. Botón "Activar avisos" / "Probar aviso" en el panel. En iPhone requiere "Agregar a pantalla de inicio". Los avisos Telegram pendientes quedaron descartados; las alertas internas del CRM (`crm_generate_alerts`) siguen apuntando a Telegram y se migran en la siguiente tanda.
 
 **Bloqueado por un secreto que solo Emir puede cargar** (Supabase → Edge Functions → Secrets): `ANTHROPIC_API_KEY`. Sin ella los agentes que redactan (Seguimiento, y luego Cotizador y Recepcionista) fallan y lo registran. Hallazgo: ninguno de los agentes IA de este proyecto (`meta-agent`, `radar-oportunidades`) ha tenido jamás esa llave; nunca han razonado nada.
+
+## Todos los ámbitos del negocio (26-nov, tarde)
+
+Pedido de Emir: "que haya para todos los ámbitos de mi empresa, todos mezclados entre sí" y "soluciona eso" (las fugas de plata).
+
+**Construidos y corriendo solos:**
+- **Recuperador de pagos** (`recuperador_pagos_revisar()`, cada hora 9:30–20:30 Chile L–S): pedidos web que llegaron al pago y no se completaron en los últimos 14 días → propone el WhatsApp (requiere OK). Excluye pruebas, correos de admins, WooCommerce y clientes que después sí compraron. Al aprobar deja huella en el pedido; el envío lo haces tú desde el enlace. Primera corrida: 1 propuesta real (pedido #57, $90.000).
+- **Finanzas** (`finanzas_resumen()` + `finanzas_revisar()`, diario 8:20): lee el esquema `finance` de finance-bot. Ventas, gastos, autos comprados, disponible por cuenta, por cobrar, obligaciones. Avisa al celular si hay 2+ días sin registrar, obligación a 7 días o gastos > ventas. Verificado contra los asientos (partida doble cuadra).
+- **Ads (Meta)**: lectura real de la API hecha en esta sesión guardada en `ads_metricas` (11 campañas, 90 días). Dos propuestas en la cola: pausar 3 campañas activas sin gasto, y mover el destino de los anuncios a WhatsApp. La conexión automática sigue pendiente de la cuenta de anuncios.
+- Centro de Mando: pestaña Resumen con "Caja real" y "Anuncios Meta"; la oficina pixel crece con la cantidad de escritorios (antes se rompía pasando de 16).
+
+**Vacantes con el motivo exacto (se ven en gris en la oficina):** Estratega (clave Anthropic), Precio de mercado (sin fuente de precios), Dropi (API key), Grupos de Facebook (Meta no da API para grupos; se opera desde el celular con los textos del Publicador), Redes sociales y SEO/GEO (tokens Meta / Search Console).
+
+**En la cola de aprobación para Emir:** 1 recuperación de pago, 2 propuestas de Ads, 1 tarea de sistema con los 4 secretos que faltan.
+
+**Cómo ver el panel:** sigue sin estar en producción. Netlify solo publica la rama principal y no hay despliegues por rama; la red de esta sesión no alcanza autopartschile.cl ni netlify.app para verificar. Opciones: Emir responde "integra" (se fusiona a la rama principal) o activa "Branch deploys: all" en Netlify → Site configuration → Build & deploy, y la rama queda en `claude-autopartschile-ai-team-64yelo--stupendous-custard-ca782a.netlify.app`.

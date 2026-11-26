@@ -121,7 +121,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
     <h2>En vivo <span class="live" id="live"><i></i><span>conectando…</span></span></h2>
     <div id="feed" class="feed"></div>
   </section>
-  <section id="s-resumen" class="on"><div id="pushNote" class="note" hidden></div><div id="kpis" class="grid"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
+  <section id="s-resumen" class="on"><div id="pushNote" class="note" hidden></div><div id="kpis" class="grid"></div><h2>Caja real (lo que registras en finance-bot)</h2><div id="finanzas" class="grid"></div><h2>Anuncios Meta · última lectura real</h2><div id="ads" class="tbl"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
   <section id="s-aprob"><p class="note">Nada sale a un cliente ni se publica sin tu sí. Aprobar un mensaje lo deja listo; "Enviar por WhatsApp" abre el chat con el texto escrito; "Marcar enviado" lo cierra.</p><div id="aprob"></div></section>
   <section id="s-pipeline"><div id="kanban" class="kanban"></div></section>
   <section id="s-equipo"><div id="equipo" class="grid"></div><h2>Errores recientes</h2><div id="errores"></div></section>
@@ -167,7 +167,7 @@ async function load() {
   if (error) return fail(error);
   D = data;
   $('#stamp').textContent = 'datos reales · ' + fecha(D.generado_at);
-  renderKpis(); renderCron(); renderAprob(); renderKanban(); renderEquipo(); renderInv(); renderRadar();
+  renderKpis(); renderFinanzas(); renderAds(); renderCron(); renderAprob(); renderKanban(); renderEquipo(); renderInv(); renderRadar();
   loadWa().catch(fail); loadOficina().catch(fail);
 }
 
@@ -188,6 +188,31 @@ function renderKpis() {
     ['Días promedio para vender', k.dias_promedio_venta?.dias ?? 'sin datos', `n = ${k.dias_promedio_venta?.n || 0} ventas web con pieza`],
     ['Esperando tu aprobación', k.aprobaciones_pendientes, '', k.aprobaciones_pendientes > 0],
   ].map(([l, n, s, red]) => `<div class="kpi"><div class="n ${red ? 'red' : ''}">${esc(n)}</div><div class="l">${esc(l)}</div><div class="s">${esc(s)}</div></div>`).join('');
+}
+
+function renderFinanzas() {
+  const f = D.finanzas; if (!f) { $('#finanzas').innerHTML = '<div class="empty">Sin datos de caja.</div>'; return; }
+  const det = f.disponible_detalle || {};
+  const ob = (f.obligaciones || []).map(o => `${o.nombre} · vence ${fecha(o.vence)} · ${clp(o.monto)}`).join(' | ') || 'ninguna en 30 días';
+  const margen = Number(f.ventas_mes || 0) - Number(f.gastos_mes || 0);
+  $('#finanzas').innerHTML = [
+    ['Ventas del mes (caja)', clp(f.ventas_mes), `${f.ventas_n} ventas registradas${Number(f.otros_ingresos_mes) ? ' · otros ingresos ' + clp(f.otros_ingresos_mes) : ''}`],
+    ['Gastos del mes', clp(f.gastos_mes), `${f.gastos_n} gastos`, Number(f.gastos_mes) > Number(f.ventas_mes)],
+    ['Ventas − gastos', clp(margen), 'sin contar compras de autos', margen < 0],
+    ['Autos comprados (mes)', clp(f.compras_autos_mes), `${f.compras_autos_n} autos`],
+    ['Dinero disponible', clp(f.disponible), `banco ${clp(det.bank)} · caja ${clp(det.cash)} · billetera ${clp(det.wallet)}`],
+    ['Por cobrar', clp(f.por_cobrar), 'ventas a crédito y préstamos'],
+    ['Último registro', f.ultimo_registro ? fecha(f.ultimo_registro) : 'nunca', `hace ${f.dias_sin_registrar} día(s)`, Number(f.dias_sin_registrar) >= 2],
+    ['Obligaciones', (f.obligaciones || []).length, ob],
+  ].map(([l, n, s, red]) => `<div class="kpi"><div class="n ${red ? 'red' : ''}">${esc(n)}</div><div class="l">${esc(l)}</div><div class="s">${esc(s)}</div></div>`).join('');
+}
+function renderAds() {
+  const A = D.ads || [];
+  if (!A.length) { $('#ads').innerHTML = '<div class="empty">Sin lecturas de anuncios.</div>'; return; }
+  const tot = A.reduce((a, m) => ({ g: a.g + Number(m.gasto || 0), c: a.c + Number(m.conversaciones || 0) }), { g: 0, c: 0 });
+  const rows = A.map(m => `<tr><td>${esc(m.campana)}</td><td><span class="tag ${m.estado === 'ACTIVE' ? (Number(m.gasto) ? 'ok' : 'warn') : ''}">${esc(m.estado)}${m.estado === 'ACTIVE' && !Number(m.gasto) ? ' sin gasto' : ''}</span></td><td>${clp(m.gasto)}</td><td>${m.alcance ?? '—'}</td><td>${m.clics ?? '—'}</td><td>${m.conversaciones ?? '—'}</td><td>${m.costo_por_conversacion ? clp(m.costo_por_conversacion) : '—'}</td></tr>`).join('');
+  $('#ads').innerHTML = `<div class="meta"><span>Periodo ${fecha(A[0].periodo_desde)} → ${fecha(A[0].periodo_hasta)}</span><span>Leído ${fecha(A[0].capturado_at)} · ${esc(A[0].origen || '')}</span><span class="tag">total ${clp(tot.g)} → ${tot.c} conversaciones${tot.c ? ' · ' + clp(tot.g / tot.c) + ' c/u' : ''}</span></div>
+    <table><thead><tr><th>Campaña</th><th>Estado</th><th>Gasto</th><th>Alcance</th><th>Clics</th><th>Conversaciones</th><th>Costo/conv.</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function renderCron() {
@@ -315,8 +340,8 @@ $('#radar').addEventListener('click', async e => {
 const PX = (() => {
   const cv = $('#pix'); const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
   const S = 2;                                   // 1 px lógico = 2 px de lienzo (320x260 lógicos)
-  const W = 200, H = 480;
-  const COLS = [20, 124], ROWS = [70, 120, 170, 220, 270, 320, 370, 420];
+  const W = 200; let H = 480;
+  const COLS = [20, 124]; let ROWS = [];
   const EMIR = { x: 74, y: 14 };               // escritorio de Emir (cola de aprobación)
   const SPR = ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','b.bbbb.b','..bbbb..','..l..l..','..l..l..','.kk..kk.'];
   const SPR2= ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','b.bbbb.b','..bbbb..','.l....l.','.l....l.','kk....kk'];
@@ -350,6 +375,10 @@ const PX = (() => {
     text(bx + w / 2, by + 2, str, c === '#fff' ? '#111' : c, 7, 'center');
   }
   function layout() {
+    const filas = Math.max(1, Math.ceil(agentes.length / 2));
+    ROWS = Array.from({ length: filas }, (_, i) => 70 + i * 50);
+    H = 70 + filas * 50 + 12;
+    if (cv.height !== H * S) { cv.height = H * S; ctx.imageSmoothingEnabled = false; }
     agentes.forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2);
       a._desk = { x: COLS[col], y: ROWS[row] };

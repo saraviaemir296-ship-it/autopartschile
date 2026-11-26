@@ -27,7 +27,10 @@ Regla: solo números que salen de una fuente real. Donde no hay fuente conectada
 | 2026-10 | 15 | 2 | 1.050 | 11 |
 | 2026-11 | 3 | 1 | 60.000 | 0 |
 
-- 46 pedidos en total: 7 pagados por Webpay, 23 cancelados en Webpay, 16 de Mercado Pago que nunca pasaron de "pendiente". **Tasa de pago 15 %.** Los 16 de Mercado Pago pendientes son clientes que llegaron al pago y no terminaron.
+- 46 pedidos en total: 7 pagados por Webpay, 23 cancelados en Webpay, 16 de Mercado Pago que nunca pasaron de "pendiente".
+- **Corrección (26-nov, segunda revisión):** de esos 16 de Mercado Pago, solo **3 son clientes reales** (21-nov $90.000 homocinética Swift, 7-nov $39.990 foco Swift, 18-oct $149.990 airbag Alto). Los otros 13 son 6 pruebas de Emir y 7 pedidos de prueba importados de WooCommerce en junio ("Test", "#99999"). El flujo de Mercado Pago sí está completo (`mp-create-preference` → `notification_url` → `mp-webhook` confirma y descuenta stock); esos 3 clientes simplemente no pagaron. Monto real recuperable: $279.980, no $1,6 M.
+- **Tasa de pago real** descontando pruebas: 7 pagados de 33 pedidos reales ≈ 21 %.
+- **Las ventas de verdad no pasan por la web.** La caja registrada en finance-bot (esquema `finance`) muestra en noviembre **$7.091.990 en 70 ventas**, contra $430.000 en 4 pedidos web+manuales. La web es una vitrina; la venta se cierra por WhatsApp, Marketplace y en el local. El Centro de Mando ahora muestra ambas cifras.
 - Clics en "Cotizar por WhatsApp" (quote_events): julio 39 → agosto 124 → septiembre 86 → octubre 57 → noviembre 36. **Baja sostenida desde agosto.**
 - Formularios de cotización web: 5 en total (sept 1, oct 3, nov 1). Los 5 siguen sin respuesta desde el 13-nov (ya los tomó el Recepcionista).
 - Ciudades de los clics: Santiago 170, Molina 16, Valparaíso 12, Concepción 8.
@@ -68,7 +71,7 @@ Regla: solo números que salen de una fuente real. Donde no hay fuente conectada
 ## 5. Lectura directa
 
 1. **El problema no es tráfico de bots ni velocidad: es que la demanda pagada va a Messenger y muere ahí.** 85 conversaciones compradas en noviembre y cero en el CRM.
-2. **La web convierte poco**: 15 % de los pedidos iniciados se pagan; 16 clientes se quedaron en Mercado Pago. Vale revisar ese flujo antes de invertir en más tráfico.
+2. **La web convierte poco pero no está rota**: ~21 % de los pedidos reales se pagan y el webhook de Mercado Pago funciona. Quedaron 3 clientes reales sin pagar ($279.980); el nuevo agente Recuperador de pagos les propone el WhatsApp (ya hay 1 propuesta esperando tu OK; los otros 2 son más antiguos de 14 días o no dejaron teléfono).
 3. **El interés por WhatsApp cae desde agosto** mientras el catálogo crece: publicar más piezas no está trayendo más gente. Lo que sí mueve es contenido de "desarme completo" (anuncios) y las fichas que ChatGPT recomienda.
 4. **Faltan dos conexiones para medir de verdad**: Search Console (SEO) y los tokens de Meta (Messenger, Instagram, Ads dentro del sistema).
 
@@ -80,3 +83,17 @@ Regla: solo números que salen de una fuente real. Donde no hay fuente conectada
 | Ads (Meta) | Vacante: necesita la cuenta de anuncios conectada al proyecto |
 | Redes sociales | Vacante: necesita tokens de Meta |
 | SEO / GEO | Vacante: necesita Search Console |
+
+## 7. Finanzas reales (esquema `finance`, alimentado por finance-bot) · noviembre al 25
+
+| Concepto | Monto | Detalle |
+|---|---|---|
+| Ventas | $7.091.990 | 70 ventas (68 contado, 2 a crédito) |
+| Otros ingresos | $197.000 | 4 |
+| Gastos | $1.720.962 | 62 |
+| Autos comprados | $3.700.000 | 5 autos (quedan en inventario) |
+| Dinero disponible | $1.753.908 | banco $365.298 · caja $696.610 · billetera $692.000 |
+| Por cobrar | $100.000 | préstamo otorgado |
+| Obligación próxima | $150.000 | arriendo patio, vence 5-dic |
+
+Lectura: el negocio vende ~$7 M/mes en caja y la web aporta una fracción; la plata se está yendo a comprar autos (3,7 M en el mes), que es inventario, no gasto. El nuevo escritorio Finanzas lo revisa a diario y avisa si pasan 2 días sin registrar, si vence una obligación en 7 días o si los gastos superan las ventas.
