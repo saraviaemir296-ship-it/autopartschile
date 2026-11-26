@@ -127,3 +127,9 @@ Emir: "hago todo esto hoy mismo". Para que sus empleados partan hoy: tabla `empl
   - Trigger `trg_msg_saliente_cierra_tarjeta`: cualquier mensaje saliente de una persona cierra la tarjeta sola.
   - `whatsapp-webhook` v3 + `wa_eco_registrar`: cuando WhatsApp esté conectado en coexistencia (webhook `smb_message_echoes`), lo que se responda desde el teléfono cierra la tarjeta automáticamente. Sin probar con tráfico real hasta que estén los secretos.
   - Regla agregada a la auditoría de WhatsApp: "esperando respuesta" es solo cuando el último mensaje es del cliente.
+
+## 26-nov, tarde 3 · WhatsApp por API: corrección importante
+- **Coexistencia** (seguir usando la app WhatsApp Business en el teléfono y además la API, con el mismo número) solo se obtiene a través de un proveedor oficial de Meta (Solution Partner / Tech Provider) con Embedded Signup. No se puede activar desde la app propia de Meta: el paso que decía eso en la tarea `activar_bot_whatsapp` estaba mal y se corrigió.
+- Sin coexistencia las alternativas son peores: número nuevo (los clientes siguen escribiendo al antiguo) o migrar el número completo a la API (se pierde la app del teléfono).
+- Lo que depende de Emir: crear la cuenta en el proveedor, escanear el QR desde la app del teléfono y generar la API key. Lo que hace Claude después: adaptar `whatsapp-webhook` al proveedor (envío y autenticación), pedir la key por el formulario de Supabase y registrar el webhook. El manejo de ecos (`smb_message_echoes`) ya está desplegado.
+- Fuentes: documentación de Meta "Onboard WhatsApp Business app users" y documentación de coexistencia de 360dialog.
