@@ -32,3 +32,9 @@
 -- aprobada → 'enviada'; ficha de despacho del pedido #56; vehículo nuevo → 150 piezas en precio_pendiente al aprobar;
 -- oportunidad comprada → vehículo RAD-30 + tarea de datos faltantes.
 -- Corrida real: los 5 leads web vencidos pasaron por el Recepcionista (ver agente_tareas).
+
+-- Ajustes posteriores (mismo día):
+--   * crm_quotation_items: condition='usado_original' y line_total es generada (no se inserta).
+--   * Recepcionista v3: calce por PIEZA con sinónimos de part_catalog.como_busca (foco/óptico/faro...), luego por
+--     vehículo; si el formulario no trae vehículo, detecta una marca conocida en el mensaje (p. ej. "Hyundai accent 2019")
+--     y exige que el stock sea de esa marca → si no hay, "sin_stock" en vez de ofrecer piezas de otro auto.
