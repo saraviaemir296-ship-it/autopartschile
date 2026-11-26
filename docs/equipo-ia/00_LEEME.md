@@ -119,3 +119,11 @@ Emir: "hago todo esto hoy mismo". Para que sus empleados partan hoy: tabla `empl
 - Para que el mensaje de pago lleve los datos bancarios, hay que cargar `crm_settings.datos_transferencia` (hoy vacío).
 - **Revisión de WhatsApp Business**: no se puede hacer desde la nube. No hay ninguna auditoría registrada en la base (0 chats revisados). Se hace en el PC de Emir con WhatsApp Desktop siguiendo `docs/equipo-ia/operacion_whatsapp.md` (el prompt para pegar está al final de ese documento). Los chats importados caen en el CRM y de ahí los toman Responder, Seguimiento y el Cerrador.
 - **Recortador PNG** (nuevo agente ✂️, `/admin/recortador.html`, enlazado desde Hoy y el Admin): quita el fondo de la foto en el navegador (modelo @imgly/background-removal, sin costo por imagen) y guarda PNG transparente. Dos colas: autos sin PNG (alimenta la imagen promocional del Diseñador) y piezas sin foto limpia (Mercado Libre modera las fotos con sellos; el archivo lleva "foto" en el nombre, que es lo que usa meli-publish). Botón "Recortar todas" y registro en `agente_tareas` (recortador / recortar_png) vía RPC `recortador_guardar`. Cola: RPC `recortador_cola`.
+
+## 26-nov, tarde 2 · regla de Emir: nunca mostrar un chat ya respondido
+- Las 5 solicitudes de la web ya estaban respondidas por WhatsApp (fuera del sistema); se limpiaron. Tarjetas "Responder" pendientes: 0.
+- Por qué pasó: el sistema no ve lo que se responde desde el teléfono mientras WhatsApp no esté conectado por API. Arreglos:
+  - Botón **✓ Ya le respondí** por tarjeta y **✓ Ya respondí a todos** arriba de la lista (RPC `responder_marcar_respondido`); dejan la conversación como respondida en el CRM (ya no cuenta en "sin respuesta" del cierre del día).
+  - Trigger `trg_msg_saliente_cierra_tarjeta`: cualquier mensaje saliente de una persona cierra la tarjeta sola.
+  - `whatsapp-webhook` v3 + `wa_eco_registrar`: cuando WhatsApp esté conectado en coexistencia (webhook `smb_message_echoes`), lo que se responda desde el teléfono cierra la tarjeta automáticamente. Sin probar con tráfico real hasta que estén los secretos.
+  - Regla agregada a la auditoría de WhatsApp: "esperando respuesta" es solo cuando el último mensaje es del cliente.

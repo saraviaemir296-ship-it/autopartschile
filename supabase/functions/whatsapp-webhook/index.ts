@@ -42,6 +42,10 @@ Deno.serve(async (req) => {
   for (const entry of body.entry ?? []) for (const ch of entry.changes ?? []) {
     const v = ch.value ?? {};
     for (const st of v.statuses ?? []) { const map: Record<string, string> = { sent: "enviado", delivered: "entregado", read: "leido", failed: "fallido" }; if (map[st.status]) await db.from("crm_messages").update({ status: map[st.status] }).eq("external_message_id", st.id); }
+    // Ecos (coexistencia): lo que Emir o un empleado responde desde el teléfono. Se registra como respuesta humana y cierra la tarjeta "Responder".
+    for (const ec of v.message_echoes ?? []) {
+      try { await db.rpc("wa_eco_registrar", { p_to: String(ec.to ?? ""), p_texto: ec.text?.body ?? ec.image?.caption ?? ec.video?.caption ?? `[${ec.type ?? "mensaje"}]`, p_msg_id: ec.id ?? null, p_ts: ec.timestamp ? new Date(Number(ec.timestamp) * 1000).toISOString() : new Date().toISOString() }); } catch (_) { /* no bloquea el webhook */ }
+    }
     for (const m of v.messages ?? []) {
       const wa = String(m.from ?? ""); if (!wa) continue;
       const nombre = v.contacts?.find((c: any) => c.wa_id === wa)?.profile?.name ?? null;

@@ -51,3 +51,7 @@ Tabla de oportunidades: `v_oportunidades_wa` (nombre, teléfono, producto/servic
 
 ## Prompt corto para la sesión del PC (Claude Desktop con uso de computador)
 > WhatsApp Business ya está abierto. Ejecuta la auditoría de `docs/equipo-ia/operacion_whatsapp.md` (repo autopartschile) con los skills `revisar-whatsapp-business` y `atencion-a-clientes`: revisa chat por chat el último mes (recientes, no leídos y archivados), una línea JSON por chat con el esquema del documento, distingue Desarmaduría de Grúas, archiva solo los cerrados sin compromisos, marca `dudoso` ante la duda. No envíes mensajes ni borres nada. Cada 25 chats pega las líneas en https://autopartschile.cl/admin/equipo-ia.html → pestaña WhatsApp → Importar. Al terminar toca "Cerrar auditoría" y anota los límites de acceso. El Cerrador de ventas propone los mensajes de cierre solo.
+
+## Regla de Emir (26-nov): no mostrar chats ya respondidos
+- Un chat va a "esperando respuesta" SOLO si el último mensaje es del cliente y quedó sin contestar. Si el último mensaje es nuestro, no se lista como pendiente de respuesta: se clasifica por su estado comercial (cotización enviada, venta cerrada, cerrado…) y lo toma el Cerrador o Seguimiento, no Emir.
+- En el informe, la sección "Clientes esperando respuesta" lleva únicamente esos chats. Todo lo demás va resumido en números, sin detalle chat por chat, salvo leads calientes, pagos pendientes, reservas y dudosos.

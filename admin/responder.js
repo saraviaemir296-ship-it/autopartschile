@@ -20,9 +20,11 @@ export async function montarResponder(cont, supabase, { toast = () => {}, onDone
   const { data, error } = await supabase.rpc('responder_pendientes');
   if (error) { cont.innerHTML = `<div class="empty">No pude cargar las respuestas: ${esc(error.message)}</div>`; return 0; }
   const L = data || [];
-  cont.innerHTML = L.length ? L.map(card).join('') : '<div class="empty">Nadie espera respuesta ahora.</div>';
+  cont.innerHTML = L.length ? (L.length > 1 ? '<div style="margin:0 0 .5rem"><button class="rc-todos" data-rc-todos="1" style="border:1px solid #bbb;background:#fff;color:#111;border-radius:10px;padding:.55rem .8rem;font-weight:700;cursor:pointer">✓ Ya respondí a todos (limpiar la lista)</button></div>' : '') + L.map(card).join('') : '<div class="empty">Nadie espera respuesta ahora.</div>';
   const st = {}; // estado por tarea
   cont.onclick = async (e) => {
+    const todos = e.target.closest('[data-rc-todos]');
+    if (todos) { if (!confirm('¿Marcar TODOS como ya respondidos? Desaparecen de la lista.')) return; todos.disabled = true; const { data: r, error: e0 } = await supabase.rpc('responder_marcar_respondido', { p_tarea: null }); if (e0) { toast('Error: ' + e0.message); todos.disabled = false; return; } toast((r?.conversaciones ?? 0) + ' marcados como respondidos'); cont.innerHTML = '<div class="empty">Nadie espera respuesta ahora.</div>'; L.forEach((x) => onDone(x.tarea)); return; }
     const b = e.target.closest('[data-rc]'); if (!b) return;
     const el = b.closest('.rc'); const id = Number(el.dataset.t); const ctx = L.find((x) => x.tarea === id); const s = (st[id] = st[id] || { dec: null, pid: null, precio: null, cands: ctx.candidatos });
     const panel = el.querySelector('.panel'); const act = b.dataset.rc;
@@ -66,7 +68,7 @@ function card(ctx) {
   ${ctx.ultimo_mensaje ? `<div class="ult">${esc(ctx.ultimo_mensaje)}</div>` : ''}
   <div class="dec"><button class="ok" data-rc="dec" data-v="tenemos">✅ Tenemos</button><button data-rc="dec" data-v="no_tenemos">❌ No tenemos</button><button data-rc="dec" data-v="en_conjunto">🔩 Va en conjunto</button><button data-rc="dec" data-v="faltan_datos">❓ Faltan datos</button><button data-rc="dec" data-v="otro">✍️ Otro</button></div>
   <div class="panel"></div>
-  <div class="row"><button class="b gh" data-rc="listo">Ya respondí por otro lado</button></div></div>`;
+  <div class="row"><button class="b" data-rc="listo">✓ Ya le respondí</button></div></div>`;
 }
 function tenemos(ctx, s) {
   const lista = s.cands.length ? s.cands.map((c) => `<div class="cand ${s.pid === c.id ? 'on' : ''}" data-rc="cand" data-id="${c.id}">${c.foto ? `<img src="${esc(abs(c.foto))}" alt="">` : '<img alt="">'}<div><div class="n">${esc(c.nombre)}</div><div class="s">${esc(c.sku)}${c.ubicacion ? ' · 📍 ' + esc(c.ubicacion) : ''}${c.electrica ? ' · eléctrica (sin garantía)' : ''}</div></div><div class="p">${c.precio_estado === 'fijado' ? clp(c.precio) : '<span style="color:#b45309">sin precio</span>'}</div></div>`).join('') : `<div class="warn">${s.dec === 'en_conjunto' ? 'Busca el conjunto que la incluye (ej. caja de cambios, culata, portamasa):' : 'La recepción no encontró esta pieza en el sistema. Búscala por nombre, SKU o N° de parte:'}</div>`;
