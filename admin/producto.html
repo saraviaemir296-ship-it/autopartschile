@@ -113,7 +113,7 @@ button:disabled{opacity:.6;}
 </div>
 
 <script type="module">
-import { supabase, requireAdmin, slugify, toast, confirmModal } from '/admin/admin-common.js';
+import { supabase, requireStaff, slugify, toast, confirmModal } from '/admin/admin-common.js';
 
 var params = new URLSearchParams(location.search);
 var productId = params.get('id');
@@ -318,7 +318,7 @@ document.getElementById('logoutBtn').addEventListener('click', async function(){
 });
 
 (async function(){
-  var session = await requireAdmin();
+  var session = await requireStaff();
   if (!session) return;
   currentSession = session;
   await loadExisting();

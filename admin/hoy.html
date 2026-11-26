@@ -33,7 +33,7 @@ pre{white-space:pre-wrap;font:inherit;font-size:.9rem;background:#fafafa;border-
 <header>
   <h1>Hoy en Desarmaduría Saravia</h1>
   <div class="sub" id="sub">cargando…</div>
-  <div style="margin-top:.4rem"><a href="/admin/index.html">Admin</a><a href="/admin/equipo-ia.html">Centro de Mando (jefe)</a><a href="/admin/disenador.html">Diseñador</a></div>
+  <div style="margin-top:.4rem"><a class="solo-admin" href="/admin/index.html">Admin</a><a class="solo-admin" href="/admin/equipo-ia.html">Centro de Mando (jefe)</a><a href="/admin/disenador.html">Diseñador</a></div>
 </header>
 <main>
   <section><h2>💬 Responder a clientes <b id="nResp">0</b></h2><div class="help">Abre el chat, responde y toca Listo.</div><div id="resp"></div></section>
@@ -41,18 +41,21 @@ pre{white-space:pre-wrap;font:inherit;font-size:.9rem;background:#fafafa;border-
   <section><h2>📷 Sacar fotos <b id="nFoto">0</b></h2><div class="help">Las piezas más valiosas sin foto. Saca la foto desde la ficha (botón Abrir) y sube la imagen.</div><div id="foto"></div></section>
   <section><h2>🏷️ Buscar número de parte <b id="nOem">0</b></h2><div class="help">Mira la etiqueta de la pieza o la foto y escribe el N° OEM en la ficha.</div><div id="oem"></div></section>
   <section><h2>📦 Despachar y entregar <b id="nDesp">0</b></h2><div id="desp"></div></section>
+  <section class="solo-admin"><h2>👷 Empleados con acceso a esta pantalla</h2><div class="help">Primero invita al empleado desde Supabase → Authentication → Users → Invite user. Cuando tenga clave, agrégalo aquí. Solo ve Hoy, el Diseñador y las fichas (fotos, N° de parte, ubicación). No ve caja, precios de costo ni aprobaciones, y no puede cambiar precios.</div><div id="empleados"></div><div class="card"><div class="body"><input id="empEmail" type="email" placeholder="correo del empleado" style="width:100%;padding:.6rem;border:1px solid #ccc;border-radius:8px;font:inherit"><input id="empNombre" type="text" placeholder="nombre" style="width:100%;margin-top:.4rem;padding:.6rem;border:1px solid #ccc;border-radius:8px;font:inherit"></div><div class="acts"><button class="btn red" id="empAdd">Dar acceso</button></div></div></section>
 </main>
 <div class="toast" id="toast"></div>
 <script type="module">
-import { supabase, requireAdmin } from '/admin/admin-common.js';
+import { supabase, requireStaff } from '/admin/admin-common.js';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
 const abs = (u) => (!u ? '' : /^https?:/.test(u) ? u : location.origin + (u.startsWith('/') ? '' : '/') + u);
 const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1600); };
-const session = await requireAdmin(); if (!session) throw new Error('sin sesión');
+const session = await requireStaff(); if (!session) throw new Error('sin sesión');
+if (!session.esAdmin) document.querySelectorAll('.solo-admin').forEach((x) => x.remove());
 $('#sub').textContent = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + session.user.email;
 
+const ubic = (p) => `<div class="m" style="margin-top:.4rem;display:flex;gap:.3rem;align-items:center">📍 <input data-ubic="${p.id}" value="${esc(p.ubicacion_fisica || '')}" placeholder="ubicación (ej. estante B3)" style="padding:.35rem .5rem;border:1px solid #ccc;border-radius:8px;font:inherit;font-size:.85rem;width:170px"><button class="btn" data-ubicok="${p.id}" style="padding:.35rem .6rem;font-size:.85rem">Guardar</button></div>`;
 async function cargar() {
   const [tareas, pubs, sinFoto, sinOem, pedidos] = await Promise.all([
     supabase.from('agente_tareas').select('id,agente,accion,propuesta,salida,created_at').eq('estado_aprobacion', 'pendiente').in('accion', ['whatsapp_responder', 'sin_stock', 'elegir_repuesto', 'revisar_adjunto']).order('id', { ascending: false }).limit(30),
@@ -70,10 +73,11 @@ async function cargar() {
   $('#pub').innerHTML = grupos.length ? grupos.map((g) => { const p = g[0]; return `<div class="card"><img src="${esc(abs(p.imagen_url))}" alt=""><div class="body"><div class="t">${esc(p.titulo)}</div><div class="m">canales: ${g.map((x) => x.canal.replace(/_/g, ' ')).join(', ')}</div><pre>${esc(p.texto || '')}</pre></div><div class="acts"><button class="btn" data-copiar="${p.id}">Copiar texto</button>${p.imagen_url ? `<a class="btn" target="_blank" rel="noopener" href="${esc(abs(p.imagen_url))}">Abrir imagen</a>` : ''}${g.filter((x) => x.canal !== 'mercadolibre').map((x) => `<button class="btn ok" data-pub="${x.id}">Publicada en ${esc(x.canal.replace(/_/g, ' '))} ✓</button>`).join('')}</div></div>`; }).join('') : '<div class="empty">Nada aprobado para publicar.</div>';
   // 3. fotos
   const F = sinFoto.data || []; $('#nFoto').textContent = F.length;
-  $('#foto').innerHTML = F.length ? F.map((p) => `<div class="card"><div class="body"><div class="t">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)}${p.ubicacion_fisica ? ' · ubicación ' + esc(p.ubicacion_fisica) : ''}</div></div><div class="acts"><a class="btn red" href="/admin/producto.html?id=${p.id}">Abrir ficha</a></div></div>`).join('') : '<div class="empty">Todas las piezas disponibles tienen foto.</div>';
+  $('#foto').innerHTML = F.length ? F.map((p) => `<div class="card"><div class="body"><div class="t">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)}</div>${ubic(p)}</div><div class="acts"><a class="btn red" href="/admin/producto.html?id=${p.id}">Abrir ficha</a></div></div>`).join('') : '<div class="empty">Todas las piezas disponibles tienen foto.</div>';
   // 4. oem
   const O = sinOem.data || []; $('#nOem').textContent = O.length;
-  $('#oem').innerHTML = O.length ? O.map((p) => `<div class="card"><img src="${esc(abs((p.images || [])[0]))}" alt=""><div class="body"><div class="t">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)}${p.ubicacion_fisica ? ' · ubicación ' + esc(p.ubicacion_fisica) : ''}</div></div><div class="acts"><a class="btn red" href="/admin/producto.html?id=${p.id}">Abrir ficha</a></div></div>`).join('') : '<div class="empty">Todas las piezas con foto tienen número de parte.</div>';
+  $('#oem').innerHTML = O.length ? O.map((p) => `<div class="card"><img src="${esc(abs((p.images || [])[0]))}" alt=""><div class="body"><div class="t">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)}</div>${ubic(p)}</div><div class="acts"><a class="btn red" href="/admin/producto.html?id=${p.id}">Abrir ficha</a></div></div>`).join('') : '<div class="empty">Todas las piezas con foto tienen número de parte.</div>';
+  if (session.esAdmin) { const { data: E } = await supabase.rpc('empleados_lista'); $('#empleados').innerHTML = (E || []).length ? E.map((e) => `<div class="card"><div class="body"><div class="t">${esc(e.nombre || e.email)}</div><div class="m">${esc(e.email)} · ${e.activo ? 'con acceso' : 'sin acceso'}</div></div><div class="acts">${e.activo ? `<button class="btn" data-quitar="${esc(e.email)}">Quitar acceso</button>` : ''}</div></div>`).join('') : '<div class="empty">Todavía no hay empleados con acceso.</div>'; }
   // 5. despachos
   const D = (pedidos.data || []).filter((o) => (o.delivery_method === 'home_delivery' && !o.tracking_number) || (o.delivery_method === 'pickup' && !['entregado', 'cancelado', 'devuelto', 'reembolsado'].includes(o.fulfillment_status || '')));
   $('#nDesp').textContent = D.length;
@@ -81,7 +85,10 @@ async function cargar() {
 }
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.tarea) { b.disabled = true; const { error } = await supabase.rpc('agente_tarea_decidir', { p_id: Number(b.dataset.tarea), p_decision: 'ejecutada' }); if (error) { toast('Error: ' + error.message); b.disabled = false; return; } toast('Listo'); cargar(); }
+  if (b.dataset.tarea) { b.disabled = true; const { error } = await supabase.rpc('empleado_tarea_lista', { p_id: Number(b.dataset.tarea) }); if (error) { toast('Error: ' + error.message); b.disabled = false; return; } toast('Listo'); cargar(); }
+  if (b.dataset.ubicok) { const inp = document.querySelector(`input[data-ubic="${b.dataset.ubicok}"]`); const { error } = await supabase.rpc('empleado_ubicacion', { p_id: Number(b.dataset.ubicok), p_ubicacion: inp.value }); toast(error ? 'Error: ' + error.message : 'Ubicación guardada'); }
+  if (b.id === 'empAdd') { const { data, error } = await supabase.rpc('empleado_agregar', { p_email: $('#empEmail').value, p_nombre: $('#empNombre').value || null }); toast(error ? 'Error: ' + error.message : data); if (!error) cargar(); }
+  if (b.dataset.quitar) { const { data, error } = await supabase.rpc('empleado_quitar', { p_email: b.dataset.quitar }); toast(error ? 'Error: ' + error.message : data); cargar(); }
   if (b.dataset.pub) { b.disabled = true; const { error } = await supabase.from('publicaciones').update({ estado: 'publicada' }).eq('id', Number(b.dataset.pub)); if (error) { toast('Error: ' + error.message); b.disabled = false; return; } toast('Marcada como publicada'); cargar(); }
   if (b.dataset.copiar) { const pre = b.closest('.card').querySelector('pre'); try { await navigator.clipboard.writeText(pre.textContent); toast('Texto copiado'); } catch { toast('No se pudo copiar'); } }
 });

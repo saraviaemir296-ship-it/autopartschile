@@ -21,10 +21,25 @@ export async function requireAdmin() {
     .eq('user_id', session.user.id)
     .maybeSingle();
   if (!adminRow) {
+    // Empleado (tabla empleados): no es administrador, pero sí puede usar la pantalla Hoy.
+    const { data: esEmpleado } = await supabase.rpc('is_empleado');
+    if (esEmpleado && !location.pathname.endsWith('/hoy.html')) { location.href = '/admin/hoy.html'; return null; }
     await supabase.auth.signOut();
     location.href = '/admin/login?error=no_autorizado';
     return null;
   }
+  session.esAdmin = true;
+  return session;
+}
+
+// Igual que requireAdmin pero acepta también empleados (tabla empleados). Para Hoy, Diseñador y la ficha de producto.
+export async function requireStaff() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) { location.href = '/admin/login'; return null; }
+  const { data: esStaff } = await supabase.rpc('is_staff');
+  if (!esStaff) { await supabase.auth.signOut(); location.href = '/admin/login?error=no_autorizado'; return null; }
+  const { data: esAdmin } = await supabase.rpc('is_admin');
+  session.esAdmin = !!esAdmin;
   return session;
 }
 

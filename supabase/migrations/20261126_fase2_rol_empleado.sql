@@ -1,0 +1,7 @@
+-- Rol "empleado" (26-nov-2026, aplicado vía MCP). Pedido de Emir: que sus empleados usen el sistema sin ser expertos.
+-- Tabla empleados + is_empleado()/is_staff(). Un empleado entra solo a /admin/hoy.html, el Diseñador y la ficha de producto:
+-- puede subir fotos, poner N° de parte y ubicación, marcar publicaciones aprobadas como publicadas y cerrar sus tareas.
+-- No puede cambiar precio, costo, estado de publicación, borrar piezas, ni ver caja/aprobaciones (candados por trigger).
+-- RPC: empleado_agregar(email, nombre) y empleado_quitar(email) (admin), empleado_tarea_lista(id), empleado_ubicacion(id, texto), empleados_lista().
+-- Front: admin-common.js requireStaff(); requireAdmin() manda a los empleados a Hoy.
+-- (El SQL exacto está en el historial de esta sesión; las funciones viven en la base.)
