@@ -1,0 +1,10 @@
+{
+  "name": "Centro de Mando · Equipo IA Saravia",
+  "short_name": "Equipo IA",
+  "start_url": "/admin/equipo-ia.html",
+  "scope": "/admin/",
+  "display": "standalone",
+  "background_color": "#0f0f10",
+  "theme_color": "#d80002",
+  "icons": [{ "src": "/img/logo/emblema-saravia-1000.png", "sizes": "1000x1000", "type": "image/png", "purpose": "any maskable" }]
+}

@@ -6,6 +6,11 @@
 <title>Centro de Mando | Equipo IA Saravia</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/img/favicon.png">
+<link rel="manifest" href="/admin/manifest.webmanifest">
+<meta name="theme-color" content="#d80002">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Equipo IA">
 <style>
 :root{--bg:#0f0f10;--panel:#181819;--line:#2a2a2c;--fg:#f3f3f3;--muted:#9a9a9f;--red:#d80002;--red2:#ff3b3f;--ok:#22c55e;--warn:#f59e0b}
 *{box-sizing:border-box}
@@ -69,7 +74,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 <header>
   <div class="top">
     <h1>Centro de <span>Mando</span><small id="stamp">cargando…</small></h1>
-    <div class="acts"><button class="btn ghost" id="reload">↻</button><a class="btn ghost" href="/admin/index.html">Admin</a></div>
+    <div class="acts"><button class="btn red" id="pushBtn" hidden>🔔 Activar avisos</button><button class="btn ghost" id="reload">↻</button><a class="btn ghost" href="/admin/index.html">Admin</a></div>
   </div>
   <nav class="tabs" id="tabs">
     <button data-t="resumen" class="on">Resumen</button>
@@ -81,7 +86,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
   </nav>
 </header>
 <main>
-  <section id="s-resumen" class="on"><div id="kpis" class="grid"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
+  <section id="s-resumen" class="on"><div id="pushNote" class="note" hidden></div><div id="kpis" class="grid"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
   <section id="s-aprob"><p class="note">Nada sale a un cliente ni se publica sin tu sí. Aprobar un mensaje lo deja listo; "Enviar por WhatsApp" abre el chat con el texto escrito; "Marcar enviado" lo cierra.</p><div id="aprob"></div></section>
   <section id="s-pipeline"><div id="kanban" class="kanban"></div></section>
   <section id="s-equipo"><div id="equipo" class="grid"></div><h2>Errores recientes</h2><div id="errores"></div></section>
@@ -260,8 +265,38 @@ $('#radar').addEventListener('click', async e => {
   if (error) { fail(error); b.disabled = false; return; } toast('Oportunidad: ' + b.dataset.op); load();
 });
 
+// ---- Notificaciones push al celular (sin Telegram) ----
+const b64ToU8 = b => { const p = '='.repeat((4 - b.length % 4) % 4); const r = atob((b + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, c => c.charCodeAt(0)); };
+async function pushEstado() {
+  const btn = $('#pushBtn'), note = $('#pushNote');
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    note.hidden = false; note.textContent = 'Este navegador no permite notificaciones. En iPhone: Compartir → "Agregar a pantalla de inicio" y abrir desde ahí.'; return;
+  }
+  const reg = await navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' });
+  const sub = await reg.pushManager.getSubscription();
+  if (sub) {
+    const { count } = await supabase.from('push_suscripciones').select('id', { count: 'exact', head: true }).eq('endpoint', sub.endpoint);
+    if (count) { btn.hidden = false; btn.textContent = '🔔 Probar aviso'; btn.dataset.mode = 'probar'; note.hidden = false; note.textContent = '🔔 Avisos activos en este dispositivo.'; return; }
+  }
+  btn.hidden = false; note.hidden = false; note.textContent = 'Activa los avisos para recibir en el celular las propuestas de los agentes, el cierre del día y la auditoría.';
+}
+$('#pushBtn').addEventListener('click', async () => {
+  try {
+    if ($('#pushBtn').dataset.mode === 'probar') { const { error } = await supabase.rpc('push_prueba'); if (error) throw error; return toast('Aviso de prueba encolado: llega en menos de 2 minutos'); }
+    const perm = await Notification.requestPermission(); if (perm !== 'granted') return toast('Permiso de notificaciones denegado', true);
+    const { data: cfg, error: e1 } = await supabase.rpc('push_config'); if (e1 || !cfg?.vapid_public) throw e1 || new Error('sin llave pública');
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(cfg.vapid_public) });
+    const j = sub.toJSON();
+    const { error } = await supabase.from('push_suscripciones').upsert({ user_id: session.user.id, endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, user_agent: navigator.userAgent.slice(0, 200) }, { onConflict: 'endpoint' });
+    if (error) throw error;
+    toast('Avisos activados en este dispositivo'); pushEstado();
+  } catch (err) { fail(err); }
+});
+
 (async () => {
   session = await requireAdmin(); if (!session) return;
+  pushEstado().catch(console.error);
   try { const t = localStorage.getItem('cm_tab'); if (t) document.querySelector(`#tabs button[data-t="${t}"]`)?.click(); } catch {}
   await load();
   setInterval(load, 120000);

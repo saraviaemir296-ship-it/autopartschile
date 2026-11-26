@@ -3,7 +3,7 @@
 Base: la fase 1 ya aplicada (`agente_tareas`, `publicaciones`, `red_solicitudes`, vistas `v_*`). Todo agente de esta fase:
 1. Lee y escribe **solo** en las tablas/vistas de la fase 1 (nunca en las 24 tablas muertas).
 2. Registra cada corrida en `agente_tareas` (entrada, salida, duración, modelo, error).
-3. Si va a enviar, publicar o cobrar, **no lo hace**: deja una fila con `requiere_aprobacion = true` y `propuesta` legible. Tú apruebas (fase 3: botón en Telegram; mientras, desde la cola en el admin).
+3. Si va a enviar, publicar o cobrar, **no lo hace**: deja una fila con `requiere_aprobacion = true` y `propuesta` legible. Tú apruebas (fase 3: notificación push al celular con acceso directo a la cola; mientras, desde la cola en el admin).
 4. Habla español de Chile y usa tus procedimientos ya escritos (skills `cotizar-repuesto`, `seguimiento-leads-ventas`, `despacho-starken`, `publicar-repuestos-marketplace`, etc.). No invento reglas nuevas: las codifico.
 
 ## 0. Tres decisiones que cambian la arquitectura (responder antes de construir)
@@ -67,7 +67,7 @@ Formato: **Disparador · Entradas · Salidas · Requiere tu aprobación · Estad
 ### PUBLICACIÓN
 
 **5. Catalogador**
-- Disparador: subes fotos de una pieza (admin o Telegram) indicando el vehículo.
+- Disparador: subes fotos de una pieza (desde el admin) indicando el vehículo.
 - Entradas: fotos, `vehiculos`, `part_catalog`, `products` del mismo vehículo (para no duplicar: el despiece ya creó la fila sin foto), referencia de mercado (`meli-search` ya existe; Ipar y Yapo según tu skill `precio-mercado-repuestos`, con fuentes y fecha).
 - Salidas: lee el número de parte si es visible en la foto (visión; si no se ve, lo deja vacío y te lo dice, **no lo inventa**), propone nombre, categoría, compatibilidades, condición y `precio_sugerido` con el rango de mercado en `metadata.precio_mercado`. Deja el `product` en `precio_estado='pendiente'`.
 - Aprobación: precio (regla 2). Valida regla 1 y reporta qué falta.
@@ -94,7 +94,7 @@ Formato: **Disparador · Entradas · Salidas · Requiere tu aprobación · Estad
 ### COMPRAS
 
 **9. Radar**
-- Hoy roto (0 resultados de ML en toda su vida). Se reescribe: búsqueda ML **autenticada** con tu `meli_account` (la pública ya no responde), marcas foco + año ≥ 2000, puntaje con Claude como ahora, escribe `oportunidades`, Telegram solo si `score ≥ 70`. Tú decides en `oportunidades.decision`; si compras, se crea el `vehiculo` enlazado. **Pregunta:** ¿de dónde salen las 62 oportunidades `fuente=facebook`? Ese proceso no está en Supabase.
+- Hoy roto (0 resultados de ML en toda su vida). Se reescribe: búsqueda ML **autenticada** con tu `meli_account` (la pública ya no responde), marcas foco + año ≥ 2000, puntaje con Claude como ahora, escribe `oportunidades`, aviso al celular solo si `score ≥ 70`. Tú decides en `oportunidades.decision`; si compras, se crea el `vehiculo` enlazado. **Pregunta:** ¿de dónde salen las 62 oportunidades `fuente=facebook`? Ese proceso no está en Supabase.
 - Aprobación: no envía nada a terceros.
 
 ### LOGÍSTICA
@@ -110,13 +110,13 @@ Formato: **Disparador · Entradas · Salidas · Requiere tu aprobación · Estad
 **11. Cierre del día**
 - Disparador: Lun–Vie 18:15, Sáb 15:45 (fase 3).
 - Entradas: `v_ventas` (hoy), `v_leads` (nuevos hoy, sin respuesta, seguimientos de mañana), `crm_payments` pendientes, `orders` por despachar, `v_repuestos` (publicadas hoy, `precio_pendiente`), `v_equipo_ia`, descuadres (vendidas con stock en ML/web).
-- Salidas: resumen por Telegram con tus 7 secciones de `cierre-del-dia`; fila en `agente_tareas`. Cada número viene de una vista; si una sección no tiene datos dice "0" o "no medido", nunca inventa.
+- Salidas: resumen al celular (push) con tus 7 secciones de `cierre-del-dia`; fila en `agente_tareas`. Cada número viene de una vista; si una sección no tiene datos dice "0" o "no medido", nunca inventa.
 - Aprobación: no (es solo para ti).
 
 **12. Auditor semanal**
 - Disparador: lunes 8:00.
 - Entradas: `v_leads` perdidos de la semana y motivos, `v_repuestos` con `dias_en_stock > 60` y sin venta, repuestos con `bloqueos_publicacion` hace > 7 días, `agente_tareas` con errores, inconsistencias (garantía, precios ML vs web).
-- Salidas: informe con tu formato de `auditoria-mejora-continua`: veredicto en 3 líneas, 3 mejoras concretas con responsable y plazo. Telegram + `agente_tareas`.
+- Salidas: informe con tu formato de `auditoria-mejora-continua`: veredicto en 3 líneas, 3 mejoras concretas con responsable y plazo. Aviso al celular + `agente_tareas`.
 - Aprobación: no.
 
 ### GRÚAS
@@ -128,7 +128,7 @@ Formato: **Disparador · Entradas · Salidas · Requiere tu aprobación · Estad
 
 | Paso | Qué | Prueba que te muestro |
 |---|---|---|
-| 2.0 | Librería común + trigger aprobación→`crm_outbox` + cargar secretos faltantes (Meta, Telegram) | Una tarea de prueba aprobada por ti llega como mensaje de Telegram |
+| 2.0 | Librería común + trigger aprobación→`crm_outbox` + cargar secretos faltantes (Meta) | Una tarea de prueba aprobada por ti llega como notificación al celular |
 | 2.1 | **Seguimiento** (es el de mayor impacto inmediato: 5 leads vencidos reales y cero dependencias externas) | Los 5 diagnósticos y mensajes propuestos, con enlace `wa.me` listo |
 | 2.2 | **Cotizador** (PDF + mensaje) | Una cotización real en PDF para uno de esos leads, en estado `pendiente_aprobacion` |
 | 2.3 | **Recepcionista** (IG/Messenger + web; WhatsApp cuando decidas A) | Conversación de prueba desde tu Instagram: lead creado, pieza buscada estructurada, respuesta informativa |
@@ -141,5 +141,5 @@ Cambio respecto a tu orden: pediste Recepcionista primero. Lo pongo tercero porq
 1. OK a este plan (o cambios).
 2. Decisión A (WhatsApp) y fuente de la Red (B). Confirmación de la política de garantía (C).
 3. Datos de transferencia para las cotizaciones (banco, tipo de cuenta, N°, RUT, correo) → van a `crm_settings`, no al código.
-4. Los secretos de Meta (`META_APP_SECRET`, `META_PAGE_ACCESS_TOKEN`, `META_VERIFY_TOKEN`) y el token de Telegram vigente (hay 6 avisos en error). Se cargan como secretos de Supabase; yo no los veo en el chat.
+4. Los secretos de Meta (`META_APP_SECRET`, `META_PAGE_ACCESS_TOKEN`, `META_VERIFY_TOKEN`). Se cargan como secretos de Supabase; yo no los veo en el chat.
 5. Confirmar la migración 1b pendiente (Supabase te pide aprobar `drop policy`/`revoke`).

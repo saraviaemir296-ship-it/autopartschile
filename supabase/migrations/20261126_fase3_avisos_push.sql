@@ -1,0 +1,12 @@
+-- FASE 3 · CANAL DE AVISOS — APLICADAS 26-nov-2026 (fase3_avisos_push_sin_telegram, fase3_push_prueba).
+-- Emir descartó Telegram. Los agentes avisan al celular con notificaciones web push desde el Centro de Mando.
+--   tablas:    avisos (cola propia; status pendiente|enviado|error|sin_destinatarios, dedupe, backoff)
+--              push_suscripciones (una por dispositivo del admin; RLS: solo el dueño admin)
+--   llaves:    VAPID generadas para el proyecto. Pública en crm_settings('vapid_public'); privada en vault ('vapid_private').
+--   funciones: notificar(titulo, texto, url, dedupe, payload)  <- única salida de avisos de todos los agentes
+--              push_config() (admin: llave pública) · vapid_private() (solo service role) · push_prueba() (admin)
+--   triggers:  agente_tareas_notificar ahora llama a notificar(); cierre_del_dia() y auditor_semanal() también.
+--   worker:    edge function avisos-worker (npm:web-push), cron 'avisos-worker-2min' vía agente_lanzar('sistema', ...).
+--              Probado: entrega, 410 → borra suscripción muerta, sin suscripciones → 'sin_destinatarios' (no se pierde).
+--   frontend:  admin/sw.js (service worker), admin/manifest.webmanifest (PWA), botón "Activar avisos"/"Probar aviso".
+--   limpieza:  avisos Telegram pendientes/erróneos en crm_outbox → 'descartado'.
