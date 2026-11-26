@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       const q = consulta(p); if (q.length < 4) continue;
       const r = await fetch(`https://api.mercadolibre.com/sites/MLC/search?q=${encodeURIComponent(q)}&condition=used&limit=50`, { headers: { Authorization: `Bearer ${acc.access_token}` } });
       buscadas++;
-      if (r.status === 401 || r.status === 403) throw new Error(`Mercado Libre respondió ${r.status}: token sin permiso para buscar`);
+      if (r.status === 401 || r.status === 403) throw new Error(`Mercado Libre respondió ${r.status} al buscar "${q}": ${(await r.text()).slice(0, 300)}`);
       const d = r.ok ? await r.json() : { results: [] };
       let precios: number[] = ((d.results ?? []) as { price: number; condition: string }[]).filter((x) => x.condition === "used" && x.price > 0).map((x) => x.price).sort((a, b) => a - b);
       // saca extremos (avisos de piezas distintas o lotes)
