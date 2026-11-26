@@ -11,6 +11,9 @@ Facebook no tiene API para publicar en grupos. Un robot en un servidor con la se
 ## Prompt para Claude en Chrome (pegar una vez por tanda, o dejarlo como tarea programada en Claude Desktop)
 > Publica la cola de grupos: abre https://autopartschile.cl/admin/grupos-cola.html (sesión de Emir), abre "Instrucciones para el agente" y síguelas en bucle hasta que la cola diga vacía o tope diario. Publica cada una con el método de la skill publicar-en-grupos-facebook (sección 5), uno por uno, y marca el resultado en la página después de cada grupo. Si Facebook avisa un límite, marca "Facebook avisó límite" y detente.
 
+## Primera revisión manual al arrancar
+Mirar en Facebook las 2 primeras publicaciones que haga el agente (texto, fotos, grupo correcto) antes de dejarlo solo.
+
 ## Reglas que aplica la cola (BD)
 - `grupos_aprobar_publicacion(producto)`: encola todos los grupos compatibles (sin el tope de 6), salvo los que ya tienen esa pieza en los últimos 7 días; los grupos que solo tienen "Vender algo" quedan como Marketplace.
 - `grupos_cola_siguiente()`: entrega uno a la vez, espera 60-120 s entre publicaciones, respeta el tope diario `crm_settings.grupos_max_dia` (15) y la pausa de 24 h si Facebook avisó.

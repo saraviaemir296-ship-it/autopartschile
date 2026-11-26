@@ -3,6 +3,7 @@
 -- Tablas: grupos_facebook (63 grupos de Chile, modelo_clave, tipo/prioridad, url real si Emir la pega, solo_variante, composer_vender)
 --         grupos_publicaciones (registro: grupo, pieza o auto, estado publicado/pendiente_admin/rechazado/salteado, texto, quién, cuándo)
 -- grupos_modelos(texto) → modelos que nombra la pieza o el auto (la pieza de origen manda; otros solo si el nombre los nombra).
+--   "Swift Sport" NO cuenta como Swift (los grupos de Swift son del Swift 1.2/1.3/1.4/1.5; el Sport usa M16A): patrón '\mswift\M(?!\s*sport)'.
 -- grupos_sugeridos(product, vehiculo) → hasta 6 grupos compatibles por prioridad, sin repetir el mismo ítem en 7 días,
 --   tope 15 publicaciones al día; texto por grupo con la PRIMERA LÍNEA distinta (6 variantes), garantía según pieza
 --   (eléctrica: se prueba con video, sin garantía posventa), N° de parte si existe y link a la ficha con UTM.
