@@ -68,6 +68,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 .toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:#fff;color:#000;padding:.6rem 1rem;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;transition:.2s;pointer-events:none;z-index:50;max-width:92vw}
 .toast.show{opacity:1}.toast.err{background:var(--red);color:#fff}
 .note{color:var(--muted);font-size:.78rem;margin:.3rem 0 .8rem}
+.pixwrap{background:#0b0b0c;border:1px solid var(--line);border-radius:14px;padding:.4rem;overflow:hidden}
+.pixwrap canvas{width:100%;max-width:440px;margin:0 auto;height:auto;display:block;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:10px}
 .office{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem}
 .desk{position:relative;background:linear-gradient(180deg,#1c1c1e,#141415);border:1px solid var(--line);border-radius:14px;padding:.75rem .7rem .6rem;min-height:150px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .desk.off{opacity:.45;border-style:dashed}
@@ -113,6 +115,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 <main>
   <section id="s-oficina">
     <p class="note">Cada escritorio es un agente real de la base. Verde = trabajó en los últimos 5 minutos; ámbar = tiene propuestas esperando tu decisión; rojo = error en las últimas 24 h; gris punteado = todavía no está construido. Abajo, cada acción apenas ocurre.</p>
+    <div class="pixwrap"><canvas id="pix" width="400" height="860"></canvas></div>
+    <h2>Escritorios</h2>
     <div id="office" class="office"></div>
     <h2>En vivo <span class="live" id="live"><i></i><span>conectando…</span></span></h2>
     <div id="feed" class="feed"></div>
@@ -307,6 +311,101 @@ $('#radar').addEventListener('click', async e => {
   if (error) { fail(error); b.disabled = false; return; } toast('Oportunidad: ' + b.dataset.op); load();
 });
 
+// ---- Oficina pixel art (lienzo, sin imágenes externas) ----
+const PX = (() => {
+  const cv = $('#pix'); const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  const S = 2;                                   // 1 px lógico = 2 px de lienzo (320x260 lógicos)
+  const W = 200, H = 430;
+  const COLS = [20, 124], ROWS = [70, 120, 170, 220, 270, 320, 370];
+  const EMIR = { x: 74, y: 14 };               // escritorio de Emir (cola de aprobación)
+  const SPR = ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','b.bbbb.b','..bbbb..','..l..l..','..l..l..','.kk..kk.'];
+  const SPR2= ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','b.bbbb.b','..bbbb..','.l....l.','.l....l.','kk....kk'];
+  const SIT = ['..hhhh..','.hhhhhh.','.hsssSh.','.hs.s.h.','..ssss..','.bbbbbb.','bbbbbbbb','..bbbb..','.llllll.','.kk..kk.','........','........'];
+  const HAIR = ['#2b1d12','#4a2c17','#111','#6b4a2b','#c9a24b','#3a3a3a','#7a1f1f','#2f2f6b'];
+  const BODY = ['#d80002','#1f6feb','#2ea043','#d29922','#8957e5','#e06c75','#0aa','#f08c00','#a371f7','#56d364','#ff7b72','#79c0ff','#ffa657','#999'];
+  const P = {};                                  // estado de cada personaje
+  let agentes = [], estados = {}, ult = {}, t = 0, running = false;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function px(x, y, c) { ctx.fillStyle = c; ctx.fillRect(x * S, y * S, S, S); }
+  function rect(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x * S, y * S, w * S, h * S); }
+  function text(x, y, str, c = '#ddd', size = 9, align = 'left') { ctx.fillStyle = c; ctx.font = `bold ${size * S / 2 * 1.6}px monospace`; ctx.textAlign = align; ctx.textBaseline = 'top'; ctx.fillText(str, x * S, y * S); }
+  function sprite(map, x, y, hair, body, flip) {
+    for (let r = 0; r < map.length; r++) for (let c = 0; c < 8; c++) {
+      const ch = map[r][flip ? 7 - c : c]; if (ch === '.') continue;
+      px(x + c, y + r, ch === 'h' ? hair : ch === 's' ? '#f1c7a2' : ch === 'S' ? '#1a1a1a' : ch === 'b' ? body : ch === 'l' ? '#2c2c3a' : '#111');
+    }
+  }
+  function desk(x, y, label, estado, vacante, emoji = '') {
+    rect(x, y + 10, 56, 22, '#3b2a1f'); rect(x, y + 10, 56, 2, '#5a4030'); rect(x + 2, y + 30, 4, 6, '#2a1d14'); rect(x + 50, y + 30, 4, 6, '#2a1d14');
+    rect(x + 20, y + 2, 16, 11, '#222'); rect(x + 22, y + 4, 12, 7, vacante ? '#333' : estado === 'work' ? '#1f6feb' : estado === 'err' ? '#b91c1c' : estado === 'wait' ? '#b45309' : '#0f3a2a'); rect(x + 27, y + 13, 2, 2, '#444');
+    if (estado === 'work' && (t >> 3) % 2) rect(x + 23 + ((t >> 2) % 9), y + 5, 1, 2, '#fff');
+    rect(x + 4, y + 14, 10, 6, '#555'); rect(x + 42, y + 14, 8, 8, '#777'); rect(x + 44, y + 12, 4, 2, '#999');
+    text(x + 28, y + 34, label, vacante ? '#555' : '#bbb', 8, 'center'); text(x + 2, y, emoji, '#fff', 7);
+    if (vacante) { rect(x + 14, y + 20, 28, 8, '#111'); text(x + 28, y + 21, 'VACANTE', '#666', 7, 'center'); }
+  }
+  function bubble(x, y, str, c = '#fff', bg = '#fafafa') {
+    const w = Math.min(96, Math.max(14, str.length * 4 + 6));
+    const bx = Math.max(2, Math.min(W - w - 2, x - w / 2)), by = y - 14;
+    rect(bx, by, w, 11, bg); rect(bx + 1, by - 1, w - 2, 13, bg); px(x, by + 11, bg); px(x, by + 12, bg);
+    text(bx + w / 2, by + 2, str, c === '#fff' ? '#111' : c, 7, 'center');
+  }
+  function layout() {
+    agentes.forEach((a, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      a._desk = { x: COLS[col], y: ROWS[row] };
+      if (!P[a.codigo]) P[a.codigo] = { x: COLS[col] + 24, y: ROWS[row] + 20, tx: null, ty: null, flip: false, wander: 0, hair: HAIR[i % HAIR.length], body: BODY[i % BODY.length] };
+    });
+  }
+  function step() {
+    t++;
+    let waitIdx = 0;
+    agentes.forEach(a => {
+      const p = P[a.codigo], d = a._desk, st = estados[a.codigo] || 'idle';
+      if (st === 'off') return;
+      if (st === 'work' || st === 'err') { p.tx = d.x + 24; p.ty = d.y + 18; }
+      else if (st === 'wait') { p.tx = EMIR.x - 10 + (waitIdx++ * 14); p.ty = EMIR.y + 32; }
+      else { if (t - p.wander > rnd(60, 200)) { p.wander = t; p.tx = rnd(8, W - 16); p.ty = rnd(48, H - 20); } }
+      if (p.tx != null) { const dx = p.tx - p.x, dy = p.ty - p.y, dist = Math.hypot(dx, dy); if (dist > 1) { const sp = st === 'wait' ? 0.9 : st === 'idle' ? 0.35 : 0.7; p.x += dx / dist * sp; p.y += dy / dist * sp; p.flip = dx < 0; p.moving = true; } else p.moving = false; }
+    });
+  }
+  function draw() {
+    // piso y paredes
+    rect(0, 0, W, H, '#1b1b1f');
+    for (let y = 44; y < H; y += 8) for (let x = 0; x < W; x += 8) rect(x, y, 8, 8, ((x + y) / 8) % 2 ? '#202026' : '#1c1c22');
+    rect(0, 0, W, 44, '#26262c'); rect(0, 42, W, 2, '#3a3a44');
+    // ventana y logo
+    rect(6, 6, 36, 28, '#0d2a4a'); rect(8, 8, 32, 24, '#163d6b'); rect(23, 8, 2, 24, '#0d2a4a'); rect(8, 19, 32, 2, '#0d2a4a');
+    text(52, 4, 'SARAVIA', '#ff3b3f', 9); text(52, 13, 'EQUIPO IA', '#fff', 7);
+    // escritorio de Emir
+    rect(EMIR.x - 4, EMIR.y + 8, 64, 20, '#4a1515'); rect(EMIR.x - 4, EMIR.y + 8, 64, 2, '#7a2a2a'); rect(EMIR.x + 20, EMIR.y, 16, 10, '#222'); rect(EMIR.x + 22, EMIR.y + 2, 12, 6, '#d80002');
+    text(EMIR.x + 28, EMIR.y + 30, 'EMIR · APROBACIONES', '#ffb3b3', 7, 'center');
+    const nWait = agentes.filter(a => estados[a.codigo] === 'wait').length; if (nWait) { rect(EMIR.x + 56, EMIR.y - 2, 10, 10, '#d80002'); text(EMIR.x + 61, EMIR.y - 1, String(nWait), '#fff', 8, 'center'); }
+    // cafetera
+    rect(W - 30, 10, 22, 26, '#333'); rect(W - 26, 14, 14, 8, '#111'); rect(W - 24, 26, 10, 6, '#8b5a2b');
+    // escritorios
+    agentes.forEach(a => desk(a._desk.x, a._desk.y, a.nombre.length > 14 ? a.nombre.slice(0, 13) + '.' : a.nombre, estados[a.codigo], estados[a.codigo] === 'off', a.emoji));
+    // personajes (ordenados por y para profundidad)
+    agentes.filter(a => estados[a.codigo] !== 'off').sort((a, b) => P[a.codigo].y - P[b.codigo].y).forEach(a => {
+      const p = P[a.codigo], st = estados[a.codigo];
+      const seated = (st === 'work' || st === 'err') && !p.moving;
+      const map = seated ? SIT : (p.moving && (t >> 3) % 2 ? SPR2 : SPR);
+      sprite(map, Math.round(p.x), Math.round(p.y), p.hair, p.body, p.flip);
+      if (st === 'work' && seated && (t >> 2) % 2) px(Math.round(p.x) + (p.flip ? 1 : 6), Math.round(p.y) + 7, '#f1c7a2');
+      const u = ult[a.codigo];
+      if (st === 'wait') bubble(Math.round(p.x) + 4, Math.round(p.y), '¡Emir! ' + ACC(u?.accion || 'propuesta'), '#7a1f1f', '#ffe9b3');
+      else if (st === 'err') bubble(Math.round(p.x) + 4, Math.round(p.y), 'error: ' + (u?.error || '').replace(/^Error: /, '').slice(0, 20), '#fff', '#b91c1c');
+      else if (st === 'work' && u) bubble(Math.round(p.x) + 4, Math.round(p.y), ACC(u.accion).slice(0, 22));
+      else if (st === 'idle' && (t >> 6) % 6 === 0) bubble(Math.round(p.x) + 4, Math.round(p.y), u ? 'esperando turno' : 'sin actividad', '#111', '#ddd');
+    });
+  }
+  let last = 0;
+  function loop(ts) { if (!running) return; if (ts - last > 80) { last = ts; step(); draw(); } requestAnimationFrame(loop); }
+  return {
+    update(ag, est, u) { agentes = ag; estados = est; ult = u; layout(); if (!running) { running = true; requestAnimationFrame(loop); } },
+    stop() { running = false; },
+  };
+})();
+
 // ---- Oficina virtual (agentes en vivo) ----
 const ACC = s => String(s || '').replace(/_/g, ' ');
 let AG = null, FEED = [];
@@ -330,6 +429,11 @@ function estadoAgente(a) {
 }
 function renderOffice() {
   const eq = Object.fromEntries((D?.equipo || []).map(e => [e.agente, e]));
+  try {
+    const est = {}, u = {};
+    (AG || []).forEach(a => { est[a.codigo] = estadoAgente(a)[0]; u[a.codigo] = FEED.find(t => t.agente === a.codigo) || null; });
+    PX.update(AG || [], est, u);
+  } catch (e) { console.error(e); }
   $('#office').innerHTML = (AG || []).map(a => {
     const [cls, st] = estadoAgente(a); const e = eq[a.codigo]; const ult = FEED.find(t => t.agente === a.codigo);
     const bub = ult ? `${ACC(ult.accion)}${ult.resultado === 'error' ? ' ⚠️' : ''} · ${ago(ult.created_at)}` : (a.construido ? a.programacion : 'pendiente de construir');
