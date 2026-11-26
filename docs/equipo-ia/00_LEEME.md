@@ -7,6 +7,7 @@ Documentación de trabajo del "equipo de empleados IA" sobre la base única (Sup
 | `fase1_estado_actual.md` | Levantamiento de lo que ya existe en la base (tablas, crons, agentes, datos) y hallazgos |
 | `fase1_plan.md` | Plan de la fase 1, decisiones de diseño explicadas y preguntas para Emir |
 | `fase1_diagrama.md` | Diagrama de relaciones (mermaid) del modelo resultante y catálogo de vistas |
+| `operacion_whatsapp.md` | Auditoría total de WhatsApp Business: cómo se ejecuta en el PC y cómo queda registrada chat por chat en la base (categorías, archivado, oportunidades, informe de 10 puntos) |
 | `fase2_plan.md` | Plan de la fase 2: arquitectura común, ficha de cada agente (disparador, entradas, salidas, aprobación), orden de construcción y decisiones pendientes |
 | `../../supabase/migrations/20261126_fase1_base_central.sql` | Migración de la fase 1 (APLICADA 26-nov-2026) |
 | `../../supabase/migrations/20261126_fase1b_correcciones.sql` | Correcciones post-verificación (PENDIENTE: requiere confirmación en Supabase) |
@@ -27,6 +28,7 @@ Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
 - Cola de aprobación conectada: cada propuesta avisa por Telegram; aprobar un cierre lo aplica en el CRM.
 
 - `auditor_semanal()` (SQL, ventana móvil de 7 días) · pg_cron `auditor-diario`: todos los días 8:00 Chile, L–S (pedido de Emir 26-nov). Primera corrida real OK (ver agente_tareas).
+- **Pestaña WhatsApp del Centro de Mando**: abrir/cerrar auditoría, importar chats revisados (JSON por línea), oportunidades comerciales, dudosos, últimos registrados. El agente Seguimiento toma los leads calientes/pendientes importados en su próxima corrida horaria.
 - **Centro de Mando (fase 4)**: `admin/equipo-ia.html`, oscuro, rojo/blanco, para celular. Lee `dashboard_equipo_ia()` (solo datos reales) y permite: fijar precios pendientes, aprobar/editar/rechazar propuestas de agentes, enviar por WhatsApp con un toque (`wa.me`) y marcar enviado, aprobar publicaciones, decidir oportunidades del radar y cargar costo de compra por vehículo. Enlazado desde el admin. **Se publica cuando esta rama llegue a la rama principal del sitio (Netlify).**
 
 **Canal de avisos (26-nov, Emir descartó Telegram):** notificaciones web push al celular desde el propio Centro de Mando. Cola `avisos` → edge function `avisos-worker` (cada 2 min) → navegador del celular (service worker `admin/sw.js`, manifest PWA). Llaves VAPID generadas por el proyecto: pública en `crm_settings`, privada en Vault. Botón "Activar avisos" / "Probar aviso" en el panel. En iPhone requiere "Agregar a pantalla de inicio". Los avisos Telegram pendientes quedaron descartados; las alertas internas del CRM (`crm_generate_alerts`) siguen apuntando a Telegram y se migran en la siguiente tanda.

@@ -1,0 +1,9 @@
+-- OPERACIÓN AUDITORÍA WHATSAPP — APLICADA 26-nov-2026 (fase2_auditoria_whatsapp_seguimiento). Ver docs/equipo-ia/operacion_whatsapp.md
+--   crm_conversations: + categoria_wa (9 categorías comerciales), negocio (desarmaduria|gruas|ambos|otro),
+--                      potencial_recuperacion, precio_cotizado, wa_revisado_at, wa_archivado_at
+--   tablas:  wa_auditorias (corridas), wa_auditoria_chats (registro chat por chat, único por teléfono y auditoría)
+--   RPCs:    wa_auditoria_abrir(operador) · wa_auditoria_registrar(auditoria_id, chats jsonb) (idempotente; crea cliente y
+--            conversación WhatsApp, traduce categoría → etapa/prioridad/próxima acción del CRM, registra en agente_tareas)
+--            wa_auditoria_resumen(id) (informe de 10 puntos) · wa_auditoria_cerrar(id, notas, limites) (aviso push) · dashboard_wa()
+--   vista:   v_oportunidades_wa (nombre, teléfono, producto/servicio, monto, última interacción, próxima acción, potencial)
+--   Probado con 3 chats de prueba dentro de una transacción revertida: 2 registrados, 1 rechazado por falta de teléfono.

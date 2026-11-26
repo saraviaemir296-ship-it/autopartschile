@@ -83,6 +83,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
     <button data-t="equipo">Equipo IA</button>
     <button data-t="inv">Inventario</button>
     <button data-t="radar">Radar</button>
+    <button data-t="wa">WhatsApp</button>
   </nav>
 </header>
 <main>
@@ -92,6 +93,16 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
   <section id="s-equipo"><div id="equipo" class="grid"></div><h2>Errores recientes</h2><div id="errores"></div></section>
   <section id="s-inv"><p class="note">Toca el costo de compra para cargarlo: sin costo no hay "recuperado vs costo".</p><div id="inv" class="tbl"></div></section>
   <section id="s-radar"><div id="radar"></div></section>
+  <section id="s-wa">
+    <p class="note">Auditoría total de WhatsApp Business: la revisión se hace en el PC (WhatsApp Desktop); aquí se registra chat por chat y sale el informe. Procedimiento en <code>docs/equipo-ia/operacion_whatsapp.md</code>.</p>
+    <div id="waHead" class="card"></div>
+    <h2>Importar chats revisados (una línea JSON por chat, o un arreglo)</h2>
+    <div class="card"><textarea class="ed" id="waJson" placeholder='{"telefono":"+56 9 ...","nombre":"...","negocio":"desarmaduria","categoria":"cotizacion_enviada","resumen":"...","repuesto":"...","vehiculo":"...","precio_cotizado":70000,"ultima_interaccion":"2026-11-14","proxima_accion":"...","potencial":"medio","archivado":false,"dudoso":false}'></textarea>
+      <div class="acts"><button class="btn red" id="waImport">Importar</button><button class="btn" id="waAbrir">Abrir auditoría</button><button class="btn ghost" id="waCerrar">Cerrar auditoría</button></div><div id="waRes" class="note"></div></div>
+    <h2>Oportunidades comerciales</h2><div id="waOps" class="tbl"></div>
+    <h2>Requieren tu intervención</h2><div id="waDud"></div>
+    <h2>Últimos chats registrados</h2><div id="waUlt" class="tbl"></div>
+  </section>
 </main>
 <div class="toast" id="toast"></div>
 
@@ -123,6 +134,7 @@ async function load() {
   D = data;
   $('#stamp').textContent = 'datos reales · ' + fecha(D.generado_at);
   renderKpis(); renderCron(); renderAprob(); renderKanban(); renderEquipo(); renderInv(); renderRadar();
+  loadWa().catch(fail);
 }
 
 function renderKpis() {
@@ -263,6 +275,43 @@ $('#radar').addEventListener('click', async e => {
   const b = e.target.closest('button[data-op]'); if (!b) return; b.disabled = true;
   const { error } = await supabase.from('oportunidades').update({ decision: b.dataset.op, decidida_at: new Date().toISOString() }).eq('id', Number(b.dataset.id));
   if (error) { fail(error); b.disabled = false; return; } toast('Oportunidad: ' + b.dataset.op); load();
+});
+
+// ---- Auditoría WhatsApp ----
+const CAT = { lead_caliente: '🔴 Lead caliente', lead_pendiente: '🟠 Lead pendiente', cotizacion_enviada: '🟡 Cotización enviada', venta_cerrada: '🟢 Venta cerrada', cliente_recurrente: '🔵 Recurrente', pago_pendiente: '💰 Pago pendiente', producto_reservado: '📦 Reservado', consulta_sin_concretar: '⚪ Sin concretar', chat_cerrado: '⚫ Cerrado' };
+async function loadWa() {
+  const { data: W, error } = await supabase.rpc('dashboard_wa'); if (error) throw error;
+  const a = W.auditoria, r = a?.resumen || {};
+  $('#waHead').innerHTML = a ? `<div class="meta"><span class="tag ${a.estado === 'en_curso' ? 'red' : 'ok'}">auditoría #${a.id} · ${esc(a.estado)}</span><span>inicio ${fecha(a.iniciada_at)}</span>${a.finalizada_at ? `<span>fin ${fecha(a.finalizada_at)}</span>` : ''}</div>
+    <div class="grid" style="margin-top:.6rem">${[['Revisados', r.total_revisados], ['Archivados', r.archivados], ['Leads calientes', r.leads_calientes, true], ['Cotizaciones pendientes', r.cotizaciones_pendientes], ['Recuperables', (r.ventas_recuperables ?? 0) + ' · ' + clp(r.ventas_recuperables_monto)], ['Pagos pendientes', r.pagos_pendientes, true], ['Reservas activas', r.reservas_activas], ['Esperando respuesta', r.esperando_respuesta, true], ['Grúas pendientes', r.gruas_pendientes], ['Requieren intervención', r.requieren_propietario, true]]
+      .map(([l, n, red]) => `<div class="kpi"><div class="n ${red && n ? 'red' : ''}">${esc(n ?? 0)}</div><div class="l">${l}</div></div>`).join('')}</div>
+    ${a.limites_acceso ? `<div class="note">Límites de acceso: ${esc(a.limites_acceso)}</div>` : ''}` : '<div class="empty">Sin auditoría abierta. Toca "Abrir auditoría" antes de empezar a revisar.</div>';
+  const O = W.oportunidades || [];
+  $('#waOps').innerHTML = O.length ? `<table><thead><tr><th>Cliente</th><th>Categoría</th><th>Producto / servicio</th><th class="num">Monto</th><th>Última</th><th>Próxima acción</th><th>Pot.</th></tr></thead><tbody>${O.map(o => `<tr><td><b>${esc(o.nombre || '')}</b><br><a href="https://wa.me/${esc(String(o.telefono || '').replace(/\D/g, ''))}" target="_blank" rel="noopener">${esc(o.telefono || '')}</a> <span class="tag">${esc(o.negocio)}</span></td><td>${CAT[o.categoria] || esc(o.categoria)}</td><td>${esc(o.producto_o_servicio || '')}${o.vehiculo ? '<br><span style="color:var(--muted)">' + esc(o.vehiculo) + '</span>' : ''}</td><td class="num">${o.monto ? clp(o.monto) : '—'}</td><td>${fecha(o.ultima_interaccion)}</td><td>${esc(o.proxima_accion || '')}</td><td>${esc(o.potencial || '')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sin oportunidades registradas todavía.</div>';
+  const Dd = W.dudosos || [];
+  $('#waDud').innerHTML = Dd.length ? Dd.map(d => `<div class="card"><div class="meta"><span class="tag warn">dudoso</span><span>${esc(d.nombre || '')} ${esc(d.telefono)}</span><span>${CAT[d.categoria] || ''}</span></div><div class="t">${esc(d.resumen || '')}</div>${d.notas ? `<div class="meta">${esc(d.notas)}</div>` : ''}</div>`).join('') : '<div class="empty">Nada marcado como dudoso.</div>';
+  const U = W.ultimos || [];
+  $('#waUlt').innerHTML = U.length ? `<table><thead><tr><th>Cuándo</th><th>Cliente</th><th>Categoría</th><th>Negocio</th><th>Archivado</th></tr></thead><tbody>${U.map(u => `<tr><td>${fecha(u.revisado_at)}</td><td>${esc(u.nombre || '')} ${esc(u.telefono)}</td><td>${CAT[u.categoria] || esc(u.categoria)}</td><td>${esc(u.negocio)}</td><td>${u.archivado ? 'sí' : 'no'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">—</div>';
+}
+function parseJsonl(t) {
+  t = t.trim(); if (!t) return [];
+  if (t.startsWith('[')) return JSON.parse(t);
+  return t.split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => JSON.parse(l.replace(/,$/, '')));
+}
+$('#waAbrir').addEventListener('click', async () => { const { data, error } = await supabase.rpc('wa_auditoria_abrir', { p_operador: 'emir' }); if (error) return fail(error); toast('Auditoría #' + data + ' abierta'); loadWa(); });
+$('#waImport').addEventListener('click', async () => {
+  let chats; try { chats = parseJsonl($('#waJson').value); } catch (e) { return toast('JSON inválido: ' + e.message, true); }
+  if (!chats.length) return toast('Nada que importar', true);
+  const { data: aid, error: e0 } = await supabase.rpc('wa_auditoria_abrir', { p_operador: 'emir' }); if (e0) return fail(e0);
+  const { data, error } = await supabase.rpc('wa_auditoria_registrar', { p_auditoria_id: aid, p_chats: chats }); if (error) return fail(error);
+  $('#waRes').textContent = `Registrados ${data.registrados} · errores ${data.errores}` + (data.errores ? ': ' + (data.detalle_errores || []).join(' | ') : '');
+  if (!data.errores) $('#waJson').value = ''; toast('Importación lista'); loadWa();
+});
+$('#waCerrar').addEventListener('click', async () => {
+  const { data: W } = await supabase.rpc('dashboard_wa'); const a = W?.auditoria; if (!a || a.estado !== 'en_curso') return toast('No hay auditoría en curso', true);
+  const lim = prompt('Límites de acceso encontrados (opcional):', ''); if (lim === null) return;
+  const { error } = await supabase.rpc('wa_auditoria_cerrar', { p_id: a.id, p_notas: null, p_limites: lim || null }); if (error) return fail(error);
+  toast('Auditoría #' + a.id + ' cerrada; informe generado'); loadWa();
 });
 
 // ---- Notificaciones push al celular (sin Telegram) ----
