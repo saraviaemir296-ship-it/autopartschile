@@ -1,0 +1,11 @@
+-- PUBLICAR EN GRUPOS DE FACEBOOK (aplicado en producción el 26-11-2026 vía MCP; funciones en la BD)
+-- Basado en la skill publicar-en-grupos-facebook (mapa de grupos al 13-nov-2026, límites anti-spam, plantillas, UTM).
+-- Tablas: grupos_facebook (63 grupos de Chile, modelo_clave, tipo/prioridad, url real si Emir la pega, solo_variante, composer_vender)
+--         grupos_publicaciones (registro: grupo, pieza o auto, estado publicado/pendiente_admin/rechazado/salteado, texto, quién, cuándo)
+-- grupos_modelos(texto) → modelos que nombra la pieza o el auto (la pieza de origen manda; otros solo si el nombre los nombra).
+-- grupos_sugeridos(product, vehiculo) → hasta 6 grupos compatibles por prioridad, sin repetir el mismo ítem en 7 días,
+--   tope 15 publicaciones al día; texto por grupo con la PRIMERA LÍNEA distinta (6 variantes), garantía según pieza
+--   (eléctrica: se prueba con video, sin garantía posventa), N° de parte si existe y link a la ficha con UTM.
+-- grupos_registrar(grupo, estado, product, vehiculo, texto, motivo) y grupos_guardar_link(grupo, url) para el staff.
+-- Facebook no permite publicar en grupos por API: el botón copia el texto y abre el grupo; la persona pega y publica.
+-- Front: admin/hoy.html → tarjeta de Publicar → "📣 Publicar en grupos".
