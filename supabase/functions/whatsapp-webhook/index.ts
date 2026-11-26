@@ -1,19 +1,30 @@
 // BOT DE WHATSAPP (Cloud API de Meta) · usa la RECEPCIÓN común (_shared/recepcion.ts): registra en el CRM, pide
 // marca/modelo/año/VIN o patente/foto/pieza, confirma stock solo con precio fijado (regla 3) y deriva el resto a Emir.
+// v5: modo propio (gratis): token, número y verify token salen de private_config (los deja whatsapp-conectar tras el registro integrado con
+// la app propia de Meta); importa el historial (webhook "history") sin crear tarjetas y analiza quién quedó sin respuesta.
 // v4: dos modos. (a) Meta directo: WHATSAPP_VERIFY_TOKEN, WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_APP_SECRET.
-// (b) 360dialog (coexistencia con la app del teléfono): basta WHATSAPP_TOKEN = API key de 360dialog (sin PHONE_NUMBER_ID). El webhook
+// (b) 360dialog (de pago, descartado por Emir): WHATSAPP_PROVIDER=360dialog + WHATSAPP_TOKEN = API key. El webhook
 // se registra solo con la acción interna "registrar_webhook" (pg: agente_lanzar('sistema','whatsapp-webhook','{"accion":"registrar_webhook"}')),
 // que genera un secreto, lo guarda en private_config y lo exige en el header x-webhook-secret de cada evento.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { autorizar, db, json } from "./agente.ts";
 import { recibir, registrarSalida, registrarTarea } from "./recepcion.ts";
 
-const VERIFY = Deno.env.get("WHATSAPP_VERIFY_TOKEN") ?? "";
-const TOKEN = Deno.env.get("WHATSAPP_TOKEN") ?? "";
-const PHONE_ID = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID") ?? "";
-const APP_SECRET = Deno.env.get("WHATSAPP_APP_SECRET") ?? "";
+let VERIFY = Deno.env.get("WHATSAPP_VERIFY_TOKEN") ?? "";
+let TOKEN = Deno.env.get("WHATSAPP_TOKEN") ?? "";
+let PHONE_ID = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID") ?? "";
+const APP_SECRET = Deno.env.get("WHATSAPP_APP_SECRET") ?? Deno.env.get("META_APP_SECRET") ?? "";
+/** Modo propio: si no hay secretos de WhatsApp, usa lo que dejó whatsapp-conectar en private_config. */
+async function cargarPropio() {
+  if (TOKEN && PHONE_ID && VERIFY) return; // mientras falte algo, se vuelve a leer (la conexión puede llegar con el worker ya vivo)
+  const { data } = await db.from("private_config").select("key, value").in("key", ["wa_business_token", "wa_phone_number_id", "wa_verify_token"]);
+  const m = Object.fromEntries((data ?? []).map((r: { key: string; value: string }) => [r.key, r.value]));
+  if (!TOKEN && m.wa_business_token) TOKEN = m.wa_business_token;
+  if (!PHONE_ID && m.wa_phone_number_id) PHONE_ID = m.wa_phone_number_id;
+  if (!VERIFY && m.wa_verify_token) VERIFY = m.wa_verify_token;
+}
 const GRAPH = "https://graph.facebook.com/v21.0";
-const D360 = (Deno.env.get("WHATSAPP_PROVIDER") ?? "").toLowerCase() === "360dialog" || (!PHONE_ID && !!TOKEN);
+const D360 = (Deno.env.get("WHATSAPP_PROVIDER") ?? "").toLowerCase() === "360dialog";
 const D360_BASE = "https://waba-v2.360dialog.io";
 const SELF_URL = `${Deno.env.get("SUPABASE_URL") ?? ""}/functions/v1/whatsapp-webhook`;
 let secretoCache: string | null = null;
@@ -64,6 +75,7 @@ async function registrarWebhook(): Promise<Response> {
 }
 
 Deno.serve(async (req) => {
+  await cargarPropio();
   const url = new URL(req.url);
   if (req.method === "GET") {
     if (!VERIFY) return new Response("Forbidden", { status: 403 });
@@ -77,14 +89,20 @@ Deno.serve(async (req) => {
     if (!(await autorizar(req, "sistema"))) return json({ error: "no autorizado" }, 401);
     let b: any = {}; try { b = JSON.parse(raw || "{}"); } catch { /* cuerpo vacío */ }
     if (b.accion === "registrar_webhook") return await registrarWebhook();
-    const estado = { proveedor: D360 ? "360dialog" : "meta", token: !!TOKEN, phone_id: !!PHONE_ID, app_secret: !!APP_SECRET, verify: !!VERIFY, secreto_webhook: !!(await secretoWebhook()) };
+    const estado = { proveedor: D360 ? "360dialog" : (Deno.env.get("WHATSAPP_TOKEN") ? "meta (secretos)" : "propio (app de Meta de Emir)"), token: !!TOKEN, phone_id: !!PHONE_ID, app_secret: !!APP_SECRET, verify: !!VERIFY, secreto_webhook: !!(await secretoWebhook()) };
     await registrarTarea("whatsapp", null, { accion: "estado", ...estado });
     return json(estado);
   }
   if (!(await entradaValida(req, raw))) { await registrarTarea("whatsapp", null, {}, "evento rechazado: sin firma de Meta ni secreto de proveedor válido (falla cerrado)"); return new Response("Forbidden", { status: 403 }); }
   let body: any; try { body = JSON.parse(raw); } catch { return new Response("Bad Request", { status: 400 }); }
+  let historial = 0;
   for (const entry of body.entry ?? []) for (const ch of entry.changes ?? []) {
     const v = ch.value ?? {};
+    // Historial de la app del teléfono (coexistencia): se importa tal cual, sin bot ni tarjetas; después se analiza.
+    for (const h of v.history ?? []) for (const th of h.threads ?? []) {
+      try { const { data } = await db.rpc("wa_historial_registrar", { p_wa: String(th.id ?? ""), p_msgs: th.messages ?? [], p_nombre: null }); historial += Number(data?.importados ?? 0); }
+      catch (e) { await registrarTarea("whatsapp", null, { accion: "historial", hilo: th.id }, e instanceof Error ? e.message : String(e)); }
+    }
     for (const st of v.statuses ?? []) { const map: Record<string, string> = { sent: "enviado", delivered: "entregado", read: "leido", failed: "fallido" }; if (map[st.status]) await db.from("crm_messages").update({ status: map[st.status] }).eq("external_message_id", st.id); }
     // Ecos (coexistencia): lo que Emir o un empleado responde desde el teléfono. Se registra como respuesta humana y cierra la tarjeta "Responder".
     for (const ec of v.message_echoes ?? []) {
@@ -105,5 +123,6 @@ Deno.serve(async (req) => {
       } catch (e) { await registrarTarea("whatsapp", null, { de: wa, texto: texto.slice(0, 200), tipo }, e instanceof Error ? e.message : String(e)); }
     }
   }
+  if (historial) { const { data: an } = await db.rpc("wa_historial_analizar", { p_dias: 30 }); await registrarTarea("whatsapp", null, { accion: "historial_importado", mensajes: historial, analisis: an }); }
   return new Response("EVENT_RECEIVED", { status: 200 });
 });

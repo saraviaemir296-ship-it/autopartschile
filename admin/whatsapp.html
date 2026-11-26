@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Conectar WhatsApp · Saravia</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--red:#d80002;--bg:#f6f6f7;--txt:#111;--muted:#555;--line:#e3e3e6;--ok:#1f8f45}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:#111;color:#fff;padding:1rem}header h1{margin:0;font-size:1.2rem}header a{color:#fff;font-size:.85rem;margin-right:.8rem}
+main{max-width:760px;margin:0 auto;padding:1rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:.8rem}
+.card h2{margin:0 0 .4rem;font-size:1.05rem}.note{color:var(--muted);font-size:.9rem}
+ol{padding-left:1.2rem;margin:.4rem 0}li{margin:.3rem 0}
+input{width:100%;padding:.6rem;border:1px solid #ccc;border-radius:10px;font:inherit;margin-top:.3rem}
+label{font-weight:700;font-size:.9rem;display:block;margin-top:.5rem}
+.btn{border:none;border-radius:10px;padding:.75rem 1rem;font-weight:800;font-size:1rem;cursor:pointer;background:#eee;color:#111;margin-top:.6rem}
+.btn.red{background:var(--red);color:#fff}.btn.ok{background:var(--ok);color:#fff}.btn:disabled{opacity:.5}
+.estado{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem}.estado div{background:#fafafa;border-radius:10px;padding:.5rem .7rem;font-size:.85rem;color:var(--muted)}.estado b{display:block;color:#111;font-size:1rem}
+.warn{background:#fff6e5;border:1px solid #ffd28a;border-radius:10px;padding:.6rem .8rem;font-size:.9rem}
+pre{white-space:pre-wrap;background:#fafafa;border-radius:10px;padding:.6rem;font-size:.85rem;max-height:240px;overflow:auto}
+code{background:#f1f1f1;border-radius:4px;padding:0 .25rem}
+</style>
+</head>
+<body>
+<header><h1>📱 Conectar WhatsApp Business (gratis, con tu propia app de Meta)</h1><div style="margin-top:.3rem"><a href="/admin/equipo-ia.html">Centro de Mando</a><a href="/admin/hoy.html">Hoy</a></div></header>
+<main>
+  <div class="card"><h2>Estado</h2><div class="estado" id="estado">cargando…</div></div>
+
+  <div class="card">
+    <h2>Cómo funciona</h2>
+    <p class="note">Tu número +56 9 5381 7335 sigue funcionando en la app WhatsApp Business del teléfono. Además, el sistema recibe cada mensaje, lo que respondes desde el teléfono y el historial reciente: los agentes (Recepción, Responder, Seguimiento, Cerrador) trabajan sobre eso. Sin proveedor y sin mensualidad: los mensajes que respondes dentro de las 24 horas no se cobran.</p>
+    <div class="warn">Requisito de Meta que no se puede saltar con código: para conectar un número que ya está en la app (coexistencia) con una app propia, Meta exige que tu app pase su revisión como <b>Proveedor de tecnología</b> (verificación del negocio + revisión de la app). Es gratis pero toma días y lo haces tú en Meta con los datos de la empresa. Mientras no esté aprobada, el botón puede fallar: la página te muestra el error exacto que devuelve Meta.</div>
+  </div>
+
+  <div class="card">
+    <h2>1. Una sola vez en Meta for Developers</h2>
+    <ol>
+      <li>developers.facebook.com → Mis apps → Crear app → tipo <b>Empresa</b>, asociada al portafolio de Desarmaduría Saravia. Agrega el producto <b>WhatsApp</b>.</li>
+      <li>Configuración de la app → Básica: copia el <b>App ID</b> y el <b>App Secret</b>. En Dominios de la app agrega <code>autopartschile.cl</code>.</li>
+      <li>Facebook Login para empresas → Configuraciones → Crear configuración de <b>registro integrado de WhatsApp</b>; copia el <b>Config ID</b>.</li>
+      <li>Supabase → Edge Functions → Secrets: crea <code>META_APP_SECRET</code> con el App Secret. Nunca lo pegues en un chat.</li>
+      <li>Verificación del negocio y revisión de la app como Proveedor de tecnología (permisos <code>whatsapp_business_management</code> y <code>whatsapp_business_messaging</code>).</li>
+    </ol>
+    <label>App ID<input id="appId" inputmode="numeric" placeholder="solo números"></label>
+    <label>Config ID del registro integrado<input id="configId" inputmode="numeric" placeholder="solo números"></label>
+    <button class="btn" id="guardar">Guardar</button>
+  </div>
+
+  <div class="card">
+    <h2>2. Conectar (un botón)</h2>
+    <p class="note">Se abre la ventana de Meta. Elige <b>conectar tu cuenta existente de WhatsApp Business</b> y escanea el código QR que te muestra Meta con la app WhatsApp Business del teléfono (actualizada). Acepta compartir el historial de chats. Si en algún paso dice que el número dejará de funcionar en la app, cancela: ese es el flujo equivocado.</p>
+    <button class="btn red" id="conectar" disabled>Conectar WhatsApp Business</button>
+    <button class="btn" id="sync" disabled>Pedir el historial de nuevo</button>
+    <pre id="log" hidden></pre>
+  </div>
+</main>
+<script type="module">
+import { supabase, requireAdmin, SUPABASE_URL } from '/admin/admin-common.js';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const session = await requireAdmin(); if (!session) throw new Error('sin sesión');
+const log = (m) => { const l = $('#log'); l.hidden = false; l.textContent += (typeof m === 'string' ? m : JSON.stringify(m, null, 2)) + '\n'; };
+let CFG = {}, signup = {}, code = null;
+
+async function estado() {
+  const { data, error } = await supabase.rpc('wa_config_publica');
+  if (error) { $('#estado').textContent = error.message; return; }
+  CFG = data || {};
+  $('#appId').value = CFG.app_id || ''; $('#configId').value = CFG.config_id || '';
+  $('#estado').innerHTML = `<div><b>${CFG.conectado ? 'Conectado ✓' : 'No conectado'}</b>WhatsApp por API</div><div><b>${CFG.app_id ? 'Sí' : 'Falta'}</b>App de Meta</div><div><b>${Number(CFG.historial_importado || 0)}</b>mensajes del historial importados</div><div><b>${CFG.ultimo_evento ? new Date(CFG.ultimo_evento).toLocaleString('es-CL') : '—'}</b>último evento de WhatsApp</div>`;
+  $('#conectar').disabled = !(CFG.app_id && CFG.config_id); $('#sync').disabled = !CFG.conectado;
+  if (CFG.app_id && !window.FB) cargarSDK(CFG.app_id);
+}
+function cargarSDK(appId) {
+  window.fbAsyncInit = () => FB.init({ appId, autoLogAppEvents: true, xfbml: false, version: 'v21.0' });
+  const s = document.createElement('script'); s.src = 'https://connect.facebook.net/es_LA/sdk.js'; s.async = true; s.defer = true; s.crossOrigin = 'anonymous'; document.head.appendChild(s);
+}
+// Datos que devuelve la ventana de Meta al terminar (waba_id y phone_number_id)
+window.addEventListener('message', (ev) => {
+  if (!/(^|\.)facebook\.com$/.test(new URL(ev.origin).hostname)) return;
+  let d; try { d = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; } catch { return; }
+  if (d?.type !== 'WA_EMBEDDED_SIGNUP') return;
+  log('Meta: ' + d.event);
+  if (/^FINISH/.test(d.event || '')) { signup = d.data || {}; terminar(); }
+  else if (d.event === 'CANCEL') log('Cancelado en el paso: ' + (d.data?.current_step || '?'));
+  else if (d.event === 'ERROR') log('Error de Meta: ' + (d.data?.error_message || JSON.stringify(d.data)));
+});
+async function terminar() {
+  if (!code || !signup.waba_id || !signup.phone_number_id) return;
+  log('Registrando en el sistema…');
+  const { data: { session: s } } = await supabase.auth.getSession();
+  const r = await fetch(SUPABASE_URL + '/functions/v1/whatsapp-conectar', { method: 'POST', headers: { Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ code, waba_id: signup.waba_id, phone_number_id: signup.phone_number_id }) });
+  const j = await r.json().catch(() => ({})); log(j); code = null; estado();
+}
+$('#guardar').onclick = async () => {
+  const { error } = await supabase.rpc('wa_config_guardar', { p_app_id: $('#appId').value.trim(), p_config_id: $('#configId').value.trim() });
+  if (error) { alert(error.message); return; } estado();
+};
+$('#conectar').onclick = () => {
+  if (!window.FB) { alert('Cargando Meta, intenta en unos segundos'); return; }
+  FB.login((resp) => { if (resp.authResponse?.code) { code = resp.authResponse.code; log('Código recibido de Meta'); terminar(); } else log('Meta no devolvió código (ventana cerrada o permiso negado)'); },
+    { config_id: CFG.config_id, response_type: 'code', override_default_response_type: true, extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' } });
+};
+$('#sync').onclick = async () => {
+  const { data: { session: s } } = await supabase.auth.getSession();
+  const r = await fetch(SUPABASE_URL + '/functions/v1/whatsapp-conectar', { method: 'POST', headers: { Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ accion: 'sincronizar' }) });
+  log(await r.json().catch(() => ({})));
+};
+await estado();
+</script>
+</body>
+</html>

@@ -194,6 +194,16 @@
     X-Robots-Tag = "noindex, nofollow"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://esm.sh; img-src 'self' data: https://zlyforhywunqhitrdreo.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl"
 
+# Página de conexión de WhatsApp: además de lo de /admin/*, carga el SDK de Meta y abre su ventana de registro integrado.
+[[headers]]
+  for = "/admin/whatsapp.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex, nofollow"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh https://connect.facebook.net; connect-src 'self' https://zlyforhywunqhitrdreo.supabase.co https://esm.sh https://*.facebook.com https://graph.facebook.com; frame-src https://*.facebook.com; img-src 'self' data: https://zlyforhywunqhitrdreo.supabase.co https://*.facebook.com https://*.fbcdn.net; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+
 # Cache agresivo para assets estáticos
 [[headers]]
   for = "/styles.css"

@@ -1,0 +1,19 @@
+-- WHATSAPP PROPIO Y GRATIS (aplicado en producción el 26-11-2026 vía MCP; funciones en la BD)
+-- Pedido de Emir: "No quiero pagar nada. Todo desarrollo propio. Que mis agentes hagan todo."
+-- Camino: app propia de Meta + registro integrado (Embedded Signup) con coexistencia (el número sigue en la app del teléfono).
+-- BD:
+--   private_config (key/value, solo service role): wa_business_token, wa_waba_id, wa_phone_number_id, wa_verify_token, wa_webhook_secret.
+--   wa_config_publica() / wa_config_guardar(app_id, config_id): App ID y Config ID (no secretos) en crm_settings.
+--   wa_historial_registrar(wa, mensajes, nombre): importa un hilo del webhook "history" sin disparar el bot ni crear tarjetas
+--     (trg_lead_entrante y crm_messages_after se saltan con app.importando_historial = '1'); deja la conversación con sus
+--     fechas reales de entrada/salida (si el último mensaje es nuestro, NO aparece como "sin respuesta").
+--   wa_historial_analizar(dias): del historial del último mes crea tarjeta "Responder" SOLO si el cliente escribió último y nadie
+--     contestó; si nosotros dimos precio y el cliente no siguió, pasa a cotizacion_enviada para el Cerrador; el resto queda como dato.
+-- Edge functions:
+--   whatsapp-conectar (nueva): canjea el code, guarda credenciales, suscribe la app a la WABA, configura el webhook de la app y pide
+--     sincronización de contactos e historial (POST /<phone_number_id>/smb_app_data). Cada paso queda en agente_tareas (sistema/whatsapp_conectar).
+--   whatsapp-webhook v5: lee credenciales de private_config si no hay secretos; procesa history + message_echoes + messages.
+-- Página: /admin/whatsapp.html (CSP propia en netlify.toml para el SDK de Meta).
+-- Requisito externo que el código no puede saltar: la app debe pasar verificación del negocio y revisión como Proveedor de
+-- tecnología de Meta. Los endpoints de coexistencia (smb_app_data, history, smb_message_echoes) se escribieron según la
+-- documentación de Meta y no se pudieron probar sin la app aprobada.
