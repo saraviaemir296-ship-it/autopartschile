@@ -1,0 +1,17 @@
+-- APLICADAS 26-nov-2026: fase4_dashboard_equipo_ia y fase2_auditor_semanal.
+--
+-- FASE 4 · Centro de Mando (admin/equipo-ia.html)
+--   dashboard_equipo_ia() -> jsonb : KPIs (ventas hoy/semana/mes, leads por etapa, tasa de cierre 90 d,
+--     piezas disponibles / sin publicar / precio pendiente / publicables, valor stock, días promedio para
+--     vender), cola de aprobaciones (precios, tareas de agentes, publicaciones, sugerencias CRM), leads para
+--     el kanban, equipo IA, errores recientes, inventario por vehículo, oportunidades del radar y estado de
+--     los crons. Solo admin (is_admin) o service role. Todo sale de las vistas v_* de la fase 1.
+--   agente_tarea_decidir(id, decision, texto_editado) : aprobar / editar / rechazar / marcar ejecutada,
+--     con auth.uid() como aprobador (dispara los triggers de ejecución y aviso).
+--   repuesto_fijar_precio(id, precio) : regla 2 desde el panel; deja constancia en agente_tareas.
+--
+-- AGENTE AUDITOR SEMANAL (datos, 100 % SQL)
+--   auditor_semanal() : leads perdidos y motivos, piezas con stock sin publicar > 7 días (y $), piezas sin
+--     vender > 60 días por auto (y $), bloqueos de la regla 1, descuadres, autos sin costo, errores de
+--     agentes, aprobaciones > 48 h; mejoras sugeridas calculadas sobre esos números. Telegram + agente_tareas.
+--   cron 'auditor-semanal' '0 11 * * 1' (lunes 8:00 Chile, UTC-3 en verano).

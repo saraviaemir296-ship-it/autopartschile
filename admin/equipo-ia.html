@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Centro de Mando | Equipo IA Saravia</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/img/favicon.png">
+<style>
+:root{--bg:#0f0f10;--panel:#181819;--line:#2a2a2c;--fg:#f3f3f3;--muted:#9a9a9f;--red:#d80002;--red2:#ff3b3f;--ok:#22c55e;--warn:#f59e0b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--red2)}
+header{position:sticky;top:0;z-index:20;background:#000;border-bottom:2px solid var(--red);padding:.7rem max(14px,env(safe-area-inset-left)) .6rem max(14px,env(safe-area-inset-right))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.top h1{margin:0;font-size:1.05rem;letter-spacing:.02em;text-transform:uppercase}
+.top h1 span{color:var(--red2)}
+.top small{color:var(--muted);font-size:.72rem;display:block;text-transform:none;letter-spacing:0}
+.top .acts{display:flex;gap:.4rem}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:.5rem .8rem;border-radius:9px;font-weight:700;font-size:.82rem;cursor:pointer}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ok{background:#14532d;border-color:#166534}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:default}
+nav.tabs{display:flex;gap:.35rem;overflow-x:auto;margin-top:.6rem;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--muted);padding:.45rem .8rem;border-radius:999px;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap}
+nav.tabs button.on{background:var(--red);border-color:var(--red);color:#fff}
+nav.tabs button b{background:#fff;color:#000;border-radius:999px;padding:0 .4rem;margin-left:.3rem;font-size:.72rem}
+main{padding:.9rem max(14px,env(safe-area-inset-left)) 5rem max(14px,env(safe-area-inset-right));max-width:1100px;margin:0 auto}
+section{display:none}section.on{display:block}
+h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:1.1rem 0 .5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem}
+.kpi .n{font-size:1.5rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .n.red{color:var(--red2)}
+.kpi .l{color:var(--muted);font-size:.74rem;margin-top:.2rem}
+.kpi .s{color:var(--muted);font-size:.7rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.85rem .9rem;margin-bottom:.6rem}
+.card .meta{color:var(--muted);font-size:.74rem;display:flex;gap:.6rem;flex-wrap:wrap}
+.card .t{font-weight:700;margin:.25rem 0}
+.card pre{white-space:pre-wrap;font:inherit;margin:.4rem 0;background:#101011;border:1px dashed var(--line);border-radius:8px;padding:.6rem;color:#e6e6e6}
+.card .acts{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.tag{display:inline-block;border-radius:6px;padding:.1rem .45rem;font-size:.7rem;font-weight:800;text-transform:uppercase;background:#2a2a2c;color:#ddd}
+.tag.red{background:var(--red);color:#fff}.tag.ok{background:#14532d;color:#bbf7d0}.tag.warn{background:#78350f;color:#fde68a}
+input.num{width:9rem;background:#101011;border:1px solid var(--line);color:#fff;border-radius:8px;padding:.5rem .6rem;font-size:1rem;font-weight:700}
+textarea.ed{width:100%;min-height:90px;background:#101011;border:1px solid var(--line);color:#fff;border-radius:8px;padding:.6rem;font:inherit}
+.kanban{display:flex;gap:.6rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory}
+.col{flex:0 0 min(84vw,290px);scroll-snap-align:start;background:#121213;border:1px solid var(--line);border-radius:12px;padding:.6rem}
+.col h3{margin:0 0 .5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;justify-content:space-between}
+.col h3 b{color:#fff}
+.lead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.6rem .7rem;margin-bottom:.5rem;font-size:.86rem}
+.lead .who{font-weight:800}
+.lead .what{color:#ddd}
+.lead .meta{color:var(--muted);font-size:.72rem;margin-top:.25rem}
+.lead.late{border-color:#7f1d1d}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th,td{text-align:left;padding:.5rem .45rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.empty{color:var(--muted);padding:1.4rem;text-align:center;border:1px dashed var(--line);border-radius:12px}
+.toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:#fff;color:#000;padding:.6rem 1rem;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;transition:.2s;pointer-events:none;z-index:50;max-width:92vw}
+.toast.show{opacity:1}.toast.err{background:var(--red);color:#fff}
+.note{color:var(--muted);font-size:.78rem;margin:.3rem 0 .8rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Centro de <span>Mando</span><small id="stamp">cargando…</small></h1>
+    <div class="acts"><button class="btn ghost" id="reload">↻</button><a class="btn ghost" href="/admin/index.html">Admin</a></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-t="resumen" class="on">Resumen</button>
+    <button data-t="aprob">Aprobaciones<b id="nAprob">0</b></button>
+    <button data-t="pipeline">Pipeline</button>
+    <button data-t="equipo">Equipo IA</button>
+    <button data-t="inv">Inventario</button>
+    <button data-t="radar">Radar</button>
+  </nav>
+</header>
+<main>
+  <section id="s-resumen" class="on"><div id="kpis" class="grid"></div><h2>Programación</h2><div id="cron" class="tbl"></div></section>
+  <section id="s-aprob"><p class="note">Nada sale a un cliente ni se publica sin tu sí. Aprobar un mensaje lo deja listo; "Enviar por WhatsApp" abre el chat con el texto escrito; "Marcar enviado" lo cierra.</p><div id="aprob"></div></section>
+  <section id="s-pipeline"><div id="kanban" class="kanban"></div></section>
+  <section id="s-equipo"><div id="equipo" class="grid"></div><h2>Errores recientes</h2><div id="errores"></div></section>
+  <section id="s-inv"><p class="note">Toca el costo de compra para cargarlo: sin costo no hay "recuperado vs costo".</p><div id="inv" class="tbl"></div></section>
+  <section id="s-radar"><div id="radar"></div></section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { supabase, requireAdmin } from '/admin/admin-common.js';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clp = n => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
+const ago = ts => { if (!ts) return ''; const m = Math.round((Date.now() - new Date(ts)) / 60000); if (m < 60) return m + ' min'; const h = Math.round(m / 60); if (h < 48) return h + ' h'; return Math.round(h / 24) + ' d'; };
+const fecha = ts => ts ? new Date(ts).toLocaleString('es-CL', { timeZone: 'America/Santiago', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+function toast(m, err) { const t = $('#toast'); t.textContent = m; t.className = 'toast show' + (err ? ' err' : ''); setTimeout(() => t.className = 'toast', 2800); }
+function fail(e) { console.error(e); toast((e && (e.message || e.error_description)) || String(e), true); }
+
+let D = null, session = null;
+
+$('#tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('on', s.id === 's-' + b.dataset.t));
+  try { localStorage.setItem('cm_tab', b.dataset.t); } catch {}
+});
+$('#reload').addEventListener('click', load);
+
+async function load() {
+  $('#stamp').textContent = 'actualizando…';
+  const { data, error } = await supabase.rpc('dashboard_equipo_ia');
+  if (error) return fail(error);
+  D = data;
+  $('#stamp').textContent = 'datos reales · ' + fecha(D.generado_at);
+  renderKpis(); renderCron(); renderAprob(); renderKanban(); renderEquipo(); renderInv(); renderRadar();
+}
+
+function renderKpis() {
+  const k = D.kpis, le = k.leads_por_etapa || {};
+  const abiertos = (le.nuevo || 0) + (le.cotizado || 0) + (le.seguimiento || 0);
+  const tc = k.tasa_cierre_90d || {};
+  $('#kpis').innerHTML = [
+    ['Ventas hoy', clp(k.ventas_hoy.total), k.ventas_hoy.n + ' ventas', true],
+    ['Ventas semana', clp(k.ventas_semana.total), k.ventas_semana.n + ' ventas'],
+    ['Ventas mes', clp(k.ventas_mes.total), k.ventas_mes.n + ' ventas'],
+    ['Leads abiertos', abiertos, `nuevo ${le.nuevo || 0} · cotizado ${le.cotizado || 0} · seguimiento ${le.seguimiento || 0}`],
+    ['Tasa de cierre 90 d', tc.pct == null ? 'sin datos' : tc.pct + '%', `${tc.ganados || 0} ganados / ${tc.perdidos || 0} perdidos`],
+    ['Piezas disponibles', k.piezas_disponibles, `${k.piezas_sin_publicar} con stock sin publicar`],
+    ['Pendientes de precio', k.piezas_precio_pendiente, 'regla 2', k.piezas_precio_pendiente > 0],
+    ['Publicables (regla 1)', k.piezas_publicables, 'con N° parte, foto, imagen promo y precio'],
+    ['Valor stock', clp(k.valor_stock), 'a precio de venta'],
+    ['Días promedio para vender', k.dias_promedio_venta?.dias ?? 'sin datos', `n = ${k.dias_promedio_venta?.n || 0} ventas web con pieza`],
+    ['Esperando tu aprobación', k.aprobaciones_pendientes, '', k.aprobaciones_pendientes > 0],
+  ].map(([l, n, s, red]) => `<div class="kpi"><div class="n ${red ? 'red' : ''}">${esc(n)}</div><div class="l">${esc(l)}</div><div class="s">${esc(s)}</div></div>`).join('');
+}
+
+function renderCron() {
+  const rows = (D.cron || []).map(c => `<tr><td>${esc(c.nombre)}</td><td><code>${esc(c.cron)}</code> UTC</td><td>${c.activo ? '<span class="tag ok">activo</span>' : '<span class="tag">pausado</span>'}</td><td>${c.ultima ? `<span class="tag ${c.ultima.status === 'succeeded' ? 'ok' : 'red'}">${esc(c.ultima.status)}</span> ${fecha(c.ultima.at)}` : '—'}</td></tr>`).join('');
+  $('#cron').innerHTML = `<table><thead><tr><th>Trabajo</th><th>Horario</th><th>Estado</th><th>Última corrida</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderAprob() {
+  const A = D.aprobaciones || [];
+  $('#nAprob').textContent = A.length;
+  if (!A.length) { $('#aprob').innerHTML = '<div class="empty">Nada pendiente. Los agentes dejan aquí sus propuestas.</div>'; return; }
+  $('#aprob').innerHTML = A.map(a => {
+    const head = `<div class="meta"><span class="tag red">${esc(a.tipo)}</span>${a.agente ? `<span class="tag">${esc(a.agente)}</span>` : ''}<span>hace ${ago(a.desde)}</span></div>`;
+    if (a.tipo === 'precio') {
+      const sug = a.precio_sugerido ?? a.precio_actual ?? '';
+      return `<div class="card" data-k="precio-${a.id}">${head}<div class="t">${esc(a.nombre)}</div><div class="meta"><span>${esc(a.sku)}</span>${a.vehiculo ? `<span>${esc(a.vehiculo)}</span>` : ''}${a.costo ? `<span>costo ${clp(a.costo)}</span>` : ''}${a.precio_sugerido ? `<span>sugerido ${clp(a.precio_sugerido)}</span>` : '<span>sin sugerencia</span>'}</div>
+        <div class="acts"><input class="num" type="number" min="1000" step="1000" value="${esc(sug)}" id="pr-${a.id}"><button class="btn red" data-act="fijar" data-id="${a.id}">Fijar precio</button></div></div>`;
+    }
+    if (a.tipo === 'tarea') {
+      return `<div class="card">${head}<div class="t">${esc(a.accion.replace(/_/g, ' '))}</div><pre id="tx-${a.id}">${esc(a.propuesta)}</pre>
+        <div class="acts">
+          ${a.wa_link ? `<a class="btn ok" href="${esc(a.wa_link)}" target="_blank" rel="noopener">Enviar por WhatsApp ↗</a>` : ''}
+          <button class="btn red" data-act="tarea" data-dec="aprobada" data-id="${a.id}">Aprobar</button>
+          <button class="btn" data-act="editar" data-id="${a.id}">Editar</button>
+          <button class="btn" data-act="tarea" data-dec="rechazada" data-id="${a.id}">Rechazar</button>
+          ${a.wa_link ? `<button class="btn ghost" data-act="tarea" data-dec="ejecutada" data-id="${a.id}">Marcar enviado</button>` : ''}
+        </div></div>`;
+    }
+    if (a.tipo === 'publicacion') {
+      return `<div class="card">${head}<div class="t">${esc(a.canal)} · ${esc(a.titulo)}</div>${a.texto ? `<pre>${esc(a.texto)}</pre>` : ''}
+        <div class="acts"><button class="btn red" data-act="pub" data-dec="aprobada" data-id="${a.id}">Aprobar publicación</button><button class="btn" data-act="pub" data-dec="borrador" data-id="${a.id}">Devolver a borrador</button></div></div>`;
+    }
+    return `<div class="card">${head}<div class="t">${esc(a.subtipo)}</div><pre>${esc(a.contenido)}</pre>
+      <div class="acts"><button class="btn red" data-act="sug" data-dec="aprobada" data-id="${a.id}">Aprobar</button><button class="btn" data-act="sug" data-dec="rechazada" data-id="${a.id}">Rechazar</button></div></div>`;
+  }).join('');
+}
+
+$('#aprob').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const id = b.dataset.id, act = b.dataset.act, dec = b.dataset.dec;
+  b.disabled = true;
+  try {
+    if (act === 'fijar') {
+      const v = Number($('#pr-' + id).value);
+      const { error } = await supabase.rpc('repuesto_fijar_precio', { p_id: Number(id), p_precio: v }); if (error) throw error;
+      toast('Precio fijado: ' + clp(v));
+    } else if (act === 'tarea') {
+      const { error } = await supabase.rpc('agente_tarea_decidir', { p_id: Number(id), p_decision: dec }); if (error) throw error;
+      toast('Tarea ' + dec);
+    } else if (act === 'editar') {
+      const pre = $('#tx-' + id); const cur = pre.textContent;
+      const ta = document.createElement('textarea'); ta.className = 'ed'; ta.value = cur.includes('MENSAJE:') ? cur.split('MENSAJE:').pop().trim() : cur;
+      pre.replaceWith(ta); ta.focus();
+      b.textContent = 'Guardar y aprobar'; b.dataset.act = 'editar-ok'; b.disabled = false; return;
+    } else if (act === 'editar-ok') {
+      const ta = b.closest('.card').querySelector('textarea.ed');
+      const { error } = await supabase.rpc('agente_tarea_decidir', { p_id: Number(id), p_decision: 'editada', p_texto_editado: ta.value }); if (error) throw error;
+      toast('Aprobada con tu texto');
+    } else if (act === 'pub') {
+      const { error } = await supabase.from('publicaciones').update({ estado: dec }).eq('id', Number(id)); if (error) throw error;
+      toast('Publicación ' + dec);
+    } else if (act === 'sug') {
+      const { error } = await supabase.from('crm_ai_suggestions').update({ status: dec, decided_by: session.user.id, decided_at: new Date().toISOString() }).eq('id', id); if (error) throw error;
+      toast('Sugerencia ' + dec);
+    }
+    await load();
+  } catch (err) { fail(err); b.disabled = false; }
+});
+
+function renderKanban() {
+  const cols = [['nuevo', 'Nuevo'], ['cotizado', 'Cotizado'], ['seguimiento', 'Seguimiento'], ['cerrado_ganado', 'Ganado'], ['cerrado_perdido', 'Perdido']];
+  const L = D.leads || [];
+  $('#kanban').innerHTML = cols.map(([k, t]) => {
+    const items = L.filter(l => l.etapa === k);
+    return `<div class="col"><h3>${t} <b>${items.length}</b></h3>${items.map(l => `<div class="lead ${l.seguimiento_vencido ? 'late' : ''}">
+      <div class="who">${esc(l.cliente || l.telefono || 'sin nombre')} <span class="tag">${esc(l.canal)}</span></div>
+      <div class="what">${esc(l.pieza_buscada || (l.ultimo_mensaje || '').replace(/^Solicitud de cotización desde autopartschile.cl\s*/i, '').slice(0, 110))}</div>
+      <div class="meta">${esc(l.etapa_detalle.replace(/_/g, ' '))}${l.valor_potencial ? ' · ' + clp(l.valor_potencial) : ''}${l.proximo_contacto ? ' · próx. ' + fecha(l.proximo_contacto) : ''}${l.motivo_perdida ? ' · ' + esc(l.motivo_perdida) : ''}</div>
+      ${l.telefono ? `<div class="meta"><a href="https://wa.me/${esc(String(l.telefono).replace(/\D/g, ''))}" target="_blank" rel="noopener">WhatsApp ↗</a></div>` : ''}
+    </div>`).join('') || '<div class="empty" style="padding:.8rem">—</div>'}</div>`;
+  }).join('');
+}
+
+function renderEquipo() {
+  const E = D.equipo || [];
+  $('#equipo').innerHTML = E.length ? E.map(e => `<div class="kpi"><div class="l" style="font-weight:800;color:#fff;text-transform:uppercase">${esc(e.agente.replace(/_/g, ' '))}</div>
+    <div class="n ${e.errores_7d > 0 ? 'red' : ''}">${e.tareas_hoy}</div><div class="s">tareas hoy · ${e.errores_7d} errores 7 d · ${e.esperando_aprobacion} esperando</div>
+    <div class="s">última: ${esc(e.ultima_accion || '')} · ${fecha(e.ultima_accion_at)}</div></div>`).join('') : '<div class="empty">Ningún agente ha corrido todavía.</div>';
+  const R = D.errores_recientes || [];
+  $('#errores').innerHTML = R.length ? R.map(r => `<div class="card"><div class="meta"><span class="tag red">${esc(r.agente)}</span><span>${esc(r.accion)}</span><span>${fecha(r.at)}</span></div><pre>${esc(r.error)}</pre></div>`).join('') : '<div class="empty">Sin errores registrados.</div>';
+}
+
+function renderInv() {
+  const I = D.inventario || [];
+  $('#inv').innerHTML = `<table><thead><tr><th>Vehículo</th><th class="num">Piezas</th><th class="num">Disp.</th><th class="num">Web</th><th class="num">Vend.</th><th class="num">Sin precio</th><th class="num">Valor stock</th><th class="num">Recuperado</th><th class="num">Costo compra</th><th class="num">%</th></tr></thead><tbody>
+    ${I.map(i => `<tr><td><b>${esc(i.codigo)}</b><br><span style="color:var(--muted);font-size:.75rem">${esc(i.marca)} ${esc(i.modelo)} ${esc(i.motor || '')} · ${esc(i.estado || '')}</span></td>
+      <td class="num">${i.piezas_total}</td><td class="num">${i.piezas_disponibles}</td><td class="num">${i.piezas_activas_web}</td><td class="num">${i.piezas_vendidas}</td><td class="num">${i.piezas_precio_pendiente}</td>
+      <td class="num">${clp(i.valor_stock_disponible)}</td><td class="num">${clp(i.recuperado)}</td>
+      <td class="num"><button class="btn ghost" data-costo="${i.id}" data-cur="${i.costo_compra ?? ''}">${i.costo_compra ? clp(i.costo_compra) : 'cargar'}</button></td>
+      <td class="num">${i.pct_recuperado != null ? i.pct_recuperado + '%' : '—'}</td></tr>`).join('')}</tbody></table>`;
+}
+$('#inv').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-costo]'); if (!b) return;
+  const v = prompt('Costo de compra del vehículo (pesos, sin puntos):', b.dataset.cur || ''); if (v == null) return;
+  const n = Number(String(v).replace(/\D/g, '')); if (!n) return toast('Monto inválido', true);
+  const { error } = await supabase.from('vehiculos').update({ costo_compra: n }).eq('id', Number(b.dataset.costo));
+  if (error) return fail(error); toast('Costo guardado'); load();
+});
+
+function renderRadar() {
+  const O = D.oportunidades || [];
+  $('#radar').innerHTML = O.length ? O.map(o => `<div class="card"><div class="meta"><span class="tag ${Number(o.score_ia) >= 70 ? 'red' : ''}">score ${o.score_ia ?? '—'}</span><span class="tag">${esc(o.fuente)}</span><span class="tag ${o.decision === 'pendiente' ? '' : 'warn'}">${esc(o.decision)}</span><span>${fecha(o.created_at)}</span></div>
+    <div class="t">${esc(o.marca || '')} ${esc(o.modelo || '')} ${esc(o.anio || '')} · ${clp(o.precio_clp)}</div><div class="meta">${esc(o.titulo)}</div>${o.analisis_ia ? `<pre>${esc(o.analisis_ia)}</pre>` : ''}
+    <div class="acts">${o.url ? `<a class="btn ghost" href="${esc(o.url)}" target="_blank" rel="noopener">Ver aviso ↗</a>` : ''}
+      <button class="btn red" data-op="contactar" data-id="${o.id}">Contactar</button><button class="btn" data-op="en_negociacion" data-id="${o.id}">Negociando</button><button class="btn ok" data-op="comprada" data-id="${o.id}">Comprada</button><button class="btn ghost" data-op="descartada" data-id="${o.id}">Descartar</button></div></div>`).join('')
+    : '<div class="empty">Sin oportunidades abiertas de los últimos 45 días. (El radar de Mercado Libre está en reconstrucción.)</div>';
+}
+$('#radar').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-op]'); if (!b) return; b.disabled = true;
+  const { error } = await supabase.from('oportunidades').update({ decision: b.dataset.op, decidida_at: new Date().toISOString() }).eq('id', Number(b.dataset.id));
+  if (error) { fail(error); b.disabled = false; return; } toast('Oportunidad: ' + b.dataset.op); load();
+});
+
+(async () => {
+  session = await requireAdmin(); if (!session) return;
+  try { const t = localStorage.getItem('cm_tab'); if (t) document.querySelector(`#tabs button[data-t="${t}"]`)?.click(); } catch {}
+  await load();
+  setInterval(load, 120000);
+})();
+</script>
+</body>
+</html>
