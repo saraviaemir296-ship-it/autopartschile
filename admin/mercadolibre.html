@@ -112,7 +112,11 @@ async function loadItems() {
   const { data } = await supabase.from('products').select('id, sku, name, price_sale, images, meli_item_id, part_status')
     .eq('is_active', true).is('deleted_at', null).gt('price_sale', 0).order('name');
   items = (data || []).filter(p => realImgs(p.images).length && !/^QA-/i.test(p.sku) && p.part_status !== 'vendida' && p.part_status !== 'no_disponible');
+  // ?ids=1,2,3 (desde el Centro de Mando: publicaciones aprobadas que faltan subir) → quedan marcadas y arriba
+  const pre = (q.get('ids') || '').split(',').map(Number).filter(Boolean);
+  if (pre.length) { const set = new Set(pre); items.sort((a, b) => (set.has(b.id) ? 1 : 0) - (set.has(a.id) ? 1 : 0)); }
   draw();
+  if (pre.length) { let n = 0; document.querySelectorAll('.pk:not(:disabled)').forEach(c => { if (pre.includes(Number(c.value))) { c.checked = true; n++; } }); msg.className = 'msg ok'; msg.textContent = n + ' repuesto(s) aprobados por ti quedaron marcados. Elige el tipo de publicación, valida y publica.'; }
 }
 function draw() {
   const q = document.getElementById('fq').value.toLowerCase();

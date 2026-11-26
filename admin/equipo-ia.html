@@ -232,6 +232,14 @@ function renderCron() {
 }
 
 const RESP_ACCIONES = ['responder_cliente', 'whatsapp_responder', 'sin_stock', 'elegir_repuesto', 'revisar_adjunto'];
+async function renderML() {
+  // Publicaciones de Mercado Libre aprobadas cuyo repuesto aún no está arriba: ML se sube desde su página (tipo de publicación y comisión los eliges tú).
+  const { data: pubs } = await supabase.from('publicaciones').select('product_id').eq('canal', 'mercadolibre').eq('estado', 'aprobada');
+  const ids = [...new Set((pubs || []).map(x => x.product_id))]; if (!ids.length) return '';
+  const { data: prods } = await supabase.from('products').select('id').in('id', ids).is('meli_item_id', null).gt('stock', 0);
+  const faltan = (prods || []).map(x => x.id); if (!faltan.length) return '';
+  return `<div class="card"><div class="t">🛒 Mercado Libre: ${faltan.length} aprobadas sin subir</div><div class="meta">Aprobaste el texto, pero a Mercado Libre se sube desde su página porque tú eliges el tipo de publicación y si cubres la comisión. Ojo: ML modera las fotos con sellos; usa fotos limpias cuando puedas.</div><div class="acts"><a class="btn red" href="/admin/mercadolibre.html?ids=${faltan.join(',')}">Subir estas ${faltan.length} a Mercado Libre ↗</a></div></div>`;
+}
 async function renderResp() { const n = await montarResponder($('#resp'), supabase, { toast, onDone: () => { $('#nResp').textContent = Math.max(0, Number($('#nResp').textContent) - 1); } }); $('#nResp').textContent = n; }
 function renderAprob() {
   const A = (D.aprobaciones || []).filter(a => !(a.tipo === 'tarea' && a.entidad_tipo === 'crm_conversation' && RESP_ACCIONES.includes(a.accion)));
@@ -245,6 +253,7 @@ function renderAprob() {
   const pubsPorCanal = {}; pubs.forEach(a => (pubsPorCanal[a.canal] = pubsPorCanal[a.canal] || []).push(a.id));
   const botonesPub = pubs.length >= 3 ? `<button class="btn red" data-act="lote-pub" data-ids="${pubs.map(a => a.id).join(',')}">Aprobar ${pubs.length} publicaciones (todos los canales)</button>` + Object.entries(pubsPorCanal).map(([c, ids]) => `<button class="btn" data-act="lote-pub" data-ids="${ids.join(',')}">Solo ${esc(c.replace(/_/g, ' '))} (${ids.length})</button>`).join('') : '';
   const barra = (lotes.length || botonesPub) ? `<div class="card"><div class="t">Aprobar en lote</div><div class="meta">Solo para tareas repetidas del mismo tipo. Revisa una o dos antes.</div><div class="acts">${lotes.map(g => `<button class="btn red" data-act="lote" data-ids="${g.ids.join(',')}">Aprobar ${g.ids.length} · ${esc(g.agente)} · ${esc(g.accion.replace(/_/g, ' '))}</button>`).join('')}${botonesPub}</div></div>` : '';
+  renderML().then(html => { if (html) $('#aprob').insertAdjacentHTML('afterbegin', html); }).catch(() => {});
   $('#aprob').innerHTML = barra + A.map(a => {
     const head = `<div class="meta"><span class="tag red">${esc(a.tipo)}</span>${a.agente ? `<span class="tag">${esc(a.agente)}</span>` : ''}<span>hace ${ago(a.desde)}</span></div>`;
     if (a.tipo === 'precio') {
