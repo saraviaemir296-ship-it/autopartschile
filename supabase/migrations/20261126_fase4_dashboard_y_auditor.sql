@@ -15,3 +15,7 @@
 --     vender > 60 días por auto (y $), bloqueos de la regla 1, descuadres, autos sin costo, errores de
 --     agentes, aprobaciones > 48 h; mejoras sugeridas calculadas sobre esos números. Telegram + agente_tareas.
 --   cron 'auditor-semanal' '0 11 * * 1' (lunes 8:00 Chile, UTC-3 en verano).
+
+-- 26-nov (más tarde): Emir pidió Seguimiento cada 1 hora y Auditoría diaria.
+--   cron 'seguimiento-leads-1h' '0 12-23 * * 1-6' (9–20 h Chile, L–S) y 'auditor-diario' '0 11 * * 1-6' (8:00 Chile).
+--   auditor_semanal() ahora se identifica por día (accion 'informe_diario', dedupe 'auditor:YYYY-MM-DD').
