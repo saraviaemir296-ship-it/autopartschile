@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Hoy · Saravia</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--red:#d80002;--bg:#f6f6f7;--card:#fff;--txt:#111;--muted:#666;--line:#e3e3e6;--ok:#1f8f45}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--red);color:#fff;padding:1rem;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:1.3rem}header .sub{font-size:.9rem;opacity:.9}
+header a{color:#fff;font-size:.85rem;text-decoration:underline;margin-right:.8rem}
+main{max-width:720px;margin:0 auto;padding:1rem}
+section{margin-bottom:1.4rem}
+h2{font-size:1.05rem;margin:.2rem 0 .6rem;display:flex;align-items:center;gap:.5rem}
+h2 b{background:#111;color:#fff;border-radius:999px;padding:.1rem .6rem;font-size:.85rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;margin-bottom:.6rem;display:flex;gap:.8rem;align-items:center}
+.card img{width:64px;height:64px;object-fit:cover;border-radius:10px;background:#eee;flex:none}
+.card .t{font-weight:800;line-height:1.25}.card .m{color:var(--muted);font-size:.85rem;margin-top:.15rem}
+.card .body{flex:1;min-width:0}
+.acts{display:flex;gap:.4rem;flex-direction:column;flex:none}
+.btn{border:none;border-radius:10px;padding:.7rem .9rem;font-weight:800;font-size:.95rem;cursor:pointer;background:#eee;color:#111;text-decoration:none;text-align:center;white-space:nowrap}
+.btn.ok{background:var(--ok);color:#fff}.btn.red{background:var(--red);color:#fff}.btn.wa{background:#25D366;color:#fff}
+.empty{color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:14px;padding:.9rem 1rem}
+pre{white-space:pre-wrap;font:inherit;font-size:.9rem;background:#fafafa;border-radius:10px;padding:.6rem;margin:.4rem 0 0;max-height:160px;overflow:auto}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:.7rem 1rem;border-radius:10px;font-weight:700;opacity:0;transition:.2s}.toast.on{opacity:1}
+.help{font-size:.85rem;color:var(--muted);margin:-.3rem 0 .6rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Hoy en Desarmaduría Saravia</h1>
+  <div class="sub" id="sub">cargando…</div>
+  <div style="margin-top:.4rem"><a href="/admin/index.html">Admin</a><a href="/admin/equipo-ia.html">Centro de Mando (jefe)</a><a href="/admin/disenador.html">Diseñador</a></div>
+</header>
+<main>
+  <section><h2>💬 Responder a clientes <b id="nResp">0</b></h2><div class="help">Abre el chat, responde y toca Listo.</div><div id="resp"></div></section>
+  <section><h2>📣 Publicar hoy <b id="nPub">0</b></h2><div class="help">Texto listo y aprobado por el jefe. Copiar, pegar en Marketplace o el grupo con la imagen, y marcar publicada.</div><div id="pub"></div></section>
+  <section><h2>📷 Sacar fotos <b id="nFoto">0</b></h2><div class="help">Las piezas más valiosas sin foto. Saca la foto desde la ficha (botón Abrir) y sube la imagen.</div><div id="foto"></div></section>
+  <section><h2>🏷️ Buscar número de parte <b id="nOem">0</b></h2><div class="help">Mira la etiqueta de la pieza o la foto y escribe el N° OEM en la ficha.</div><div id="oem"></div></section>
+  <section><h2>📦 Despachar y entregar <b id="nDesp">0</b></h2><div id="desp"></div></section>
+</main>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { supabase, requireAdmin } from '/admin/admin-common.js';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
+const abs = (u) => (!u ? '' : /^https?:/.test(u) ? u : location.origin + (u.startsWith('/') ? '' : '/') + u);
+const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1600); };
+const session = await requireAdmin(); if (!session) throw new Error('sin sesión');
+$('#sub').textContent = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + session.user.email;
+
+async function cargar() {
+  const [tareas, pubs, sinFoto, sinOem, pedidos] = await Promise.all([
+    supabase.from('agente_tareas').select('id,agente,accion,propuesta,salida,created_at').eq('estado_aprobacion', 'pendiente').in('accion', ['whatsapp_responder', 'sin_stock', 'elegir_repuesto', 'revisar_adjunto']).order('id', { ascending: false }).limit(30),
+    supabase.from('publicaciones').select('id,product_id,canal,titulo,texto,imagen_url,created_at').eq('estado', 'aprobada').order('product_id').limit(300),
+    supabase.from('products').select('id,sku,name,price_sale,ubicacion_fisica,images').eq('is_active', true).is('deleted_at', null).gt('stock', 0).not('part_status', 'in', '("vendida","no_disponible")').or('images.is.null,images.eq.[]').order('price_sale', { ascending: false }).limit(25),
+    supabase.from('products').select('id,sku,name,price_sale,ubicacion_fisica,images,oem_number').is('deleted_at', null).gt('stock', 0).not('part_status', 'in', '("vendida","no_disponible")').or('oem_number.is.null,oem_number.eq.').not('images', 'is', null).neq('images', '[]').order('price_sale', { ascending: false }).limit(25),
+    supabase.from('orders').select('id,total,delivery_method,tracking_number,fulfillment_status,created_at,shipping_address,customer_id').eq('status', 'completed').gte('created_at', new Date(Date.now() - 30 * 864e5).toISOString()).order('created_at', { ascending: false }).limit(30),
+  ]);
+  // 1. responder
+  const T = tareas.data || []; $('#nResp').textContent = T.length;
+  $('#resp').innerHTML = T.length ? T.map((t) => `<div class="card"><div class="body"><div class="t">${esc((t.propuesta || '').split('\n')[0].slice(0, 120))}</div><div class="m">${esc(t.agente)} · ${esc(t.accion.replace(/_/g, ' '))}</div>${t.propuesta && t.propuesta.length > 120 ? `<pre>${esc(t.propuesta)}</pre>` : ''}</div><div class="acts">${t.salida?.wa_link ? `<a class="btn wa" target="_blank" rel="noopener" href="${esc(t.salida.wa_link)}">WhatsApp</a>` : ''}<button class="btn ok" data-tarea="${t.id}">Listo ✓</button></div></div>`).join('') : '<div class="empty">Nadie espera respuesta ahora.</div>';
+  // 2. publicar (una tarjeta por pieza; los canales como botones)
+  const P = pubs.data || []; const porProd = {}; P.forEach((p) => (porProd[p.product_id] = porProd[p.product_id] || []).push(p));
+  const grupos = Object.values(porProd); $('#nPub').textContent = P.length;
+  $('#pub').innerHTML = grupos.length ? grupos.map((g) => { const p = g[0]; return `<div class="card"><img src="${esc(abs(p.imagen_url))}" alt=""><div class="body"><div class="t">${esc(p.titulo)}</div><div class="m">canales: ${g.map((x) => x.canal.replace(/_/g, ' ')).join(', ')}</div><pre>${esc(p.texto || '')}</pre></div><div class="acts"><button class="btn" data-copiar="${p.id}">Copiar texto</button>${p.imagen_url ? `<a class="btn" target="_blank" rel="noopener" href="${esc(abs(p.imagen_url))}">Abrir imagen</a>` : ''}${g.filter((x) => x.canal !== 'mercadolibre').map((x) => `<button class="btn ok" data-pub="${x.id}">Publicada en ${esc(x.canal.replace(/_/g, ' '))} ✓</button>`).join('')}</div></div>`; }).join('') : '<div class="empty">Nada aprobado para publicar.</div>';
+  // 3. fotos
+  const F = sinFoto.data || []; $('#nFoto').textContent = F.length;
+  $('#foto').innerHTML = F.length ? F.map((p) => `<div class="card"><div class="body"><div class="t">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)}${p.ubicacion_fisica ? ' · ubicación ' + esc(p.ubicacion_fisica) : ''}</div></div><div class="acts"><a class="btn red" href="/admin/producto.html?id=${p.id}">Abrir ficha</a></div></div>`).join('') : '<div class="empty">Todas las piezas disponibles tienen foto.</div>';
+  // 4. oem
+  const O = sinOem.data || []; $('#nOem').textContent = O.length;
+  $('#oem').innerHTML = O.length ? O.map((p) => `<div class="card"><img src="${esc(abs((p.images || [])[0]))}" alt=""><div class="body"><div class="t">${esc(p.name)}</div><div class="m">${esc(p.sku)} · ${clp(p.price_sale)}${p.ubicacion_fisica ? ' · ubicación ' + esc(p.ubicacion_fisica) : ''}</div></div><div class="acts"><a class="btn red" href="/admin/producto.html?id=${p.id}">Abrir ficha</a></div></div>`).join('') : '<div class="empty">Todas las piezas con foto tienen número de parte.</div>';
+  // 5. despachos
+  const D = (pedidos.data || []).filter((o) => (o.delivery_method === 'home_delivery' && !o.tracking_number) || (o.delivery_method === 'pickup' && !['entregado', 'cancelado', 'devuelto', 'reembolsado'].includes(o.fulfillment_status || '')));
+  $('#nDesp').textContent = D.length;
+  $('#desp').innerHTML = D.length ? D.map((o) => `<div class="card"><div class="body"><div class="t">Pedido #${o.id} · ${clp(o.total)}</div><div class="m">${o.delivery_method === 'home_delivery' ? 'Enviar a ' + esc([o.shipping_address?.comuna, o.shipping_address?.region].filter(Boolean).join(', ')) + ' (falta N° de seguimiento)' : 'Retiro en local pendiente'}</div></div><div class="acts"><a class="btn red" href="/admin/index.html">Ver pedido</a></div></div>`).join('') : '<div class="empty">Nada pendiente de despacho.</div>';
+}
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tarea) { b.disabled = true; const { error } = await supabase.rpc('agente_tarea_decidir', { p_id: Number(b.dataset.tarea), p_decision: 'ejecutada' }); if (error) { toast('Error: ' + error.message); b.disabled = false; return; } toast('Listo'); cargar(); }
+  if (b.dataset.pub) { b.disabled = true; const { error } = await supabase.from('publicaciones').update({ estado: 'publicada' }).eq('id', Number(b.dataset.pub)); if (error) { toast('Error: ' + error.message); b.disabled = false; return; } toast('Marcada como publicada'); cargar(); }
+  if (b.dataset.copiar) { const pre = b.closest('.card').querySelector('pre'); try { await navigator.clipboard.writeText(pre.textContent); toast('Texto copiado'); } catch { toast('No se pudo copiar'); } }
+});
+await cargar();
+</script>
+</body>
+</html>
