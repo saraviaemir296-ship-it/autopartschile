@@ -1,0 +1,6 @@
+-- OFICINA VIRTUAL — APLICADA 26-nov-2026 (fase4_oficina_realtime).
+--   Realtime: agente_tareas y avisos agregadas a la publicación supabase_realtime (el panel escucha INSERT/UPDATE).
+--   Tabla agentes: catálogo de los 14 agentes (código, nombre, área, rol, emoji, construido, programación, orden).
+--     construido=true hoy: seguimiento, cierre_dia, auditor, cotizador_grua (proyecto Grúas), sistema.
+--   Pestaña "Oficina" del Centro de Mando: un escritorio por agente con estado real (trabajando / esperando tu ok /
+--   con errores / en espera / sin construir) y feed en vivo de cada acción.

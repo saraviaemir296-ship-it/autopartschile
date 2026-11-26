@@ -28,6 +28,7 @@ Estos documentos no se publican en el sitio (bloqueados en `netlify.toml`).
 - Cola de aprobación conectada: cada propuesta avisa por Telegram; aprobar un cierre lo aplica en el CRM.
 
 - `auditor_semanal()` (SQL, ventana móvil de 7 días) · pg_cron `auditor-diario`: todos los días 8:00 Chile, L–S (pedido de Emir 26-nov). Primera corrida real OK (ver agente_tareas).
+- **Pestaña Oficina del Centro de Mando**: la "oficina virtual": un escritorio por agente (14, catálogo en tabla `agentes`) con estado real y un feed en vivo (Realtime) de cada acción registrada en `agente_tareas`. Los agentes no construidos se ven en gris punteado; no se simula actividad.
 - **Pestaña WhatsApp del Centro de Mando**: abrir/cerrar auditoría, importar chats revisados (JSON por línea), oportunidades comerciales, dudosos, últimos registrados. El agente Seguimiento toma los leads calientes/pendientes importados en su próxima corrida horaria.
 - **Centro de Mando (fase 4)**: `admin/equipo-ia.html`, oscuro, rojo/blanco, para celular. Lee `dashboard_equipo_ia()` (solo datos reales) y permite: fijar precios pendientes, aprobar/editar/rechazar propuestas de agentes, enviar por WhatsApp con un toque (`wa.me`) y marcar enviado, aprobar publicaciones, decidir oportunidades del radar y cargar costo de compra por vehículo. Enlazado desde el admin. **Se publica cuando esta rama llegue a la rama principal del sitio (Netlify).**
 
