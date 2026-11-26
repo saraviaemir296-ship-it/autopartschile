@@ -3,17 +3,17 @@
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
 const waLink = (tel, texto) => { let d = String(tel || '').replace(/\D/g, ''); if (!d) return null; if (!d.startsWith('56')) d = d.length === 9 ? '56' + d : d.length === 8 ? '569' + d : d; return `https://wa.me/${d}?text=${encodeURIComponent(texto)}`; };
-const CSS = `.rc{display:block}.rc .hd{display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap}.rc .hd .t{font-weight:800;font-size:1.05rem}.rc .tag{font-size:.75rem;background:#eee;border-radius:999px;padding:.1rem .5rem}
-.rc .pide{margin:.3rem 0;font-size:.95rem}.rc .pide b{color:#111}.rc .ult{white-space:pre-wrap;font:inherit;font-size:.88rem;background:#fafafa;border-radius:10px;padding:.5rem .6rem;margin:.3rem 0;max-height:120px;overflow:auto;color:#333}
+const CSS = `.card.rc,.rc{display:block;background:#fff !important;color:#111 !important;border:1px solid #e3e3e6;border-radius:14px;padding:.9rem 1rem;margin-bottom:.6rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}.rc *{color:inherit}.rc a{color:#0b5bd3}.rc .hd{display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap}.rc .hd .t{font-weight:800;font-size:1.05rem;color:#111}.rc .tag{font-size:.75rem;background:#eee;color:#333 !important;border-radius:999px;padding:.1rem .5rem}
+.rc .pide{margin:.3rem 0;font-size:.95rem;color:#444}.rc .pide b{color:#111;font-weight:800}.rc .ult{white-space:pre-wrap;font:inherit;font-size:.88rem;background:#fafafa;border-radius:10px;padding:.5rem .6rem;margin:.3rem 0;max-height:120px;overflow:auto;color:#333}
 .rc .dec{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.4rem;margin:.5rem 0}.rc .dec button{border:2px solid #ddd;background:#fff;border-radius:12px;padding:.7rem .4rem;font-weight:800;font-size:.95rem;cursor:pointer;color:#111}
 .rc .dec button.on{border-color:#d80002;background:#fff3f3}.rc .dec button.ok.on{border-color:#1f8f45;background:#eefbf2}
 .rc .cand{display:flex;gap:.6rem;align-items:center;border:2px solid #e3e3e6;border-radius:12px;padding:.5rem .6rem;margin:.35rem 0;cursor:pointer;background:#fff}.rc .cand.on{border-color:#1f8f45;background:#eefbf2}
 .rc .cand img{width:48px;height:48px;object-fit:cover;border-radius:8px;background:#eee;flex:none}.rc .cand .n{font-weight:700;font-size:.92rem;line-height:1.2}.rc .cand .s{color:#666;font-size:.8rem}.rc .cand .p{margin-left:auto;font-weight:800;white-space:nowrap}
-.rc input[type=text],.rc input[type=number],.rc textarea{width:100%;padding:.6rem .7rem;border:1px solid #ccc;border-radius:10px;font:inherit;font-size:.95rem;box-sizing:border-box}.rc textarea{min-height:150px;margin-top:.4rem}
+.rc input[type=text],.rc input[type=number],.rc textarea{background:#fff;color:#111;width:100%;padding:.6rem .7rem;border:1px solid #ccc;border-radius:10px;font:inherit;font-size:.95rem;box-sizing:border-box}.rc textarea{min-height:150px;margin-top:.4rem}
 .rc .row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}.rc .row .b{border:none;border-radius:10px;padding:.7rem .9rem;font-weight:800;font-size:.95rem;cursor:pointer;background:#eee;color:#111;text-decoration:none;text-align:center}
 .rc .b.wa{background:#25D366;color:#fff}.rc .b.red{background:#d80002;color:#fff}.rc .b.ok{background:#1f8f45;color:#fff}.rc .b.gh{background:transparent;color:#666;text-decoration:underline}
-.rc .warn{background:#fff6e5;border:1px solid #ffd28a;border-radius:10px;padding:.5rem .7rem;font-size:.88rem;margin-top:.4rem}.rc .precio{display:flex;gap:.5rem;align-items:center;margin-top:.5rem;font-size:.9rem}.rc .precio input{width:140px}
-.rc .done{background:#eefbf2;border-radius:10px;padding:.6rem .8rem;font-weight:700}`;
+.rc .warn{background:#fff6e5;border:1px solid #ffd28a;color:#7a4a00 !important;border-radius:10px;padding:.5rem .7rem;font-size:.88rem;margin-top:.4rem}.rc .precio{display:flex;gap:.5rem;align-items:center;margin-top:.5rem;font-size:.9rem}.rc .precio input{width:140px}
+.rc .done{background:#eefbf2;color:#14532d !important;border-radius:10px;padding:.6rem .8rem;font-weight:700}.rc .b.wa,.rc .b.red,.rc .b.ok{color:#fff !important}.rc .dec button.ok.on{color:#14532d !important}`;
 
 export async function montarResponder(cont, supabase, { toast = () => {}, onDone = () => {} } = {}) {
   if (!document.getElementById('rc-css')) { const s = document.createElement('style'); s.id = 'rc-css'; s.textContent = CSS; document.head.appendChild(s); }
