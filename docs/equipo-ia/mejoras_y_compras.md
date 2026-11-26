@@ -2,6 +2,30 @@
 
 Canaliza todo lo conversado en los chats: oficina IA, caja, inventario, GEO, Diseñador, precio de mercado, WhatsApp, anuncios, empleados. Cada ronda se apoya en la anterior. Nada aquí tiene números inventados: donde no hay dato, se dice.
 
+## Lo que solo Emir puede hacer (26-nov, noche) · todo lo demás lo hacen los agentes
+
+**Hoy, en el PC (10 minutos):**
+1. Claude en Chrome → prompt de grupos (cola de 155 publicaciones). Ver `docs/equipo-ia/publicar_cola_grupos.md`.
+2. Claude en Chrome → prompt de WhatsApp (clasificar chats). Página `/admin/wa-auditoria.html`. Si WhatsApp Web pide QR, escanearlo una vez desde el celular.
+3. Centro de Mando → "Activar avisos" desde el celular.
+
+**Respuestas cortas (se contestan en el chat y el agente las carga):**
+- 4 ventas de caja sin pieza clara: foco trasero SX4 $25.000 (04-11); asientos + vidrio + brazo + gomas Swift $140.000 (16-11); 2 cajas Celerio a Bolivia $600.000 (¿CAJA-SUZ-K10B-3MT3 y CELAZ-013?); kit de encendido "Celerio negro" $122.500 (¿el CEL12 es negro?).
+- Mirando los autos: dirección y frenos traseros de SX4 blanco, SX4 negro, Tracker, Ciaz y 208; frenos traseros del Swift 1.4 plata; tracción del SX4 blanco.
+- Costo de compra de 14 autos: CEL-K10B-MT, ALT1423, OPT1115, CEL0814, DZI1724, CEL1523, SX4-M16A-06-15, SWI1723, SCR1721, CEL0813, CEL12, CELAZ, CIAZ18-PLATA, SWIFT-K12M-GRIS.
+- Grupos de Facebook de Audi y Peugeot (37 piezas aprobadas sin grupo).
+- 8 rebajas por antigüedad (-10 % a 60-89 días, -20 % a 90+): aprobar o no.
+- Motor K12M (SWK12M18-100), pausado en Mercado Libre por el vendedor: ¿sigue disponible?
+
+**Cuentas y claves (por seguridad, solo el dueño):**
+- `ANTHROPIC_API_KEY` en Supabase → Edge Functions → Secrets.
+- Mercado Libre: permiso de búsqueda para la app; 2 publicaciones en revisión piden corrección (Tablero Celerio MLC2416457321, Radiador calefacción SX4 MLC2416469955).
+- Meta (WhatsApp por API): app + `META_APP_SECRET` + verificación. No urgente: la clasificación por Chrome funciona sin esto.
+
+**Trabajo físico:** fotos (1.124 piezas disponibles sin foto, incluidas las 156 del Kia Optima recién listadas), reels de los autos (10 posts listos en Aprobaciones), ubicación física.
+
+**Resuelto por el agente el 26-nov:** 30 de 33 publicaciones de Mercado Libre "pausadas" estaban activas (registro corregido); homocinética del Swift marcada vendida (pedido web #57 = caja 21-11); 4 ventas de caja cerradas porque la pieza ya figuraba vendida o era de otro auto; Kia Optima: 156 piezas listadas (sin precio, no públicas); datos técnicos de Celerio rosado, Audi A4 gris, SX4 rojo y caja de 7 autos completados.
+
 ## Cómo queda la operación simple (para empleados)
 
 - **/admin/hoy.html** es la única pantalla que necesita un empleado. Cinco listas en lenguaje simple: responder a clientes (botón WhatsApp + Listo), publicar hoy (copiar texto, abrir imagen, marcar publicada), sacar fotos (las piezas más valiosas sin foto, con botón Abrir ficha), buscar número de parte, despachar. Sin IA a la vista: la IA está detrás.
