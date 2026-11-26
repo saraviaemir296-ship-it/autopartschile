@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Recortador PNG · Saravia</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--red:#d80002;--bg:#f6f6f7;--card:#fff;--txt:#111;--muted:#666;--line:#e3e3e6;--ok:#1f8f45}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--red);color:#fff;padding:1rem;position:sticky;top:0;z-index:5}header h1{margin:0;font-size:1.25rem}header .sub{font-size:.85rem;opacity:.9}header a{color:#fff;font-size:.85rem;text-decoration:underline;margin-right:.8rem}
+main{max-width:960px;margin:0 auto;padding:1rem}
+.kpi{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}.kpi div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.5rem .8rem;font-size:.85rem;color:var(--muted)}.kpi b{display:block;font-size:1.3rem;color:#111}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.8rem}
+.btn{border:none;border-radius:10px;padding:.65rem .9rem;font-weight:800;font-size:.95rem;cursor:pointer;background:#eee;color:#111;text-decoration:none}.btn.red{background:var(--red);color:#fff}.btn.ok{background:var(--ok);color:#fff}.btn.ghost{background:transparent;color:#666;text-decoration:underline}.btn:disabled{opacity:.5;cursor:default}
+h2{font-size:1.05rem;margin:1rem 0 .5rem;display:flex;align-items:center;gap:.5rem}h2 b{background:#111;color:#fff;border-radius:999px;padding:.1rem .6rem;font-size:.85rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.6rem}
+.it{background:#fff;border:1px solid var(--line);border-radius:14px;padding:.6rem;display:flex;flex-direction:column;gap:.4rem}
+.it .im{position:relative;height:150px;border-radius:10px;overflow:hidden;background:repeating-conic-gradient(#e8e8e8 0 25%,#fff 0 50%) 0 0/16px 16px}.it img{width:100%;height:100%;object-fit:contain}
+.it .n{font-weight:800;font-size:.9rem;line-height:1.2}.it .m{color:var(--muted);font-size:.78rem}.it .st{font-size:.78rem;font-weight:700}
+.it.done{border-color:var(--ok)}.it.err{border-color:#c0392b}
+.prog{height:6px;background:#eee;border-radius:999px;overflow:hidden;flex:1;min-width:120px}.prog div{height:100%;background:var(--ok);width:0}
+.note{font-size:.85rem;color:var(--muted)}.empty{color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:14px;padding:.9rem 1rem}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:.7rem 1rem;border-radius:10px;font-weight:700;opacity:0;transition:.2s;z-index:9}.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>✂️ Recortador PNG</h1>
+  <div class="sub" id="who">cargando…</div>
+  <div style="margin-top:.4rem"><a href="/admin/hoy.html">Hoy</a><a href="/admin/disenador.html">Diseñador</a><a class="solo-admin" href="/admin/equipo-ia.html">Centro de Mando</a></div>
+</header>
+<main>
+  <p class="note">Quita el fondo de la foto y guarda un PNG con fondo transparente. Se hace en este mismo navegador (sin costo por imagen); la primera vez descarga el modelo (unos 40 MB), después es rápido. Los autos sirven para la imagen promocional; las piezas quedan como "foto limpia" para Mercado Libre, que modera las fotos con sellos.</p>
+  <div class="kpi" id="kpi"></div>
+  <div class="bar"><button class="btn red" id="todos">✂️ Recortar todas las que faltan</button><button class="btn ghost" id="stop" disabled>Detener</button><div class="prog"><div id="bar"></div></div><span class="note" id="msg"></span></div>
+  <h2>🚗 Autos sin PNG <b id="nV">0</b></h2><div class="grid" id="veh"></div>
+  <h2>🔩 Piezas sin foto limpia (las de más valor primero) <b id="nP">0</b></h2><div class="grid" id="pie"></div>
+</main>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { supabase, requireStaff } from '/admin/admin-common.js';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const clp = (n) => '$' + Math.round(Number(n) || 0).toLocaleString('es-CL');
+const abs = (u) => (!u ? '' : /^https?:/.test(u) ? u : location.origin + (u.startsWith('/') ? '' : '/') + u);
+const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1800); };
+const session = await requireStaff(); if (!session) throw new Error('sin sesión');
+$('#who').textContent = session.user.email; if (!session.esAdmin) document.querySelectorAll('.solo-admin').forEach((x) => x.remove());
+
+let Q = { vehiculos: [], piezas: [] }, stop = false, removeBackground = null;
+async function cargar() {
+  const { data, error } = await supabase.rpc('recortador_cola'); if (error) { toast('Error: ' + error.message); return; }
+  Q = data || { vehiculos: [], piezas: [] };
+  $('#nV').textContent = Q.vehiculos.length; $('#nP').textContent = Q.piezas.length;
+  $('#kpi').innerHTML = `<div><b>${Q.vehiculos.length}</b>autos sin PNG</div><div><b>${Q.piezas.length}</b>piezas sin foto limpia</div>`;
+  $('#veh').innerHTML = Q.vehiculos.length ? Q.vehiculos.map((v) => card('vehiculo', v.id, v.foto, v.nombre, `${v.codigo} · ${v.piezas} piezas en stock`)).join('') : '<div class="empty">Todos los autos con foto tienen su PNG.</div>';
+  $('#pie').innerHTML = Q.piezas.length ? Q.piezas.map((p) => card('product', p.id, p.foto, p.nombre, `${p.sku} · ${clp(p.precio)}`)).join('') : '<div class="empty">Todas las piezas tienen foto limpia.</div>';
+}
+const card = (tipo, id, foto, nombre, meta) => `<div class="it" data-tipo="${tipo}" data-id="${id}"><div class="im"><img src="${esc(abs(foto))}" alt="" loading="lazy" crossorigin="anonymous"></div><div class="n">${esc(nombre)}</div><div class="m">${esc(meta)}</div><div class="st"></div><button class="btn" data-uno="1">✂️ Recortar</button></div>`;
+
+async function modelo() {
+  if (removeBackground) return removeBackground;
+  $('#msg').textContent = 'cargando el modelo de recorte…';
+  const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm');
+  removeBackground = (src) => mod.removeBackground(src, { output: { format: 'image/png', quality: 0.9 } });
+  $('#msg').textContent = ''; return removeBackground;
+}
+async function recortar(el) {
+  const tipo = el.dataset.tipo, id = Number(el.dataset.id); const st = el.querySelector('.st'); const img = el.querySelector('img');
+  try {
+    st.textContent = 'recortando…'; const rb = await modelo();
+    const src = abs(img.getAttribute('src'));
+    const r = await fetch(src, { mode: 'cors' }); if (!r.ok) throw new Error('no pude bajar la foto'); const blob0 = await r.blob();
+    const blob = await rb(blob0);
+    const nombre = tipo === 'vehiculo' ? `png/auto-${id}-${Date.now()}.png` : `png/foto-limpia-${id}-${Date.now()}.png`; // "foto" en el nombre = Mercado Libre la toma como foto limpia
+    const { error } = await supabase.storage.from('product-images').upload(nombre, blob, { contentType: 'image/png', upsert: true, cacheControl: '31536000' }); if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(nombre);
+    const { error: e2 } = await supabase.rpc('recortador_guardar', { p_tipo: tipo, p_id: id, p_url: publicUrl }); if (e2) throw e2;
+    img.src = publicUrl; el.classList.add('done'); st.textContent = 'guardado ✓'; el.querySelector('button').remove();
+    return true;
+  } catch (e) { el.classList.add('err'); st.textContent = 'error: ' + (e.message || e); return false; }
+}
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.uno) { b.disabled = true; await recortar(b.closest('.it')); return; }
+  if (b.id === 'stop') { stop = true; return; }
+  if (b.id === 'todos') {
+    const items = [...document.querySelectorAll('.it:not(.done):not(.err)')]; if (!items.length) { toast('Nada pendiente'); return; }
+    stop = false; b.disabled = true; $('#stop').disabled = false; let ok = 0, n = 0;
+    for (const el of items) { if (stop) break; n++; if (await recortar(el)) ok++; $('#bar').style.width = Math.round(100 * n / items.length) + '%'; $('#msg').textContent = `${ok} de ${n} recortadas`; el.scrollIntoView({ block: 'nearest' }); }
+    b.disabled = false; $('#stop').disabled = true; toast(`Listo: ${ok} recortadas`);
+  }
+});
+await cargar();
+</script>
+</body>
+</html>
