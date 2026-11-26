@@ -76,7 +76,7 @@ Canaliza todo lo conversado en los chats: oficina IA, caja, inventario, GEO, Dis
 |---|---|---|
 | Celular dedicado a WhatsApp Business / API | Que el número no dependa del teléfono personal; coexistencia API + app | Ronda 1 |
 | Caja de luz (o fondo blanco plegable) + 2 luces LED + trípode | Fotos uniformes de piezas; es lo que hoy falta en 927 piezas y lo que ML y Marketplace premian | Ronda 1 |
-| Impresora térmica de etiquetas + rollos | Etiqueta con SKU y QR en cada pieza y en cada estante; el celular lee el QR y abre la ficha | Ronda 2 |
+| Impresora térmica de etiquetas + rollos (60×40 mm recomendado; también sirve 50×30 o 100×50) | Etiqueta con código, nombre, auto, OEM, ubicación y QR en cada pieza, impresa el día que se desarma. `/admin/etiquetas.html` ya imprime en esos tamaños y el QR abre la ficha interna (precio y estado al día). Térmica directa se borra con sol/calor: para piezas a la intemperie, etiqueta de polipropileno con cinta (transferencia térmica) | Ya |
 | Estanterías con cajas numeradas | La ubicación física por pieza; sin esto el campo `ubicacion_fisica` no sirve | Ronda 2 |
 | Balanza de plataforma (hasta 100 kg) | Peso real para cotizar Starken/Chilexpress antes de que el cliente pague | Ronda 2 |
 | Lector OBD2 y tester de batería/alternador | Probar piezas eléctricas con video antes de entregar (tu propia política de garantía) | Ronda 2 |

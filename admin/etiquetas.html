@@ -12,131 +12,190 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;color:#1
 .bar{background:#111;color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:end}
 .bar h1{font-size:17px;margin:0 14px 0 0;align-self:center}
 .bar label{font-size:11px;display:flex;flex-direction:column;gap:3px;color:#ccc}
-.bar select,.bar input[type=number],.bar input[type=text]{padding:8px;border-radius:7px;border:0;font-size:14px;min-width:90px}
+.bar select,.bar input[type=number],.bar input[type=text]{padding:8px;border-radius:7px;border:0;font-size:14px;min-width:90px;max-width:100%}
 .bar .chk{flex-direction:row;align-items:center;font-size:13px;color:#fff;gap:6px;padding-bottom:8px}
 .bar button{background:#d6121c;color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer}
-.bar button.sec{background:#444}
 .info{padding:10px 16px;font-size:13px;color:#333;background:#fff;border-bottom:1px solid #ddd}
 .info b{color:#d6121c}
-.sheet{width:210mm;margin:10px auto;background:#fff;display:grid;grid-template-columns:repeat(3,70mm);grid-auto-rows:37mm;align-content:start}
-.lb{width:70mm;height:37mm;padding:3mm;position:relative;outline:.2mm dashed #bbb;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
-.lb .n{position:absolute;left:3mm;top:3mm;width:21mm;height:13mm;background:#d6121c;color:#fff;font:900 8.6mm/13mm "Arial Black",Impact,Arial,sans-serif;text-align:center;letter-spacing:-.3mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.lb .n.s{font-size:6.6mm}
-.lb .m{position:absolute;left:25.5mm;top:3mm;right:19.5mm;font-size:1.95mm;line-height:2.75mm;color:#333;white-space:nowrap;overflow:hidden}
-.lb .m b{font-size:2.2mm;color:#000;display:block;overflow:hidden;text-overflow:ellipsis}
-.lb .q{position:absolute;right:3mm;top:2.5mm;width:15mm;height:15mm}
-.lb .q svg{width:100%;height:100%;display:block}
-.lb .t{position:absolute;left:3mm;right:3mm;top:18.6mm;font-weight:700;font-size:2.95mm;line-height:3.4mm;max-height:6.9mm;overflow:hidden}
-.lb .o{position:absolute;left:3mm;bottom:6.6mm;font-size:2.25mm;color:#222}
-.lb .f{position:absolute;left:3mm;bottom:3mm;font-size:1.8mm;color:#666}
-.lb .p{position:absolute;right:3mm;bottom:2.6mm;font:900 5mm/5mm "Arial Black",Impact,Arial,sans-serif}
-.lb .ln{border-bottom:.2mm solid #555;display:inline-block;width:30mm;height:3mm}
-@page{size:A4;margin:0}
+.qr svg{width:100%;height:100%;display:block}
+.ln{border-bottom:.2mm solid #555;display:inline-block;width:30mm;height:3mm}
+
+/* ---- A4 adhesiva 70 x 37 mm, 24 por hoja ---- */
+.a4 .sheet{width:210mm;margin:10px auto;background:#fff;display:grid;grid-template-columns:repeat(3,70mm);grid-auto-rows:37mm;align-content:start}
+.a4 .lb{width:70mm;height:37mm;padding:3mm;position:relative;outline:.2mm dashed #bbb;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+.a4 .n{position:absolute;left:3mm;top:3mm;width:21mm;height:13mm;background:#d6121c;color:#fff;font:900 8.6mm/13mm "Arial Black",Impact,Arial,sans-serif;text-align:center;letter-spacing:-.3mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.a4 .n.s{font-size:6.6mm}
+.a4 .m{position:absolute;left:25.5mm;top:3mm;right:19.5mm;font-size:1.95mm;line-height:2.75mm;color:#333;white-space:nowrap;overflow:hidden}
+.a4 .m b{font-size:2.2mm;color:#000;display:block;overflow:hidden;text-overflow:ellipsis}
+.a4 .qr{position:absolute;right:3mm;top:2.5mm;width:15mm;height:15mm}
+.a4 .t{position:absolute;left:3mm;right:3mm;top:18.6mm;font-weight:700;font-size:2.95mm;line-height:3.4mm;max-height:6.9mm;overflow:hidden}
+.a4 .o{position:absolute;left:3mm;bottom:6.6mm;font-size:2.25mm;color:#222;right:24mm;white-space:nowrap;overflow:hidden}
+.a4 .f{position:absolute;left:3mm;bottom:3mm;font-size:1.8mm;color:#666}
+.a4 .p{position:absolute;right:3mm;bottom:2.6mm;font:900 5mm/5mm "Arial Black",Impact,Arial,sans-serif}
+
+/* ---- Térmica: una etiqueta por "página" del rollo ---- */
+.th .sheet{display:flex;flex-wrap:wrap;gap:6px;padding:10px;justify-content:center}
+.th .lb{width:var(--w);height:var(--h);background:#fff;outline:.2mm dashed #bbb;padding:1.5mm;display:flex;flex-direction:column;gap:.8mm;overflow:hidden;break-after:page;page-break-after:always}
+.th .row{display:flex;gap:1.5mm;flex:1;min-height:0}
+.th .qr{width:var(--q);height:var(--q);flex:0 0 var(--q)}
+.th .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:.4mm;font-size:var(--fs);line-height:1.15}
+.th .n{font:900 var(--fn)/1 "Arial Black",Impact,Arial,sans-serif;letter-spacing:-.2mm;white-space:nowrap;overflow:hidden}
+.th .t{font-weight:700;max-height:calc(var(--fs) * 2.4);overflow:hidden}
+.th .v,.th .o,.th .u{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th .p{font:900 var(--fp)/1 "Arial Black",Impact,Arial,sans-serif;margin-top:auto}
+.th.s5030{--w:50mm;--h:30mm;--q:20mm;--fs:2.2mm;--fn:4.4mm;--fp:3.4mm}
+.th.s6040{--w:60mm;--h:40mm;--q:27mm;--fs:2.7mm;--fn:5.4mm;--fp:4.2mm}
+.th.s10050{--w:100mm;--h:50mm;--q:35mm;--fs:3.6mm;--fn:7.5mm;--fp:6mm}
 @media print{
   body{background:#fff}.bar,.info{display:none}
-  .sheet{margin:0;padding-top:.4mm}
-  .lb{outline-color:#ddd}
+  .a4 .sheet{margin:0;padding-top:.4mm}.a4 .lb{outline-color:#ddd}
+  .th .sheet{display:block;padding:0}.th .lb{outline:none}
 }
 </style>
+<style id="pagesize">@page{size:A4;margin:0}</style>
 </head>
-<body>
+<body class="a4">
 <div class="bar">
   <h1>🏷️ Etiquetas de piezas</h1>
-  <label>Vehículo en desarme<select id="veh"><option value="">Cargando…</option></select></label>
+  <label>Formato<select id="fmt">
+    <option value="a4">Hoja A4 adhesiva 70×37 mm (24 por hoja)</option>
+    <option value="s5030">Impresora térmica 50×30 mm</option>
+    <option value="s6040">Impresora térmica 60×40 mm</option>
+    <option value="s10050">Impresora térmica 100×50 mm</option>
+  </select></label>
+  <label>Vehículo<select id="veh"><option value="">Cargando…</option></select></label>
   <label>Categoría<select id="cat"><option value="">Todas</option></select></label>
   <label>Buscar<input type="text" id="q" placeholder="pieza, N° o OEM"></label>
+  <label>El QR abre<select id="dest">
+    <option value="ficha">Ficha interna (recomendado)</option>
+    <option value="web">Página pública de la web</option>
+  </select></label>
   <label class="chk"><input type="checkbox" id="nofoto"> Solo sin foto limpia</label>
-  <label class="chk"><input type="checkbox" id="precio" checked> Mostrar precio</label>
+  <label class="chk"><input type="checkbox" id="pend" checked> Incluir piezas aún no publicadas</label>
+  <label class="chk"><input type="checkbox" id="precio"> Mostrar precio</label>
   <label>En blanco<input type="number" id="blank" value="0" min="0" max="240" style="width:70px"></label>
-  <button onclick="window.print()">Imprimir</button>
+  <button id="imprimir">Imprimir</button>
   <a href="/admin/index.html" style="color:#ccc;font-size:13px;align-self:center">← Panel</a>
 </div>
-<div class="info" id="info">Hoja adhesiva A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes, sin encabezados.</div>
+<div class="info" id="info">Cargando inventario…</div>
 <div class="sheet" id="sheet"></div>
 
 <script src="/js/qrcode.min.js"></script>
-<script>
-(function () {
-  'use strict';
-  var URL_ = 'https://zlyforhywunqhitrdreo.supabase.co';
-  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpseWZvcmh5d3VucWhpdHJkcmVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDMyNzUsImV4cCI6MjA5NzM3OTI3NX0.jQs_DTUWevii5dxjFSHVcRGrtT0XnKfoLkkxB9BuJAw';
-  var $ = function (id) { return document.getElementById(id); };
-  var all = [];
+<script type="module">
+import { supabase, requireStaff } from '/admin/admin-common.js';
+const $ = (id) => document.getElementById(id);
+const session = await requireStaff(); if (!session) throw new Error('sin sesión');
+let all = [];
 
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function vname(v) { return v ? [v.marca, v.modelo, v.motor].filter(Boolean).join(' ') : 'Sin vehículo asignado'; }
-  function years(v) { return v && v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : ''; }
-  function hasPhoto(p) { return Array.isArray(p.images) && p.images.length > 0 && p.foto_limpia !== false; }
-  function num(sku) { var m = String(sku).match(/([0-9A-Za-z]+)$/); return m ? m[1] : sku; }
-  // nombre corto: quita el auto del final ("... Suzuki Swift 1.2 K12M 2011-2018")
-  function shortName(p) {
-    var n = p.name || '', v = p.vehiculos;
-    if (v && v.marca) { var i = n.toLowerCase().lastIndexOf(' ' + v.marca.toLowerCase() + ' '); if (i > 8) n = n.slice(0, i); }
-    return n.replace(/\s*\((c\/u|par)\)\s*$/i, '');
-  }
-  function oem1(p) { var o = (p.oem_number || '').trim(); if (/^[0-9A-Za-z-]+$/.test(o)) return o; var m = o.match(/\b(?=[0-9A-Z-]*\d)[0-9A-Z][0-9A-Z-]{6,}\b/); return m ? m[0] + '…' : ''; }
-  function qr(url) {
-    try { var q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); }
-    catch (e) { return ''; }
-  }
-  function money(n) { return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const vname = (v) => (v ? [v.marca, v.modelo, v.motor].filter(Boolean).join(' ') : 'Sin vehículo asignado');
+const years = (v) => (v && v.anio_desde ? v.anio_desde + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '') : '');
+const hasPhoto = (p) => Array.isArray(p.images) && p.images.length > 0 && p.foto_limpia !== false;
+const num = (sku) => { const m = String(sku).match(/([0-9A-Za-z]+)$/); return m ? m[1] : sku; };
+function shortName(p) {
+  let n = p.name || ''; const v = p.vehiculos;
+  if (v && v.marca) { const i = n.toLowerCase().lastIndexOf(' ' + v.marca.toLowerCase() + ' '); if (i > 8) n = n.slice(0, i); }
+  return n.replace(/\s*\((c\/u|par)\)\s*$/i, '');
+}
+function oem1(p) { const o = (p.oem_number || '').trim(); if (/^[0-9A-Za-z-]+$/.test(o)) return o; const m = o.match(/\b(?=[0-9A-Z-]*\d)[0-9A-Z][0-9A-Z-]{6,}\b/); return m ? m[0] + '…' : ''; }
+function qr(url) { try { const q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); } catch { return ''; } }
+const money = (n) => '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+// La ficha interna funciona siempre (aunque la pieza no esté publicada o ya se haya vendido); la pública solo si está en la web.
+const destino = (p) => ($('dest').value === 'web' && p.is_active && p.slug)
+  ? 'https://autopartschile.cl/repuesto/' + p.slug
+  : 'https://autopartschile.cl/admin/producto.html?id=' + p.id;
+const precioTxt = (p) => (+p.price_sale > 0 ? money(+p.price_sale) : '$________');
 
-  function label(p) {
-    var n = num(p.sku), v = p.vehiculos, pr = +p.price_sale > 0 ? money(+p.price_sale) : '$________';
-    return '<div class="lb"><div class="n' + (n.length > 3 ? ' s' : '') + '">' + esc(n) + '</div>' +
-      '<div class="m">' + esc((p.category || '').toUpperCase()) + '<b>' + esc(v ? (v.modelo + ' ' + (v.motor || '')).toUpperCase() : '') + '</b>' + esc(years(v)) + '<br>' + esc(p.sku) + '</div>' +
-      '<div class="q">' + qr('https://autopartschile.cl/repuesto/' + p.slug) + '</div>' +
-      '<div class="t">' + esc(shortName(p)) + '</div>' +
-      '<div class="o">OEM: ' + (oem1(p) ? esc(oem1(p)) : '<span class="ln"></span>') + '</div>' +
-      '<div class="f">Desarmaduría Saravia · autopartschile.cl</div>' +
-      ($('precio').checked ? '<div class="p">' + pr + '</div>' : '') + '</div>';
-  }
-  function blankLabel() {
-    return '<div class="lb"><div class="n" style="background:#fff;outline:.4mm solid #d6121c;outline-offset:-.4mm"></div>' +
-      '<div class="m">AUTO:<br><span class="ln" style="width:22mm"></span><br>AÑO: <span class="ln" style="width:14mm"></span></div>' +
-      '<div class="t" style="font-weight:400">Pieza: <span class="ln" style="width:48mm"></span></div>' +
-      '<div class="o">OEM: <span class="ln"></span></div><div class="f">Desarmaduría Saravia · autopartschile.cl</div><div class="p">$________</div></div>';
-  }
+function labelA4(p) {
+  const n = num(p.sku), v = p.vehiculos;
+  return '<div class="lb"><div class="n' + (n.length > 3 ? ' s' : '') + '">' + esc(n) + '</div>' +
+    '<div class="m">' + esc((p.category || '').toUpperCase()) + '<b>' + esc(v ? (v.modelo + ' ' + (v.motor || '')).toUpperCase() : '') + '</b>' + esc(years(v)) + '<br>' + esc(p.sku) + '</div>' +
+    '<div class="qr">' + qr(destino(p)) + '</div>' +
+    '<div class="t">' + esc(shortName(p)) + '</div>' +
+    '<div class="o">OEM: ' + (oem1(p) ? esc(oem1(p)) : '<span class="ln"></span>') + (p.ubicacion_fisica ? ' · 📍' + esc(p.ubicacion_fisica) : '') + '</div>' +
+    '<div class="f">Desarmaduría Saravia · autopartschile.cl</div>' +
+    ($('precio').checked ? '<div class="p">' + precioTxt(p) + '</div>' : '') + '</div>';
+}
+// Ancho útil y letra máxima del código por formato: el código se achica si es largo para que se lea completo.
+const TH = { s5030: { w: 47, fn: 4.4 }, s6040: { w: 57, fn: 5.4 }, s10050: { w: 97, fn: 7.5 } };
+function labelTh(p) {
+  const v = p.vehiculos, t = TH[$('fmt').value] || TH.s6040;
+  const fs = Math.min(t.fn, t.w / (String(p.sku).length * 0.74)).toFixed(2);
+  return '<div class="lb"><div class="n" style="font-size:' + fs + 'mm">' + esc(p.sku) + '</div><div class="row"><div class="qr">' + qr(destino(p)) + '</div><div class="tx">' +
+    '<div class="t">' + esc(shortName(p)) + '</div>' +
+    '<div class="v">' + esc(v ? [v.modelo, v.motor, years(v)].filter(Boolean).join(' ') : '') + '</div>' +
+    '<div class="o">OEM: ' + (oem1(p) ? esc(oem1(p)) : '—') + '</div>' +
+    (p.ubicacion_fisica ? '<div class="u">📍 ' + esc(p.ubicacion_fisica) + '</div>' : '') +
+    ($('precio').checked ? '<div class="p">' + precioTxt(p) + '</div>' : '') + '</div></div></div>';
+}
+function blankA4() {
+  return '<div class="lb"><div class="n" style="background:#fff;outline:.4mm solid #d6121c;outline-offset:-.4mm"></div>' +
+    '<div class="m">AUTO:<br><span class="ln" style="width:22mm"></span><br>AÑO: <span class="ln" style="width:14mm"></span></div>' +
+    '<div class="t" style="font-weight:400">Pieza: <span class="ln" style="width:48mm"></span></div>' +
+    '<div class="o">OEM: <span class="ln"></span></div><div class="f">Desarmaduría Saravia · autopartschile.cl</div><div class="p">$________</div></div>';
+}
+function blankTh() {
+  return '<div class="lb"><div class="tx"><div class="t" style="font-weight:400">Pieza: <span class="ln" style="width:70%"></span></div><div class="v">Auto: <span class="ln" style="width:60%"></span></div><div class="o">OEM: <span class="ln" style="width:60%"></span></div></div></div>';
+}
 
-  function render() {
-    var veh = $('veh').value, cat = $('cat').value, q = $('q').value.trim().toLowerCase(), nf = $('nofoto').checked;
-    var rows = all.filter(function (p) {
-      if (veh && String(p.vehiculo_id || 0) !== veh) return false;
-      if (cat && p.category !== cat) return false;
-      if (nf && hasPhoto(p)) return false;
-      if (q && (p.name + ' ' + p.sku + ' ' + (p.oem_number || '')).toLowerCase().indexOf(q) < 0) return false;
-      return true;
-    });
-    var html = rows.map(label).join('');
-    for (var i = 0, b = Math.min(240, +$('blank').value || 0); i < b; i++) html += blankLabel();
-    $('sheet').innerHTML = html;
-    var sin = rows.filter(function (p) { return !hasPhoto(p); }).length, tot = rows.length + (+$('blank').value || 0);
-    $('info').innerHTML = '<b>' + rows.length + '</b> piezas · <b>' + sin + '</b> sin foto limpia · ' + Math.ceil(tot / 24) + ' hoja(s) A4 de 24 etiquetas (70 × 37 mm). Al imprimir: escala 100 %, sin márgenes. Foto de cada pieza: nómbrala con el N° grande (ej. 001-1.jpg) dentro de la carpeta del auto.';
+function render() {
+  const fmt = $('fmt').value, a4 = fmt === 'a4';
+  document.body.className = a4 ? 'a4' : 'th ' + fmt;
+  const dims = { s5030: '50mm 30mm', s6040: '60mm 40mm', s10050: '100mm 50mm' };
+  $('pagesize').textContent = a4 ? '@page{size:A4;margin:0}' : '@page{size:' + dims[fmt] + ';margin:0}';
+  const veh = $('veh').value, cat = $('cat').value, q = $('q').value.trim().toLowerCase(), nf = $('nofoto').checked, pend = $('pend').checked;
+  const rows = all.filter((p) => {
+    if (!pend && !p.is_active) return false;
+    if (veh && String(p.vehiculo_id || 0) !== veh) return false;
+    if (cat && p.category !== cat) return false;
+    if (nf && hasPhoto(p)) return false;
+    if (q && (p.name + ' ' + p.sku + ' ' + (p.oem_number || '')).toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  let html = rows.map(a4 ? labelA4 : labelTh).join('');
+  const b = Math.min(240, +$('blank').value || 0);
+  for (let i = 0; i < b; i++) html += a4 ? blankA4() : blankTh();
+  $('sheet').innerHTML = html;
+  const sin = rows.filter((p) => !hasPhoto(p)).length, noPub = rows.filter((p) => !p.is_active).length, tot = rows.length + b;
+  $('info').innerHTML = '<b>' + rows.length + '</b> piezas (' + noPub + ' aún no publicadas) · <b>' + sin + '</b> sin foto limpia · ' +
+    (a4 ? Math.ceil(tot / 24) + ' hoja(s) A4 de 24 etiquetas. Al imprimir: escala 100 %, sin márgenes, sin encabezados.'
+        : tot + ' etiqueta(s) ' + dims[fmt].replace(' ', ' × ') + '. Al imprimir: elige la impresora térmica, tamaño de papel ' + dims[fmt].replace(' ', ' × ') + ', escala 100 %, sin márgenes.') +
+    ' El QR abre ' + ($('dest').value === 'web' ? 'la página pública (si la pieza no está publicada, abre la ficha interna).' : 'la ficha interna con precio y estado al día.') +
+    ($('precio').checked ? ' <b>Ojo:</b> el precio impreso queda fijo; si se rebaja, la etiqueta queda desactualizada.' : '');
+}
+
+async function cargar() {
+  const sel = 'id,sku,name,slug,price_sale,images,category,oem_number,foto_limpia,vehiculo_id,is_active,ubicacion_fisica,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)';
+  let rows = [];
+  for (let desde = 0; desde < 20000; desde += 1000) {
+    const { data, error } = await supabase.from('products').select(sel).is('deleted_at', null)
+      .not('part_status', 'in', '("vendida","no_disponible")').not('sku', 'like', 'QA-%')
+      .order('vehiculo_id', { ascending: true }).order('sku', { ascending: true }).range(desde, desde + 999);
+    if (error) throw error;
+    rows = rows.concat(data || []);
+    if (!data || data.length < 1000) break;
   }
+  all = rows;
+  const vs = {}, cs = {};
+  rows.forEach((p) => {
+    const k = String(p.vehiculo_id || 0);
+    vs[k] = vs[k] || { name: vname(p.vehiculos) + (years(p.vehiculos) ? ' ' + years(p.vehiculos) : ''), n: 0, sin: 0 };
+    vs[k].n++; if (!hasPhoto(p)) vs[k].sin++;
+    if (p.category) cs[p.category] = 1;
+  });
+  $('veh').innerHTML = '<option value="">Todos (' + rows.length + ')</option>' + Object.keys(vs).sort((a, b) => vs[b].sin - vs[a].sin)
+    .map((k) => '<option value="' + k + '">' + esc(vs[k].name) + ' — ' + vs[k].n + ' piezas, ' + vs[k].sin + ' sin foto limpia</option>').join('');
+  $('cat').innerHTML = '<option value="">Todas</option>' + Object.keys(cs).sort().map((c) => '<option>' + esc(c) + '</option>').join('');
+  const pre = new URLSearchParams(location.search).get('v'); if (pre && vs[pre]) $('veh').value = pre;
+  try { const f = localStorage.getItem('etq_fmt'); if (f && [...$('fmt').options].some((o) => o.value === f)) $('fmt').value = f; } catch {}
+  render();
+}
 
-  fetch(URL_ + '/rest/v1/products?select=sku,name,slug,price_sale,images,category,oem_number,foto_limpia,vehiculo_id,vehiculos(marca,modelo,motor,anio_desde,anio_hasta)&is_active=eq.true&deleted_at=is.null&sku=not.like.QA-*&order=vehiculo_id.asc,category.asc,sku.asc&limit=5000',
-    { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (rows) {
-      all = rows;
-      var vs = {}, cs = {};
-      rows.forEach(function (p) {
-        var k = String(p.vehiculo_id || 0);
-        vs[k] = vs[k] || { name: vname(p.vehiculos) + (years(p.vehiculos) ? ' ' + years(p.vehiculos) : ''), n: 0, sin: 0 };
-        vs[k].n++; if (!hasPhoto(p)) vs[k].sin++;
-        if (p.category) cs[p.category] = 1;
-      });
-      $('veh').innerHTML = '<option value="">Todos (' + rows.length + ')</option>' + Object.keys(vs).sort(function (a, b) { return vs[b].sin - vs[a].sin; })
-        .map(function (k) { return '<option value="' + k + '">' + esc(vs[k].name) + ' — ' + vs[k].n + ' piezas, ' + vs[k].sin + ' sin foto limpia</option>'; }).join('');
-      $('cat').innerHTML = '<option value="">Todas</option>' + Object.keys(cs).sort().map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
-      var pre = new URLSearchParams(location.search).get('v'); if (pre && vs[pre]) $('veh').value = pre;
-      render();
-    })
-    .catch(function (e) { $('info').textContent = 'No se pudo cargar el inventario: ' + e.message; });
-
-  ['veh', 'cat', 'nofoto', 'precio'].forEach(function (id) { $(id).addEventListener('change', render); });
-  ['q', 'blank'].forEach(function (id) { $(id).addEventListener('input', render); });
-})();
+['veh', 'cat', 'nofoto', 'pend', 'precio', 'dest'].forEach((id) => $(id).addEventListener('change', render));
+$('fmt').addEventListener('change', () => { try { localStorage.setItem('etq_fmt', $('fmt').value); } catch {} render(); });
+['q', 'blank'].forEach((id) => $(id).addEventListener('input', render));
+$('imprimir').addEventListener('click', () => window.print());
+cargar().catch((e) => { $('info').textContent = 'No se pudo cargar el inventario: ' + e.message; });
 </script>
 </body>
 </html>
