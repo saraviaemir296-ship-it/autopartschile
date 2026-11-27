@@ -40,6 +40,7 @@ img.thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;vertical-ali
 <a href="/admin/productos.html">Productos</a>
 <a href="/admin/vehiculos.html">Vehículos</a>
 <a href="/admin/vehiculo.html">+ Nuevo vehículo</a>
+<a href="/admin/carpeta.html">📁 Carpetas</a>
 <a href="/vehiculos-en-desarme.html" target="_blank">Ver página pública ↗</a>
 </div>
 <div class="toolbar">
@@ -73,6 +74,7 @@ function render(list) {
       '<td>' + statusBadge + '</td>' +
       '<td class="row-actions">' +
         '<button data-save="' + v.id + '">Guardar</button>' +
+        '<a href="/admin/carpeta.html?id=' + v.id + '">📁 Carpeta</a> ' +
         '<a href="/admin/despiece.html?id=' + v.id + '">🧩 Despiece</a> ' +
         '<a href="/admin/vehiculo.html?id=' + v.id + '">Datos/Fotos/SEO</a>' +
         '<button data-toggle="' + v.id + '" data-active="' + v.is_active + '">' + (v.is_active ? 'Marcar borrador' : 'Marcar listo') + '</button>' +

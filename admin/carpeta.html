@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Carpeta del vehículo · Desarmaduría Saravia</title>
+<link rel="icon" href="/img/favicon.png">
+<style>
+:root{--red:#d6121c;--bg:#f4f4f5;--line:#e3e3e6;--muted:#666;--ok:#1f8f45}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:#111;font-size:15px}
+header{background:#111;color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+header h1{font-size:17px;margin:0;flex:1 1 auto}
+header a{color:#ddd;font-size:13px;text-decoration:none}
+main{max-width:1100px;margin:0 auto;padding:14px 16px 40px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 10px}
+.top{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start}
+.top img.foto{width:150px;height:110px;object-fit:cover;border-radius:10px;background:#eee}
+.top .qr{width:92px;height:92px}
+.top .qr svg,.pz .qr svg{width:100%;height:100%;display:block}
+.cod{display:inline-block;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:var(--red);color:#fff;font-weight:900;border-radius:8px;padding:2px 10px;font-size:15px;letter-spacing:.3px}
+.datos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 14px;margin-top:8px;font-size:13px;color:#333}
+.datos b{color:#111}
+.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.kpi div{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted)}
+.kpi b{display:block;font-size:19px;color:#111}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{border:0;border-radius:9px;padding:9px 13px;font-weight:700;font-size:14px;cursor:pointer;background:#eee;color:#111;text-decoration:none;display:inline-block}
+.btn.red{background:var(--red);color:#fff}.btn.dark{background:#111;color:#fff}
+.filtros{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.filtros button{border:1px solid #ddd;background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer}
+.filtros button.on{background:#111;color:#fff;border-color:#111}
+.filtros input{flex:1 1 180px;padding:8px 10px;border:1px solid #ccc;border-radius:9px;font-size:14px}
+.pz{width:100%;border-collapse:collapse;font-size:13px}
+.pz th,.pz td{border-bottom:1px solid #eee;padding:6px;text-align:left;vertical-align:middle}
+.pz th{background:#f8f8f8;color:#555;font-size:12px}
+.pz .qr{width:44px;height:44px}
+.pz img{width:44px;height:44px;object-fit:cover;border-radius:6px;background:#eee;display:block}
+.pz .sku{font-weight:800;white-space:nowrap}
+.tag{border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;background:#eee}
+.tag.ok{background:#dcf5e3;color:#145c2c}.tag.v{background:#fde2e2;color:#8a1010}.tag.w{background:#fff1cc;color:#6b4b00}
+.muted{color:var(--muted);font-size:12px}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:grid;grid-template-columns:92px minmax(0,1fr);overflow-wrap:anywhere;gap:10px;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.hist li > span{color:var(--muted);white-space:nowrap}
+.lista a{display:flex;justify-content:space-between;gap:10px;padding:9px 4px;border-bottom:1px solid #eee;text-decoration:none;color:#111}
+.lista a:hover{background:#fafafa}
+.solo-print{display:none}
+@media (max-width:700px){
+  .top{grid-template-columns:1fr}.top img.foto{width:100%;height:160px}
+  .pz .c-oem,.pz .c-ml,.pz .c-foto,.pz .c-qr{display:none}
+  .pz .sku{font-size:12px}.pz td,.pz th{padding:5px 4px}
+}
+@page{size:A4;margin:10mm}
+@media print{
+  body{background:#fff;font-size:11px}header,.acts,.filtros,.no-print{display:none!important}
+  main{padding:0;max-width:none}.card{border:0;padding:0;margin-bottom:8mm}
+  .solo-print{display:block}
+  .pz .c-qr,.pz .c-oem{display:table-cell!important}.pz tr{break-inside:avoid}.pz .qr{width:16mm;height:16mm}.pz .c-foto,.pz .c-ml{display:none}
+  .tag{border:1px solid #999;background:#fff!important;color:#000!important}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>📁 Carpeta del vehículo</h1>
+  <a href="/admin/carpeta.html">Todas las carpetas</a>
+  <a href="/admin/vehiculos.html">Vehículos</a>
+  <a href="/admin/index.html">Panel</a>
+</header>
+<main id="app"><div class="card">Cargando…</div></main>
+
+<script src="/js/qrcode.min.js"></script>
+<script type="module">
+import { supabase, requireStaff, money } from '/admin/admin-common.js';
+const session = await requireStaff(); if (!session) throw new Error('sin sesión');
+const app = document.getElementById('app');
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fecha = (d) => (d ? new Date(d).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
+const qr = (url) => { try { const q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); } catch { return ''; } };
+const SITE = 'https://autopartschile.cl';
+const id = Number(new URLSearchParams(location.search).get('id')) || null;
+
+function estadoPieza(p) {
+  if (p.part_status === 'vendida') return { k: 'vendida', t: 'Vendida', c: 'v' };
+  if (p.part_status === 'no_disponible' || !(p.stock > 0)) return { k: 'nodisp', t: 'No disponible', c: '' };
+  if (p.is_active) return { k: 'web', t: 'En la web', c: 'ok' };
+  if (p.precio_estado === 'pendiente' || !(+p.price_sale > 0)) return { k: 'sinprecio', t: 'Sin precio', c: 'w' };
+  return { k: 'nopub', t: 'No publicada', c: 'w' };
+}
+const fisico = { en_vehiculo: 'en el auto', desmontada: 'desmontada' };
+const tieneFoto = (p) => Array.isArray(p.images) && p.images.length > 0;
+
+// ---------- Índice: todas las carpetas ----------
+async function indice() {
+  const { data, error } = await supabase.from('v_inventario_vehiculo').select('*').order('fecha_ingreso', { ascending: false, nullsFirst: false });
+  if (error) { app.innerHTML = `<div class="card">${esc(error.message)}</div>`; return; }
+  const orden = { en_desarme: 0, ingresado: 1, desarmado: 2 };
+  data.sort((a, b) => (orden[a.estado] ?? 3) - (orden[b.estado] ?? 3));
+  app.innerHTML = `<div class="card"><h2>Carpetas de vehículos (${data.length})</h2><div class="lista">${data.map((v) =>
+    `<a href="/admin/carpeta.html?id=${v.id}"><span><span class="cod">${esc(v.codigo || '#' + v.id)}</span> ${esc([v.marca, v.modelo, v.motor].filter(Boolean).join(' '))} <span class="muted">${esc(v.anio_desde || '')}${v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : ''} · ${esc((v.estado || '').replace('_', ' '))}</span></span>
+     <span class="muted">${v.piezas_disponibles}/${v.piezas_total} disponibles · ${v.piezas_vendidas} vendidas</span></a>`).join('')}</div></div>`;
+}
+
+// ---------- Carpeta de un vehículo ----------
+let PZ = [], FILTRO = 'todas', Q = '';
+async function carpeta() {
+  const [vR, kR, pR, tR] = await Promise.all([
+    supabase.from('vehiculos').select('*').eq('id', id).maybeSingle(),
+    supabase.from('v_inventario_vehiculo').select('*').eq('id', id).maybeSingle(),
+    supabase.from('products').select('id,sku,name,oem_number,part_status,stock,price_sale,precio_estado,ubicacion_fisica,images,is_active,slug,meli_item_id,meli_status,created_at,updated_at,metadata')
+      .eq('vehiculo_id', id).is('deleted_at', null).order('sku', { ascending: true }).range(0, 1999),
+    supabase.from('agente_tareas').select('id,agente,accion,estado_aprobacion,propuesta,created_at').eq('entidad_tipo', 'vehiculo').eq('entidad_id', String(id)).order('created_at', { ascending: false }).limit(50),
+  ]);
+  const v = vR.data;
+  if (!v) { app.innerHTML = '<div class="card">Ese vehículo no existe (o fue eliminado). <a href="/admin/carpeta.html">Ver todas las carpetas</a></div>'; return; }
+  const k = kR.data || {};
+  PZ = pR.data || [];
+  const ids = PZ.map((p) => p.id);
+  let ventasWeb = [];
+  if (ids.length) {
+    const { data } = await supabase.from('order_items').select('product_id,total_price,orders(id,status,created_at)').in('product_id', ids);
+    ventasWeb = (data || []).filter((x) => x.orders && x.orders.status === 'completed');
+  }
+  document.title = `Carpeta ${v.codigo || v.id} · ${v.marca} ${v.modelo}`;
+  const auto = [v.marca, v.modelo, v.motor].filter(Boolean).join(' ');
+  const anios = (v.anio_desde || '') + (v.anio_hasta && v.anio_hasta !== v.anio_desde ? '-' + v.anio_hasta : '');
+  const foto = Array.isArray(v.images) && v.images.length ? v.images[0] : (v.imagen_png_url || '');
+  const vendidas = PZ.filter((p) => p.part_status === 'vendida');
+  const valorVendidas = vendidas.reduce((s, p) => s + (+p.price_sale || 0), 0);
+  const recWeb = +k.recuperado || 0;
+  const costo = +v.costo_compra || 0;
+  const tec = [v.transmision || (v.transmisiones || []).join('/'), v.traccion, v.combustible, v.direccion && 'dirección ' + v.direccion, v.frenos_traseros && 'frenos tras. ' + v.frenos_traseros].filter(Boolean).join(' · ');
+
+  // Historial: hechos con fecha, del más nuevo al más antiguo
+  const ev = [];
+  if (v.fecha_compra) ev.push([v.fecha_compra, `Comprado${costo ? ' en ' + money(costo) : ''}`]);
+  if (v.fecha_ingreso) ev.push([v.fecha_ingreso, 'Ingresó al patio']);
+  const porDia = {};
+  PZ.forEach((p) => { const d = (p.created_at || '').slice(0, 10); if (d) porDia[d] = (porDia[d] || 0) + 1; });
+  Object.entries(porDia).forEach(([d, n]) => ev.push([d, `${n} pieza${n > 1 ? 's' : ''} agregada${n > 1 ? 's' : ''} al inventario`]));
+  vendidas.forEach((p) => ev.push([(p.metadata && p.metadata.vendida_at) || p.updated_at, `Vendida: <b>${esc(p.sku)}</b> ${esc(p.name)}${+p.price_sale > 0 ? ' · ' + money(p.price_sale) : ''}${p.metadata && p.metadata.vendida_caja_tx ? ' · caja' : ''}`]));
+  ventasWeb.forEach((x) => { const p = PZ.find((y) => y.id === x.product_id); ev.push([x.orders.created_at, `Venta web #${x.orders.id}: ${esc(p ? p.sku : '')} · ${money(x.total_price)}`]); });
+  (tR.data || []).forEach((t) => ev.push([t.created_at, `Agente ${esc(t.agente)} · ${esc(t.accion.replace(/_/g, ' '))} (${esc(t.estado_aprobacion || 'registro')}): <span class="muted">${esc((t.propuesta || '').slice(0, 140))}</span>`]));
+  ev.sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+
+  const urlCarpeta = `${SITE}/admin/carpeta.html?id=${v.id}`;
+  app.innerHTML = `
+  <div class="card">
+    <div class="top">
+      ${foto ? `<img class="foto" src="${esc(foto)}" alt="">` : '<div></div>'}
+      <div>
+        <span class="cod">${esc(v.codigo || '#' + v.id)}</span>
+        <div style="font-size:19px;font-weight:800;margin-top:6px">${esc(auto)} ${esc(anios)}</div>
+        <div class="datos">
+          <div>Color: <b>${esc(v.color || '—')}</b></div><div>Patente: <b>${esc(v.patente || '—')}</b></div>
+          <div>VIN: <b>${esc(v.vin || '—')}</b></div><div>Estado: <b>${esc((v.estado || '').replace('_', ' ') || '—')}</b></div>
+          <div>Ingreso: <b>${fecha(v.fecha_ingreso)}</b></div><div>Compra: <b>${fecha(v.fecha_compra)}</b></div>
+          <div>Costo: <b>${costo ? money(costo) : 'sin cargar'}</b></div><div>Ubicación: <b>${esc(v.ubicacion || '—')}</b></div>
+          ${tec ? `<div style="grid-column:1/-1">Técnica: <b>${esc(tec)}</b></div>` : ''}
+        </div>
+      </div>
+      <div style="text-align:center"><div class="qr">${qr(urlCarpeta)}</div><div class="muted">QR de esta carpeta<br>(pegar en el auto)</div></div>
+    </div>
+    <div class="acts">
+      <button class="btn dark" id="imprimir">🖨️ Imprimir carpeta</button>
+      <a class="btn red" href="/admin/etiquetas.html?v=${v.id}">🏷️ Etiquetas QR de este auto</a>
+      <a class="btn" href="/admin/despiece.html?id=${v.id}">🧩 Despiece</a>
+      <a class="btn" href="/admin/vehiculo.html?id=${v.id}">Datos / fotos</a>
+      ${v.is_active && v.slug ? `<a class="btn" target="_blank" rel="noopener" href="/vehiculo.html?slug=${encodeURIComponent(v.slug)}">Ver en la web ↗</a>` : ''}
+    </div>
+  </div>
+  <div class="card">
+    <h2>Resumen</h2>
+    <div class="kpi">
+      <div><b>${PZ.length}</b>piezas en total</div>
+      <div><b>${k.piezas_disponibles ?? '—'}</b>disponibles</div>
+      <div><b>${vendidas.length}</b>vendidas</div>
+      <div><b>${k.piezas_activas_web ?? '—'}</b>en la web</div>
+      <div><b>${k.piezas_precio_pendiente ?? '—'}</b>sin precio</div>
+      <div><b>${PZ.filter((p) => !tieneFoto(p) && p.part_status !== 'vendida').length}</b>sin foto</div>
+      <div><b>${money(k.valor_stock_disponible || 0)}</b>valor del stock (precio de lista)</div>
+      <div><b>${money(valorVendidas)}</b>vendido (precio de lista)</div>
+      <div><b>${money(recWeb)}</b>cobrado por la web</div>
+      <div><b>${costo ? Math.round(100 * valorVendidas / costo) + ' %' : '—'}</b>del costo recuperado (aprox.)</div>
+    </div>
+    <p class="muted" style="margin:8px 0 0">"Vendido" usa el precio de lista de cada pieza vendida (web y caja); el monto exacto de caja está en Finanzas. ${costo ? '' : 'Carga el costo de compra para ver cuánto se ha recuperado.'}</p>
+  </div>
+  <div class="card">
+    <h2>Piezas y códigos</h2>
+    <div class="filtros">
+      ${[['todas', 'Todas'], ['disp', 'Disponibles'], ['web', 'En la web'], ['sinprecio', 'Sin precio'], ['sinfoto', 'Sin foto'], ['vendida', 'Vendidas']].map(([k2, t]) => `<button data-f="${k2}" class="${k2 === FILTRO ? 'on' : ''}">${t}</button>`).join('')}
+      <input id="q" placeholder="Buscar pieza, código u OEM" value="${esc(Q)}">
+    </div>
+    <div class="solo-print muted">Piezas de ${esc(auto)} ${esc(anios)} · ${esc(v.codigo || '')} · impreso ${fecha(new Date())}</div>
+    <div style="overflow-x:auto"><table class="pz"><thead><tr><th class="c-qr">QR</th><th class="c-foto">Foto</th><th>Código</th><th>Pieza</th><th class="c-oem">OEM</th><th>Estado</th><th>Precio</th><th>📍</th><th class="c-ml">ML</th></tr></thead><tbody id="filas"></tbody></table></div>
+  </div>
+  <div class="card no-print-hist">
+    <h2>Historial</h2>
+    ${ev.length ? `<ul class="hist">${ev.map(([d, t]) => `<li><span>${fecha(d)}</span><div>${t}</div></li>`).join('')}</ul>` : '<p class="muted">Sin movimientos registrados todavía.</p>'}
+  </div>`;
+  pintarFilas();
+  document.getElementById('imprimir').onclick = () => window.print();
+  app.querySelectorAll('[data-f]').forEach((b) => b.onclick = () => { FILTRO = b.dataset.f; app.querySelectorAll('[data-f]').forEach((x) => x.classList.toggle('on', x === b)); pintarFilas(); });
+  document.getElementById('q').oninput = (e) => { Q = e.target.value; pintarFilas(); };
+}
+
+function pintarFilas() {
+  const q = Q.trim().toLowerCase();
+  const rows = PZ.filter((p) => {
+    const e = estadoPieza(p).k;
+    if (FILTRO === 'disp' && (e === 'vendida' || e === 'nodisp')) return false;
+    if (FILTRO === 'web' && e !== 'web') return false;
+    if (FILTRO === 'sinprecio' && e !== 'sinprecio') return false;
+    if (FILTRO === 'sinfoto' && (tieneFoto(p) || e === 'vendida')) return false;
+    if (FILTRO === 'vendida' && e !== 'vendida') return false;
+    if (q && (p.name + ' ' + p.sku + ' ' + (p.oem_number || '')).toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  document.getElementById('filas').innerHTML = rows.length ? rows.map((p) => {
+    const e = estadoPieza(p);
+    const ficha = `/admin/producto.html?id=${p.id}`;
+    return `<tr>
+      <td class="c-qr"><div class="qr">${qr(SITE + ficha)}</div></td>
+      <td class="c-foto">${tieneFoto(p) ? `<img src="${esc(p.images[0])}" alt="" loading="lazy">` : '<span class="muted">—</span>'}</td>
+      <td class="sku"><a href="${ficha}">${esc(p.sku)}</a></td>
+      <td>${esc(p.name)}</td>
+      <td class="c-oem">${esc(p.oem_number || '—')}</td>
+      <td><span class="tag ${e.c}">${e.t}</span>${fisico[p.part_status] ? `<div class="muted">${fisico[p.part_status]}</div>` : ''}</td>
+      <td style="white-space:nowrap">${+p.price_sale > 0 ? money(p.price_sale) : '—'}</td>
+      <td>${esc(p.ubicacion_fisica || '—')}</td>
+      <td class="c-ml">${p.meli_item_id ? esc(p.meli_status || 'publicada') : '—'}</td></tr>`;
+  }).join('') : '<tr><td colspan="9" class="muted">Ninguna pieza con ese filtro.</td></tr>';
+}
+
+(id ? carpeta() : indice()).catch((e) => { app.innerHTML = `<div class="card">No se pudo cargar: ${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>
