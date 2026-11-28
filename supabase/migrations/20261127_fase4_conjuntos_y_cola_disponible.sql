@@ -1,4 +1,5 @@
--- PENDIENTE DE APLICAR (27-11-2026): Supabase pidió confirmación y nadie respondió.
+-- APLICADO en producción el 28-11-2026 vía MCP (en partes; trigger con CREATE OR REPLACE TRIGGER). Probado en transacción revertida:
+-- al vender SWK12M18-191 (block) quedaron no_disponible SWK12M18-100 y -112.
 -- 1) grupos_cola_siguiente: antes de entregar una publicación al agente de Chrome, salta las de piezas vendidas, sin stock o borradas
 --    (hoy no lo revisa: una pieza vendida en caja se seguiría publicando en Facebook).
 -- 2) Conjuntos: piezas que son la misma pieza física vendida de distintas formas (motor con/sin accesorios/block, ECU sola/kit,

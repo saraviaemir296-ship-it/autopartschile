@@ -1,4 +1,6 @@
--- MERCADO LIBRE: ESTADO REAL (PENDIENTE DE APLICAR: Supabase pidió confirmación el 26-11 y nadie respondió)
+-- MERCADO LIBRE: ESTADO REAL
+-- 28-11: APLICADA la parte 1 (crm_products_meli_sync: pausa siempre al vender). PENDIENTE la parte 2 (tabla meli_sync_req,
+-- meli_estado_disparar/procesar y los 2 cron): Supabase pide confirmación de Emir para ese bloque.
 -- Hallazgo 26-11: 2 piezas VENDIDAS seguían ACTIVAS en ML (puerta del. izq. Swift SWK12M18-150, espejo SWK12M18-071); ya pausadas a mano.
 -- Causa: crm_products_meli_sync solo encolaba la pausa si el registro decía meli_status='active', y el registro estaba desactualizado
 -- (30 de 33 "pausadas" estaban activas en ML).
